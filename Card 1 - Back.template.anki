@@ -62,14 +62,14 @@
 
             <div class="audio-row">
               {{#Word Audio}}
-<div class="audio-item">
-  {{Word Audio}}
-</div>
+            <div class="audio-item">
+              <span>言葉</span> {{Word Audio}}
+            </div>
               {{/Word Audio}}
               {{#Sentence Audio}}
-<div class="audio-item">
-  {{Sentence Audio}}
-</div>
+            <div class="audio-item">
+              <span>文</span> {{Sentence Audio}}
+            </div>
               {{/Sentence Audio}}
             </div>
           </div>
@@ -84,7 +84,6 @@
         <!-- Sentence Block -->
         {{#Sentence}}
           <div class="card-block">
-<span class="field-label">Sentence</span>
 <div class="sentence-japanese">
   {{#Sentence (furigana)}}
     {{furigana:Sentence (furigana)}}

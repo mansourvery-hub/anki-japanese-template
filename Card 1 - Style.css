@@ -213,15 +213,27 @@
 
 /* Styled Anki Audio Buttons */
 .audio-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 0.7rem;
+  padding: 6px 12px;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-primary);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.audio-item:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  transform: translateY(-2px);
 }
 
 /* Style raw Anki audio buttons to fit the premium interface */
@@ -259,8 +271,8 @@
   line-height: 1.7;
   color: var(--text-primary);
   border-top: 1px solid var(--card-border);
-  padding-top: 6px;
-  margin-top: 6px;
+  padding-top: 4px;
+  margin-top: 4px;
   max-width: var(--text-max-width);
 }
 
@@ -524,7 +536,7 @@ ruby:hover rt {
   }
   
   .word-meta-row {
-    flex-direction: row; /* Keep row unless really tight */
+    flex-direction: row;
     gap: 6px;
     margin: 2px 0 2px 0;
   }
@@ -544,6 +556,12 @@ ruby:hover rt {
   
   .audio-row {
     gap: 8px;
+  }
+
+  .audio-item {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    gap: 4px;
   }
 }
 
