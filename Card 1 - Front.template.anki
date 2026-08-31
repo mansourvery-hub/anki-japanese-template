@@ -1,15 +1,13 @@
 <!-- FRONT CARD TEMPLATE
-     - Tags are hidden on the front to prevent unwarranted hints.
-     - Employs strict, nested Anki conditional blocks so that audio fields are completely
-       absent from the DOM on standard reading cards, preventing accidental autoplay.
-     - Displays ONLY the Sentence (or Expression fallback) on standard cards.
-     - Displays ONLY the Sentence Audio (or Word Audio fallback) on listening cards (both definitions empty).
+     Displays the primary study content (Sentence or Expression) for standard cards.
+     Switches to an audio-focused view for listening cards when definitions are missing.
+     Typography scales dynamically to ensure high visibility across all screen sizes.
 -->
 
 <div class="card-wrapper">
   <div class="card-container">
 
-    <!-- STANDARD VIEW (If 'Definition' is present) -->
+    <!-- Standard Study View -->
     {{#Definition}}
       <div class="standard-view">
         <div class="sentence-display">
@@ -23,7 +21,7 @@
       </div>
     {{/Definition}}
 
-    <!-- STANDARD VIEW (If 'Definition' is empty BUT 'Extended definition' is present) -->
+    <!-- Standard Study View (Extended definition fallback) -->
     {{^Definition}}
       {{#Extended definition}}
         <div class="standard-view">
@@ -39,9 +37,7 @@
       {{/Extended definition}}
     {{/Definition}}
 
-    <!-- LISTENING VIEW (If BOTH 'Definition' and 'Extended definition' are empty)
-         Contains the only instance of Front audio, preventing standard cards from autoplaying.
-    -->
+    <!-- Listening Mode (Definitions are absent) -->
     {{^Definition}}
       {{^Extended definition}}
         <div class="listening-view">
@@ -57,23 +53,21 @@
             {{^Sentence Audio}}
               {{#Word Audio}}
                 <div class="audio-group">
-                  <span class="audio-item">
-                    <span class="audio-label">Listen:</span> {{Word Audio}}
-                  </span>
-                </div>
-              {{/Word Audio}}
-              
-              {{^Word Audio}}
-                <!-- Extreme fallback if no audio is available for the listening card -->
-                <div class="no-audio-fallback">
-                  {{#Sentence}}{{Sentence}}{{/Sentence}}
-                  {{^Sentence}}{{Expression}}{{/Sentence}}
-                </div>
-              {{/Word Audio}}
-            {{/Sentence Audio}}
-          </div>
-          <div class="listening-hint">Listening Card</div>
+                  <span class="audio-label">Listen:</span> {{Word Audio}}
+                </span>
+              </div>
+            {{/Word Audio}}
+            
+            {{^Word Audio}}
+              <div class="no-audio-fallback">
+                {{#Sentence}}{{Sentence}}{{/Sentence}}
+                {{^Sentence}}{{Expression}}{{/Sentence}}
+              </div>
+            {{/Word Audio}}
+          {{/Sentence Audio}}
         </div>
+        <div class="listening-hint">Listening Card</div>
+      </div>
       {{/Extended definition}}
     {{/Definition}}
 

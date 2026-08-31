@@ -1,27 +1,20 @@
 <!-- BACK CARD TEMPLATE
-     - Optimized for space efficiency: merges word header and main definition into a single block.
-     - Displays the Frequency badge at the very top immediately next to the word.
-     - Sentence translation is hidden by default and reveals itself smoothly when clicked.
-     - Completely hides 'Reading' and 'Original Inflected Term' blocks.
-     - Implements fixed floating tag pills at the top, hover furigana, interactive lightbox picture,
-       and native pure HTML/CSS collapsible extended definitions.
+     Displays vocabulary details, audio players, definitions, and usage examples.
+     Features include hover furigana, interactive image lightbox, and collapsible sections.
 -->
 
 <div class="card-wrapper">
 
-  <!-- Floating Sticky Tag Bar -->
+  <!-- Floating Header Information -->
   <div class="tags-container" id="tags-container">
     {{#Tags}}
-      <!-- Raw Anki tags (hidden, parsed into beautiful pills by the script below) -->
       <div id="tags-raw" style="display: none;">{{Tags}}</div>
-      <div id="tags-list" style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;"></div>
-      
+      <div id="tags-list" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;"></div>
       <script>
         (function() {
           var raw = document.getElementById('tags-raw');
           var list = document.getElementById('tags-list');
           if (raw && list) {
-            // Split Anki space-separated tags and create pill components
             var tags = raw.innerText.trim().split(/\s+/);
             tags.forEach(function(tag) {
               if (tag) {
@@ -37,15 +30,11 @@
     {{/Tags}}
   </div>
 
-  <!-- Main Card Body -->
   <div class="card-container">
 
-    <!-- 1. UNIFIED WORD & DEFINITION CARD BLOCK (Combines elements to fully eliminate empty space)
-         Contains: Word (with hover furigana), Frequency (next to word), Pitch Accent, Audio players, and Main Definition.
-    -->
+    <!-- Primary Term & Definition -->
     <div class="card-block word-header-block">
       
-      <!-- Word display and Frequency tag inline -->
       <div class="word-row">
         <div class="word-display hover-furigana">
           {{#furigana}}
@@ -56,20 +45,17 @@
           {{/furigana}}
         </div>
         
-        <!-- Frequency rating displayed at the top, next to the word, easy to spot -->
         {{#Frequency}}
-          <span class="frequency-badge" title="Frequency Rating">{{Frequency}}</span>
+          <span class="frequency-badge">{{Frequency}}</span>
         {{/Frequency}}
       </div>
 
-      <!-- Pitch Accent rating -->
       {{#Pitch Accent}}
         <div class="pitch-accent-container">
           {{Pitch Accent}}
         </div>
       {{/Pitch Accent}}
 
-      <!-- Styled side-by-side audio players -->
       <div class="audio-group">
         {{#Word Audio}}
           <span class="audio-item">
@@ -83,7 +69,6 @@
         {{/Sentence Audio}}
       </div>
 
-      <!-- Main Word Definition (Sits within the top card divided by a clean line) -->
       {{#Definition}}
         <hr class="definition-divider">
         <div class="word-definition-container">
@@ -93,15 +78,11 @@
 
     </div>
 
-
-    <!-- 2. SENTENCE BLOCK (Shows only if sentence has content)
-         Displays sentence with hover furigana, interactive translation reveal, and context.
-    -->
+    <!-- Usage Sentence & Translation -->
     {{#Sentence}}
       <div class="card-block sentence-block">
         <span class="sentence-title">Sentence</span>
         
-        <!-- Japanese sentence with hover furigana -->
         <div class="sentence-japanese hover-furigana">
           {{#Sentence (furigana)}}
             {{furigana:Sentence (furigana)}}
@@ -111,15 +92,13 @@
           {{/Sentence (furigana)}}
         </div>
 
-        <!-- Interactive Click-to-Reveal Sentence translation -->
         {{#Translation}}
           <div class="translation-wrapper" onclick="this.classList.toggle('revealed')">
-            <div class="translation-hint">👁️ Click to show translation</div>
+            <div class="translation-hint">👁️ Show Translation</div>
             <div class="translation-text">{{Translation}}</div>
           </div>
         {{/Translation}}
 
-        <!-- Paragraph/dialogue context if available -->
         {{#context}}
           <div class="context-container">
             <span class="context-title">Context</span>
@@ -129,8 +108,7 @@
       </div>
     {{/Sentence}}
 
-
-    <!-- 3. PICTURE BLOCK (Shows only if present, with click-to-expand lightbox) -->
+    <!-- Visual Media Content -->
     {{#Picture}}
       <div class="picture-wrapper">
         <div class="picture-container" id="pic-container">
@@ -139,7 +117,6 @@
         <div class="picture-overlay" id="pic-overlay"></div>
       </div>
 
-      <!-- Lightweight interaction script for lightbox zoom -->
       <script>
         (function() {
           var container = document.getElementById('pic-container');
@@ -165,12 +142,7 @@
       </script>
     {{/Picture}}
 
-
-    <!-- 4. CONDITIONAL KANJI AND NOTES BLOCKS
-         (Reading and Original Inflected Term are completely removed)
-    -->
-    
-    <!-- Kanji Notes Block -->
+    <!-- Supplementary Notes -->
     {{#Kanji Notes}}
       <div class="card-block">
         <span class="field-label">Kanji Notes</span>
@@ -178,7 +150,6 @@
       </div>
     {{/Kanji Notes}}
 
-    <!-- Miscellaneous General Notes Block -->
     {{#Notes}}
       <div class="card-block">
         <span class="field-label">Notes</span>
@@ -186,13 +157,12 @@
       </div>
     {{/Notes}}
 
-
-    <!-- 5. COLLAPSIBLE EXTENDED DEFINITION ACCORDION (Native HTMLdetails/summary) -->
+    <!-- Lexical Reference -->
     {{#Extended definition}}
       <div class="extended-def-container">
         <details class="modern-details">
           <summary class="modern-summary">
-            <span class="summary-title">Extended Definition (Yomitan)</span>
+            <span class="summary-title">Extended Definition</span>
             <span class="summary-icon">▼</span>
           </summary>
           <div class="extended-def-content html-content">
@@ -202,8 +172,7 @@
       </div>
     {{/Extended definition}}
 
-
-    <!-- 6. SOURCE FOOTER (At the very bottom) -->
+    <!-- Source Information -->
     {{#Source}}
       <div class="source-container">
         <span class="source-label">Source:</span> <span class="source-value">{{Source}}</span>
@@ -211,5 +180,4 @@
     {{/Source}}
 
   </div>
-
 </div>

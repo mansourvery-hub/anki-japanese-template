@@ -1,56 +1,52 @@
 /**
- * Japanese Note Type - Refined & Space-Efficient Stylesheet
+ * Japanese Note Type - Desktop-First Ergonomic Stylesheet
  * 
- * Optimized for spatial density, beautiful traditional typography, and high ergonomics.
- * Uses "Yu Mincho" for elegant serif-style Japanese presentation.
- * Custom built for Arch Linux (PC) and Samsung Galaxy A50 (Mobile) with ultra-low padding overhead.
+ * Provides a high-density, screen-filling layout optimized for high-resolution displays.
+ * Leverages fluid typography to maintain readability across all device scales.
  */
 
 :root {
-  /* --- ELEGANT DARK THEME (Default) --- */
-  --bg-color: #0b0f19;          /* Deep dark slate black */
-  --card-bg: #1e293b;           /* Slate 800 */
-  --card-border: #334155;       /* Slate 700 */
-  --text-primary: #f8fafc;      /* Slate 50 */
-  --text-secondary: #cbd5e1;    /* Slate 300 (slightly brighter for contrast) */
-  --text-muted: #64748b;        /* Slate 500 */
+  /* --- COLOR PALETTE --- */
+  --bg-color: #0b0f19;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
   
-  --accent-color: #a855f7;      /* Vivid Purple 500 */
-  --accent-light: rgba(168, 85, 247, 0.12);
-  --accent-hover: #c084fc;      /* Purple 400 */
+  --accent-color: #a855f7;
+  --accent-light: rgba(168, 85, 247, 0.15);
+  --accent-hover: #c084fc;
   
-  --bg-sticky: rgba(11, 15, 25, 0.85);
-  --border-radius-lg: 12px;     /* Snugger, modern corners */
-  --border-radius-md: 8px;
-  --border-radius-sm: 4px;
+  --bg-sticky: rgba(11, 15, 25, 0.9);
+  --border-radius-lg: 16px;
+  --border-radius-md: 10px;
+  --border-radius-sm: 6px;
   
-  --shadow-lg: 0 4px 12px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
   
-  /* Serif Japanese Fonts (Traditional, refined, and highly legible) */
+  /* Typography */
   --font-japanese: "Yu Mincho", "MS Mincho", "Noto Serif JP", "Hiragino Mincho ProN", "YuMincho", serif;
   --font-interface: "Noto Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
-/* --- LIGHT THEME OVERRIDE --- */
+/* --- LIGHT THEME --- */
 body:not(.nightMode), .card:not(.nightMode) {
-  --bg-color: #f1f5f9;          /* Clean Slate 100 */
-  --card-bg: #ffffff;           /* Pure White */
-  --card-border: #cbd5e1;       /* Slate 300 */
-  --text-primary: #0f172a;      /* Slate 900 */
-  --text-secondary: #334155;    /* Slate 700 */
-  --text-muted: #64748b;        /* Slate 500 */
+  --bg-color: #f1f5f9;
+  --card-bg: #ffffff;
+  --card-border: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
   
-  --accent-color: #7c3aed;      /* Purple 600 */
+  --accent-color: #7c3aed;
   --accent-light: rgba(124, 58, 237, 0.08);
-  --accent-hover: #6d28d9;      /* Purple 700 */
+  --accent-hover: #6d28d9;
   
-  --bg-sticky: rgba(241, 245, 249, 0.9);
-  --shadow-lg: 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -2px rgba(15, 23, 42, 0.05);
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.03);
+  --bg-sticky: rgba(241, 245, 249, 0.95);
 }
 
-/* --- BASE CARD & RESET --- */
+/* --- BASE CARD & WRAPPER --- */
 .card {
   background-color: var(--bg-color);
   color: var(--text-primary);
@@ -59,63 +55,57 @@ body:not(.nightMode), .card:not(.nightMode) {
   padding: 0;
   text-align: center;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .card-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  box-sizing: border-box;
 }
 
-/* Compressed padding and narrower max-width to fully eliminate wasted horizontal space */
+/* Expanded container to utilize desktop screen space */
 .card-container {
   flex-grow: 1;
-  max-width: 680px; /* Snugger width is significantly more ergonomic for reading */
-  width: 100%;
+  max-width: 1100px;
+  width: 95%;
   margin: 0 auto;
-  padding: 12px 12px 24px 12px; /* Greatly reduced from original 24px padding */
+  padding: 20px 20px 60px 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 12px; /* Snugger gaps between blocks */
+  gap: 20px;
 }
 
-/* --- FIXED FLOATING TAG BAR (Back Card Only) --- */
+/* --- FLOATING NAVIGATION --- */
 .tags-container {
-  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 100;
   width: 100%;
-  padding: 6px 12px;
+  padding: 10px 20px;
   background-color: var(--bg-sticky);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--card-border);
-  box-shadow: var(--shadow-sm);
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 4px;
-  box-sizing: border-box;
+  gap: 10px;
 }
 
 .tag-pill {
   font-family: var(--font-interface);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--accent-color);
   background-color: var(--accent-light);
   border: 1px solid rgba(168, 85, 247, 0.2);
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: 9999px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
-/* --- HOVER FURIGANA SYSTEM --- */
+/* --- HOVER FURIGANA --- */
 .hover-furigana ruby {
   ruby-position: over;
   cursor: help;
@@ -124,85 +114,57 @@ body:not(.nightMode), .card:not(.nightMode) {
 .hover-furigana ruby rt {
   visibility: hidden;
   opacity: 0;
-  font-size: 0.52em;
+  font-size: 0.55em;
   font-weight: bold;
   color: var(--accent-color);
-  transition: opacity 0.12s ease-in-out, transform 0.12s ease-in-out;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease;
   transform: translateY(2px);
 }
 
-.hover-furigana ruby:hover rt,
-.hover-furigana ruby:active rt {
+.hover-furigana ruby:hover rt {
   visibility: visible;
   opacity: 1;
   transform: translateY(0);
 }
 
-/* --- SPACE-EFFICIENT COMPONENT CARD BLOCK --- */
+/* --- CONTENT BLOCKS --- */
 .card-block {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
-  padding: 16px 20px; /* Snugger inner padding to utilize screen efficiently */
+  padding: 32px 48px;
   box-shadow: var(--shadow-lg);
-  text-align: left;
+  text-align: center;
 }
 
-/* --- FRONT CARD SPECIFIC VIEWS --- */
+/* --- FRONT CARD TYPOGRAPHY --- */
 .sentence-display {
-  font-size: clamp(1.5rem, 4.2vw, 2.2rem);
-  line-height: 1.6;
+  /* Dynamic large-scale typography for desktop */
+  font-size: clamp(2.2rem, 8vw, 4.8rem);
+  line-height: 1.3;
   font-weight: 500;
   color: var(--text-primary);
   text-align: center;
   margin: auto 0;
-  padding: 30px 12px;
-  word-break: break-all;
+  padding: 80px 20px;
 }
 
-/* Highlighted word in front */
 .sentence-display b, .sentence-display strong {
   color: var(--accent-color);
   font-weight: 800;
-  border-bottom: 2px dashed var(--accent-color);
-  padding-bottom: 1px;
+  border-bottom: 4px dashed var(--accent-color);
 }
 
-/* Front Listening Fallback */
 .listening-view {
   text-align: center;
   margin: auto 0;
-  padding: 40px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.listening-hint {
-  font-family: var(--font-interface);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background-color: var(--accent-light);
-  padding: 4px 12px;
-  border-radius: 9999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.listening-hint::before {
-  content: "🎧";
+  padding: 100px 20px;
 }
 
 /* --- BACK CARD COMPONENTS --- */
 
-/* Unified Main Header Card (Word + Accent + Audios + Def) */
 .word-header-block {
-  text-align: center;
-  padding: 20px 16px;
+  padding: 48px 40px;
 }
 
 .word-row {
@@ -210,294 +172,167 @@ body:not(.nightMode), .card:not(.nightMode) {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 20px;
+  margin-bottom: 12px;
 }
 
 .word-display {
-  font-size: clamp(2.2rem, 6.5vw, 3.4rem);
+  /* Fluid typography for primary term */
+  font-size: clamp(3.2rem, 10vw, 6rem);
   font-weight: 800;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
-/* Frequency badge - displayed immediately next to the main word at the top */
 .frequency-badge {
   font-family: var(--font-interface);
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--accent-color);
   background-color: var(--accent-light);
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  padding: 3px 8px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  padding: 5px 12px;
+  border-radius: 8px;
 }
 
-/* Pitch Accent rating */
 .pitch-accent-container {
   display: inline-flex;
-  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+  font-size: clamp(1.3rem, 3.5vw, 1.8rem);
   color: var(--text-secondary);
   background-color: rgba(255, 255, 255, 0.03);
-  padding: 3px 10px;
+  padding: 6px 16px;
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--card-border);
-  margin: 4px 0 10px 0;
+  margin: 15px 0;
 }
 
-body:not(.nightMode) .pitch-accent-container {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-/* Audio links aligned and tightly spaced */
 .audio-group {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 24px;
+  margin-top: 15px;
 }
 
-.audio-item {
-  display: inline-flex;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--card-border);
-  border-radius: 9999px;
-  padding: 4px 10px 4px 14px;
-  box-shadow: var(--shadow-sm);
-}
-
-body:not(.nightMode) .audio-item {
-  background-color: rgba(0, 0, 0, 0.015);
-}
-
-.audio-item:hover {
-  background-color: rgba(168, 85, 247, 0.06);
-  border-color: var(--accent-color);
-}
-
-.audio-label {
-  font-family: var(--font-interface);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin-right: 6px;
-  text-transform: uppercase;
-}
-
-/* Customized Round Audio Play Buttons */
+/* Styled Audio Buttons */
 .replaybutton, .soundLink {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
   background-color: var(--accent-color) !important;
-  color: #ffffff !important;
-  text-decoration: none !important;
   border-radius: 50% !important;
-  width: 24px !important;
-  height: 24px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  transition: transform 0.1s ease, background-color 0.1s ease !important;
-  vertical-align: middle;
+  width: 36px !important;
+  height: 36px !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-.replaybutton:hover, .soundLink:hover {
-  background-color: var(--accent-hover) !important;
-  transform: scale(1.05);
-}
+.replaybutton:hover { transform: scale(1.15) !important; }
 
-.replaybutton:active, .soundLink:active {
-  transform: scale(0.95);
-}
-
-/* Hide [sound] text and draw CSS play icon */
 .replaybutton span, .soundLink span {
   display: inline-block !important;
   width: 0 !important;
   height: 0 !important;
-  border-top: 4px solid transparent !important;
-  border-bottom: 4px solid transparent !important;
-  border-left: 7px solid #ffffff !important;
-  margin-left: 2px !important;
+  border-top: 7px solid transparent !important;
+  border-bottom: 7px solid transparent !important;
+  border-left: 10px solid #ffffff !important;
+  margin-left: 3px !important;
   text-indent: -9999px !important;
-  overflow: hidden !important;
 }
 
-/* --- WORD DEFINITION BLOCK --- */
 .definition-divider {
   border: none;
   border-top: 1px solid var(--card-border);
-  margin: 16px 0;
+  margin: 32px 0;
+  opacity: 0.5;
 }
 
 .word-definition-container {
-  font-size: clamp(1rem, 2.4vw, 1.15rem);
-  line-height: 1.5;
-  color: var(--text-primary);
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  line-height: 1.6;
   text-align: left;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
-.word-definition-container ul, .word-definition-container ol {
-  margin: 6px 0;
-  padding-left: 18px;
-}
-
-.word-definition-container li {
-  margin-bottom: 6px;
-}
-
-/* --- SENTENCE CONTAINER BLOCK --- */
+/* --- USAGE SENTENCE --- */
 .sentence-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.sentence-title {
-  font-family: var(--font-interface);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--accent-color);
-  letter-spacing: 0.05em;
-  margin-bottom: -2px;
+  gap: 16px;
+  text-align: center;
 }
 
 .sentence-japanese {
-  font-size: clamp(1.25rem, 3.8vw, 1.7rem);
-  line-height: 1.5;
-  color: var(--text-primary);
+  /* Fluid typography for usage sentence */
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  line-height: 1.4;
   font-weight: 500;
 }
 
-.sentence-japanese b, .sentence-japanese strong {
-  color: var(--accent-color);
-  font-weight: 700;
-}
+.sentence-japanese b { color: var(--accent-color); }
 
-/* --- REVEAL TRANSLATION INTERACTIVE ELEMENT --- */
 .translation-wrapper {
   background-color: rgba(255, 255, 255, 0.02);
   border: 1px dashed var(--card-border);
-  border-radius: var(--border-radius-sm);
-  padding: 6px 12px;
-  margin-top: 4px;
+  border-radius: var(--border-radius-md);
+  padding: 16px 24px;
+  margin: 12px auto;
+  max-width: 85%;
   cursor: pointer;
-  text-align: center;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-  user-select: none;
-}
-
-body:not(.nightMode) .translation-wrapper {
-  background-color: rgba(0, 0, 0, 0.01);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .translation-wrapper:hover {
-  background-color: rgba(168, 85, 247, 0.04);
+  background-color: rgba(168, 85, 247, 0.05);
   border-color: var(--accent-color);
 }
 
 .translation-text {
   display: none;
   font-family: var(--font-interface);
-  font-size: clamp(0.9rem, 2.3vw, 1.05rem);
-  color: var(--text-secondary);
-  text-align: left;
-  line-height: 1.4;
-}
-
-.translation-hint {
-  font-family: var(--font-interface);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.translation-wrapper.revealed {
-  background-color: transparent;
-  border-style: solid;
-  cursor: default;
-}
-
-.translation-wrapper.revealed .translation-hint {
-  display: none;
-}
-
-.translation-wrapper.revealed .translation-text {
-  display: block;
-}
-
-/* --- CONTEXT BLOCK --- */
-.context-container {
-  border-left: 3px solid var(--accent-color);
-  padding: 2px 0 2px 12px;
-  margin-top: 4px;
-  background-color: rgba(255, 255, 255, 0.005);
-}
-
-.context-title {
-  font-family: var(--font-interface);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  letter-spacing: 0.05em;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.context-body {
-  font-size: clamp(0.9rem, 2.2vw, 1rem);
-  line-height: 1.5;
+  font-size: clamp(1.2rem, 2.8vw, 1.45rem);
   color: var(--text-secondary);
 }
 
-/* --- PICTURE INTERACTIVE ZOOM --- */
+.translation-wrapper.revealed .translation-text { display: block; }
+.translation-wrapper.revealed .translation-hint { display: none; }
+
+/* --- VISUAL MEDIA & LIGHTBOX --- */
 .picture-wrapper {
-  position: relative;
   align-self: center;
-  max-width: 100%;
-  margin-top: 4px;
-}
-
-.picture-container {
-  display: flex;
-  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
 }
 
 .picture-container img {
+  /* Responsive image scaling */
+  width: clamp(350px, 60%, 800px); 
+  height: auto;
   max-width: 100%;
-  max-height: 160px; /* Reduced from 220px to save vertical space */
   border-radius: var(--border-radius-md);
   border: 1px solid var(--card-border);
   cursor: zoom-in;
-  object-fit: contain;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.picture-container img:hover {
-  transform: scale(1.02);
-}
-
-/* Lightbox zoom view overlay */
 .picture-container.expanded img {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(1);
-  max-width: 90vw;
-  max-height: 85vh;
+  width: auto;
+  height: auto;
+  max-width: 95vw;
+  max-height: 95vh;
   z-index: 1001;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  transform: translate(-50%, -50%) scale(1);
   cursor: zoom-out;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+  /* Prevents teleportation feel during the fixed positioning switch */
+  animation: lightbox-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes lightbox-fade-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
 .picture-overlay {
@@ -505,14 +340,13 @@ body:not(.nightMode) .translation-wrapper {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(11, 15, 25, 0.85);
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
   z-index: 1000;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease;
 }
 
 .picture-container.expanded + .picture-overlay {
@@ -520,128 +354,33 @@ body:not(.nightMode) .translation-wrapper {
   opacity: 1;
 }
 
-/* --- COLLAPSIBLE EXTENDED DEFINITION ACCORDION --- */
-.extended-def-container {
-  margin-top: 4px;
-}
-
+/* --- SUPPLEMENTARY CONTENT --- */
 .modern-details {
-  border: 1px dashed var(--card-border);
-  border-radius: var(--border-radius-md);
+  border: 1px solid var(--card-border);
   background-color: rgba(255, 255, 255, 0.01);
-  overflow: hidden;
-  transition: border-color 0.15s ease;
-}
-
-body:not(.nightMode) .modern-details {
-  background-color: rgba(0, 0, 0, 0.003);
-}
-
-.modern-details:hover {
-  border-color: var(--accent-color);
 }
 
 .modern-summary {
-  list-style: none;
-  outline: none;
-  cursor: pointer;
-  padding: 10px 14px;
-  font-family: var(--font-interface);
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-}
-
-.modern-summary::-webkit-details-marker {
-  display: none;
-}
-
-.summary-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.summary-title::before {
-  content: "📖";
-  font-size: 0.9rem;
-}
-
-.summary-icon {
-  font-size: 0.75rem;
-  transition: transform 0.15s ease;
-  color: var(--text-muted);
-}
-
-.modern-details[open] .summary-icon {
-  transform: rotate(180deg);
-  color: var(--accent-color);
+  padding: 20px 32px;
+  font-size: 1.2rem;
 }
 
 .extended-def-content {
-  padding: 0 14px 14px 14px;
-  border-top: 1px dashed var(--card-border);
-  text-align: left;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  max-height: 200px;
-  overflow-y: auto;
+  padding: 24px;
+  font-size: 1.15rem;
+  line-height: 1.6;
 }
 
-/* --- SOURCE FOOTER (Very Bottom) --- */
+/* --- FOOTER --- */
 .source-container {
-  margin-top: auto;
-  padding-top: 16px; /* Reduced to save screen space */
-  font-family: var(--font-interface);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-align: center;
+  padding: 40px 0;
+  font-size: 1rem;
 }
 
-.source-label {
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.source-value {
-  font-style: italic;
-}
-
-/* --- MOBILE SPECIFIC SCALING (Samsung Galaxy A50 / Small Devices) --- */
+/* --- RESPONSIVE SCALING --- */
 @media (max-width: 600px) {
-  .card-container {
-    padding: 8px 8px 16px 8px;
-    gap: 8px;
-  }
-  
-  .card-block {
-    padding: 12px 14px;
-    border-radius: var(--border-radius-md);
-  }
-  
-  .sentence-display {
-    padding: 18px 6px;
-  }
-  
-  .audio-group {
-    gap: 8px;
-  }
-  
-  .audio-item {
-    padding: 3px 8px 3px 12px;
-  }
-  
-  .picture-container img {
-    max-height: 130px;
-  }
-  
-  .extended-def-content {
-    max-height: 160px;
-  }
+  .card-container { padding: 15px; gap: 15px; }
+  .card-block { padding: 24px; }
+  .word-display { font-size: 2.8rem; }
+  .picture-container img { width: 100%; }
 }
