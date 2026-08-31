@@ -137,8 +137,8 @@ body:not(.nightMode), .card:not(.nightMode) {
 
 /* --- FRONT TYPOGRAPHY --- */
 .sentence-display {
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  line-height: 1.5;
+  font-size: clamp(2.6rem, 7vw, 4.2rem);
+  line-height: 1.4;
   font-weight: 500;
   margin: auto 0;
   padding: 60px 20px;
@@ -154,7 +154,7 @@ body:not(.nightMode), .card:not(.nightMode) {
 
 /* Header Block: Tightly packed word, accent, and audio to maximize space */
 .word-header-block {
-  padding: 16px 24px; /* Reduced vertical padding */
+  padding: 16px 24px;
 }
 
 .word-row {
@@ -167,28 +167,28 @@ body:not(.nightMode), .card:not(.nightMode) {
 }
 
 .word-display {
-  font-size: clamp(2.5rem, 7vw, 4.2rem);
+  font-size: clamp(3rem, 9vw, 5rem);
   font-weight: 800;
   line-height: 1.1;
 }
 
 .frequency-badge {
   font-family: var(--font-interface);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--accent-color);
   background-color: var(--accent-light);
   border: 1px solid var(--accent-soft);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 6px;
 }
 
 .pitch-accent-container {
   display: inline-flex;
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--text-secondary);
   background-color: rgba(255, 255, 255, 0.02);
-  padding: 2px 10px;
+  padding: 3px 12px;
   border-radius: 4px;
   border: 1px solid var(--card-border);
   margin: 4px 0;
@@ -201,18 +201,7 @@ body:not(.nightMode), .card:not(.nightMode) {
   margin-top: 8px;
 }
 
-/* Replay Button refinement */
-.replaybutton, .soundLink {
-  background-color: var(--accent-color) !important;
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: 50% !important;
-}
-
-.replaybutton span, .soundLink span {
-  border-left-color: #ffffff !important;
-  border-width: 5px 0 5px 8px !important;
-}
+/* Audio buttons revert to Anki vanilla (removed custom styling block) */
 
 .definition-divider {
   border: none;
@@ -222,7 +211,7 @@ body:not(.nightMode), .card:not(.nightMode) {
 }
 
 .word-definition-container {
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   line-height: 1.6;
   text-align: left;
 }
@@ -235,7 +224,7 @@ body:not(.nightMode), .card:not(.nightMode) {
 }
 
 .sentence-japanese {
-  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
   line-height: 1.5;
 }
 
@@ -245,7 +234,7 @@ body:not(.nightMode), .card:not(.nightMode) {
   background-color: rgba(255, 255, 255, 0.02);
   border: 1px dashed var(--card-border);
   border-radius: var(--border-radius-md);
-  padding: 8px 16px;
+  padding: 10px 20px;
   margin: 4px auto;
   max-width: 70%;
   cursor: pointer;
@@ -260,7 +249,7 @@ body:not(.nightMode), .card:not(.nightMode) {
 .translation-text {
   display: none;
   font-family: var(--font-interface);
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   color: var(--text-secondary);
 }
 
@@ -274,7 +263,7 @@ body:not(.nightMode), .card:not(.nightMode) {
 }
 
 .picture-container img {
-  width: clamp(200px, 45%, 500px);
+  width: clamp(250px, 55%, 600px);
   max-width: 100%;
   border-radius: var(--border-radius-md);
   border: 1px solid var(--card-border);
