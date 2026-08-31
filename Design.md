@@ -1,0 +1,5 @@
+- The design should be modern, simple, elegant, refined
+- the whole screen should be utlised(ie very ergonomical design)
+- the card should work on PC(arch linux) but also on a smaller screen(samsung galaxy A50), text size and even visual elements should change with screen size
+- furigana should be dispalyed only in back card, on mouse hover using the furigana fields(like {{furigana}} with the help of `furigana:`, for ex, {{furigana:furigana}} to display the word with furigana hover)
+- on click on the image, it should expand, another click outside it should bring it back to normal

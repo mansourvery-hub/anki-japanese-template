@@ -1,0 +1,241 @@
+{
+  "format_version": "1.0",
+  "note_types": [
+    {
+      "name": "Japanese Note type (Sentence card by Default)",
+      "type": 0,
+      "latex_post": "\\end{document}",
+      "latex_svg": false,
+      "sort_field_index": 0,
+      "fields": [
+        {
+          "name": "Expression",
+          "ord": 0,
+          "font": "Noto Sans",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "Term expressed (without inflections ! ie conjugation of verbs) using maximal kanji (learned the hard way). If kanji expression is not available, kana is used. This is the best field to put first for handling search and duplicates.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Definition",
+          "ord": 1,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Kanji Notes",
+          "ord": 2,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Empty by default. This field will contain any info about the kanji(s) of the expression you deem necessary: for example radicals, mnemonics, meaning of the kanji, jukugo, readings etc, for kanji n°1 to 4",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Source",
+          "ord": 3,
+          "font": "Noto Sans CJK JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "URL, show name, book name, etc",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence",
+          "ord": 4,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence (furigana)",
+          "ord": 5,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence Audio",
+          "ord": 6,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Translation",
+          "ord": 7,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "maybe also include a literal english translation",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Picture",
+          "ord": 8,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "context",
+          "ord": 9,
+          "font": "Liberation Sans",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "The whole paragrah/diologue. Typically in books",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Notes",
+          "ord": 10,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "everthing else is here, grammar, other words defintions",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word Audio",
+          "ord": 11,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Pitch Accent",
+          "ord": 12,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "furigana",
+          "ord": 13,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "I try to use the plain formatting for furigana as much as possible since it is seems more intuitive for me",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "reading",
+          "ord": 14,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Kana reading for the term, or empty for terms where the expression is the reading. This field should not contain any kanji.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "cloze-body",
+          "ord": 15,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Original inflected term as it appeared before being reduced to dictionary form by Yomitan.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Frequency",
+          "ord": 16,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "Frequency of the cloze body",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Extended definition",
+          "ord": 17,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Here we put the full Yomitan defintionin japanese",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        }
+      ],
+      "templates": [
+        {
+
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "exported_at": "2026-08-31T02:36:39.360190Z",
+    "anki_version": "26.08.1",
+    "addon_version": "1.0.0",
+    "count": 1
+  }
+}
