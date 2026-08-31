@@ -1,24 +1,24 @@
 <!-- BACK CARD TEMPLATE
-     Displays vocabulary details, audio players, definitions, and usage examples.
-     Features include hover furigana, interactive image lightbox, and collapsible sections.
+     Premium Ergonomic Dashboard (Tokyo Night / Aki Paper)
+     Balanced 2-Column Layout for Desktop.
 -->
 
 <div class="card-wrapper">
 
-  <!-- Floating Header Information -->
-  <div class="tags-container" id="tags-container">
+  <!-- Sticky Status Bar (Tags) -->
+  <div class="tags-container">
+    <div id="tags-list" class="tags-list"></div>
     {{#Tags}}
       <div id="tags-raw" style="display: none;">{{Tags}}</div>
-      <div id="tags-list" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;"></div>
       <script>
         (function() {
-          var raw = document.getElementById('tags-raw');
-          var list = document.getElementById('tags-list');
+          const raw = document.getElementById('tags-raw');
+          const list = document.getElementById('tags-list');
           if (raw && list) {
-            var tags = raw.innerText.trim().split(/\s+/);
-            tags.forEach(function(tag) {
+            const tags = raw.innerText.trim().split(/\s+/);
+            tags.forEach(tag => {
               if (tag) {
-                var span = document.createElement('span');
+                const span = document.createElement('span');
                 span.className = 'tag-pill';
                 span.innerText = tag;
                 list.appendChild(span);
@@ -31,153 +31,167 @@
   </div>
 
   <div class="card-container">
-
-    <!-- Primary Term & Definition -->
-    <div class="card-block word-header-block">
+    <div class="back-grid">
       
-      <div class="word-row">
-        <div class="word-display hover-furigana">
-          {{#furigana}}
-            {{furigana:furigana}}
-          {{/furigana}}
-          {{^furigana}}
-            {{Expression}}
-          {{/furigana}}
-        </div>
+      <!-- MAIN COLUMN: Critical Study Data -->
+      <div class="main-content">
         
-        {{#Frequency}}
-          <span class="frequency-badge">{{Frequency}}</span>
-        {{/Frequency}}
-      </div>
+        <!-- Word Header Block -->
+        <div class="card-block word-header">
+          <div class="word-display">
+            {{#furigana}}
+              {{furigana:furigana}}
+            {{/furigana}}
+            {{^furigana}}
+              {{Expression}}
+            {{/furigana}}
+          </div>
 
-      {{#Pitch Accent}}
-        <div class="pitch-accent-container">
-          {{Pitch Accent}}
+          <div class="word-meta-row">
+            {{#Frequency}}
+              <div class="frequency-badge">
+                {{Frequency}}
+              </div>
+            {{/Frequency}}
+
+            {{#Pitch Accent}}
+              <div class="pitch-accent-badge">
+                {{Pitch Accent}}
+              </div>
+            {{/Pitch Accent}}
+
+            <div class="audio-row">
+              {{#Word Audio}}
+                <div class="audio-item">
+                  <span>Word:</span> {{Word Audio}}
+                </div>
+              {{/Word Audio}}
+              {{#Sentence Audio}}
+                <div class="audio-item">
+                  <span>Sentence:</span> {{Sentence Audio}}
+                </div>
+              {{/Sentence Audio}}
+            </div>
+          </div>
+
+          {{#Definition}}
+            <div class="definition-box">
+              {{edit:Definition}}
+            </div>
+          {{/Definition}}
         </div>
-      {{/Pitch Accent}}
 
-      <div class="audio-group">
-        {{#Word Audio}}
-          <span class="audio-item">
-            <span class="audio-label">Word</span> {{Word Audio}}
-          </span>
-        {{/Word Audio}}
-        {{#Sentence Audio}}
-          <span class="audio-item">
-            <span class="audio-label">Sentence</span> {{Sentence Audio}}
-          </span>
-        {{/Sentence Audio}}
-      </div>
+        <!-- Sentence Block -->
+        {{#Sentence}}
+          <div class="card-block">
+            <span class="field-label">Example Sentence</span>
+            <div class="sentence-japanese">
+              {{#Sentence (furigana)}}
+                {{furigana:Sentence (furigana)}}
+              {{/Sentence (furigana)}}
+              {{^Sentence (furigana)}}
+                {{Sentence}}
+              {{/Sentence (furigana)}}
+            </div>
 
-      {{#Definition}}
-        <hr class="definition-divider">
-        <div class="word-definition-container">
-          {{Definition}}
-        </div>
-      {{/Definition}}
+            {{#Translation}}
+              <div class="translation-box" onclick="this.classList.toggle('revealed')">
+                <div class="translation-hint">👁️ View Translation</div>
+                <div class="translation-text">{{edit:Translation}}</div>
+              </div>
+            {{/Translation}}
 
-    </div>
+            {{#context}}
+              <div style="margin-top: 24px;">
+                <span class="field-label">Context</span>
+                <div class="html-content">{{edit:context}}</div>
+              </div>
+            {{/context}}
+          </div>
+        {{/Sentence}}
 
-    <!-- Usage Sentence & Translation -->
-    {{#Sentence}}
-      <div class="card-block sentence-block">
-        <span class="sentence-title">Sentence</span>
+      </div> <!-- End main-content -->
+
+      <!-- SIDE COLUMN: Media & Supplementary -->
+      <div class="side-content">
         
-        <div class="sentence-japanese hover-furigana">
-          {{#Sentence (furigana)}}
-            {{furigana:Sentence (furigana)}}
-          {{/Sentence (furigana)}}
-          {{^Sentence (furigana)}}
-            {{Sentence}}
-          {{/Sentence (furigana)}}
-        </div>
-
-        {{#Translation}}
-          <div class="translation-wrapper" onclick="this.classList.toggle('revealed')">
-            <div class="translation-hint">👁️ Show Translation</div>
-            <div class="translation-text">{{Translation}}</div>
+        <!-- Picture Block -->
+        {{#Picture}}
+          <div class="card-block" style="text-align: center; padding: 12px;">
+            <div class="picture-container" id="pic-container">
+              {{Picture}}
+            </div>
           </div>
-        {{/Translation}}
-
-        {{#context}}
-          <div class="context-container">
-            <span class="context-title">Context</span>
-            <div class="context-body">{{context}}</div>
-          </div>
-        {{/context}}
-      </div>
-    {{/Sentence}}
-
-    <!-- Visual Media Content -->
-    {{#Picture}}
-      <div class="picture-wrapper">
-        <div class="picture-container" id="pic-container">
-          {{Picture}}
-        </div>
-        <div class="picture-overlay" id="pic-overlay"></div>
-      </div>
-
-      <script>
-        (function() {
-          var container = document.getElementById('pic-container');
-          var overlay = document.getElementById('pic-overlay');
-          if (container && overlay) {
-            var img = container.querySelector('img');
-            if (img) {
-              img.addEventListener('click', function(e) {
-                e.stopPropagation();
-                container.classList.toggle('expanded');
-              });
-              overlay.addEventListener('click', function() {
-                container.classList.remove('expanded');
-              });
-              document.addEventListener('click', function(e) {
-                if (e.target !== img) {
-                  container.classList.remove('expanded');
+          
+          <script>
+            (function() {
+              const container = document.getElementById('pic-container');
+              if (container) {
+                const img = container.querySelector('img');
+                if (img) {
+                  img.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const clone = this.cloneNode();
+                    clone.className = 'expanded-img';
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1999;backdrop-filter:blur(8px);';
+                    document.body.appendChild(overlay);
+                    document.body.appendChild(clone);
+                    
+                    const close = () => {
+                      document.body.removeChild(overlay);
+                      document.body.removeChild(clone);
+                    };
+                    overlay.onclick = close;
+                    clone.onclick = close;
+                  });
                 }
-              });
-            }
-          }
-        })();
-      </script>
-    {{/Picture}}
+              }
+            })();
+          </script>
+        {{/Picture}}
 
-    <!-- Supplementary Notes -->
-    {{#Kanji Notes}}
-      <div class="card-block">
-        <span class="field-label">Kanji Notes</span>
-        <div class="field-value html-content">{{Kanji Notes}}</div>
-      </div>
-    {{/Kanji Notes}}
-
-    {{#Notes}}
-      <div class="card-block">
-        <span class="field-label">Notes</span>
-        <div class="field-value html-content">{{Notes}}</div>
-      </div>
-    {{/Notes}}
-
-    <!-- Lexical Reference -->
-    {{#Extended definition}}
-      <div class="extended-def-container">
-        <details class="modern-details">
-          <summary class="modern-summary">
-            <span class="summary-title">Extended Definition</span>
-            <span class="summary-icon">▼</span>
-          </summary>
-          <div class="extended-def-content html-content">
-            {{Extended definition}}
+        <!-- Kanji Notes -->
+        {{#Kanji Notes}}
+          <div class="card-block">
+            <span class="field-label">Kanji Notes</span>
+            <div class="html-content">{{edit:Kanji Notes}}</div>
           </div>
-        </details>
-      </div>
-    {{/Extended definition}}
+        {{/Kanji Notes}}
 
-    <!-- Source Information -->
+        <!-- General Notes -->
+        {{#Notes}}
+          <div class="card-block">
+            <span class="field-label">General Notes</span>
+            <div class="html-content">{{edit:Notes}}</div>
+          </div>
+        {{/Notes}}
+
+        <!-- Moved: Extended Definitions -->
+        {{#Extended definition}}
+          <div class="details-wrapper">
+            <details class="modern-details">
+              <summary class="modern-summary">
+                <span>Extended Japanese Definition</span>
+                <span>▼</span>
+              </summary>
+              <div class="extended-def-content">
+                {{Extended definition}}
+              </div>
+            </details>
+          </div>
+        {{/Extended definition}}
+
+      </div> <!-- End side-content -->
+
+    </div> <!-- End back-grid -->
+
+    <!-- Footer -->
     {{#Source}}
-      <div class="source-container">
-        <span class="source-label">Source:</span> <span class="source-value">{{Source}}</span>
+      <div class="source-footer">
+        Source: {{Source}}
       </div>
     {{/Source}}
 
-  </div>
+  </div> <!-- End card-container -->
 </div>

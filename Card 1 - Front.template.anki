@@ -1,15 +1,26 @@
 <!-- FRONT CARD TEMPLATE
-     Displays the primary study content (Sentence or Expression) for standard cards.
-     Switches to an audio-focused view for listening cards when definitions are missing.
-     Typography scales dynamically to ensure high visibility across all screen sizes.
+     Minimalist & Focused Study View.
+     Dynamically switches to 'Listening Mode' when definitions are absent.
 -->
 
 <div class="card-wrapper">
   <div class="card-container">
 
-    <!-- Standard Study View -->
+    <!-- Standard Study View: Triggered if any definition is present -->
     {{#Definition}}
-      <div class="standard-view">
+      <div class="sentence-display">
+        {{#Sentence}}
+          {{Sentence}}
+        {{/Sentence}}
+        {{^Sentence}}
+          {{Expression}}
+        {{/Sentence}}
+      </div>
+    {{/Definition}}
+
+    <!-- Fallback Standard View for Extended Definition -->
+    {{^Definition}}
+      {{#Extended definition}}
         <div class="sentence-display">
           {{#Sentence}}
             {{Sentence}}
@@ -18,56 +29,41 @@
             {{Expression}}
           {{/Sentence}}
         </div>
-      </div>
-    {{/Definition}}
-
-    <!-- Standard Study View (Extended definition fallback) -->
-    {{^Definition}}
-      {{#Extended definition}}
-        <div class="standard-view">
-          <div class="sentence-display">
-            {{#Sentence}}
-              {{Sentence}}
-            {{/Sentence}}
-            {{^Sentence}}
-              {{Expression}}
-            {{/Sentence}}
-          </div>
-        </div>
       {{/Extended definition}}
     {{/Definition}}
 
-    <!-- Listening Mode (Definitions are absent) -->
+    <!-- Listening Mode: Triggered if BOTH definitions are missing -->
     {{^Definition}}
       {{^Extended definition}}
         <div class="listening-view">
-          <div class="audio-display">
+          <div class="audio-pulse">🎧</div>
+          
+          <div class="audio-controls">
             {{#Sentence Audio}}
-              <div class="audio-group">
-                <span class="audio-item">
-                  <span class="audio-label">Listen:</span> {{Sentence Audio}}
-                </span>
+              <div class="audio-item">
+                {{Sentence Audio}}
               </div>
             {{/Sentence Audio}}
             
             {{^Sentence Audio}}
               {{#Word Audio}}
-                <div class="audio-group">
-                  <span class="audio-label">Listen:</span> {{Word Audio}}
-                </span>
-              </div>
-            {{/Word Audio}}
-            
-            {{^Word Audio}}
-              <div class="no-audio-fallback">
-                {{#Sentence}}{{Sentence}}{{/Sentence}}
-                {{^Sentence}}{{Expression}}{{/Sentence}}
-              </div>
-            {{/Word Audio}}
-          {{/Sentence Audio}}
+                <div class="audio-item">
+                  {{Word Audio}}
+                </div>
+              {{/Word Audio}}
+              
+              {{^Word Audio}}
+                <div class="sentence-display" style="font-size: 1.5rem; opacity: 0.4;">
+                  (No Audio Source Found)
+                </div>
+              {{/Word Audio}}
+            {{/Sentence Audio}}
+          </div>
+
+          <div style="margin-top: 40px; font-weight: 800; letter-spacing: 0.3em; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+            Listening Card Active
+          </div>
         </div>
-        <div class="listening-hint">Listening Card</div>
-      </div>
       {{/Extended definition}}
     {{/Definition}}
 

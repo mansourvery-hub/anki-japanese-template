@@ -1,59 +1,65 @@
 /**
- * Japanese Note Type - Elegant & Refined Desktop Layout
+ * Japanese Note Type - Premium Ergonomic Layout (Tokyo Night / Aki Paper)
  * 
- * Re-establishing a modern, sophisticated aesthetic with tight ergonomics.
- * Focused on premium typography, subtle transitions, and efficient space usage.
+ * Optimized for Arch Linux Desktop and Samsung Galaxy Mobile.
+ * Features: Balanced 2-column dashboard, word-level furigana hover, 
+ * sophisticated micro-interactions, and high-legibility typography.
  */
 
 :root {
-  /* --- SOPHISTICATED COLOR PALETTE --- */
-  --bg-color: #0f172a;          /* Slate 900 */
-  --card-bg: #1e293b;           /* Slate 800 */
-  --card-border: #334155;       /* Slate 700 */
-  --text-primary: #f8fafc;      /* Slate 50 */
-  --text-secondary: #94a3b8;    /* Slate 400 */
-  --text-muted: #64748b;        /* Slate 500 */
+  /* --- TOKYO NIGHT DARK THEME (Default) --- */
+  --bg-color: #0f141c;          /* Deep Obsidian */
+  --card-bg: #182030;           /* Frosted Slate */
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #f0f6fc;      /* Crisp Off-white */
+  --text-secondary: #94a3b8;    /* Muted Slate */
+  --text-muted: #64748b;        /* Dimmed Slate */
   
-  --accent-color: #a855f7;      /* Purple 500 */
-  --accent-light: rgba(168, 85, 247, 0.1);
-  --accent-soft: rgba(168, 85, 247, 0.2);
+  --accent-color: #38bdf8;      /* Glowing Cyan */
+  --accent-light: rgba(56, 189, 248, 0.1);
+  --accent-soft: rgba(56, 189, 248, 0.2);
   
-  --bg-sticky: rgba(15, 23, 42, 0.85);
+  --shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  --bg-sticky: rgba(15, 20, 28, 0.85);
   --border-radius-lg: 16px;
   --border-radius-md: 10px;
   
-  --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  /* Fonts */
+  --font-japanese-serif: "Yu Mincho", "MS Mincho", "Noto Serif JP", serif;
+  --font-japanese-sans: "Inter", "Noto Sans JP", sans-serif;
+  --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  /* Serif Japanese Fonts */
-  --font-japanese: "Yu Mincho", "MS Mincho", "Noto Serif JP", "Hiragino Mincho ProN", "YuMincho", serif;
-  --font-interface: "Inter", "Noto Sans", sans-serif;
+  --max-content-width: 1200px;
+  --text-max-width: 750px; /* Optimal reading width for blocks */
 }
 
-/* --- LIGHT THEME (Refined Slate) --- */
-body:not(.nightMode), .card:not(.nightMode) {
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --card-border: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+/* --- AKI PAPER LIGHT THEME --- */
+.card:not(.nightMode) {
+  --bg-color: #fcfaf6;          /* Warm High-Contrast Cream */
+  --card-bg: #ffffff;           /* Pure Matte White */
+  --card-border: #e4e2dd;       /* Paper-thin warm border */
+  --text-primary: #1a1b1e;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
   
-  --accent-color: #7c3aed;
-  --accent-light: rgba(124, 58, 237, 0.05);
-  --accent-soft: rgba(124, 58, 237, 0.1);
-  --bg-sticky: rgba(248, 250, 252, 0.9);
-  --shadow-premium: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
+  --accent-color: #d97706;      /* Deep Warm Amber */
+  --accent-light: rgba(217, 119, 6, 0.06);
+  --accent-soft: rgba(217, 119, 6, 0.12);
+  
+  --bg-sticky: rgba(252, 250, 246, 0.9);
+  --shadow-premium: 0 4px 20px rgba(0,0,0,0.06);
 }
 
-/* --- BASE CARD --- */
+/* --- BASE CARD ENGINE --- */
 .card {
   background-color: var(--bg-color);
   color: var(--text-primary);
-  font-family: var(--font-japanese);
+  font-family: var(--font-interface);
   margin: 0;
   padding: 0;
   text-align: center;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
 .card-wrapper {
@@ -62,269 +68,393 @@ body:not(.nightMode), .card:not(.nightMode) {
   min-height: 100vh;
 }
 
-.card-container {
-  flex-grow: 1;
-  max-width: 900px; /* Refined width for optimal readability */
-  width: 95%;
-  margin: 0 auto;
-  padding: 12px 12px 40px 12px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* --- STICKY TAGS --- */
+/* --- STICKY STATUS BAR (Tags) --- */
 .tags-container {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   width: 100%;
-  padding: 8px 16px;
+  padding: 8px 0;
   background-color: var(--bg-sticky);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--card-border);
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px;
 }
 
 .tag-pill {
-  font-family: var(--font-interface);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--accent-color);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-muted);
   background-color: var(--accent-light);
-  border: 1px solid var(--accent-soft);
+  border: 1px solid var(--card-border);
   padding: 2px 10px;
-  border-radius: 999px;
+  border-radius: 20px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease;
 }
 
-/* --- FURIGANA HOVER --- */
-.hover-furigana ruby {
-  ruby-position: over;
-  cursor: help;
-}
-
-.hover-furigana ruby rt {
-  visibility: hidden;
-  opacity: 0;
-  font-size: 0.55em;
-  font-weight: bold;
+.tag-pill:hover {
+  border-color: var(--accent-color);
   color: var(--accent-color);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  transform: translateY(3px);
 }
 
-.hover-furigana ruby:hover rt {
-  visibility: visible;
-  opacity: 1;
-  transform: translateY(0);
+/* --- DYNAMIC DASHBOARD LAYOUT --- */
+.card-container {
+  flex-grow: 1;
+  max-width: var(--max-content-width);
+  width: 95%;
+  margin: 0 auto;
+  padding: 12px 16px 40px 16px; /* Tightened from 32px 20px 80px */
+  box-sizing: border-box;
 }
 
-/* --- REFINED BLOCKS --- */
+.back-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px; /* Tightened from 24px */
+  align-items: start;
+}
+
+/* Desktop 2-Column Balanced Dashboard */
+@media (min-width: 1080px) {
+  .back-grid {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 24px; /* Tightened from 32px */
+  }
+  
+  .side-content {
+    position: sticky;
+    top: 50px; /* Below tags bar */
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Tightened from 24px */
+  }
+}
+
+/* --- THE CARD BLOCKS --- */
 .card-block {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
-  padding: 20px 32px;
+  padding: 20px 24px; /* Tightened from 28px 36px */
   box-shadow: var(--shadow-premium);
+  text-align: left;
+  margin-bottom: 16px; /* Tightened from 24px */
 }
 
-/* --- FRONT TYPOGRAPHY --- */
+/* --- TYPOGRAPHY: FRONT (Large & Elegant) --- */
 .sentence-display {
-  font-size: clamp(2.6rem, 7vw, 4.2rem);
-  line-height: 1.4;
-  font-weight: 500;
-  margin: auto 0;
-  padding: 60px 20px;
+  font-family: var(--font-japanese-serif);
+  font-size: clamp(2rem, 6vw, 3.5rem); /* Slightly smaller max */
+  line-height: 1.5;
+  padding: 40px 20px; /* Dramatically tightened from 100px */
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.sentence-display b, .sentence-display strong {
+/* Elegant emphasis for bolded word */
+.sentence-display b, .sentence-display strong,
+.sentence-japanese b, .sentence-japanese strong {
   color: var(--accent-color);
   font-weight: 700;
-  border-bottom: 2px dashed var(--accent-soft);
+  background: linear-gradient(transparent 75%, var(--accent-light) 75%);
+  padding: 0 4px;
 }
 
-/* --- BACK ERGONOMICS --- */
-
-/* Header Block: Tightly packed word, accent, and audio to maximize space */
-.word-header-block {
-  padding: 16px 24px;
+/* --- TYPOGRAPHY: BACK --- */
+.word-header {
+  text-align: center;
+  padding-bottom: 16px; /* Tightened from 24px */
 }
 
-.word-row {
+.word-display {
+  font-family: var(--font-japanese-serif);
+  font-size: clamp(3rem, 10vw, 5.5rem); /* Slightly smaller max */
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 4px; /* Tightened from 8px */
+}
+
+.word-meta-row {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 4px;
+  margin: 4px 0 12px 0;
 }
 
-.word-display {
-  font-size: clamp(3rem, 9vw, 5rem);
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.frequency-badge {
-  font-family: var(--font-interface);
+.pitch-accent-badge {
+  display: inline-block;
   font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  background-color: var(--accent-light);
-  border: 1px solid var(--accent-soft);
-  padding: 3px 10px;
-  border-radius: 6px;
-}
-
-.pitch-accent-container {
-  display: inline-flex;
-  font-size: 1.2rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  background-color: rgba(255, 255, 255, 0.02);
-  padding: 3px 12px;
-  border-radius: 4px;
   border: 1px solid var(--card-border);
-  margin: 4px 0;
+  padding: 2px 12px; /* Tightened from 4px 16px */
+  border-radius: 30px;
+  background-color: rgba(255,255,255,0.02);
 }
 
-.audio-group {
+.audio-row {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 16px; /* Tightened from 24px */
+}
+
+/* Styled Anki Audio Buttons */
+.audio-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Style raw Anki audio buttons to fit the premium interface */
+.replaybutton, .replaybutton svg {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.replaybutton {
+  text-decoration: none !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background-color: var(--accent-light) !important;
+  border: 1px solid var(--card-border) !important;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.replaybutton:hover {
+  background-color: var(--accent-soft) !important;
+  transform: scale(1.15);
+  border-color: var(--accent-color) !important;
+}
+
+.replaybutton svg {
+  width: 14px !important;
+  height: 14px !important;
+  fill: var(--accent-color) !important;
+}
+
+.definition-box {
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  border-top: 1px solid var(--card-border);
+  padding-top: 24px;
+  margin-top: 24px;
+  max-width: var(--text-max-width);
+}
+
+/* --- SENTENCE BLOCK --- */
+.sentence-japanese {
+  font-family: var(--font-japanese-serif);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.field-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  margin-bottom: 12px;
+}
+
+.translation-box {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-left: 3px solid var(--accent-color);
+  padding: 12px 20px; /* Tightened from 16px 24px */
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  max-width: var(--text-max-width);
   margin-top: 8px;
 }
 
-/* Audio buttons revert to Anki vanilla (removed custom styling block) */
-
-.definition-divider {
-  border: none;
-  border-top: 1px solid var(--card-border);
-  margin: 16px 0;
-  opacity: 0.6;
-}
-
-.word-definition-container {
-  font-size: 1.3rem;
-  line-height: 1.6;
-  text-align: left;
-}
-
-/* --- SENTENCE --- */
-.sentence-block {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sentence-japanese {
-  font-size: clamp(1.8rem, 5vw, 2.6rem);
-  line-height: 1.5;
-}
-
-.sentence-japanese b { color: var(--accent-color); }
-
-.translation-wrapper {
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 1px dashed var(--card-border);
-  border-radius: var(--border-radius-md);
-  padding: 10px 20px;
-  margin: 4px auto;
-  max-width: 70%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.translation-wrapper:hover {
-  border-color: var(--accent-color);
-  background-color: var(--accent-light);
+.card:not(.nightMode) .translation-box {
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .translation-text {
   display: none;
-  font-family: var(--font-interface);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: var(--text-secondary);
 }
 
-.translation-wrapper.revealed .translation-text { display: block; }
-.translation-wrapper.revealed .translation-hint { display: none; }
+.translation-box.revealed .translation-text { display: block; animation: fadeIn 0.4s ease; }
+.translation-box.revealed .translation-hint { display: none; }
 
-/* --- REFINED IMAGE LIGHTBOX --- */
-.picture-wrapper {
-  align-self: center;
-  margin-top: 8px;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- IMAGE & MEDIA --- */
 .picture-container img {
-  width: clamp(250px, 55%, 600px);
-  max-width: 100%;
+  width: 100%;
+  height: auto;
   border-radius: var(--border-radius-md);
   border: 1px solid var(--card-border);
   cursor: zoom-in;
-  /* Smooth transition for hover and baseline click */
-  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Lightbox expansion: Using a fixed class with a clean CSS-only transition system */
-.picture-container.expanded img {
+.picture-container img:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* Lightbox Overlay Animation */
+.expanded-img {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(1.1); /* Slight over-scale for impact */
-  width: auto;
-  max-width: 90vw;
-  max-height: 90vh;
-  z-index: 1001;
-  cursor: zoom-out;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
-  border: none;
+  transform: translate(-50%, -50%) scale(1);
+  max-width: 95vw;
+  max-height: 95vh;
+  z-index: 2000;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  animation: lightboxIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.picture-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6); /* Softened opacity to see context */
-  backdrop-filter: blur(5px);
-  z-index: 1000;
-  opacity: 0;
+@keyframes lightboxIn {
+  from { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* --- FURIGANA HOVER (Word-by-word) --- */
+ruby rt {
   visibility: hidden;
-  transition: opacity 0.4s ease, visibility 0.4s;
+  opacity: 0;
+  font-size: 0.55em;
+  color: var(--accent-color);
+  transition: opacity 0.15s ease-out;
+  pointer-events: none;
+  transform: translateY(2px);
 }
 
-.picture-container.expanded + .picture-overlay {
-  opacity: 1;
+ruby:hover rt {
   visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* --- SUPPLEMENTARY --- */
+/* --- SUPPLEMENTARY BLOCKS --- */
+.details-wrapper {
+  margin-top: 20px;
+}
+
 .modern-details {
   border: 1px solid var(--card-border);
-  background-color: rgba(255, 255, 255, 0.01);
+  border-radius: var(--border-radius-md);
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .modern-summary {
-  padding: 12px 20px;
-  font-size: 1rem;
+  padding: 14px 24px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+  color: var(--text-secondary);
+}
+
+.modern-summary:hover {
+  background-color: var(--accent-light);
+  color: var(--accent-color);
 }
 
 .extended-def-content {
-  padding: 16px;
-  font-size: 1.05rem;
+  padding: 24px;
+  font-size: 1rem;
+  line-height: 1.7;
+  border-top: 1px solid var(--card-border);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.html-content {
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 /* --- FOOTER --- */
-.source-container {
-  padding: 30px 0;
-  font-size: 0.85rem;
+.source-footer {
+  text-align: center;
+  padding: 30px 0; /* Tightened from 60px */
+  font-size: 0.7rem;
+  font-weight: 600;
   color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* --- LISTENING MODE --- */
+.listening-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px; /* Tightened from 120px */
+}
+
+.audio-pulse {
+  font-size: 5rem;
+  color: var(--accent-color);
+  margin-bottom: 32px;
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* --- MOBILE OPTIMIZATIONS --- */
+@media (max-width: 600px) {
+  .card-container {
+    padding: 8px 10px 24px 10px;
+  }
+  
+  .card-block {
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  
+  .word-display {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+  
+  .sentence-display {
+    padding: 30px 15px;
+  }
+
+  .back-grid {
+    gap: 12px;
+  }
+  
+  .word-meta-row {
+    flex-direction: row; /* Keep row unless really tight */
+    gap: 8px;
+  }
+  
+  .audio-row {
+    gap: 12px;
+  }
 }

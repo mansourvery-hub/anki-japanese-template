@@ -5,7 +5,7 @@
 - ## Operational Rules
 - Never modify `sync_anki.py` during HTML/CSS editing tasks.
   Read `@JapNoteType.json` whenever you need the name of the fields.  
-- The use of scripts should be minimal (no script is acceptable), you better have a very good reason for a script
+- The use of javascripts should be minimal (no script is acceptable), you better have a very good reason for a script
 - in general the code should be filled with high signal comments explaining what each part does and behaves
 - The code should be crystal clear for any other agent reading it in the futre but also for a good human programmer
 - After modifying the local files,  a small python script to talk to anki connect and update the note template in question directly is required
