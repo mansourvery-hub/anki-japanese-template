@@ -1,54 +1,53 @@
 /**
- * Japanese Note Type - Modern & Responsive Stylesheet
+ * Japanese Note Type - Refined & Space-Efficient Stylesheet
  * 
- * Designed for maximum readability and ergonomics across all device sizes (PC/Arch Linux to Samsung Galaxy A50).
- * Supports automatic theme switching based on Anki's Night Mode.
- * Fully compliant with 'no scripts where possible' policy, using CSS transitions, flexbox, and CSS-only interactive states.
+ * Optimized for spatial density, beautiful traditional typography, and high ergonomics.
+ * Uses "Yu Mincho" for elegant serif-style Japanese presentation.
+ * Custom built for Arch Linux (PC) and Samsung Galaxy A50 (Mobile) with ultra-low padding overhead.
  */
 
 :root {
   /* --- ELEGANT DARK THEME (Default) --- */
-  --bg-color: #0b0f19;          /* Deep dark blue/black */
+  --bg-color: #0b0f19;          /* Deep dark slate black */
   --card-bg: #1e293b;           /* Slate 800 */
   --card-border: #334155;       /* Slate 700 */
   --text-primary: #f8fafc;      /* Slate 50 */
-  --text-secondary: #94a3b8;    /* Slate 400 */
+  --text-secondary: #cbd5e1;    /* Slate 300 (slightly brighter for contrast) */
   --text-muted: #64748b;        /* Slate 500 */
   
   --accent-color: #a855f7;      /* Vivid Purple 500 */
-  --accent-light: rgba(168, 85, 247, 0.15);
+  --accent-light: rgba(168, 85, 247, 0.12);
   --accent-hover: #c084fc;      /* Purple 400 */
   
-  --bg-sticky: rgba(11, 15, 25, 0.8);
-  --border-radius-lg: 16px;
-  --border-radius-md: 10px;
-  --border-radius-sm: 6px;
+  --bg-sticky: rgba(11, 15, 25, 0.85);
+  --border-radius-lg: 12px;     /* Snugger, modern corners */
+  --border-radius-md: 8px;
+  --border-radius-sm: 4px;
   
-  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 12px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
   
-  /* Font Families */
-  --font-japanese: "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  /* Serif Japanese Fonts (Traditional, refined, and highly legible) */
+  --font-japanese: "Yu Mincho", "MS Mincho", "Noto Serif JP", "Hiragino Mincho ProN", "YuMincho", serif;
   --font-interface: "Noto Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
 /* --- LIGHT THEME OVERRIDE --- */
-/* Applied automatically when Anki is not in Night Mode */
 body:not(.nightMode), .card:not(.nightMode) {
-  --bg-color: #f8fafc;          /* Slate 50 */
+  --bg-color: #f1f5f9;          /* Clean Slate 100 */
   --card-bg: #ffffff;           /* Pure White */
-  --card-border: #e2e8f0;       /* Slate 200 */
+  --card-border: #cbd5e1;       /* Slate 300 */
   --text-primary: #0f172a;      /* Slate 900 */
-  --text-secondary: #475569;    /* Slate 600 */
-  --text-muted: #94a3b8;        /* Slate 400 */
+  --text-secondary: #334155;    /* Slate 700 */
+  --text-muted: #64748b;        /* Slate 500 */
   
   --accent-color: #7c3aed;      /* Purple 600 */
   --accent-light: rgba(124, 58, 237, 0.08);
   --accent-hover: #6d28d9;      /* Purple 700 */
   
-  --bg-sticky: rgba(248, 250, 252, 0.85);
-  --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --bg-sticky: rgba(241, 245, 249, 0.9);
+  --shadow-lg: 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -2px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 /* --- BASE CARD & RESET --- */
@@ -63,7 +62,6 @@ body:not(.nightMode), .card:not(.nightMode) {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Outer layout container to enforce ergonomics */
 .card-wrapper {
   display: flex;
   flex-direction: column;
@@ -71,61 +69,53 @@ body:not(.nightMode), .card:not(.nightMode) {
   box-sizing: border-box;
 }
 
-/* The card container itself - centers contents and manages responsive max width */
+/* Compressed padding and narrower max-width to fully eliminate wasted horizontal space */
 .card-container {
   flex-grow: 1;
-  max-width: 800px;
+  max-width: 680px; /* Snugger width is significantly more ergonomic for reading */
   width: 100%;
   margin: 0 auto;
-  padding: 24px 16px 48px 16px;
+  padding: 12px 12px 24px 12px; /* Greatly reduced from original 24px padding */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px; /* Snugger gaps between blocks */
 }
 
-/* --- FIXED FLOATING TAG BAR --- */
-/* Pins tags at the very top of the card. Glassmorphism design details. */
+/* --- FIXED FLOATING TAG BAR (Back Card Only) --- */
 .tags-container {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 100;
   width: 100%;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background-color: var(--bg-sticky);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--card-border);
   box-shadow: var(--shadow-sm);
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   box-sizing: border-box;
 }
 
-/* Individual tag styling */
 .tag-pill {
   font-family: var(--font-interface);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--accent-color);
   background-color: var(--accent-light);
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  padding: 3px 10px;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  padding: 2px 8px;
   border-radius: 9999px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: transform 0.15s ease;
-}
-
-.tag-pill:hover {
-  transform: translateY(-1px);
+  letter-spacing: 0.03em;
 }
 
 /* --- HOVER FURIGANA SYSTEM --- */
-/* Displays furigana only on mouse hover (or tap on mobile). Clean, zero layout shifts. */
 .hover-furigana ruby {
   ruby-position: over;
   cursor: help;
@@ -134,14 +124,13 @@ body:not(.nightMode), .card:not(.nightMode) {
 .hover-furigana ruby rt {
   visibility: hidden;
   opacity: 0;
-  font-size: 0.55em;
+  font-size: 0.52em;
   font-weight: bold;
   color: var(--accent-color);
-  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+  transition: opacity 0.12s ease-in-out, transform 0.12s ease-in-out;
   transform: translateY(2px);
 }
 
-/* Trigger on hovering the parent ruby element */
 .hover-furigana ruby:hover rt,
 .hover-furigana ruby:active rt {
   visibility: visible;
@@ -149,69 +138,55 @@ body:not(.nightMode), .card:not(.nightMode) {
   transform: translateY(0);
 }
 
-/* --- MODERN COMPONENT CARD BLOCK --- */
-/* Reusable styling for blocks on the back card to keep a consistent modern theme */
+/* --- SPACE-EFFICIENT COMPONENT CARD BLOCK --- */
 .card-block {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
-  padding: 24px;
+  padding: 16px 20px; /* Snugger inner padding to utilize screen efficiently */
   box-shadow: var(--shadow-lg);
   text-align: left;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card-block:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.55);
-}
-
-body:not(.nightMode) .card-block:hover {
-  box-shadow: 0 12px 30px -5px rgba(15, 23, 42, 0.06);
 }
 
 /* --- FRONT CARD SPECIFIC VIEWS --- */
-/* Handles standard sentence view and listening fallback view elegantly */
-
-/* Sentence display on Front Card */
 .sentence-display {
-  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  font-size: clamp(1.5rem, 4.2vw, 2.2rem);
   line-height: 1.6;
   font-weight: 500;
   color: var(--text-primary);
   text-align: center;
   margin: auto 0;
-  padding: 40px 20px;
+  padding: 30px 12px;
   word-break: break-all;
 }
 
-/* Make sure the bold targeted word stands out beautifully */
+/* Highlighted word in front */
 .sentence-display b, .sentence-display strong {
   color: var(--accent-color);
   font-weight: 800;
   border-bottom: 2px dashed var(--accent-color);
-  padding-bottom: 2px;
+  padding-bottom: 1px;
 }
 
-/* Listening card fallback view */
+/* Front Listening Fallback */
 .listening-view {
   text-align: center;
   margin: auto 0;
-  padding: 60px 20px;
+  padding: 40px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .listening-hint {
   font-family: var(--font-interface);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-secondary);
   background-color: var(--accent-light);
-  padding: 6px 16px;
+  padding: 4px 12px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
@@ -220,91 +195,101 @@ body:not(.nightMode) .card-block:hover {
 
 .listening-hint::before {
   content: "🎧";
-  font-size: 1rem;
-}
-
-.no-audio-fallback {
-  font-size: 1.3rem;
-  color: var(--text-secondary);
-  font-style: italic;
-  border: 1px dashed var(--card-border);
-  padding: 16px;
-  border-radius: var(--border-radius-md);
 }
 
 /* --- BACK CARD COMPONENTS --- */
 
-/* Main Word Display (Top of Back Card) */
+/* Unified Main Header Card (Word + Accent + Audios + Def) */
 .word-header-block {
   text-align: center;
-  padding: 32px 20px;
+  padding: 20px 16px;
+}
+
+.word-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .word-display {
-  font-size: clamp(2.5rem, 7vw, 4rem);
+  font-size: clamp(2.2rem, 6.5vw, 3.4rem);
   font-weight: 800;
   color: var(--text-primary);
-  line-height: 1.4;
-  margin-bottom: 8px;
+  line-height: 1.2;
 }
 
-/* Pitch Accent */
+/* Frequency badge - displayed immediately next to the main word at the top */
+.frequency-badge {
+  font-family: var(--font-interface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  background-color: var(--accent-light);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+/* Pitch Accent rating */
 .pitch-accent-container {
-  display: inline-block;
-  font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+  display: inline-flex;
+  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
   color: var(--text-secondary);
   background-color: rgba(255, 255, 255, 0.03);
-  padding: 4px 14px;
+  padding: 3px 10px;
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--card-border);
-  margin-top: 4px;
+  margin: 4px 0 10px 0;
 }
 
 body:not(.nightMode) .pitch-accent-container {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* --- AUDIO BUTTON CUSTOMIZATION --- */
-/* Overrides standard Anki play buttons into elegant, modern audio round buttons */
+/* Audio links aligned and tightly spaced */
 .audio-group {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .audio-item {
   display: inline-flex;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--card-border);
   border-radius: 9999px;
-  padding: 6px 14px 6px 18px;
+  padding: 4px 10px 4px 14px;
   box-shadow: var(--shadow-sm);
-  transition: background-color 0.15s ease;
 }
 
 body:not(.nightMode) .audio-item {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(0, 0, 0, 0.015);
 }
 
 .audio-item:hover {
-  background-color: rgba(168, 85, 247, 0.08);
+  background-color: rgba(168, 85, 247, 0.06);
   border-color: var(--accent-color);
 }
 
 .audio-label {
   font-family: var(--font-interface);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-secondary);
-  margin-right: 8px;
+  margin-right: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-/* Target the standard Anki play link/button classes */
+/* Customized Round Audio Play Buttons */
 .replaybutton, .soundLink {
   display: inline-flex !important;
   align-items: center;
@@ -313,111 +298,164 @@ body:not(.nightMode) .audio-item {
   color: #ffffff !important;
   text-decoration: none !important;
   border-radius: 50% !important;
-  width: 28px !important;
-  height: 28px !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: transform 0.15s ease, background-color 0.15s ease !important;
+  width: 24px !important;
+  height: 24px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 0.1s ease, background-color 0.1s ease !important;
   vertical-align: middle;
 }
 
 .replaybutton:hover, .soundLink:hover {
   background-color: var(--accent-hover) !important;
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 .replaybutton:active, .soundLink:active {
   transform: scale(0.95);
 }
 
-/* Replaces default bracketed text with a beautiful pure CSS play arrow */
+/* Hide [sound] text and draw CSS play icon */
 .replaybutton span, .soundLink span {
   display: inline-block !important;
   width: 0 !important;
   height: 0 !important;
-  border-top: 5px solid transparent !important;
-  border-bottom: 5px solid transparent !important;
-  border-left: 8px solid #ffffff !important;
-  margin-left: 3px !important;
+  border-top: 4px solid transparent !important;
+  border-bottom: 4px solid transparent !important;
+  border-left: 7px solid #ffffff !important;
+  margin-left: 2px !important;
   text-indent: -9999px !important;
   overflow: hidden !important;
 }
 
-/* --- WORD DEFINITION --- */
-.word-definition-container {
-  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
-  line-height: 1.6;
-  color: var(--text-primary);
+/* --- WORD DEFINITION BLOCK --- */
+.definition-divider {
+  border: none;
+  border-top: 1px solid var(--card-border);
+  margin: 16px 0;
 }
 
-/* Style list items, bullets, or dictionary tags typically output by Yomitan */
+.word-definition-container {
+  font-size: clamp(1rem, 2.4vw, 1.15rem);
+  line-height: 1.5;
+  color: var(--text-primary);
+  text-align: left;
+}
+
 .word-definition-container ul, .word-definition-container ol {
-  margin: 8px 0;
-  padding-left: 20px;
+  margin: 6px 0;
+  padding-left: 18px;
 }
 
 .word-definition-container li {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-/* --- SENTENCE BLOCK --- */
+/* --- SENTENCE CONTAINER BLOCK --- */
 .sentence-block {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .sentence-title {
   font-family: var(--font-interface);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--accent-color);
-  letter-spacing: 0.08em;
-  margin-bottom: -4px;
+  letter-spacing: 0.05em;
+  margin-bottom: -2px;
 }
 
 .sentence-japanese {
-  font-size: clamp(1.4rem, 4vw, 1.9rem);
-  line-height: 1.6;
+  font-size: clamp(1.25rem, 3.8vw, 1.7rem);
+  line-height: 1.5;
   color: var(--text-primary);
   font-weight: 500;
 }
 
-/* Bold target word in sentence back-card */
 .sentence-japanese b, .sentence-japanese strong {
   color: var(--accent-color);
   font-weight: 700;
 }
 
-.sentence-translation {
+/* --- REVEAL TRANSLATION INTERACTIVE ELEMENT --- */
+.translation-wrapper {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--card-border);
+  border-radius: var(--border-radius-sm);
+  padding: 6px 12px;
+  margin-top: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  user-select: none;
+}
+
+body:not(.nightMode) .translation-wrapper {
+  background-color: rgba(0, 0, 0, 0.01);
+}
+
+.translation-wrapper:hover {
+  background-color: rgba(168, 85, 247, 0.04);
+  border-color: var(--accent-color);
+}
+
+.translation-text {
+  display: none;
   font-family: var(--font-interface);
-  font-size: clamp(1rem, 2.5vw, 1.15rem);
-  line-height: 1.5;
+  font-size: clamp(0.9rem, 2.3vw, 1.05rem);
   color: var(--text-secondary);
+  text-align: left;
+  line-height: 1.4;
+}
+
+.translation-hint {
+  font-family: var(--font-interface);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.translation-wrapper.revealed {
+  background-color: transparent;
+  border-style: solid;
+  cursor: default;
+}
+
+.translation-wrapper.revealed .translation-hint {
+  display: none;
+}
+
+.translation-wrapper.revealed .translation-text {
+  display: block;
 }
 
 /* --- CONTEXT BLOCK --- */
 .context-container {
   border-left: 3px solid var(--accent-color);
-  padding: 4px 0 4px 16px;
-  margin-top: 8px;
-  background-color: rgba(255, 255, 255, 0.01);
+  padding: 2px 0 2px 12px;
+  margin-top: 4px;
+  background-color: rgba(255, 255, 255, 0.005);
 }
 
 .context-title {
   font-family: var(--font-interface);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   letter-spacing: 0.05em;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .context-body {
-  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
-  line-height: 1.6;
+  font-size: clamp(0.9rem, 2.2vw, 1rem);
+  line-height: 1.5;
   color: var(--text-secondary);
 }
 
@@ -426,6 +464,7 @@ body:not(.nightMode) .audio-item {
   position: relative;
   align-self: center;
   max-width: 100%;
+  margin-top: 4px;
 }
 
 .picture-container {
@@ -435,22 +474,20 @@ body:not(.nightMode) .audio-item {
 
 .picture-container img {
   max-width: 100%;
-  max-height: 220px;
+  max-height: 160px; /* Reduced from 220px to save vertical space */
   border-radius: var(--border-radius-md);
   border: 1px solid var(--card-border);
   cursor: zoom-in;
   object-fit: contain;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .picture-container img:hover {
   transform: scale(1.02);
-  box-shadow: var(--shadow-lg);
 }
 
-/* --- PICTURE EXPANDED STATE (LIGHTBOX) --- */
-/* Clicking on the picture applies this class via our highly robust inline JS handler */
+/* Lightbox zoom view overlay */
 .picture-container.expanded img {
   position: fixed;
   top: 50%;
@@ -459,9 +496,8 @@ body:not(.nightMode) .audio-item {
   max-width: 90vw;
   max-height: 85vh;
   z-index: 1001;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
   cursor: zoom-out;
-  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .picture-overlay {
@@ -484,51 +520,9 @@ body:not(.nightMode) .audio-item {
   opacity: 1;
 }
 
-/* --- SECONDARY FIELDS GRID --- */
-.extra-fields-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.field-item {
-  border-bottom: 1px solid var(--card-border);
-  padding-bottom: 12px;
-}
-
-.field-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.field-label {
-  font-family: var(--font-interface);
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.field-value {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: var(--text-primary);
-}
-
-/* For notes or richer HTML content, slightly shift formatting */
-.field-value.html-content {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-/* --- COLLAPSIBLE EXTENDED DEFINITION --- */
-/* Pure HTML <details> and <summary> for zero script collapsible block */
+/* --- COLLAPSIBLE EXTENDED DEFINITION ACCORDION --- */
 .extended-def-container {
-  margin-top: 12px;
+  margin-top: 4px;
 }
 
 .modern-details {
@@ -536,11 +530,11 @@ body:not(.nightMode) .audio-item {
   border-radius: var(--border-radius-md);
   background-color: rgba(255, 255, 255, 0.01);
   overflow: hidden;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 body:not(.nightMode) .modern-details {
-  background-color: rgba(0, 0, 0, 0.005);
+  background-color: rgba(0, 0, 0, 0.003);
 }
 
 .modern-details:hover {
@@ -548,13 +542,13 @@ body:not(.nightMode) .modern-details {
 }
 
 .modern-summary {
-  list-style: none; /* Hide default arrow */
+  list-style: none;
   outline: none;
   cursor: pointer;
-  padding: 16px;
+  padding: 10px 14px;
   font-family: var(--font-interface);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   display: flex;
   justify-content: space-between;
@@ -562,7 +556,6 @@ body:not(.nightMode) .modern-details {
   user-select: none;
 }
 
-/* Hide native details arrow in webkit browsers */
 .modern-summary::-webkit-details-marker {
   display: none;
 }
@@ -570,43 +563,42 @@ body:not(.nightMode) .modern-details {
 .summary-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .summary-title::before {
   content: "📖";
-  font-size: 1.05rem;
+  font-size: 0.9rem;
 }
 
 .summary-icon {
-  font-size: 0.8rem;
-  transition: transform 0.2s ease;
+  font-size: 0.75rem;
+  transition: transform 0.15s ease;
   color: var(--text-muted);
 }
 
-/* Rotates the custom icon on details open */
 .modern-details[open] .summary-icon {
   transform: rotate(180deg);
   color: var(--accent-color);
 }
 
 .extended-def-content {
-  padding: 0 16px 16px 16px;
+  padding: 0 14px 14px 14px;
   border-top: 1px dashed var(--card-border);
   text-align: left;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: var(--text-secondary);
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
 /* --- SOURCE FOOTER (Very Bottom) --- */
 .source-container {
   margin-top: auto;
-  padding-top: 32px;
+  padding-top: 16px; /* Reduced to save screen space */
   font-family: var(--font-interface);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   text-align: center;
 }
@@ -615,38 +607,41 @@ body:not(.nightMode) .modern-details {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted);
 }
 
 .source-value {
   font-style: italic;
 }
 
-/* --- RESPONSIVE ADJUSTMENTS (Samsung Galaxy A50 / Mobile Screens) --- */
+/* --- MOBILE SPECIFIC SCALING (Samsung Galaxy A50 / Small Devices) --- */
 @media (max-width: 600px) {
   .card-container {
-    padding: 16px 12px 32px 12px;
-    gap: 16px;
+    padding: 8px 8px 16px 8px;
+    gap: 8px;
   }
   
   .card-block {
-    padding: 18px 14px;
+    padding: 12px 14px;
     border-radius: var(--border-radius-md);
   }
   
   .sentence-display {
-    padding: 24px 8px;
+    padding: 18px 6px;
   }
   
   .audio-group {
-    gap: 10px;
+    gap: 8px;
   }
   
   .audio-item {
-    padding: 4px 10px 4px 14px;
+    padding: 3px 8px 3px 12px;
+  }
+  
+  .picture-container img {
+    max-height: 130px;
   }
   
   .extended-def-content {
-    max-height: 220px;
+    max-height: 160px;
   }
 }

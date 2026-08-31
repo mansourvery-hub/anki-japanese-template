@@ -1,8 +1,10 @@
 <!-- BACK CARD TEMPLATE
-     Implements a floating fixed tag bar at the very top.
-     Organizes fields into modern, clean components styled as cards.
-     Furigana is displayed using hover effects on both the main word and sentences.
-     Includes interactive click-to-expand image zoom and native pure CSS collapsible details.
+     - Optimized for space efficiency: merges word header and main definition into a single block.
+     - Displays the Frequency badge at the very top immediately next to the word.
+     - Sentence translation is hidden by default and reveals itself smoothly when clicked.
+     - Completely hides 'Reading' and 'Original Inflected Term' blocks.
+     - Implements fixed floating tag pills at the top, hover furigana, interactive lightbox picture,
+       and native pure HTML/CSS collapsible extended definitions.
 -->
 
 <div class="card-wrapper">
@@ -12,7 +14,7 @@
     {{#Tags}}
       <!-- Raw Anki tags (hidden, parsed into beautiful pills by the script below) -->
       <div id="tags-raw" style="display: none;">{{Tags}}</div>
-      <div id="tags-list" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
+      <div id="tags-list" style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;"></div>
       
       <script>
         (function() {
@@ -38,21 +40,29 @@
   <!-- Main Card Body -->
   <div class="card-container">
 
-    <!-- 1. WORD HEADER CARD BLOCK (Always visible)
-         Displays the main vocabulary word (with hover furigana), pitch accent, and audio players.
+    <!-- 1. UNIFIED WORD & DEFINITION CARD BLOCK (Combines elements to fully eliminate empty space)
+         Contains: Word (with hover furigana), Frequency (next to word), Pitch Accent, Audio players, and Main Definition.
     -->
     <div class="card-block word-header-block">
-      <!-- Vocabulary Word with hover furigana -->
-      <div class="word-display hover-furigana">
-        {{#furigana}}
-          {{furigana:furigana}}
-        {{/furigana}}
-        {{^furigana}}
-          {{Expression}}
-        {{/furigana}}
+      
+      <!-- Word display and Frequency tag inline -->
+      <div class="word-row">
+        <div class="word-display hover-furigana">
+          {{#furigana}}
+            {{furigana:furigana}}
+          {{/furigana}}
+          {{^furigana}}
+            {{Expression}}
+          {{/furigana}}
+        </div>
+        
+        <!-- Frequency rating displayed at the top, next to the word, easy to spot -->
+        {{#Frequency}}
+          <span class="frequency-badge" title="Frequency Rating">{{Frequency}}</span>
+        {{/Frequency}}
       </div>
 
-      <!-- Pitch Accent rating if available -->
+      <!-- Pitch Accent rating -->
       {{#Pitch Accent}}
         <div class="pitch-accent-container">
           {{Pitch Accent}}
@@ -72,28 +82,26 @@
           </span>
         {{/Sentence Audio}}
       </div>
-    </div>
 
-
-    <!-- 2. MAIN WORD DEFINITION (Shows only if present) -->
-    {{#Definition}}
-      <div class="card-block">
-        <span class="sentence-title" style="display: block; margin-bottom: 8px;">Definition</span>
+      <!-- Main Word Definition (Sits within the top card divided by a clean line) -->
+      {{#Definition}}
+        <hr class="definition-divider">
         <div class="word-definition-container">
           {{Definition}}
         </div>
-      </div>
-    {{/Definition}}
+      {{/Definition}}
+
+    </div>
 
 
-    <!-- 3. SENTENCE BLOCK (Shows only if sentence has content)
-         Displays sentence with hover furigana, English translation, and context if present.
+    <!-- 2. SENTENCE BLOCK (Shows only if sentence has content)
+         Displays sentence with hover furigana, interactive translation reveal, and context.
     -->
     {{#Sentence}}
       <div class="card-block sentence-block">
         <span class="sentence-title">Sentence</span>
         
-        <!-- Japanese sentence with hover furigana (uses sentence furigana field if available) -->
+        <!-- Japanese sentence with hover furigana -->
         <div class="sentence-japanese hover-furigana">
           {{#Sentence (furigana)}}
             {{furigana:Sentence (furigana)}}
@@ -103,10 +111,11 @@
           {{/Sentence (furigana)}}
         </div>
 
-        <!-- Sentence translation -->
+        <!-- Interactive Click-to-Reveal Sentence translation -->
         {{#Translation}}
-          <div class="sentence-translation">
-            {{Translation}}
+          <div class="translation-wrapper" onclick="this.classList.toggle('revealed')">
+            <div class="translation-hint">👁️ Click to show translation</div>
+            <div class="translation-text">{{Translation}}</div>
           </div>
         {{/Translation}}
 
@@ -121,19 +130,16 @@
     {{/Sentence}}
 
 
-    <!-- 4. PICTURE BLOCK (Shows only if present)
-         Includes click-to-expand interactive lightbox.
-    -->
+    <!-- 3. PICTURE BLOCK (Shows only if present, with click-to-expand lightbox) -->
     {{#Picture}}
       <div class="picture-wrapper">
         <div class="picture-container" id="pic-container">
           {{Picture}}
         </div>
-        <!-- Lightbox blur/dim backdrop overlay -->
         <div class="picture-overlay" id="pic-overlay"></div>
       </div>
 
-      <!-- Ultra-lightweight interaction script for lightbox zoom -->
+      <!-- Lightweight interaction script for lightbox zoom -->
       <script>
         (function() {
           var container = document.getElementById('pic-container');
@@ -141,16 +147,13 @@
           if (container && overlay) {
             var img = container.querySelector('img');
             if (img) {
-              // Click image to toggle expanded state
               img.addEventListener('click', function(e) {
                 e.stopPropagation();
                 container.classList.toggle('expanded');
               });
-              // Click overlay backdrop to dismiss
               overlay.addEventListener('click', function() {
                 container.classList.remove('expanded');
               });
-              // Click anywhere else to dismiss
               document.addEventListener('click', function(e) {
                 if (e.target !== img) {
                   container.classList.remove('expanded');
@@ -163,32 +166,10 @@
     {{/Picture}}
 
 
-    <!-- 5. SECONDARY BLOCKS & EXTRA FIELDS (Shown conditionally) -->
+    <!-- 4. CONDITIONAL KANJI AND NOTES BLOCKS
+         (Reading and Original Inflected Term are completely removed)
+    -->
     
-    <!-- Reading Block -->
-    {{#reading}}
-      <div class="card-block">
-        <span class="field-label">Reading</span>
-        <div class="field-value">{{reading}}</div>
-      </div>
-    {{/reading}}
-
-    <!-- Original Inflected Term Block -->
-    {{#cloze-body}}
-      <div class="card-block">
-        <span class="field-label">Original Inflected Term</span>
-        <div class="field-value">{{cloze-body}}</div>
-      </div>
-    {{/cloze-body}}
-
-    <!-- Frequency Block -->
-    {{#Frequency}}
-      <div class="card-block">
-        <span class="field-label">Frequency Rating</span>
-        <div class="field-value">{{Frequency}}</div>
-      </div>
-    {{/Frequency}}
-
     <!-- Kanji Notes Block -->
     {{#Kanji Notes}}
       <div class="card-block">
@@ -206,9 +187,7 @@
     {{/Notes}}
 
 
-    <!-- 6. EXTENDED DEFINITION BLOCK (At the bottom, expands on click)
-         Uses native HTML details/summary elements. No Javascript needed.
-    -->
+    <!-- 5. COLLAPSIBLE EXTENDED DEFINITION ACCORDION (Native HTMLdetails/summary) -->
     {{#Extended definition}}
       <div class="extended-def-container">
         <details class="modern-details">
@@ -224,7 +203,7 @@
     {{/Extended definition}}
 
 
-    <!-- 7. SOURCE FOOTER (Very Bottom of back card) -->
+    <!-- 6. SOURCE FOOTER (At the very bottom) -->
     {{#Source}}
       <div class="source-container">
         <span class="source-label">Source:</span> <span class="source-value">{{Source}}</span>
