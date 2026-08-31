@@ -130,7 +130,7 @@
     top: 50px; /* Below tags bar */
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
   }
 }
 
@@ -142,7 +142,7 @@
   padding: 16px 20px;
   box-shadow: var(--shadow-premium);
   text-align: left;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 /* --- TYPOGRAPHY: FRONT (Large & Elegant) --- */
@@ -440,7 +440,7 @@ ruby:hover rt {
 /* --- FOOTER --- */
 .source-footer {
   text-align: center;
-  padding: 15px 0;
+  padding: 8px 0;
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-muted);
