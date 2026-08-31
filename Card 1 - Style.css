@@ -1,52 +1,51 @@
 /**
- * Japanese Note Type - Desktop-First Ergonomic Stylesheet
+ * Japanese Note Type - Elegant & Refined Desktop Layout
  * 
- * Provides a high-density, screen-filling layout optimized for high-resolution displays.
- * Leverages fluid typography to maintain readability across all device scales.
+ * Re-establishing a modern, sophisticated aesthetic with tight ergonomics.
+ * Focused on premium typography, subtle transitions, and efficient space usage.
  */
 
 :root {
-  /* --- COLOR PALETTE --- */
-  --bg-color: #0b0f19;
-  --card-bg: #1e293b;
-  --card-border: #334155;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
+  /* --- SOPHISTICATED COLOR PALETTE --- */
+  --bg-color: #0f172a;          /* Slate 900 */
+  --card-bg: #1e293b;           /* Slate 800 */
+  --card-border: #334155;       /* Slate 700 */
+  --text-primary: #f8fafc;      /* Slate 50 */
+  --text-secondary: #94a3b8;    /* Slate 400 */
+  --text-muted: #64748b;        /* Slate 500 */
   
-  --accent-color: #a855f7;
-  --accent-light: rgba(168, 85, 247, 0.15);
-  --accent-hover: #c084fc;
+  --accent-color: #a855f7;      /* Purple 500 */
+  --accent-light: rgba(168, 85, 247, 0.1);
+  --accent-soft: rgba(168, 85, 247, 0.2);
   
-  --bg-sticky: rgba(11, 15, 25, 0.9);
+  --bg-sticky: rgba(15, 23, 42, 0.85);
   --border-radius-lg: 16px;
   --border-radius-md: 10px;
-  --border-radius-sm: 6px;
   
-  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   
-  /* Typography */
+  /* Serif Japanese Fonts */
   --font-japanese: "Yu Mincho", "MS Mincho", "Noto Serif JP", "Hiragino Mincho ProN", "YuMincho", serif;
-  --font-interface: "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-interface: "Inter", "Noto Sans", sans-serif;
 }
 
-/* --- LIGHT THEME --- */
+/* --- LIGHT THEME (Refined Slate) --- */
 body:not(.nightMode), .card:not(.nightMode) {
-  --bg-color: #f1f5f9;
+  --bg-color: #f8fafc;
   --card-bg: #ffffff;
-  --card-border: #cbd5e1;
+  --card-border: #e2e8f0;
   --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
   
   --accent-color: #7c3aed;
-  --accent-light: rgba(124, 58, 237, 0.08);
-  --accent-hover: #6d28d9;
-  
-  --bg-sticky: rgba(241, 245, 249, 0.95);
+  --accent-light: rgba(124, 58, 237, 0.05);
+  --accent-soft: rgba(124, 58, 237, 0.1);
+  --bg-sticky: rgba(248, 250, 252, 0.9);
+  --shadow-premium: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
 }
 
-/* --- BASE CARD & WRAPPER --- */
+/* --- BASE CARD --- */
 .card {
   background-color: var(--bg-color);
   color: var(--text-primary);
@@ -63,49 +62,49 @@ body:not(.nightMode), .card:not(.nightMode) {
   min-height: 100vh;
 }
 
-/* Expanded container to utilize desktop screen space */
 .card-container {
   flex-grow: 1;
-  max-width: 1100px;
+  max-width: 900px; /* Refined width for optimal readability */
   width: 95%;
   margin: 0 auto;
-  padding: 20px 20px 60px 20px;
+  padding: 12px 12px 40px 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
-/* --- FLOATING NAVIGATION --- */
+/* --- STICKY TAGS --- */
 .tags-container {
   position: sticky;
   top: 0;
   z-index: 100;
   width: 100%;
-  padding: 10px 20px;
+  padding: 8px 16px;
   background-color: var(--bg-sticky);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--card-border);
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
 }
 
 .tag-pill {
   font-family: var(--font-interface);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--accent-color);
   background-color: var(--accent-light);
-  border: 1px solid rgba(168, 85, 247, 0.2);
-  padding: 4px 12px;
-  border-radius: 9999px;
+  border: 1px solid var(--accent-soft);
+  padding: 2px 10px;
+  border-radius: 999px;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-/* --- HOVER FURIGANA --- */
+/* --- FURIGANA HOVER --- */
 .hover-furigana ruby {
   ruby-position: over;
   cursor: help;
@@ -117,8 +116,8 @@ body:not(.nightMode), .card:not(.nightMode) {
   font-size: 0.55em;
   font-weight: bold;
   color: var(--accent-color);
-  transition: opacity 0.2s ease-in-out, transform 0.2s ease;
-  transform: translateY(2px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(3px);
 }
 
 .hover-furigana ruby:hover rt {
@@ -127,44 +126,35 @@ body:not(.nightMode), .card:not(.nightMode) {
   transform: translateY(0);
 }
 
-/* --- CONTENT BLOCKS --- */
+/* --- REFINED BLOCKS --- */
 .card-block {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
-  padding: 32px 48px;
-  box-shadow: var(--shadow-lg);
-  text-align: center;
+  padding: 20px 32px;
+  box-shadow: var(--shadow-premium);
 }
 
-/* --- FRONT CARD TYPOGRAPHY --- */
+/* --- FRONT TYPOGRAPHY --- */
 .sentence-display {
-  /* Dynamic large-scale typography for desktop */
-  font-size: clamp(2.2rem, 8vw, 4.8rem);
-  line-height: 1.3;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.5;
   font-weight: 500;
-  color: var(--text-primary);
-  text-align: center;
   margin: auto 0;
-  padding: 80px 20px;
+  padding: 60px 20px;
 }
 
 .sentence-display b, .sentence-display strong {
   color: var(--accent-color);
-  font-weight: 800;
-  border-bottom: 4px dashed var(--accent-color);
+  font-weight: 700;
+  border-bottom: 2px dashed var(--accent-soft);
 }
 
-.listening-view {
-  text-align: center;
-  margin: auto 0;
-  padding: 100px 20px;
-}
+/* --- BACK ERGONOMICS --- */
 
-/* --- BACK CARD COMPONENTS --- */
-
+/* Header Block: Tightly packed word, accent, and audio to maximize space */
 .word-header-block {
-  padding: 48px 40px;
+  padding: 16px 24px; /* Reduced vertical padding */
 }
 
 .word-row {
@@ -172,100 +162,81 @@ body:not(.nightMode), .card:not(.nightMode) {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
 .word-display {
-  /* Fluid typography for primary term */
-  font-size: clamp(3.2rem, 10vw, 6rem);
+  font-size: clamp(2.5rem, 7vw, 4.2rem);
   font-weight: 800;
-  color: var(--text-primary);
   line-height: 1.1;
 }
 
 .frequency-badge {
   font-family: var(--font-interface);
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--accent-color);
   background-color: var(--accent-light);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  padding: 5px 12px;
-  border-radius: 8px;
+  border: 1px solid var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
 .pitch-accent-container {
   display: inline-flex;
-  font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+  font-size: 1rem;
   color: var(--text-secondary);
-  background-color: rgba(255, 255, 255, 0.03);
-  padding: 6px 16px;
-  border-radius: var(--border-radius-sm);
+  background-color: rgba(255, 255, 255, 0.02);
+  padding: 2px 10px;
+  border-radius: 4px;
   border: 1px solid var(--card-border);
-  margin: 15px 0;
+  margin: 4px 0;
 }
 
 .audio-group {
   display: flex;
   justify-content: center;
-  gap: 24px;
-  margin-top: 15px;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-/* Styled Audio Buttons */
+/* Replay Button refinement */
 .replaybutton, .soundLink {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
   background-color: var(--accent-color) !important;
+  width: 28px !important;
+  height: 28px !important;
   border-radius: 50% !important;
-  width: 36px !important;
-  height: 36px !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
-
-.replaybutton:hover { transform: scale(1.15) !important; }
 
 .replaybutton span, .soundLink span {
-  display: inline-block !important;
-  width: 0 !important;
-  height: 0 !important;
-  border-top: 7px solid transparent !important;
-  border-bottom: 7px solid transparent !important;
-  border-left: 10px solid #ffffff !important;
-  margin-left: 3px !important;
-  text-indent: -9999px !important;
+  border-left-color: #ffffff !important;
+  border-width: 5px 0 5px 8px !important;
 }
 
 .definition-divider {
   border: none;
   border-top: 1px solid var(--card-border);
-  margin: 32px 0;
-  opacity: 0.5;
+  margin: 16px 0;
+  opacity: 0.6;
 }
 
 .word-definition-container {
-  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  font-size: 1.15rem;
   line-height: 1.6;
   text-align: left;
-  max-width: 960px;
-  margin: 0 auto;
 }
 
-/* --- USAGE SENTENCE --- */
+/* --- SENTENCE --- */
 .sentence-block {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  text-align: center;
+  gap: 8px;
 }
 
 .sentence-japanese {
-  /* Fluid typography for usage sentence */
-  font-size: clamp(2rem, 6vw, 3.2rem);
-  line-height: 1.4;
-  font-weight: 500;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  line-height: 1.5;
 }
 
 .sentence-japanese b { color: var(--accent-color); }
@@ -274,113 +245,97 @@ body:not(.nightMode), .card:not(.nightMode) {
   background-color: rgba(255, 255, 255, 0.02);
   border: 1px dashed var(--card-border);
   border-radius: var(--border-radius-md);
-  padding: 16px 24px;
-  margin: 12px auto;
-  max-width: 85%;
+  padding: 8px 16px;
+  margin: 4px auto;
+  max-width: 70%;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .translation-wrapper:hover {
-  background-color: rgba(168, 85, 247, 0.05);
   border-color: var(--accent-color);
+  background-color: var(--accent-light);
 }
 
 .translation-text {
   display: none;
   font-family: var(--font-interface);
-  font-size: clamp(1.2rem, 2.8vw, 1.45rem);
+  font-size: 1.1rem;
   color: var(--text-secondary);
 }
 
 .translation-wrapper.revealed .translation-text { display: block; }
 .translation-wrapper.revealed .translation-hint { display: none; }
 
-/* --- VISUAL MEDIA & LIGHTBOX --- */
+/* --- REFINED IMAGE LIGHTBOX --- */
 .picture-wrapper {
   align-self: center;
-  margin-top: 20px;
-  width: 100%;
+  margin-top: 8px;
 }
 
 .picture-container img {
-  /* Responsive image scaling */
-  width: clamp(350px, 60%, 800px); 
-  height: auto;
+  width: clamp(200px, 45%, 500px);
   max-width: 100%;
   border-radius: var(--border-radius-md);
   border: 1px solid var(--card-border);
   cursor: zoom-in;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Smooth transition for hover and baseline click */
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
 }
 
+/* Lightbox expansion: Using a fixed class with a clean CSS-only transition system */
 .picture-container.expanded img {
   position: fixed;
   top: 50%;
   left: 50%;
+  transform: translate(-50%, -50%) scale(1.1); /* Slight over-scale for impact */
   width: auto;
-  height: auto;
-  max-width: 95vw;
-  max-height: 95vh;
+  max-width: 90vw;
+  max-height: 90vh;
   z-index: 1001;
-  transform: translate(-50%, -50%) scale(1);
   cursor: zoom-out;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
-  /* Prevents teleportation feel during the fixed positioning switch */
-  animation: lightbox-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes lightbox-fade-in {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+  border: none;
 }
 
 .picture-overlay {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
+  background-color: rgba(0, 0, 0, 0.6); /* Softened opacity to see context */
+  backdrop-filter: blur(5px);
   z-index: 1000;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s;
 }
 
 .picture-container.expanded + .picture-overlay {
-  display: block;
   opacity: 1;
+  visibility: visible;
 }
 
-/* --- SUPPLEMENTARY CONTENT --- */
+/* --- SUPPLEMENTARY --- */
 .modern-details {
   border: 1px solid var(--card-border);
   background-color: rgba(255, 255, 255, 0.01);
 }
 
 .modern-summary {
-  padding: 20px 32px;
-  font-size: 1.2rem;
+  padding: 12px 20px;
+  font-size: 1rem;
 }
 
 .extended-def-content {
-  padding: 24px;
-  font-size: 1.15rem;
-  line-height: 1.6;
+  padding: 16px;
+  font-size: 1.05rem;
 }
 
 /* --- FOOTER --- */
 .source-container {
-  padding: 40px 0;
-  font-size: 1rem;
-}
-
-/* --- RESPONSIVE SCALING --- */
-@media (max-width: 600px) {
-  .card-container { padding: 15px; gap: 15px; }
-  .card-block { padding: 24px; }
-  .word-display { font-size: 2.8rem; }
-  .picture-container img { width: 100%; }
+  padding: 30px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
