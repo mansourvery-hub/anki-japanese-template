@@ -107,14 +107,14 @@
   max-width: var(--max-content-width);
   width: 95%;
   margin: 0 auto;
-  padding: 12px 16px 40px 16px; /* Tightened from 32px 20px 80px */
+  padding: 12px 16px 40px 16px;
   box-sizing: border-box;
 }
 
 .back-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px; /* Tightened from 24px */
+  gap: 16px;
   align-items: start;
 }
 
@@ -122,15 +122,15 @@
 @media (min-width: 1080px) {
   .back-grid {
     grid-template-columns: 1.15fr 0.85fr;
-    gap: 24px; /* Tightened from 32px */
+    gap: 24px;
   }
-  
+
   .side-content {
     position: sticky;
     top: 50px; /* Below tags bar */
     display: flex;
     flex-direction: column;
-    gap: 16px; /* Tightened from 24px */
+    gap: 16px;
   }
 }
 
@@ -139,18 +139,18 @@
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
-  padding: 20px 24px; /* Tightened from 28px 36px */
-  box-shadow: var(--shadow-premium);
-  text-align: left;
-  margin-bottom: 16px; /* Tightened from 24px */
+   padding: 20px 24px;
+   box-shadow: var(--shadow-premium);
+   text-align: left;
+   margin-bottom: 16px;
 }
 
 /* --- TYPOGRAPHY: FRONT (Large & Elegant) --- */
 .sentence-display {
   font-family: var(--font-japanese-serif);
-  font-size: clamp(2rem, 6vw, 3.5rem); /* Slightly smaller max */
+  font-size: clamp(2rem, 6vw, 3.5rem);
   line-height: 1.5;
-  padding: 40px 20px; /* Dramatically tightened from 100px */
+  padding: 40px 20px;
   text-align: center;
   max-width: 900px;
   margin: 0 auto;
@@ -168,15 +168,15 @@
 /* --- TYPOGRAPHY: BACK --- */
 .word-header {
   text-align: center;
-  padding-bottom: 16px; /* Tightened from 24px */
+  padding-bottom: 16px;
 }
 
 .word-display {
   font-family: var(--font-japanese-serif);
-  font-size: clamp(3rem, 10vw, 5.5rem); /* Slightly smaller max */
+  font-size: clamp(3rem, 10vw, 5.5rem);
   font-weight: 800;
   line-height: 1.1;
-  margin-bottom: 4px; /* Tightened from 8px */
+  margin-bottom: 4px;
 }
 
 .word-meta-row {
@@ -194,15 +194,15 @@
   font-weight: 600;
   color: var(--text-secondary);
   border: 1px solid var(--card-border);
-  padding: 2px 12px; /* Tightened from 4px 16px */
-  border-radius: 30px;
+   padding: 2px 12px;
+   border-radius: 30px;
   background-color: rgba(255,255,255,0.02);
 }
 
 .audio-row {
   display: flex;
   justify-content: center;
-  gap: 16px; /* Tightened from 24px */
+  gap: 16px;
 }
 
 /* Styled Anki Audio Buttons */
@@ -278,7 +278,7 @@
 .translation-box {
   background-color: rgba(0, 0, 0, 0.2);
   border-left: 3px solid var(--accent-color);
-  padding: 12px 20px; /* Tightened from 16px 24px */
+  padding: 12px 20px;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -319,6 +319,25 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
+/* Extracted from inline style in back template picture block */
+.picture-block {
+  text-align: center;
+  padding: 12px;
+}
+
+/* Lightbox overlay extracted from inline JS style string */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1999;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
 /* Lightbox Overlay Animation */
 .expanded-img {
   position: fixed;
@@ -353,6 +372,16 @@ ruby:hover rt {
   visibility: visible;
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Touch devices: always show furigana since :hover is unavailable */
+@media (hover: none) {
+  ruby rt {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    font-size: 0.55em;
+  }
 }
 
 /* --- SUPPLEMENTARY BLOCKS --- */
@@ -399,10 +428,22 @@ ruby:hover rt {
   line-height: 1.6;
 }
 
+/* Extracted from inline style in back template context block */
+.context-block {
+  margin-top: 24px;
+}
+
+/* Keyboard-accessible focus for interactive toggle boxes */
+.translation-box:focus-visible,
+.modern-summary:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 /* --- FOOTER --- */
 .source-footer {
   text-align: center;
-  padding: 30px 0; /* Tightened from 60px */
+  padding: 30px 0;
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -416,7 +457,31 @@ ruby:hover rt {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px; /* Tightened from 120px */
+  padding: 60px 20px;
+}
+
+/* Extracted from inline style in front template */
+.listening-label {
+  margin-top: 40px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+/* Extracted from inline style in front template no-audio fallback */
+.no-audio-fallback {
+  font-size: 1.5rem;
+  opacity: 0.4;
+}
+
+/* Centered audio controls for listening-mode front */
+.audio-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .audio-pulse {
@@ -424,6 +489,11 @@ ruby:hover rt {
   color: var(--accent-color);
   margin-bottom: 32px;
   animation: pulseGlow 2.5s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); filter: drop-shadow(0 0 8px var(--accent-color)); }
+  50%      { opacity: 1; transform: scale(1.08); filter: drop-shadow(0 0 20px var(--accent-color)) drop-shadow(0 0 32px var(--accent-color)); }
 }
 
 /* --- MOBILE OPTIMIZATIONS --- */
@@ -454,7 +524,42 @@ ruby:hover rt {
     gap: 8px;
   }
   
-  .audio-row {
-    gap: 12px;
+   .audio-row {
+     gap: 12px;
+   }
+}
+
+/* --- TABLET OPTIMIZATIONS --- */
+@media (min-width: 601px) and (max-width: 1079px) {
+  .card-container {
+    padding: 12px 16px 32px 16px;
+  }
+
+  .card-block {
+    padding: 18px 22px;
+    margin-bottom: 14px;
+  }
+
+  .word-display {
+    font-size: clamp(3rem, 8vw, 4.5rem);
+  }
+
+  .sentence-display {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    padding: 32px 20px;
+  }
+
+  .sentence-japanese {
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  }
+
+  .definition-box {
+    font-size: 1.1rem;
+    padding-top: 20px;
+    margin-top: 20px;
+  }
+
+  .back-grid {
+    gap: 16px;
   }
 }

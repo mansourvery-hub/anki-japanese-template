@@ -1,9 +1,9 @@
 - # Project Architecture & Rules
 - **Environment:** Arch Linux, Anki-Connect (127.0.0.1:8765), Python 3.
   **Goal:** Modern, responsive Japanese Anki note type. 
-  **Core Files:** `Card 1 - Front.template.anki`, `Card 1 - Back.template.anki`, `Card 1 - Style.css`, `sync_anki.py`.
+  **Core Files:** `Card 1 - Front.template.anki`, `Card 1 - Back.template.anki`, `Card 1 - Style.css`, `sync_to_anki.py`.
 - ## Operational Rules
-- Never modify `sync_anki.py` during HTML/CSS editing tasks.
+- Never modify `sync_to_anki.py` during HTML/CSS editing tasks.
   Read `@JapNoteType.json` whenever you need the name of the fields.  
 - The use of javascripts should be minimal (no script is acceptable), you better have a very good reason for a script
 - in general the code should be filled with high signal comments explaining what each part does and behaves

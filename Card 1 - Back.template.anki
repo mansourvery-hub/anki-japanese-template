@@ -95,14 +95,20 @@
             </div>
 
             {{#Translation}}
-              <div class="translation-box" onclick="this.classList.toggle('revealed')">
+              <div class="translation-box"
+                   role="button"
+                   tabindex="0"
+                   aria-expanded="false"
+                   aria-label="View Translation"
+                   onclick="this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
+                   onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
                 <div class="translation-hint">👁️ View Translation</div>
                 <div class="translation-text">{{edit:Translation}}</div>
               </div>
             {{/Translation}}
 
             {{#context}}
-              <div style="margin-top: 24px;">
+              <div class="context-block">
                 <span class="field-label">Context</span>
                 <div class="html-content">{{edit:context}}</div>
               </div>
@@ -112,44 +118,46 @@
 
       </div> <!-- End main-content -->
 
-      <!-- SIDE COLUMN: Media & Supplementary -->
-      <div class="side-content">
-        
-        <!-- Picture Block -->
-        {{#Picture}}
-          <div class="card-block" style="text-align: center; padding: 12px;">
-            <div class="picture-container" id="pic-container">
-              {{Picture}}
-            </div>
-          </div>
-          
-          <script>
-            (function() {
-              const container = document.getElementById('pic-container');
-              if (container) {
-                const img = container.querySelector('img');
-                if (img) {
-                  img.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const clone = this.cloneNode();
-                    clone.className = 'expanded-img';
-                    const overlay = document.createElement('div');
-                    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1999;backdrop-filter:blur(8px);';
-                    document.body.appendChild(overlay);
-                    document.body.appendChild(clone);
-                    
-                    const close = () => {
-                      document.body.removeChild(overlay);
-                      document.body.removeChild(clone);
-                    };
-                    overlay.onclick = close;
-                    clone.onclick = close;
-                  });
-                }
-              }
-            })();
-          </script>
-        {{/Picture}}
+       <!-- SIDE COLUMN: Media & Supplementary -->
+       <div class="side-content">
+         
+         <!-- Picture Block -->
+         {{#Picture}}
+           <div class="card-block picture-block">
+             <div class="picture-container" id="pic-container">
+               {{Picture}}
+             </div>
+           </div>
+           
+           <script>
+             (function() {
+               const container = document.getElementById('pic-container');
+               if (container) {
+                 const img = container.querySelector('img');
+                 if (img) {
+                   img.addEventListener('click', function(e) {
+                     e.stopPropagation();
+                     /* Guard: prevent stacking multiple overlays on rapid clicks */
+                     if (document.querySelector('.lightbox-overlay')) return;
+
+                     const clone = this.cloneNode();
+                     clone.className = 'expanded-img';
+                     const overlay = document.createElement('div');
+                     overlay.className = 'lightbox-overlay';
+                     overlay.appendChild(clone);
+                     document.body.appendChild(overlay);
+
+                     const close = () => {
+                       if (overlay.parentNode) document.body.removeChild(overlay);
+                     };
+                     overlay.onclick = close;
+                     clone.onclick = close;
+                   });
+                 }
+               }
+             })();
+           </script>
+         {{/Picture}}
 
         <!-- Kanji Notes -->
         {{#Kanji Notes}}
