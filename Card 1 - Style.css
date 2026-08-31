@@ -297,13 +297,9 @@
   color: var(--text-secondary);
 }
 
-.translation-box.revealed .translation-text { display: block; animation: fadeIn 0.4s ease; }
+.translation-box.revealed .translation-text { display: block; }
 .translation-box.revealed .translation-hint { display: none; }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
 /* --- IMAGE & MEDIA --- */
 .picture-container img {

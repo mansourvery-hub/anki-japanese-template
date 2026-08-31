@@ -50,7 +50,7 @@
           <div class="word-meta-row">
             {{#Frequency}}
               <div class="frequency-badge">
-                {{Frequency}}
+                {{edit:Frequency}}
               </div>
             {{/Frequency}}
 
@@ -197,7 +197,7 @@
     <!-- Footer -->
     {{#Source}}
       <div class="source-footer">
-        Source: {{Source}}
+        Source: {{edit:Source}}
       </div>
     {{/Source}}
 
