@@ -1,13 +1,41 @@
 <!-- FRONT CARD TEMPLATE
-     Minimalist & Focused Study View.
-     Dynamically switches to 'Listening Mode' when definitions are absent.
+     Premium Ergonomic Japanese Card Front
+     
+     Behavior:
+     1. Standard Study View: If either 'Definition' or 'Extended definition' is populated,
+        the front card displays the Japanese text to test reading comprehension.
+        - Prefers the context 'Sentence' if available.
+        - Falls back to the raw 'Expression' if 'Sentence' is empty.
+     2. Listening Mode: If BOTH definition fields are empty, the card is treated as a 
+        listening comprehension test. The Japanese text is hidden, and an interactive 
+        audio button is displayed.
+     3. Bulletproof Fallback: If both definitions are missing, AND both 'Sentence Audio' 
+        and 'Word Audio' are missing, the card automatically falls back to displaying the
+        text (Sentence/Expression) so the card remains fully studyable during review.
 -->
 
 <div class="card-wrapper">
   <div class="card-container">
 
-  <!-- Standard Study View: Triggered if any definition is present -->
-     {{#Definition}}
+    <!-- ==========================================
+         1. STANDARD STUDY VIEW (Primary Definition Present)
+         ========================================== -->
+    {{#Definition}}
+      <div class="sentence-display">
+        {{#Sentence}}
+          {{edit:Sentence}}
+        {{/Sentence}}
+        {{^Sentence}}
+          {{edit:Expression}}
+        {{/Sentence}}
+      </div>
+    {{/Definition}}
+
+    <!-- ==========================================
+         2. FALLBACK STANDARD STUDY VIEW (Only Extended Definition Present)
+         ========================================== -->
+    {{^Definition}}
+      {{#Extended definition}}
         <div class="sentence-display">
           {{#Sentence}}
             {{edit:Sentence}}
@@ -16,56 +44,75 @@
             {{edit:Expression}}
           {{/Sentence}}
         </div>
-     {{/Definition}}
+      {{/Extended definition}}
+    {{/Definition}}
 
-     <!-- Fallback Standard View for Extended Definition -->
-     {{^Definition}}
-       {{#Extended definition}}
-         <div class="sentence-display">
-           {{#Sentence}}
-             {{edit:Sentence}}
-           {{/Sentence}}
-           {{^Sentence}}
-             {{edit:Expression}}
-           {{/Sentence}}
-         </div>
-       {{/Extended definition}}
-     {{/Definition}}
+    <!-- ==========================================
+         3. LISTENING MODE & PATHOLOGICAL FALLBACKS
+         (Triggered only if BOTH definition fields are missing)
+         ========================================== -->
+    {{^Definition}}
+      {{^Extended definition}}
+        
+        <!-- Case A: Sentence Audio is available -->
+        {{#Sentence Audio}}
+          <div class="listening-view">
+            <div class="audio-pulse">🎧</div>
+            
+            <div class="audio-controls">
+              <div class="audio-item sentence-audio" title="Play Sentence Audio" onclick="this.querySelector('.replaybutton')?.click()">
+                <span class="audio-badge">文</span>
+                <div class="audio-btn-circle">{{Sentence Audio}}</div>
+              </div>
+            </div>
 
-     <!-- Listening Mode: Triggered if BOTH definitions are missing -->
-     {{^Definition}}
-       {{^Extended definition}}
-         <div class="listening-view">
-           <div class="audio-pulse">🎧</div>
-         
-           <div class="audio-controls">
-             {{#Sentence Audio}}
-               <div class="audio-item">
-                 {{Sentence Audio}}
-               </div>
-             {{/Sentence Audio}}
-           
-             {{^Sentence Audio}}
-               {{#Word Audio}}
-                 <div class="audio-item">
-                   {{Word Audio}}
-                 </div>
-               {{/Word Audio}}
-             
-               {{^Word Audio}}
-                 <div class="sentence-display no-audio-fallback">
-                   (No Audio Source Found)
-                 </div>
-               {{/Word Audio}}
-             {{/Sentence Audio}}
-           </div>
+            <div class="listening-label">
+              Listening Card Active
+            </div>
+          </div>
+        {{/Sentence Audio}}
 
-           <div class="listening-label">
-             Listening Card Active
-           </div>
-         </div>
-       {{/Extended definition}}
-     {{/Definition}}
+        <!-- Case B: Sentence Audio missing, but Word Audio is available -->
+        {{^Sentence Audio}}
+          {{#Word Audio}}
+            <div class="listening-view">
+              <div class="audio-pulse">🎧</div>
+              
+              <div class="audio-controls">
+                <div class="audio-item word-audio" title="Play Word Audio" onclick="this.querySelector('.replaybutton')?.click()">
+                  <span class="audio-badge">言葉</span>
+                  <div class="audio-btn-circle">{{Word Audio}}</div>
+                </div>
+              </div>
+
+              <div class="listening-label">
+                Listening Card Active
+              </div>
+            </div>
+          {{/Word Audio}}
+        {{/Sentence Audio}}
+
+        <!-- Case C: CRITICAL PATHOLOGICAL FALLBACK
+             Triggered if BOTH definitions AND BOTH audio fields are missing.
+             Prevents a blank card or generic "No Audio" soft-lock by displaying the text. -->
+        {{^Sentence Audio}}
+          {{^Word Audio}}
+            <div class="sentence-display fallback-display">
+              <!-- Visual indicator for the user that card data is missing/incomplete -->
+              <div class="fallback-badge">⚠️ Fallback View (No Definition or Audio)</div>
+              
+              {{#Sentence}}
+                {{edit:Sentence}}
+              {{/Sentence}}
+              {{^Sentence}}
+                {{edit:Expression}}
+              {{/Sentence}}
+            </div>
+          {{/Word Audio}}
+        {{/Sentence Audio}}
+
+      {{/Extended definition}}
+    {{/Definition}}
 
   </div>
 </div>

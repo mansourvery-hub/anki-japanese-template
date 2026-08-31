@@ -1,52 +1,82 @@
 <!-- BACK CARD TEMPLATE
-     Premium Ergonomic Dashboard (Tokyo Night / Aki Paper)
-     Balanced 2-Column Layout for Desktop.
+     Premium Ergonomic Japanese Card Back
+     
+     Layout: Tokyo Night Dark Theme / Aki Paper Light Theme
+     - Features a balanced 2-column dashboard design for desktop.
+     - Scoped, non-colliding inline scripts optimized for Anki's WebView reuse.
+     
+     Structure:
+     1. Sticky Status Bar: Dynamically populated tags with local scoping.
+     2. Main Column: Core lexical information (Word, Pitch Accent, Definition, and Sentence block with interactive Translation).
+     3. Side Column: Sourced media (Lightbox-ready images) and supplementary notes (Kanji, general notes, and extended definition accordion).
 -->
 
 <div class="card-wrapper">
 
-  <!-- Sticky Status Bar (Tags) -->
-  <div class="tags-container">
-    <div id="tags-list" class="tags-list"></div>
-    {{#Tags}}
-      <div id="tags-raw" style="display: none;">{{Tags}}</div>
+  <!-- ==========================================
+       STICKY STATUS BAR (Tags)
+       Only renders if the card has tags. Fully scoped to prevent ID collisions.
+       ========================================== -->
+  {{#Tags}}
+    <div class="tags-container">
+      <div class="tags-list"></div>
+      <div class="tags-raw" style="display: none;">{{Tags}}</div>
       <script>
         (function() {
-          const raw = document.getElementById('tags-raw');
-          const list = document.getElementById('tags-list');
-          if (raw && list) {
-            const tags = raw.innerText.trim().split(/\s+/);
-            tags.forEach(tag => {
-              if (tag) {
-                const span = document.createElement('span');
-                span.className = 'tag-pill';
-                span.innerText = tag;
-                list.appendChild(span);
-              }
-            });
+          // Robust self-location to prevent global DOM ID lookup conflicts
+          const currentScript = document.currentScript || (function() {
+            const scripts = document.getElementsByTagName('script');
+            return scripts[scripts.length - 1];
+          })();
+          const container = currentScript.closest('.tags-container');
+          if (container) {
+            const raw = container.querySelector('.tags-raw');
+            const list = container.querySelector('.tags-list');
+            if (raw && list) {
+              // Parse space-separated tags and generate clean, stylized pill elements
+              const tags = raw.innerText.trim().split(/\s+/);
+              tags.forEach(tag => {
+                if (tag) {
+                  const span = document.createElement('span');
+                  span.className = 'tag-pill';
+                  span.innerText = tag;
+                  list.appendChild(span);
+                }
+              });
+            }
           }
         })();
       </script>
-    {{/Tags}}
-  </div>
+    </div>
+  {{/Tags}}
 
   <div class="card-container">
     <div class="back-grid">
       
-      <!-- MAIN COLUMN: Critical Study Data -->
+      <!-- ==========================================
+           MAIN COLUMN: Critical Study Data
+           ========================================== -->
       <div class="main-content">
         
-        <!-- Word Header Block -->
+        <!-- Word Header Block (Word Display, Frequency, Pitch, Audios, Definition) -->
         <div class="card-block word-header">
+          
+          <!-- Word/Furigana Display with Hover Fallbacks -->
           <div class="word-display">
             {{#furigana}}
               {{furigana:furigana}}
             {{/furigana}}
             {{^furigana}}
-              {{Expression}}
+              {{#Expression}}
+                {{Expression}}
+              {{/Expression}}
+              {{^Expression}}
+                <span style="opacity: 0.3;">(No Expression)</span>
+              {{/Expression}}
             {{/furigana}}
           </div>
 
+          <!-- Meta badges & Audio Trigger Row -->
           <div class="word-meta-row">
             {{#Frequency}}
               <div class="frequency-badge">
@@ -56,42 +86,64 @@
 
             {{#Pitch Accent}}
               <div class="pitch-accent-badge">
-                {{Pitch Accent}}
+                {{edit:Pitch Accent}}
               </div>
             {{/Pitch Accent}}
 
+            <!-- Universal cross-platform audio controllers -->
             <div class="audio-row">
               {{#Word Audio}}
-            <div class="audio-item">
-              <span>言葉</span> {{Word Audio}}
-            </div>
+                <div class="audio-item word-audio" 
+                     title="Play Word Audio" 
+                     onclick="(this.querySelector('.replaybutton') || this.querySelector('.replay-button') || this.querySelector('a.sound') || this.querySelector('.soundLink'))?.click()">
+                  <span class="audio-badge">言葉</span>
+                  <div class="audio-btn-circle">{{Word Audio}}</div>
+                </div>
               {{/Word Audio}}
+              
               {{#Sentence Audio}}
-            <div class="audio-item">
-              <span>文</span> {{Sentence Audio}}
-            </div>
+                <div class="audio-item sentence-audio" 
+                     title="Play Sentence Audio" 
+                     onclick="(this.querySelector('.replaybutton') || this.querySelector('.replay-button') || this.querySelector('a.sound') || this.querySelector('.soundLink'))?.click()">
+                  <span class="audio-badge">文</span>
+                  <div class="audio-btn-circle">{{Sentence Audio}}</div>
+                </div>
               {{/Sentence Audio}}
             </div>
           </div>
 
+          <!-- Primary definition block -->
           {{#Definition}}
             <div class="definition-box">
               {{edit:Definition}}
             </div>
           {{/Definition}}
+
+          <!-- Intelligent fallback definition: If primary definition is empty,
+               automatically render the Extended Japanese Definition in the main box
+               to save screen real estate and reduce required clicks. -->
+          {{^Definition}}
+            {{#Extended definition}}
+              <div class="definition-box extended-definition-fallback">
+                <span class="field-label" style="margin-bottom: 4px;">Extended Definition</span>
+                {{edit:Extended definition}}
+              </div>
+            {{/Extended definition}}
+          {{/Definition}}
         </div>
 
-        <!-- Sentence Block -->
+        <!-- Sentence Block: Rendered if 'Sentence' is populated -->
         {{#Sentence}}
-          <div class="card-block">
-<div class="sentence-japanese">
-  {{#Sentence (furigana)}}
-    {{furigana:Sentence (furigana)}}
-  {{/Sentence (furigana)}}
-  {{^Sentence (furigana)}}
-    {{edit:Sentence}}
-  {{/Sentence (furigana)}}
-</div>
+          <div class="card-block sentence-block">
+            <span class="field-label">Sentence</span>
+            <div class="sentence-japanese">
+              {{#Sentence (furigana)}}
+                {{furigana:Sentence (furigana)}}
+              {{/Sentence (furigana)}}
+              {{^Sentence (furigana)}}
+                {{edit:Sentence}}
+              {{/Sentence (furigana)}}
+            </div>
 
             {{#Translation}}
               <div class="translation-box"
@@ -108,57 +160,100 @@
 
             {{#context}}
               <div class="context-block">
-                <span class="field-label">Context</span>
+                <span class="field-label-sub" style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Context</span>
                 <div class="html-content">{{edit:context}}</div>
               </div>
             {{/context}}
           </div>
         {{/Sentence}}
 
+        <!-- Pathological Fix: Decoupled translation & context blocks
+             Renders Translation and Context if Sentence is empty, so they aren't hidden. -->
+        {{^Sentence}}
+          {{#Translation}}
+            <div class="card-block translation-orphan-block">
+              <span class="field-label">Translation</span>
+              <div class="translation-box revealed" style="cursor: default; pointer-events: none;">
+                <div class="translation-text" style="display: block;">{{edit:Translation}}</div>
+              </div>
+            </div>
+          {{/Translation}}
+
+          {{#context}}
+            <div class="card-block context-orphan-block">
+              <span class="field-label">Context</span>
+              <div class="html-content">{{edit:context}}</div>
+            </div>
+          {{/context}}
+        {{/Sentence}}
+
       </div> <!-- End main-content -->
 
-       <!-- SIDE COLUMN: Media & Supplementary -->
-       <div class="side-content">
+      <!-- ==========================================
+           SIDE COLUMN: Media & Supplementary
+           ========================================== -->
+      <div class="side-content">
          
-         <!-- Picture Block -->
-         {{#Picture}}
-           <div class="card-block picture-block">
-             <div class="picture-container" id="pic-container">
-               {{Picture}}
-             </div>
-           </div>
-           
-           <script>
-             (function() {
-               const container = document.getElementById('pic-container');
-               if (container) {
-                 const img = container.querySelector('img');
-                 if (img) {
-                   img.addEventListener('click', function(e) {
-                     e.stopPropagation();
-                     /* Guard: prevent stacking multiple overlays on rapid clicks */
-                     if (document.querySelector('.lightbox-overlay')) return;
+        <!-- Picture Block: Lightbox capable image display -->
+        {{#Picture}}
+          <div class="card-block picture-block">
+            <div class="picture-container">
+              {{Picture}}
+            </div>
+          </div>
+          
+          <script>
+            (function() {
+              // Local containment selection to avoid ID clashes or stale web view references
+              const currentScript = document.currentScript || (function() {
+                const scripts = document.getElementsByTagName('script');
+                return scripts[scripts.length - 1];
+              })();
+              const block = currentScript.closest('.picture-block');
+              if (block) {
+                // Select all images inside the block to support multi-image setups
+                const images = block.querySelectorAll('.picture-container img');
+                images.forEach(img => {
+                  img.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Prevent piling up multiple overlays
+                    if (document.querySelector('.lightbox-overlay')) return;
 
-                     const clone = this.cloneNode();
-                     clone.className = 'expanded-img';
-                     const overlay = document.createElement('div');
-                     overlay.className = 'lightbox-overlay';
-                     overlay.appendChild(clone);
-                     document.body.appendChild(overlay);
+                    const clone = this.cloneNode();
+                    clone.className = 'expanded-img';
+                    
+                    const overlay = document.createElement('div');
+                    overlay.className = 'lightbox-overlay';
+                    overlay.appendChild(clone);
+                    document.body.appendChild(overlay);
 
-                     const close = () => {
-                       if (overlay.parentNode) document.body.removeChild(overlay);
-                     };
-                     overlay.onclick = close;
-                     clone.onclick = close;
-                   });
-                 }
-               }
-             })();
-           </script>
-         {{/Picture}}
+                    // Reusable close routine to detach event listeners properly
+                    const closeOverlay = () => {
+                      if (overlay.parentNode) {
+                        document.body.removeChild(overlay);
+                      }
+                      document.removeEventListener('keydown', handleKeyDown);
+                    };
 
-        <!-- Kanji Notes -->
+                    // Close lightbox on Escape key
+                    const handleKeyDown = (event) => {
+                      if (event.key === 'Escape') {
+                        closeOverlay();
+                      }
+                    };
+
+                    overlay.onclick = closeOverlay;
+                    clone.onclick = closeOverlay;
+                    document.addEventListener('keydown', handleKeyDown);
+                  });
+                });
+              }
+            })();
+          </script>
+        {{/Picture}}
+
+        <!-- Kanji Notes Section -->
         {{#Kanji Notes}}
           <div class="card-block">
             <span class="field-label">Kanji Notes</span>
@@ -166,7 +261,7 @@
           </div>
         {{/Kanji Notes}}
 
-        <!-- General Notes -->
+        <!-- General Notes Section -->
         {{#Notes}}
           <div class="card-block">
             <span class="field-label">General Notes</span>
@@ -174,26 +269,32 @@
           </div>
         {{/Notes}}
 
-        <!-- Moved: Extended Definitions -->
-        {{#Extended definition}}
-          <div class="details-wrapper">
-            <details class="modern-details">
-              <summary class="modern-summary">
-                <span>Extended Japanese Definition</span>
-                <span>▼</span>
-              </summary>
-              <div class="extended-def-content">
-                {{edit:Extended definition}}
-              </div>
-            </details>
-          </div>
-        {{/Extended definition}}
+        <!-- Extended Definitions Accordion:
+             Only displayed if standard Definition exists.
+             (If Definition is missing, Extended definition renders directly in the main Word Header). -->
+        {{#Definition}}
+          {{#Extended definition}}
+            <div class="details-wrapper">
+              <details class="modern-details">
+                <summary class="modern-summary" tabindex="0">
+                  <span>Extended Japanese Definition</span>
+                  <span>▼</span>
+                </summary>
+                <div class="extended-def-content">
+                  {{edit:Extended definition}}
+                </div>
+              </details>
+            </div>
+          {{/Extended definition}}
+        {{/Definition}}
 
       </div> <!-- End side-content -->
 
     </div> <!-- End back-grid -->
 
-    <!-- Footer -->
+    <!-- ==========================================
+         FOOTER: Source Info
+         ========================================== -->
     {{#Source}}
       <div class="source-footer">
         {{edit:Source}}

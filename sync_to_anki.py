@@ -50,6 +50,7 @@ def _send_payload(action: str, payload: dict) -> dict:
 
     if result.get("error"):
         print(f"ERROR: Anki-Connect returned: {result['error']}")
+        sys.exit(1)
     return result
 
 

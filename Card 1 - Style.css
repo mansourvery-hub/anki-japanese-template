@@ -1,60 +1,98 @@
 /**
- * Japanese Note Type - Premium Ergonomic Layout (Tokyo Night / Aki Paper)
+ * ==============================================================================
+ * Japanese Note Type - Premium Ergonomic Design System
+ * (Tokyo Night Dark / Aki Paper Light)
  * 
- * Optimized for Arch Linux Desktop and Samsung Galaxy Mobile.
- * Features: Balanced 2-column dashboard, word-level furigana hover, 
- * sophisticated micro-interactions, and high-legibility typography.
+ * Target Environments:
+ * - Desktop: Arch Linux / Anki Desktop (Qt6 WebEngine)
+ * - Mobile: Samsung Galaxy A50 / AnkiDroid / AnkiMobile (WebKit & Blink)
+ * 
+ * Features:
+ * 1. Dual adaptive color palettes (Tokyo Night / Aki Paper)
+ * 2. Fluid clamp-based responsive typography & spacing (Zero discrete layout jumps)
+ * 3. Word-by-word furigana reveal with touch & mouse ergonomics
+ * 4. Cross-platform custom audio button styling (Desktop + Mobile)
+ * 5. Hardware-accelerated lightbox overlay with Escape-key accessibility
+ * ==============================================================================
  */
 
+/* ==============================================================================
+   1. COLOR SYSTEM & CSS VARIABLES
+   ============================================================================== */
 :root {
   /* --- TOKYO NIGHT DARK THEME (Default) --- */
-  --bg-color: #0f141c;          /* Deep Obsidian */
-  --card-bg: #182030;           /* Frosted Slate */
+  --bg-color: #0f141c;          /* Deep Obsidian background */
+  --card-bg: #182030;           /* Frosted Slate card surface */
   --card-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f0f6fc;      /* Crisp Off-white */
-  --text-secondary: #94a3b8;    /* Muted Slate */
-  --text-muted: #64748b;        /* Dimmed Slate */
+  --text-primary: #f0f6fc;      /* Crisp Off-white text */
+  --text-secondary: #94a3b8;    /* Muted Slate text */
+  --text-muted: #64748b;        /* Dimmed Slate for badges & labels */
   
-  --accent-color: #38bdf8;      /* Glowing Cyan */
+  --accent-color: #38bdf8;      /* Glowing Cyan accent */
   --accent-light: rgba(56, 189, 248, 0.1);
   --accent-soft: rgba(56, 189, 248, 0.2);
+  --accent-glow: 0 0 16px rgba(56, 189, 248, 0.35);
   
-  --shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
-  --bg-sticky: rgba(15, 20, 28, 0.85);
+  --shadow-premium: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+  --bg-sticky: rgba(15, 20, 28, 0.88);
   --border-radius-lg: 12px;
   --border-radius-md: 8px;
+  --border-radius-sm: 6px;
 
-  /* Layout Gaps & Padding (Desktop default, overridden in media queries) */
-  --gap-block: 12px;
-  --block-padding: 12px 16px;
+  /* Continuous Fluid Spacing (Scale smoothly between mobile & 4K) */
+  --gap-block: clamp(8px, 1.2vw, 14px);
+  --block-padding: clamp(8px, 1.2vw, 14px) clamp(10px, 1.5vw, 18px);
+  --container-padding-y: clamp(6px, 1vw, 12px);
+  --container-padding-x: clamp(6px, 1.5vw, 16px);
   
-  /* Fonts */
-  --font-japanese-serif: "Yu Mincho", "MS Mincho", "Noto Serif JP", serif;
-  --font-japanese-sans: "Inter", "Noto Sans JP", sans-serif;
+  /* High-Legibility Typography Stack */
+  --font-japanese-serif: "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", "Noto Serif JP", serif;
+  --font-japanese-sans: "Inter", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
   --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
   --max-content-width: 1400px;
-  --text-max-width: 850px; /* Optimal reading width for blocks */
+  --text-max-width: 850px;
 }
 
-/* --- AKI PAPER LIGHT THEME --- */
-.card:not(.nightMode) {
-  --bg-color: #fcfaf6;          /* Warm High-Contrast Cream */
-  --card-bg: #ffffff;           /* Pure Matte White */
+/* --- AKI PAPER LIGHT THEME ---
+   Applies when Anki is not in night mode, or when system prefers light mode */
+.card:not(.nightMode):not(.night_mode) {
+  --bg-color: #fcfaf6;          /* Warm Cream Paper background */
+  --card-bg: #ffffff;           /* Pure Matte White card surface */
   --card-border: #e4e2dd;       /* Paper-thin warm border */
-  --text-primary: #1a1b1e;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
+  --text-primary: #1a1b1e;      /* Deep Charcoal */
+  --text-secondary: #4b5563;    /* Slate */
+  --text-muted: #9ca3af;        /* Subdued Warm Grey */
   
-  --accent-color: #d97706;      /* Deep Warm Amber */
+  --accent-color: #d97706;      /* Warm Deep Amber accent */
   --accent-light: rgba(217, 119, 6, 0.06);
-  --accent-soft: rgba(217, 119, 6, 0.12);
+  --accent-soft: rgba(217, 119, 6, 0.14);
+  --accent-glow: 0 0 16px rgba(217, 119, 6, 0.25);
   
-  --bg-sticky: rgba(252, 250, 246, 0.9);
-  --shadow-premium: 0 4px 20px rgba(0,0,0,0.06);
+  --bg-sticky: rgba(252, 250, 246, 0.92);
+  --shadow-premium: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* --- BASE CARD ENGINE --- */
+/* Explicit Night Mode Override (Handles Anki Desktop / AnkiDroid night mode classes) */
+.card.nightMode,
+.card.night_mode {
+  --bg-color: #0f141c;
+  --card-bg: #182030;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #f0f6fc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-color: #38bdf8;
+  --accent-light: rgba(56, 189, 248, 0.1);
+  --accent-soft: rgba(56, 189, 248, 0.2);
+  --bg-sticky: rgba(15, 20, 28, 0.88);
+  --shadow-premium: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ==============================================================================
+   2. BASE CARD LAYOUT & VIEWPORT CONTAINER
+   ============================================================================== */
 .card {
   background-color: var(--bg-color);
   color: var(--text-primary);
@@ -63,16 +101,31 @@
   padding: 0;
   text-align: center;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .card-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
 }
 
-/* --- STICKY STATUS BAR (Tags) --- */
+.card-container {
+  flex-grow: 1;
+  max-width: var(--max-content-width);
+  width: 98%;
+  margin: 0 auto;
+  padding: var(--container-padding-y) var(--container-padding-x);
+  box-sizing: border-box;
+}
+
+
+/* ==============================================================================
+   3. STICKY STATUS BAR (Tags)
+   ============================================================================== */
 .tags-container {
   position: sticky;
   top: 0;
@@ -87,6 +140,14 @@
   justify-content: center;
 }
 
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  padding: 0 8px;
+}
+
 .tag-pill {
   font-size: 0.6rem;
   font-weight: 700;
@@ -98,6 +159,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
 .tag-pill:hover {
@@ -105,16 +167,10 @@
   color: var(--accent-color);
 }
 
-/* --- DYNAMIC DASHBOARD LAYOUT --- */
-.card-container {
-  flex-grow: 1;
-  max-width: 100%;
-  width: 96%;
-  margin: 0 auto;
-  padding: 8px 12px 8px 12px;
-  box-sizing: border-box;
-}
 
+/* ==============================================================================
+   4. DYNAMIC 2-COLUMN DASHBOARD GRID
+   ============================================================================== */
 .back-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -122,26 +178,27 @@
   align-items: start;
 }
 
-.main-content, .side-content {
+.main-content,
+.side-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--gap-block);
 }
 
-/* Desktop - 2-Column Layout */
+/* Desktop 2-Column Balanced Dashboard (>= 768px) */
 @media (min-width: 768px) {
   .back-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: var(--gap-block);
   }
 
   .side-content {
     position: sticky;
-    top: 32px;
+    top: 28px;
   }
 }
 
-/* --- THE CARD BLOCKS --- */
+/* Card Block Surface */
 .card-block {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -151,7 +208,10 @@
   text-align: left;
 }
 
-/* --- TYPOGRAPHY: FRONT (Large & Elegant) --- */
+
+/* ==============================================================================
+   5. FRONT CARD TYPOGRAPHY & EMPHASIS
+   ============================================================================== */
 .sentence-display {
   font-family: var(--font-japanese-serif);
   font-size: clamp(2rem, 6vw, 3.5rem);
@@ -162,16 +222,37 @@
   margin: 0 auto;
 }
 
-/* Elegant emphasis for bolded word */
-.sentence-display b, .sentence-display strong,
-.sentence-japanese b, .sentence-japanese strong {
+/* Elegant emphasis for bolded target word in sentences */
+.sentence-display b,
+.sentence-display strong,
+.sentence-japanese b,
+.sentence-japanese strong {
   color: var(--accent-color);
   font-weight: 700;
   background: linear-gradient(transparent 75%, var(--accent-light) 75%);
   padding: 0 4px;
 }
 
-/* --- TYPOGRAPHY: BACK --- */
+/* Fallback view badge for incomplete cards */
+.fallback-badge {
+  font-family: var(--font-interface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+/* ==============================================================================
+   6. BACK CARD WORD HEADER & META DATA
+   ============================================================================== */
 .word-header {
   text-align: center;
   padding-bottom: 4px;
@@ -181,7 +262,7 @@
   font-family: var(--font-japanese-serif);
   font-size: clamp(2.5rem, 8vw, 5.5rem);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 4px;
 }
 
@@ -194,7 +275,8 @@
   margin: 2px 0 6px 0;
 }
 
-.frequency-badge {
+.frequency-badge,
+.pitch-accent-badge {
   display: inline-block;
   font-size: 0.8rem;
   font-weight: 600;
@@ -205,90 +287,120 @@
   border-radius: 20px;
 }
 
-.audio-row {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-/* Styled Anki Audio Buttons */
-.audio-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: transparent;
-  border: none;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.audio-item span {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-primary);
-  font-family: var(--font-japanese-serif);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-}
-
-.audio-item:hover {
-  transform: translateY(-2px);
-  color: var(--accent-color);
-}
-
-.audio-item:hover span {
-  color: var(--accent-color);
-}
-
-/* Style raw Anki audio buttons to fit the premium interface */
-.replaybutton, .replaybutton svg {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-}
-
-.replaybutton {
-  text-decoration: none !important;
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 50% !important;
-  background-color: var(--accent-light) !important;
-  border: 1px solid var(--card-border) !important;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.replaybutton:hover {
-  background-color: var(--accent-soft) !important;
-  transform: scale(1.15);
-  border-color: var(--accent-color) !important;
-}
-
-.replaybutton svg {
-  width: 14px !important;
-  height: 14px !important;
-  fill: var(--accent-color) !important;
-}
-
 .definition-box {
   font-size: 1.1rem;
   line-height: 1.6;
   color: var(--text-primary);
   border-top: 1px solid var(--card-border);
-  padding-top: 4px;
-  margin-top: 4px;
+  padding-top: 6px;
+  margin-top: 6px;
   max-width: var(--text-max-width);
 }
 
-/* --- SENTENCE BLOCK --- */
+.extended-definition-fallback {
+  border-top: 1px dashed var(--accent-soft);
+}
+
+
+/* ==============================================================================
+   7. CUSTOM CROSS-PLATFORM AUDIO BUTTONS
+   Supports Anki Desktop (Arch/Win/Mac), AnkiDroid, and AnkiMobile
+   ============================================================================== */
+.audio-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(8px, 1.5vw, 16px);
+  margin-top: 4px;
+}
+
+.audio-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 14px;
+  background-color: var(--accent-light);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.audio-item:hover,
+.audio-item:active {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  background-color: var(--accent-soft);
+  box-shadow: var(--accent-glow);
+}
+
+.audio-badge {
+  font-family: var(--font-japanese-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.audio-btn-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Universal Anki Replay Button Reset & Stylization */
+.replaybutton,
+.replay-button,
+a.sound,
+.soundLink {
+  text-decoration: none !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.replaybutton svg,
+.replay-button svg,
+a.sound svg,
+.soundLink svg {
+  width: 12px !important;
+  height: 12px !important;
+  fill: var(--accent-color) !important;
+  transition: fill 0.2s ease !important;
+}
+
+.audio-item:hover .replaybutton,
+.audio-item:hover .replay-button,
+.replaybutton:hover,
+.replay-button:hover {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  transform: scale(1.1);
+}
+
+.audio-item:hover .replaybutton svg,
+.audio-item:hover .replay-button svg,
+.replaybutton:hover svg,
+.replay-button:hover svg {
+  fill: var(--bg-color) !important;
+}
+
+
+/* ==============================================================================
+   8. SENTENCE, TRANSLATION & CONTEXT BLOCKS
+   ============================================================================== */
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
   font-size: clamp(1.6rem, 3vw, 2.6rem);
@@ -305,7 +417,7 @@
   text-transform: uppercase;
   color: var(--text-muted);
   letter-spacing: 0.15em;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .translation-box {
@@ -314,60 +426,118 @@
   padding: 12px 20px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   max-width: var(--text-max-width);
   margin-top: 8px;
 }
 
-.card:not(.nightMode) .translation-box {
+.card:not(.nightMode):not(.night_mode) .translation-box {
   background-color: rgba(0, 0, 0, 0.03);
+}
+
+.translation-box:hover {
+  background-color: var(--accent-light);
 }
 
 .translation-text {
   display: none;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--text-secondary);
 }
 
 .translation-box.revealed .translation-text { display: block; }
 .translation-box.revealed .translation-hint { display: none; }
 
+.context-block {
+  margin-top: var(--gap-block);
+}
 
-/* --- IMAGE & MEDIA --- */
+.html-content {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Accessibility focus styles for keyboard users */
+.translation-box:focus-visible,
+.modern-summary:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+
+/* ==============================================================================
+   9. FURIGANA HOVER & TOUCH SYSTEM
+   Mouse hover for PC (Arch Linux), Touch active state for Mobile (Galaxy A50)
+   ============================================================================== */
+ruby rt {
+  visibility: hidden;
+  opacity: 0;
+  font-size: 0.55em;
+  color: var(--accent-color);
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  pointer-events: none;
+  transform: translateY(2px);
+}
+
+/* Desktop Mouse Hover */
+ruby:hover rt {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Touchscreen tap / active ergonomics */
+ruby:active rt,
+ruby:focus rt,
+ruby:focus-within rt {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ==============================================================================
+   10. MEDIA & LIGHTBOX OVERLAY
+   ============================================================================== */
+.picture-block {
+  text-align: center;
+  padding: 10px;
+}
+
 .picture-container img {
-  width: 100%;
+  max-width: 100%;
+  max-height: 45vh;
   height: auto;
+  object-fit: contain;
   border-radius: var(--border-radius-md);
   border: 1px solid var(--card-border);
   cursor: zoom-in;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .picture-container img:hover {
-  transform: scale(1.01);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transform: scale(1.015);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Extracted from inline style in back template picture block */
-.picture-block {
-  text-align: center;
-  padding: 12px;
-}
-
-/* Lightbox overlay extracted from inline JS style string */
+/* Lightbox Modal Overlay */
 .lightbox-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 1999;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 2000;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
 }
 
-/* Lightbox Overlay Animation */
+/* Hardware-accelerated modal zoom-in */
 .expanded-img {
   position: fixed;
   top: 50%;
@@ -375,35 +545,27 @@
   transform: translate(-50%, -50%) scale(1);
   max-width: 95vw;
   max-height: 95vh;
-  z-index: 2000;
-  border-radius: 8px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-  animation: lightboxIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2001;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+  animation: lightboxIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes lightboxIn {
-  from { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
-  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  from {
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
 }
 
-/* --- FURIGANA HOVER (Word-by-word) --- */
-ruby rt {
-  visibility: hidden;
-  opacity: 0;
-  font-size: 0.55em;
-  color: var(--accent-color);
-  transition: opacity 0.15s ease-out;
-  pointer-events: none;
-  transform: translateY(2px);
-}
 
-ruby:hover rt {
-  visibility: visible;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* --- SUPPLEMENTARY BLOCKS --- */
+/* ==============================================================================
+   11. ACCORDION & SUPPLEMENTARY BLOCKS
+   ============================================================================== */
 .details-wrapper {
   margin-top: 0;
 }
@@ -416,7 +578,7 @@ ruby:hover rt {
 }
 
 .modern-summary {
-  padding: 14px 24px;
+  padding: 12px 20px;
   cursor: pointer;
   font-weight: 700;
   font-size: 0.85rem;
@@ -427,6 +589,7 @@ ruby:hover rt {
   align-items: center;
   transition: background 0.2s;
   color: var(--text-secondary);
+  user-select: none;
 }
 
 .modern-summary:hover {
@@ -435,31 +598,13 @@ ruby:hover rt {
 }
 
 .extended-def-content {
-  padding: 24px;
+  padding: 20px;
   font-size: 1rem;
   line-height: 1.7;
   border-top: 1px solid var(--card-border);
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-.html-content {
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-/* Extracted from inline style in back template context block */
-.context-block {
-  margin-top: 24px;
-}
-
-/* Keyboard-accessible focus for interactive toggle boxes */
-.translation-box:focus-visible,
-.modern-summary:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
-
-/* --- FOOTER --- */
 .source-footer {
   text-align: center;
   padding: 8px 0;
@@ -470,18 +615,20 @@ ruby:hover rt {
   text-transform: uppercase;
 }
 
-/* --- LISTENING MODE --- */
+
+/* ==============================================================================
+   12. LISTENING MODE FRONT
+   ============================================================================== */
 .listening-view {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: clamp(30px, 8vw, 60px) 20px;
 }
 
-/* Extracted from inline style in front template */
 .listening-label {
-  margin-top: 40px;
+  margin-top: 36px;
   font-weight: 800;
   letter-spacing: 0.3em;
   color: var(--text-muted);
@@ -489,13 +636,6 @@ ruby:hover rt {
   text-transform: uppercase;
 }
 
-/* Extracted from inline style in front template no-audio fallback */
-.no-audio-fallback {
-  font-size: 1.5rem;
-  opacity: 0.4;
-}
-
-/* Centered audio controls for listening-mode front */
 .audio-controls {
   display: flex;
   flex-direction: column;
@@ -504,114 +644,53 @@ ruby:hover rt {
 }
 
 .audio-pulse {
-  font-size: 5rem;
+  font-size: clamp(3.5rem, 10vw, 5rem);
   color: var(--accent-color);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   animation: pulseGlow 2.5s infinite;
 }
 
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.6; transform: scale(1); filter: drop-shadow(0 0 8px var(--accent-color)); }
-  50%      { opacity: 1; transform: scale(1.08); filter: drop-shadow(0 0 20px var(--accent-color)) drop-shadow(0 0 32px var(--accent-color)); }
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px var(--accent-color));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 20px var(--accent-color)) drop-shadow(0 0 32px var(--accent-color));
+  }
 }
 
-/* --- MOBILE OPTIMIZATIONS --- */
-@media (max-width: 600px) {
-  :root {
-    --gap-block: 6px;
-    --block-padding: 8px 10px;
-  }
 
+/* ==============================================================================
+   13. MOBILE RESPONSIVE REFINEMENTS (< 600px / Samsung Galaxy A50)
+   ============================================================================== */
+@media (max-width: 600px) {
   .tags-container {
     padding: 2px 0;
   }
 
-  .card-container {
-    padding: 4px 4px;
-    width: 100%;
-  }
-  
-  .card-block {
-    padding: var(--block-padding);
-  }
-  
-  .word-display {
-    font-size: clamp(2.2rem, 10vw, 3.5rem);
-  }
-  
   .sentence-display {
-    padding: 20px 12px;
-  }
-
-  .back-grid {
-    gap: var(--gap-block);
+    padding: 14px 6px;
   }
   
   .word-meta-row {
     flex-direction: row;
-    gap: 8px;
+    gap: var(--gap-block);
     margin: 2px 0 4px 0;
   }
   
-  .definition-box {
-    padding-top: 4px;
-    margin-top: 4px;
-  }
-
   .sentence-japanese {
-    margin-bottom: 12px;
+    margin-bottom: var(--gap-block);
   }
 
   .context-block {
-    margin-top: 12px;
-  }
-  
-  .audio-row {
-    gap: 10px;
+    margin-top: var(--gap-block);
   }
 
-  .audio-item {
-    padding: 6px 12px;
-    font-size: 0.7rem;
-    gap: 4px;
-  }
-
-  .audio-item span {
-    font-size: 0.8rem;
-  }
-}
-
-/* --- TABLET OPTIMIZATIONS --- */
-@media (min-width: 601px) and (max-width: 1079px) {
-  .card-container {
-    padding: 12px 16px 32px 16px;
-  }
-
-  .card-block {
-    padding: 18px 22px;
-    margin-bottom: 14px;
-  }
-
-  .word-display {
-    font-size: clamp(3rem, 8vw, 4.5rem);
-  }
-
-  .sentence-display {
-    font-size: clamp(1.8rem, 5vw, 2.4rem);
-    padding: 32px 20px;
-  }
-
-  .sentence-japanese {
-    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
-  }
-
-  .definition-box {
-    font-size: 1.1rem;
-    padding-top: 20px;
-    margin-top: 20px;
-  }
-
-  .back-grid {
-    gap: 16px;
+  .picture-container img {
+    max-height: 35vh;
   }
 }
