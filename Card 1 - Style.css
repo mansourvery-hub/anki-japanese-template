@@ -1,10 +1,10 @@
 /**
  * ==============================================================================
- * Japanese Note Type - Ultra-Compact Ergonomic Design System
+ * Japanese Note Type - Premium Ergonomic Design System
  * (Tokyo Night Dark / Aki Paper Light)
  * 
- * Optimized for maximal screen utilization on Samsung Galaxy A50 (Android)
- * and Arch Linux Desktop (Anki Desktop Qt6).
+ * Optimized for full screen utilization on Arch Linux Desktop (Anki Desktop Qt6)
+ * and Samsung Galaxy A50 (Android / AnkiDroid).
  * ==============================================================================
  */
 
@@ -23,27 +23,26 @@
   --accent-color: #38bdf8;
   --accent-light: rgba(56, 189, 248, 0.12);
   --accent-soft: rgba(56, 189, 248, 0.22);
-  --accent-glow: 0 0 12px rgba(56, 189, 248, 0.35);
+  --accent-glow: 0 0 16px rgba(56, 189, 248, 0.35);
   
-  --shadow-premium: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
+  --shadow-premium: 0 6px 20px -3px rgba(0, 0, 0, 0.4);
   --bg-sticky: rgba(15, 20, 28, 0.92);
-  --border-radius-lg: 8px;
-  --border-radius-md: 6px;
-  --border-radius-sm: 4px;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --border-radius-sm: 6px;
 
-  /* Ultra-Compact Spacing Tokens */
-  --gap-block: 4px;
-  --block-padding: 4px 8px;
-  --container-padding-y: 2px;
-  --container-padding-x: 4px;
+  /* Spacing Tokens */
+  --gap-block: 8px;
+  --block-padding: 8px 12px;
+  --container-padding-y: 4px;
+  --container-padding-x: 6px;
   
   /* Fonts */
   --font-japanese-serif: "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", "Noto Serif JP", serif;
   --font-japanese-sans: "Inter", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
   --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  --max-content-width: 1400px;
-  --text-max-width: 850px;
+  --max-content-width: 100%;
 }
 
 /* --- AKI PAPER LIGHT THEME --- */
@@ -58,10 +57,10 @@
   --accent-color: #d97706;
   --accent-light: rgba(217, 119, 6, 0.08);
   --accent-soft: rgba(217, 119, 6, 0.16);
-  --accent-glow: 0 0 12px rgba(217, 119, 6, 0.25);
+  --accent-glow: 0 0 16px rgba(217, 119, 6, 0.25);
   
   --bg-sticky: rgba(252, 250, 246, 0.95);
-  --shadow-premium: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --shadow-premium: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .card.nightMode,
@@ -89,7 +88,7 @@
   padding: 0;
   text-align: center;
   -webkit-font-smoothing: antialiased;
-  line-height: 1.35;
+  line-height: 1.45;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -97,16 +96,18 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
 }
 
 .card-container {
-  max-width: var(--max-content-width);
-  width: 100%;
+  width: 98%;
+  max-width: 100%;
   margin: 0 auto;
   padding: var(--container-padding-y) var(--container-padding-x);
   box-sizing: border-box;
+  flex-grow: 1;
 }
 
 
@@ -118,10 +119,10 @@
   top: 0;
   z-index: 1000;
   width: 100%;
-  padding: 1px 0;
+  padding: 3px 0;
   background-color: var(--bg-sticky);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--card-border);
   display: flex;
   justify-content: center;
@@ -130,21 +131,21 @@
 .tags-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
   justify-content: center;
-  padding: 0 4px;
+  padding: 0 8px;
 }
 
 .tag-pill {
-  font-size: 0.55rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--text-muted);
   background-color: var(--accent-light);
   border: 1px solid var(--card-border);
-  padding: 0 6px;
-  border-radius: 10px;
+  padding: 2px 10px;
+  border-radius: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   user-select: none;
 }
 
@@ -168,10 +169,10 @@
 
 @media (min-width: 768px) {
   :root {
-    --gap-block: 6px;
-    --block-padding: 6px 12px;
-    --container-padding-y: 4px;
-    --container-padding-x: 8px;
+    --gap-block: 14px;
+    --block-padding: 16px 20px;
+    --container-padding-y: 10px;
+    --container-padding-x: 14px;
   }
 
   .back-grid {
@@ -181,7 +182,7 @@
 
   .side-content {
     position: sticky;
-    top: 20px;
+    top: 24px;
   }
 }
 
@@ -200,11 +201,12 @@
    ============================================================================== */
 .sentence-display {
   font-family: var(--font-japanese-serif);
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
-  line-height: 1.35;
-  padding: 6px 4px;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  line-height: 1.4;
+  padding: 16px 12px;
   text-align: center;
-  max-width: 900px;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
 }
 
@@ -215,7 +217,7 @@
   color: var(--accent-color);
   font-weight: 700;
   background: linear-gradient(transparent 75%, var(--accent-light) 75%);
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
 
@@ -228,10 +230,10 @@
 
 .word-display {
   font-family: var(--font-japanese-serif);
-  font-size: clamp(2rem, 7vw, 3.8rem);
+  font-size: clamp(3rem, 9vw, 5.8rem);
   font-weight: 600;
-  line-height: 1.1;
-  margin-bottom: 2px;
+  line-height: 1.15;
+  margin-bottom: 4px;
 }
 
 .word-meta-row {
@@ -239,30 +241,30 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 2px 0 3px 0;
+  gap: 10px;
+  margin: 4px 0 6px 0;
 }
 
 .frequency-badge,
 .pitch-accent-badge {
   display: inline-block;
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent-color);
   background-color: var(--accent-light);
   border: 1px solid var(--accent-soft);
-  padding: 1px 8px;
-  border-radius: 12px;
+  padding: 2px 12px;
+  border-radius: 16px;
 }
 
 .definition-box {
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: 1.25rem;
+  line-height: 1.6;
   color: var(--text-primary);
   border-top: 1px solid var(--card-border);
-  padding-top: 4px;
-  margin-top: 4px;
-  max-width: var(--text-max-width);
+  padding-top: 8px;
+  margin-top: 8px;
+  width: 100%;
 }
 
 
@@ -272,7 +274,7 @@
 .audio-row {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
 }
 
 .circular-audio-btn {
@@ -287,7 +289,7 @@
   padding: 0;
   margin: 0;
   outline: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.2s ease,
               border-color 0.2s ease,
@@ -297,13 +299,13 @@
 }
 
 .small-audio-btn {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
 }
 
 .large-audio-btn {
-  width: 68px;
-  height: 68px;
+  width: 80px;
+  height: 80px;
 }
 
 .circular-audio-btn:hover,
@@ -319,32 +321,30 @@
   background-color: var(--accent-light);
 }
 
-/* SVG Progress Ring Overlay */
 .audio-progress-ring {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  transform: rotate(-90deg); /* Starts ring at 12 o'clock position */
+  transform: rotate(-90deg);
   pointer-events: none;
 }
 
 .audio-progress-ring .ring-bg {
   fill: none;
   stroke: var(--accent-light);
-  stroke-width: 2.5px;
+  stroke-width: 3px;
 }
 
 .audio-progress-ring .ring-fill {
   fill: none;
   stroke: var(--accent-color);
-  stroke-width: 2.5px;
+  stroke-width: 3px;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.08s linear;
 }
 
-/* Japanese Centered Typography */
 .audio-btn-content {
   display: flex;
   align-items: center;
@@ -354,7 +354,7 @@
 
 .small-audio-btn .audio-btn-label {
   font-family: var(--font-japanese-serif);
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--accent-color);
   letter-spacing: 0.04em;
@@ -363,7 +363,7 @@
 
 .large-audio-btn .audio-btn-label {
   font-family: var(--font-japanese-serif);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--accent-color);
   letter-spacing: 0.04em;
@@ -380,22 +380,23 @@
    ============================================================================== */
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
-  font-size: clamp(1.25rem, 3vw, 1.8rem);
-  line-height: 1.45;
-  margin-bottom: 4px;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.5;
+  margin-bottom: 8px;
   color: var(--text-primary);
   text-align: center;
 }
 
 .translation-box {
   background-color: rgba(0, 0, 0, 0.15);
-  border-left: 2.5px solid var(--accent-color);
-  padding: 4px 8px;
-  border-radius: 3px;
+  border-left: 3px solid var(--accent-color);
+  padding: 8px 12px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  max-width: var(--text-max-width);
-  margin-top: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
 }
 
 .card:not(.nightMode):not(.night_mode) .translation-box {
@@ -403,7 +404,7 @@
 }
 
 .translation-hint {
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--accent-color);
   user-select: none;
@@ -411,21 +412,21 @@
 
 .translation-text {
   display: none;
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   color: var(--text-secondary);
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .translation-box.revealed .translation-text { display: block; }
 .translation-box.revealed .translation-hint { display: none; }
 
 .context-block {
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .html-content {
-  font-size: 0.92rem;
-  line-height: 1.4;
+  font-size: 1.15rem;
+  line-height: 1.6;
 }
 
 
@@ -442,7 +443,6 @@ ruby rt {
   transform: translateY(2px);
 }
 
-/* Mouse Hover & Mobile Tap Active */
 ruby:hover rt,
 ruby:active rt,
 ruby:focus rt,
@@ -458,12 +458,12 @@ ruby:focus-within rt {
    ============================================================================== */
 .picture-block {
   text-align: center;
-  padding: 2px;
+  padding: 4px;
 }
 
 .picture-container img {
   max-width: 100%;
-  max-height: 25vh;
+  max-height: 40vh;
   height: auto;
   object-fit: contain;
   border-radius: var(--border-radius-md);
@@ -473,20 +473,19 @@ ruby:focus-within rt {
 }
 
 .picture-container img:hover {
-  transform: scale(1.01);
+  transform: scale(1.015);
 }
 
-/* Lightbox Modal Overlay */
 .lightbox-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.92);
   z-index: 2000;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -502,7 +501,7 @@ ruby:focus-within rt {
   max-height: 96vh;
   z-index: 2001;
   border-radius: var(--border-radius-md);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.88);
   animation: lightboxIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -529,10 +528,10 @@ ruby:focus-within rt {
 }
 
 .modern-summary {
-  padding: 6px 12px;
+  padding: 10px 16px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   display: flex;
@@ -543,17 +542,17 @@ ruby:focus-within rt {
 }
 
 .extended-def-content {
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  padding: 12px 16px;
+  font-size: 1.15rem;
+  line-height: 1.6;
   border-top: 1px solid var(--card-border);
   background-color: rgba(0, 0, 0, 0.04);
 }
 
 .source-footer {
   text-align: center;
-  padding: 4px 0;
-  font-size: 0.62rem;
+  padding: 8px 0;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.04em;
@@ -568,7 +567,7 @@ ruby:focus-within rt {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 8px;
+  padding: 32px 12px;
 }
 
 .audio-btn-wrapper {
@@ -583,30 +582,30 @@ ruby:focus-within rt {
    ============================================================================== */
 @media (max-width: 600px) {
   :root {
-    --gap-block: 3px;
-    --block-padding: 3px 6px;
-    --container-padding-y: 1px;
-    --container-padding-x: 2px;
+    --gap-block: 6px;
+    --block-padding: 8px 10px;
+    --container-padding-y: 4px;
+    --container-padding-x: 4px;
   }
 
   .tags-container {
-    padding: 1px 0;
+    padding: 2px 0;
   }
 
   .sentence-display {
-    padding: 6px 2px;
+    padding: 10px 4px;
   }
   
   .word-meta-row {
-    gap: 4px;
-    margin: 1px 0 2px 0;
+    gap: 6px;
+    margin: 2px 0 4px 0;
   }
   
   .sentence-japanese {
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
 
   .picture-container img {
-    max-height: 24vh;
+    max-height: 30vh;
   }
 }
