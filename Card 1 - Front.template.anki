@@ -1,0 +1,97 @@
+<!-- FRONT CARD TEMPLATE
+     Implements a floating fixed tag bar at the very top.
+     Dynamically switches layout between Standard View and Listening View (only sentence audio)
+     using pure CSS classes depending on whether both Definition fields are empty.
+-->
+
+<div class="card-wrapper">
+
+  <!-- Floating Sticky Tag Bar -->
+  <div class="tags-container" id="tags-container">
+    {{#Tags}}
+      <!-- Raw Anki tags (hidden, parsed into beautiful pills by the script below) -->
+      <div id="tags-raw" style="display: none;">{{Tags}}</div>
+      <div id="tags-list" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
+      
+      <script>
+        (function() {
+          var raw = document.getElementById('tags-raw');
+          var list = document.getElementById('tags-list');
+          if (raw && list) {
+            // Split Anki space-separated tags and create pill components
+            var tags = raw.innerText.trim().split(/\s+/);
+            tags.forEach(function(tag) {
+              if (tag) {
+                var span = document.createElement('span');
+                span.className = 'tag-pill';
+                span.innerText = tag;
+                list.appendChild(span);
+              }
+            });
+          }
+        })();
+      </script>
+    {{/Tags}}
+  </div>
+
+  <!-- Main Card Body
+       We conditionally append classes based on the presence of definitions.
+       If either 'Definition' or 'Extended definition' has content, we apply standard rendering.
+       If both are empty, the pure CSS targets :not(.has-definition):not(.has-ext-definition) to show Listening view.
+  -->
+  <div class="card-container {{#Definition}}has-definition{{/Definition}} {{#Extended definition}}has-ext-definition{{/Extended definition}}">
+    
+    <!-- STANDARD CARD VIEW
+         Shows the sentence (with targeted word bolded).
+         Fallback: If no Sentence is present, falls back to the main Expression (the word).
+    -->
+    <div class="standard-view">
+      <div class="sentence-display">
+        {{#Sentence}}
+          {{Sentence}}
+        {{/Sentence}}
+        {{^Sentence}}
+          {{Expression}}
+        {{/Sentence}}
+      </div>
+    </div>
+
+    <!-- LISTENING CARD VIEW
+         Shows ONLY the sentence audio (and nice interactive hints).
+         Fallback: If no Sentence Audio exists, falls back to Word Audio, then Sentence, then Expression.
+    -->
+    <div class="listening-view">
+      <div class="audio-display">
+        {{#Sentence Audio}}
+          <div class="audio-group">
+            <span class="audio-item">
+              <span class="audio-label">Listen:</span> {{Sentence Audio}}
+            </span>
+          </div>
+        {{/Sentence Audio}}
+        
+        {{^Sentence Audio}}
+          {{#Word Audio}}
+            <div class="audio-group">
+              <span class="audio-item">
+                <span class="audio-label">Listen:</span> {{Word Audio}}
+              </span>
+            </div>
+          {{/Word Audio}}
+          
+          {{^Word Audio}}
+            <!-- Extreme fallback if no audio is available for the listening card -->
+            <div class="no-audio-fallback">
+              {{#Sentence}}{{Sentence}}{{/Sentence}}
+              {{^Sentence}}{{Expression}}{{/Sentence}}
+            </div>
+          {{/Word Audio}}
+        {{/Sentence Audio}}
+      </div>
+      
+      <div class="listening-hint">Listening Card</div>
+    </div>
+
+  </div>
+
+</div>

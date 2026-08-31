@@ -1,0 +1,236 @@
+<!-- BACK CARD TEMPLATE
+     Implements a floating fixed tag bar at the very top.
+     Organizes fields into modern, clean components styled as cards.
+     Furigana is displayed using hover effects on both the main word and sentences.
+     Includes interactive click-to-expand image zoom and native pure CSS collapsible details.
+-->
+
+<div class="card-wrapper">
+
+  <!-- Floating Sticky Tag Bar -->
+  <div class="tags-container" id="tags-container">
+    {{#Tags}}
+      <!-- Raw Anki tags (hidden, parsed into beautiful pills by the script below) -->
+      <div id="tags-raw" style="display: none;">{{Tags}}</div>
+      <div id="tags-list" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
+      
+      <script>
+        (function() {
+          var raw = document.getElementById('tags-raw');
+          var list = document.getElementById('tags-list');
+          if (raw && list) {
+            // Split Anki space-separated tags and create pill components
+            var tags = raw.innerText.trim().split(/\s+/);
+            tags.forEach(function(tag) {
+              if (tag) {
+                var span = document.createElement('span');
+                span.className = 'tag-pill';
+                span.innerText = tag;
+                list.appendChild(span);
+              }
+            });
+          }
+        })();
+      </script>
+    {{/Tags}}
+  </div>
+
+  <!-- Main Card Body -->
+  <div class="card-container">
+
+    <!-- 1. WORD HEADER CARD BLOCK (Always visible)
+         Displays the main vocabulary word (with hover furigana), pitch accent, and audio players.
+    -->
+    <div class="card-block word-header-block">
+      <!-- Vocabulary Word with hover furigana -->
+      <div class="word-display hover-furigana">
+        {{#furigana}}
+          {{furigana:furigana}}
+        {{/furigana}}
+        {{^furigana}}
+          {{Expression}}
+        {{/furigana}}
+      </div>
+
+      <!-- Pitch Accent rating if available -->
+      {{#Pitch Accent}}
+        <div class="pitch-accent-container">
+          {{Pitch Accent}}
+        </div>
+      {{/Pitch Accent}}
+
+      <!-- Styled side-by-side audio players -->
+      <div class="audio-group">
+        {{#Word Audio}}
+          <span class="audio-item">
+            <span class="audio-label">Word</span> {{Word Audio}}
+          </span>
+        {{/Word Audio}}
+        {{#Sentence Audio}}
+          <span class="audio-item">
+            <span class="audio-label">Sentence</span> {{Sentence Audio}}
+          </span>
+        {{/Sentence Audio}}
+      </div>
+    </div>
+
+
+    <!-- 2. MAIN WORD DEFINITION (Shows only if present) -->
+    {{#Definition}}
+      <div class="card-block">
+        <span class="sentence-title" style="display: block; margin-bottom: 8px;">Definition</span>
+        <div class="word-definition-container">
+          {{Definition}}
+        </div>
+      </div>
+    {{/Definition}}
+
+
+    <!-- 3. SENTENCE BLOCK (Shows only if sentence has content)
+         Displays sentence with hover furigana, English translation, and context if present.
+    -->
+    {{#Sentence}}
+      <div class="card-block sentence-block">
+        <span class="sentence-title">Sentence</span>
+        
+        <!-- Japanese sentence with hover furigana (uses sentence furigana field if available) -->
+        <div class="sentence-japanese hover-furigana">
+          {{#Sentence (furigana)}}
+            {{furigana:Sentence (furigana)}}
+          {{/Sentence (furigana)}}
+          {{^Sentence (furigana)}}
+            {{Sentence}}
+          {{/Sentence (furigana)}}
+        </div>
+
+        <!-- Sentence translation -->
+        {{#Translation}}
+          <div class="sentence-translation">
+            {{Translation}}
+          </div>
+        {{/Translation}}
+
+        <!-- Paragraph/dialogue context if available -->
+        {{#context}}
+          <div class="context-container">
+            <span class="context-title">Context</span>
+            <div class="context-body">{{context}}</div>
+          </div>
+        {{/context}}
+      </div>
+    {{/Sentence}}
+
+
+    <!-- 4. PICTURE BLOCK (Shows only if present)
+         Includes click-to-expand interactive lightbox.
+    -->
+    {{#Picture}}
+      <div class="picture-wrapper">
+        <div class="picture-container" id="pic-container">
+          {{Picture}}
+        </div>
+        <!-- Lightbox blur/dim backdrop overlay -->
+        <div class="picture-overlay" id="pic-overlay"></div>
+      </div>
+
+      <!-- Ultra-lightweight interaction script for lightbox zoom -->
+      <script>
+        (function() {
+          var container = document.getElementById('pic-container');
+          var overlay = document.getElementById('pic-overlay');
+          if (container && overlay) {
+            var img = container.querySelector('img');
+            if (img) {
+              // Click image to toggle expanded state
+              img.addEventListener('click', function(e) {
+                e.stopPropagation();
+                container.classList.toggle('expanded');
+              });
+              // Click overlay backdrop to dismiss
+              overlay.addEventListener('click', function() {
+                container.classList.remove('expanded');
+              });
+              // Click anywhere else to dismiss
+              document.addEventListener('click', function(e) {
+                if (e.target !== img) {
+                  container.classList.remove('expanded');
+                }
+              });
+            }
+          }
+        })();
+      </script>
+    {{/Picture}}
+
+
+    <!-- 5. SECONDARY BLOCKS & EXTRA FIELDS (Shown conditionally) -->
+    
+    <!-- Reading Block -->
+    {{#reading}}
+      <div class="card-block">
+        <span class="field-label">Reading</span>
+        <div class="field-value">{{reading}}</div>
+      </div>
+    {{/reading}}
+
+    <!-- Original Inflected Term Block -->
+    {{#cloze-body}}
+      <div class="card-block">
+        <span class="field-label">Original Inflected Term</span>
+        <div class="field-value">{{cloze-body}}</div>
+      </div>
+    {{/cloze-body}}
+
+    <!-- Frequency Block -->
+    {{#Frequency}}
+      <div class="card-block">
+        <span class="field-label">Frequency Rating</span>
+        <div class="field-value">{{Frequency}}</div>
+      </div>
+    {{/Frequency}}
+
+    <!-- Kanji Notes Block -->
+    {{#Kanji Notes}}
+      <div class="card-block">
+        <span class="field-label">Kanji Notes</span>
+        <div class="field-value html-content">{{Kanji Notes}}</div>
+      </div>
+    {{/Kanji Notes}}
+
+    <!-- Miscellaneous General Notes Block -->
+    {{#Notes}}
+      <div class="card-block">
+        <span class="field-label">Notes</span>
+        <div class="field-value html-content">{{Notes}}</div>
+      </div>
+    {{/Notes}}
+
+
+    <!-- 6. EXTENDED DEFINITION BLOCK (At the bottom, expands on click)
+         Uses native HTML details/summary elements. No Javascript needed.
+    -->
+    {{#Extended definition}}
+      <div class="extended-def-container">
+        <details class="modern-details">
+          <summary class="modern-summary">
+            <span class="summary-title">Extended Definition (Yomitan)</span>
+            <span class="summary-icon">▼</span>
+          </summary>
+          <div class="extended-def-content html-content">
+            {{Extended definition}}
+          </div>
+        </details>
+      </div>
+    {{/Extended definition}}
+
+
+    <!-- 7. SOURCE FOOTER (Very Bottom of back card) -->
+    {{#Source}}
+      <div class="source-container">
+        <span class="source-label">Source:</span> <span class="source-value">{{Source}}</span>
+      </div>
+    {{/Source}}
+
+  </div>
+
+</div>
