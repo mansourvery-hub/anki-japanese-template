@@ -1,25 +1,17 @@
 <!-- FRONT CARD TEMPLATE
-     Premium Ergonomic Japanese Card Front
+     Ultra-Compact Ergonomic Japanese Front Card
      
      Behavior:
-     1. Standard Study View: If either 'Definition' or 'Extended definition' is populated,
-        the front card displays the Japanese text to test reading comprehension.
-        - Prefers the context 'Sentence' if available.
-        - Falls back to the raw 'Expression' if 'Sentence' is empty.
-     2. Listening Mode: If BOTH definition fields are empty, the card is treated as a 
-        listening comprehension test. The Japanese text is hidden, and an interactive 
-        audio button is displayed.
-     3. Bulletproof Fallback: If both definitions are missing, AND both 'Sentence Audio' 
-        and 'Word Audio' are missing, the card automatically falls back to displaying the
-        text (Sentence/Expression) so the card remains fully studyable during review.
+     - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
+     - Listening: Shows circular interactive audio player if definitions are missing.
+     - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
+     - Zero clutter: No debug badges or redundant labels.
 -->
 
 <div class="card-wrapper">
   <div class="card-container">
 
-    <!-- ==========================================
-         1. STANDARD STUDY VIEW (Primary Definition Present)
-         ========================================== -->
+    <!-- Standard Study View -->
     {{#Definition}}
       <div class="sentence-display">
         {{#Sentence}}
@@ -31,9 +23,7 @@
       </div>
     {{/Definition}}
 
-    <!-- ==========================================
-         2. FALLBACK STANDARD STUDY VIEW (Only Extended Definition Present)
-         ========================================== -->
+    <!-- Fallback Standard View (When only Extended definition is present) -->
     {{^Definition}}
       {{#Extended definition}}
         <div class="sentence-display">
@@ -47,60 +37,52 @@
       {{/Extended definition}}
     {{/Definition}}
 
-    <!-- ==========================================
-         3. LISTENING MODE & PATHOLOGICAL FALLBACKS
-         (Triggered only if BOTH definition fields are missing)
-         ========================================== -->
+    <!-- Listening Mode / Pathological Fallback -->
     {{^Definition}}
       {{^Extended definition}}
         
-        <!-- Case A: Sentence Audio is available -->
+        <!-- Sentence Audio available -->
         {{#Sentence Audio}}
           <div class="listening-view">
-            <div class="audio-pulse">🎧</div>
-            
-            <div class="audio-controls">
-              <div class="audio-item sentence-audio" title="Play Sentence Audio" onclick="this.querySelector('.replaybutton')?.click()">
-                <span class="audio-badge">文</span>
-                <div class="audio-btn-circle">{{Sentence Audio}}</div>
-              </div>
-            </div>
-
-            <div class="listening-label">
-              Listening Card Active
+            <div class="audio-btn-wrapper">
+              <button type="button" class="circular-audio-btn large-audio-btn" title="Play Sentence Audio" onclick="playCircularAudio(this)">
+                <svg class="audio-progress-ring" viewBox="0 0 72 72">
+                  <circle class="ring-bg" cx="36" cy="36" r="32" />
+                  <circle class="ring-fill" cx="36" cy="36" r="32" stroke-dasharray="201.06" stroke-dashoffset="201.06" />
+                </svg>
+                <div class="audio-btn-content">
+                  <span class="audio-btn-label">文</span>
+                </div>
+                <div class="raw-audio-source" style="display:none;">{{Sentence Audio}}</div>
+              </button>
             </div>
           </div>
         {{/Sentence Audio}}
 
-        <!-- Case B: Sentence Audio missing, but Word Audio is available -->
+        <!-- Word Audio available (Sentence Audio missing) -->
         {{^Sentence Audio}}
           {{#Word Audio}}
             <div class="listening-view">
-              <div class="audio-pulse">🎧</div>
-              
-              <div class="audio-controls">
-                <div class="audio-item word-audio" title="Play Word Audio" onclick="this.querySelector('.replaybutton')?.click()">
-                  <span class="audio-badge">言葉</span>
-                  <div class="audio-btn-circle">{{Word Audio}}</div>
-                </div>
-              </div>
-
-              <div class="listening-label">
-                Listening Card Active
+              <div class="audio-btn-wrapper">
+                <button type="button" class="circular-audio-btn large-audio-btn" title="Play Word Audio" onclick="playCircularAudio(this)">
+                  <svg class="audio-progress-ring" viewBox="0 0 72 72">
+                    <circle class="ring-bg" cx="36" cy="36" r="32" />
+                    <circle class="ring-fill" cx="36" cy="36" r="32" stroke-dasharray="201.06" stroke-dashoffset="201.06" />
+                  </svg>
+                  <div class="audio-btn-content">
+                    <span class="audio-btn-label">言葉</span>
+                  </div>
+                  <div class="raw-audio-source" style="display:none;">{{Word Audio}}</div>
+                </button>
               </div>
             </div>
           {{/Word Audio}}
         {{/Sentence Audio}}
 
-        <!-- Case C: CRITICAL PATHOLOGICAL FALLBACK
-             Triggered if BOTH definitions AND BOTH audio fields are missing.
-             Prevents a blank card or generic "No Audio" soft-lock by displaying the text. -->
+        <!-- Bulletproof Fallback: Neither definition NOR audio exists -->
         {{^Sentence Audio}}
           {{^Word Audio}}
-            <div class="sentence-display fallback-display">
-              <!-- Visual indicator for the user that card data is missing/incomplete -->
-              <div class="fallback-badge">⚠️ Fallback View (No Definition or Audio)</div>
-              
+            <div class="sentence-display">
               {{#Sentence}}
                 {{edit:Sentence}}
               {{/Sentence}}
@@ -116,3 +98,80 @@
 
   </div>
 </div>
+
+<script>
+  (function() {
+    window.currentActiveAudio = window.currentActiveAudio || null;
+    window.currentActiveBtn = window.currentActiveBtn || null;
+
+    window.playCircularAudio = function(btn) {
+      const ringFill = btn.querySelector('.ring-fill');
+      const circumference = ringFill ? parseFloat(ringFill.getAttribute('stroke-dasharray')) : 201.06;
+
+      // Toggle Pause if clicking currently playing button
+      if (window.currentActiveBtn === btn && window.currentActiveAudio && !window.currentActiveAudio.paused) {
+        window.currentActiveAudio.pause();
+        btn.classList.remove('is-playing');
+        btn.classList.add('is-paused');
+        return;
+      }
+
+      // Stop any existing playing track
+      if (window.currentActiveAudio) {
+        window.currentActiveAudio.pause();
+        if (window.currentActiveBtn) {
+          window.currentActiveBtn.classList.remove('is-playing', 'is-paused');
+          const oldFill = window.currentActiveBtn.querySelector('.ring-fill');
+          if (oldFill) {
+            const oldCirc = parseFloat(oldFill.getAttribute('stroke-dasharray')) || 201.06;
+            oldFill.style.strokeDashoffset = oldCirc;
+          }
+        }
+      }
+
+      // Extract audio source URL or fallback to Anki replay button
+      const rawDiv = btn.querySelector('.raw-audio-source');
+      let audioSrc = '';
+      if (rawDiv) {
+        const match = rawDiv.innerHTML.match(/(?:src=["']|sound:)([^"'>\s]+)/i);
+        if (match) audioSrc = match[1];
+      }
+
+      const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
+
+      if (!audioSrc) {
+        if (nativeReplay) nativeReplay.click();
+        return;
+      }
+
+      const audio = new Audio(audioSrc);
+      window.currentActiveAudio = audio;
+      window.currentActiveBtn = btn;
+
+      btn.classList.remove('is-paused');
+      btn.classList.add('is-playing');
+
+      audio.play().catch(() => {
+        if (nativeReplay) nativeReplay.click();
+      });
+
+      const updateProgress = () => {
+        if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
+          const progress = audio.currentTime / audio.duration;
+          if (ringFill) {
+            ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
+          }
+          requestAnimationFrame(updateProgress);
+        }
+      };
+      requestAnimationFrame(updateProgress);
+
+      audio.onended = () => {
+        btn.classList.remove('is-playing', 'is-paused');
+        if (ringFill) ringFill.style.strokeDashoffset = circumference;
+        window.currentActiveAudio = null;
+        window.currentActiveBtn = null;
+      };
+    };
+  })();
+</script>

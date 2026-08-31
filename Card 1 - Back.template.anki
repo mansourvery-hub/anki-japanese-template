@@ -1,49 +1,34 @@
 <!-- BACK CARD TEMPLATE
-     Premium Ergonomic Japanese Card Back
-     
-     Layout: Tokyo Night Dark Theme / Aki Paper Light Theme
-     - Features a balanced 2-column dashboard design for desktop.
-     - Scoped, non-colliding inline scripts optimized for Anki's WebView reuse.
+     Ultra-Compact Ergonomic Japanese Back Card
      
      Structure:
-     1. Sticky Status Bar: Dynamically populated tags with local scoping.
-     2. Main Column: Core lexical information (Word, Pitch Accent, Definition, and Sentence block with interactive Translation).
-     3. Side Column: Sourced media (Lightbox-ready images) and supplementary notes (Kanji, general notes, and extended definition accordion).
+     - Sticky Tags Bar (renders only if Tags exist)
+     - 2-Column Desktop Grid / 1-Column Mobile Layout
+     - Main: Word/Furigana, Frequency/Pitch, Circular Audio Buttons, Definition, Sentence & Translation
+     - Side: Lightbox Picture, Kanji Notes, General Notes, Extended Definition
 -->
 
 <div class="card-wrapper">
 
-  <!-- ==========================================
-       STICKY STATUS BAR (Tags)
-       Only renders if the card has tags. Fully scoped to prevent ID collisions.
-       ========================================== -->
+  <!-- Sticky Tags Bar -->
   {{#Tags}}
     <div class="tags-container">
       <div class="tags-list"></div>
       <div class="tags-raw" style="display: none;">{{Tags}}</div>
       <script>
         (function() {
-          // Robust self-location to prevent global DOM ID lookup conflicts
-          const currentScript = document.currentScript || (function() {
-            const scripts = document.getElementsByTagName('script');
-            return scripts[scripts.length - 1];
-          })();
-          const container = currentScript.closest('.tags-container');
-          if (container) {
-            const raw = container.querySelector('.tags-raw');
-            const list = container.querySelector('.tags-list');
-            if (raw && list) {
-              // Parse space-separated tags and generate clean, stylized pill elements
-              const tags = raw.innerText.trim().split(/\s+/);
-              tags.forEach(tag => {
-                if (tag) {
-                  const span = document.createElement('span');
-                  span.className = 'tag-pill';
-                  span.innerText = tag;
-                  list.appendChild(span);
-                }
-              });
-            }
+          const raw = document.querySelector('.tags-raw');
+          const list = document.querySelector('.tags-list');
+          if (raw && list && !list.hasChildNodes()) {
+            const tags = raw.innerText.trim().split(/\s+/);
+            tags.forEach(tag => {
+              if (tag) {
+                const span = document.createElement('span');
+                span.className = 'tag-pill';
+                span.innerText = tag;
+                list.appendChild(span);
+              }
+            });
           }
         })();
       </script>
@@ -53,15 +38,12 @@
   <div class="card-container">
     <div class="back-grid">
       
-      <!-- ==========================================
-           MAIN COLUMN: Critical Study Data
-           ========================================== -->
+      <!-- MAIN COLUMN -->
       <div class="main-content">
         
-        <!-- Word Header Block (Word Display, Frequency, Pitch, Audios, Definition) -->
+        <!-- Word Header -->
         <div class="card-block word-header">
           
-          <!-- Word/Furigana Display with Hover Fallbacks -->
           <div class="word-display">
             {{#furigana}}
               {{furigana:furigana}}
@@ -70,13 +52,10 @@
               {{#Expression}}
                 {{Expression}}
               {{/Expression}}
-              {{^Expression}}
-                <span style="opacity: 0.3;">(No Expression)</span>
-              {{/Expression}}
             {{/furigana}}
           </div>
 
-          <!-- Meta badges & Audio Trigger Row -->
+          <!-- Metadata & Circular Audio Controllers -->
           <div class="word-meta-row">
             {{#Frequency}}
               <div class="frequency-badge">
@@ -90,52 +69,56 @@
               </div>
             {{/Pitch Accent}}
 
-            <!-- Universal cross-platform audio controllers -->
+            <!-- Circular Audio Buttons with SVG Progress Ring -->
             <div class="audio-row">
               {{#Word Audio}}
-                <div class="audio-item word-audio" 
-                     title="Play Word Audio" 
-                     onclick="(this.querySelector('.replaybutton') || this.querySelector('.replay-button') || this.querySelector('a.sound') || this.querySelector('.soundLink'))?.click()">
-                  <span class="audio-badge">言葉</span>
-                  <div class="audio-btn-circle">{{Word Audio}}</div>
-                </div>
+                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" onclick="playCircularAudio(this)">
+                  <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                    <circle class="ring-bg" cx="22" cy="22" r="19" />
+                    <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+                  </svg>
+                  <div class="audio-btn-content">
+                    <span class="audio-btn-label">言葉</span>
+                  </div>
+                  <div class="raw-audio-source" style="display:none;">{{Word Audio}}</div>
+                </button>
               {{/Word Audio}}
               
               {{#Sentence Audio}}
-                <div class="audio-item sentence-audio" 
-                     title="Play Sentence Audio" 
-                     onclick="(this.querySelector('.replaybutton') || this.querySelector('.replay-button') || this.querySelector('a.sound') || this.querySelector('.soundLink'))?.click()">
-                  <span class="audio-badge">文</span>
-                  <div class="audio-btn-circle">{{Sentence Audio}}</div>
-                </div>
+                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" onclick="playCircularAudio(this)">
+                  <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                    <circle class="ring-bg" cx="22" cy="22" r="19" />
+                    <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+                  </svg>
+                  <div class="audio-btn-content">
+                    <span class="audio-btn-label">文</span>
+                  </div>
+                  <div class="raw-audio-source" style="display:none;">{{Sentence Audio}}</div>
+                </button>
               {{/Sentence Audio}}
             </div>
           </div>
 
-          <!-- Primary definition block -->
+          <!-- Main Definition -->
           {{#Definition}}
             <div class="definition-box">
               {{edit:Definition}}
             </div>
           {{/Definition}}
 
-          <!-- Intelligent fallback definition: If primary definition is empty,
-               automatically render the Extended Japanese Definition in the main box
-               to save screen real estate and reduce required clicks. -->
+          <!-- Fallback: Show Extended definition if Definition is absent -->
           {{^Definition}}
             {{#Extended definition}}
-              <div class="definition-box extended-definition-fallback">
-                <span class="field-label" style="margin-bottom: 4px;">Extended Definition</span>
+              <div class="definition-box">
                 {{edit:Extended definition}}
               </div>
             {{/Extended definition}}
           {{/Definition}}
         </div>
 
-        <!-- Sentence Block: Rendered if 'Sentence' is populated -->
+        <!-- Sentence Block -->
         {{#Sentence}}
           <div class="card-block sentence-block">
-            <span class="field-label">Sentence</span>
             <div class="sentence-japanese">
               {{#Sentence (furigana)}}
                 {{furigana:Sentence (furigana)}}
@@ -150,38 +133,31 @@
                    role="button"
                    tabindex="0"
                    aria-expanded="false"
-                   aria-label="View Translation"
                    onclick="this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
                    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
-                <div class="translation-hint">👁️ View Translation</div>
+                <div class="translation-hint">👁️ Translation</div>
                 <div class="translation-text">{{edit:Translation}}</div>
               </div>
             {{/Translation}}
 
             {{#context}}
               <div class="context-block">
-                <span class="field-label-sub" style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Context</span>
                 <div class="html-content">{{edit:context}}</div>
               </div>
             {{/context}}
           </div>
         {{/Sentence}}
 
-        <!-- Pathological Fix: Decoupled translation & context blocks
-             Renders Translation and Context if Sentence is empty, so they aren't hidden. -->
+        <!-- Orphan Translation / Context (When Sentence is empty) -->
         {{^Sentence}}
           {{#Translation}}
-            <div class="card-block translation-orphan-block">
-              <span class="field-label">Translation</span>
-              <div class="translation-box revealed" style="cursor: default; pointer-events: none;">
-                <div class="translation-text" style="display: block;">{{edit:Translation}}</div>
-              </div>
+            <div class="card-block">
+              <div class="translation-text" style="display: block;">{{edit:Translation}}</div>
             </div>
           {{/Translation}}
 
           {{#context}}
-            <div class="card-block context-orphan-block">
-              <span class="field-label">Context</span>
+            <div class="card-block">
               <div class="html-content">{{edit:context}}</div>
             </div>
           {{/context}}
@@ -189,95 +165,39 @@
 
       </div> <!-- End main-content -->
 
-      <!-- ==========================================
-           SIDE COLUMN: Media & Supplementary
-           ========================================== -->
+      <!-- SIDE COLUMN -->
       <div class="side-content">
          
-        <!-- Picture Block: Lightbox capable image display -->
+        <!-- Picture Block (Click to Expand Lightbox) -->
         {{#Picture}}
           <div class="card-block picture-block">
-            <div class="picture-container">
+            <div class="picture-container" onclick="openLightbox(this)">
               {{Picture}}
             </div>
           </div>
-          
-          <script>
-            (function() {
-              // Local containment selection to avoid ID clashes or stale web view references
-              const currentScript = document.currentScript || (function() {
-                const scripts = document.getElementsByTagName('script');
-                return scripts[scripts.length - 1];
-              })();
-              const block = currentScript.closest('.picture-block');
-              if (block) {
-                // Select all images inside the block to support multi-image setups
-                const images = block.querySelectorAll('.picture-container img');
-                images.forEach(img => {
-                  img.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    
-                    // Prevent piling up multiple overlays
-                    if (document.querySelector('.lightbox-overlay')) return;
-
-                    const clone = this.cloneNode();
-                    clone.className = 'expanded-img';
-                    
-                    const overlay = document.createElement('div');
-                    overlay.className = 'lightbox-overlay';
-                    overlay.appendChild(clone);
-                    document.body.appendChild(overlay);
-
-                    // Reusable close routine to detach event listeners properly
-                    const closeOverlay = () => {
-                      if (overlay.parentNode) {
-                        document.body.removeChild(overlay);
-                      }
-                      document.removeEventListener('keydown', handleKeyDown);
-                    };
-
-                    // Close lightbox on Escape key
-                    const handleKeyDown = (event) => {
-                      if (event.key === 'Escape') {
-                        closeOverlay();
-                      }
-                    };
-
-                    overlay.onclick = closeOverlay;
-                    clone.onclick = closeOverlay;
-                    document.addEventListener('keydown', handleKeyDown);
-                  });
-                });
-              }
-            })();
-          </script>
         {{/Picture}}
 
-        <!-- Kanji Notes Section -->
+        <!-- Kanji Notes -->
         {{#Kanji Notes}}
           <div class="card-block">
-            <span class="field-label">Kanji Notes</span>
             <div class="html-content">{{edit:Kanji Notes}}</div>
           </div>
         {{/Kanji Notes}}
 
-        <!-- General Notes Section -->
+        <!-- General Notes -->
         {{#Notes}}
           <div class="card-block">
-            <span class="field-label">General Notes</span>
             <div class="html-content">{{edit:Notes}}</div>
           </div>
         {{/Notes}}
 
-        <!-- Extended Definitions Accordion:
-             Only displayed if standard Definition exists.
-             (If Definition is missing, Extended definition renders directly in the main Word Header). -->
+        <!-- Extended Definition Accordion (Only when standard Definition also exists) -->
         {{#Definition}}
           {{#Extended definition}}
             <div class="details-wrapper">
               <details class="modern-details">
                 <summary class="modern-summary" tabindex="0">
-                  <span>Extended Japanese Definition</span>
+                  <span>Extended Definition</span>
                   <span>▼</span>
                 </summary>
                 <div class="extended-def-content">
@@ -292,9 +212,7 @@
 
     </div> <!-- End back-grid -->
 
-    <!-- ==========================================
-         FOOTER: Source Info
-         ========================================== -->
+    <!-- Footer -->
     {{#Source}}
       <div class="source-footer">
         {{edit:Source}}
@@ -303,3 +221,112 @@
 
   </div> <!-- End card-container -->
 </div>
+
+<!-- Lightbox & Audio Scripts -->
+<script>
+  (function() {
+    /* --- LIGHTBOX CONTROLLER --- */
+    window.openLightbox = function(target) {
+      const img = target.querySelector('img') || (target.tagName === 'IMG' ? target : null);
+      if (!img) return;
+      if (document.querySelector('.lightbox-overlay')) return;
+
+      const overlay = document.createElement('div');
+      overlay.className = 'lightbox-overlay';
+
+      const clone = document.createElement('img');
+      clone.src = img.src;
+      clone.className = 'expanded-img';
+
+      overlay.appendChild(clone);
+      document.body.appendChild(overlay);
+
+      const closeOverlay = () => {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        document.removeEventListener('keydown', handleKey);
+      };
+
+      const handleKey = (e) => {
+        if (e.key === 'Escape') closeOverlay();
+      };
+
+      overlay.onclick = closeOverlay;
+      clone.onclick = closeOverlay;
+      document.addEventListener('keydown', handleKey);
+    };
+
+    /* --- CIRCULAR AUDIO CONTROLLER --- */
+    window.currentActiveAudio = window.currentActiveAudio || null;
+    window.currentActiveBtn = window.currentActiveBtn || null;
+
+    window.playCircularAudio = function(btn) {
+      const ringFill = btn.querySelector('.ring-fill');
+      const circumference = ringFill ? parseFloat(ringFill.getAttribute('stroke-dasharray')) : 119.38;
+
+      // Toggle Pause if clicking currently playing button
+      if (window.currentActiveBtn === btn && window.currentActiveAudio && !window.currentActiveAudio.paused) {
+        window.currentActiveAudio.pause();
+        btn.classList.remove('is-playing');
+        btn.classList.add('is-paused');
+        return;
+      }
+
+      // Stop any existing playing track
+      if (window.currentActiveAudio) {
+        window.currentActiveAudio.pause();
+        if (window.currentActiveBtn) {
+          window.currentActiveBtn.classList.remove('is-playing', 'is-paused');
+          const oldFill = window.currentActiveBtn.querySelector('.ring-fill');
+          if (oldFill) {
+            const oldCirc = parseFloat(oldFill.getAttribute('stroke-dasharray')) || 119.38;
+            oldFill.style.strokeDashoffset = oldCirc;
+          }
+        }
+      }
+
+      // Extract audio source URL or fallback to Anki replay button
+      const rawDiv = btn.querySelector('.raw-audio-source');
+      let audioSrc = '';
+      if (rawDiv) {
+        const match = rawDiv.innerHTML.match(/(?:src=["']|sound:)([^"'>\s]+)/i);
+        if (match) audioSrc = match[1];
+      }
+
+      const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
+
+      if (!audioSrc) {
+        if (nativeReplay) nativeReplay.click();
+        return;
+      }
+
+      const audio = new Audio(audioSrc);
+      window.currentActiveAudio = audio;
+      window.currentActiveBtn = btn;
+
+      btn.classList.remove('is-paused');
+      btn.classList.add('is-playing');
+
+      audio.play().catch(() => {
+        if (nativeReplay) nativeReplay.click();
+      });
+
+      const updateProgress = () => {
+        if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
+          const progress = audio.currentTime / audio.duration;
+          if (ringFill) {
+            ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
+          }
+          requestAnimationFrame(updateProgress);
+        }
+      };
+      requestAnimationFrame(updateProgress);
+
+      audio.onended = () => {
+        btn.classList.remove('is-playing', 'is-paused');
+        if (ringFill) ringFill.style.strokeDashoffset = circumference;
+        window.currentActiveAudio = null;
+        window.currentActiveBtn = null;
+      };
+    };
+  })();
+</script>
