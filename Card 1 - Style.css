@@ -29,8 +29,8 @@
   --font-japanese-sans: "Inter", "Noto Sans JP", sans-serif;
   --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  --max-content-width: 1200px;
-  --text-max-width: 750px; /* Optimal reading width for blocks */
+  --max-content-width: 1400px;
+  --text-max-width: 850px; /* Optimal reading width for blocks */
 }
 
 /* --- AKI PAPER LIGHT THEME --- */
@@ -121,8 +121,8 @@
 /* Desktop 2-Column Balanced Dashboard */
 @media (min-width: 1080px) {
   .back-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 24px;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
   }
 
   .side-content {
@@ -139,10 +139,10 @@
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
-   padding: 20px 24px;
-   box-shadow: var(--shadow-premium);
-   text-align: left;
-   margin-bottom: 16px;
+  padding: 16px 20px;
+  box-shadow: var(--shadow-premium);
+  text-align: left;
+  margin-bottom: 12px;
 }
 
 /* --- TYPOGRAPHY: FRONT (Large & Elegant) --- */
@@ -150,7 +150,7 @@
   font-family: var(--font-japanese-serif);
   font-size: clamp(2rem, 6vw, 3.5rem);
   line-height: 1.5;
-  padding: 40px 20px;
+  padding: 20px 20px;
   text-align: center;
   max-width: 900px;
   margin: 0 auto;
@@ -188,15 +188,15 @@
   margin: 4px 0 12px 0;
 }
 
-.pitch-accent-badge {
+.frequency-badge {
   display: inline-block;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  border: 1px solid var(--card-border);
-   padding: 2px 12px;
-   border-radius: 30px;
-  background-color: rgba(255,255,255,0.02);
+  color: var(--accent-color);
+  background-color: var(--accent-light);
+  border: 1px solid var(--accent-soft);
+  padding: 2px 10px;
+  border-radius: 20px;
 }
 
 .audio-row {
@@ -263,6 +263,7 @@
   line-height: 1.6;
   margin-bottom: 20px;
   color: var(--text-primary);
+  text-align: center;
 }
 
 .field-label {
@@ -443,7 +444,7 @@ ruby:hover rt {
 /* --- FOOTER --- */
 .source-footer {
   text-align: center;
-  padding: 30px 0;
+  padding: 15px 0;
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-muted);
