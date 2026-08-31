@@ -371,16 +371,6 @@ ruby:hover rt {
   transform: translateY(0);
 }
 
-/* Touch devices: always show furigana since :hover is unavailable */
-@media (hover: none) {
-  ruby rt {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
-    font-size: 0.55em;
-  }
-}
-
 /* --- SUPPLEMENTARY BLOCKS --- */
 .details-wrapper {
   margin-top: 20px;
@@ -496,12 +486,12 @@ ruby:hover rt {
 /* --- MOBILE OPTIMIZATIONS --- */
 @media (max-width: 600px) {
   .card-container {
-    padding: 8px 10px 24px 10px;
+    padding: 4px 4px 16px 4px;
   }
   
   .card-block {
-    padding: 16px 20px;
-    margin-bottom: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
   }
   
   .word-display {

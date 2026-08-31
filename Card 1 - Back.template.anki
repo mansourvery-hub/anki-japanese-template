@@ -90,7 +90,7 @@
                 {{furigana:Sentence (furigana)}}
               {{/Sentence (furigana)}}
               {{^Sentence (furigana)}}
-                {{Sentence}}
+                {{edit:Sentence}}
               {{/Sentence (furigana)}}
             </div>
 

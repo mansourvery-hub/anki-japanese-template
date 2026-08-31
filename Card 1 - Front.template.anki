@@ -8,14 +8,14 @@
 
   <!-- Standard Study View: Triggered if any definition is present -->
      {{#Definition}}
-       <div class="sentence-display">
-         {{#Sentence}}
-           {{Sentence}}
-         {{/Sentence}}
-         {{^Sentence}}
-           {{Expression}}
-         {{/Sentence}}
-       </div>
+        <div class="sentence-display">
+          {{#Sentence}}
+            {{edit:Sentence}}
+          {{/Sentence}}
+          {{^Sentence}}
+            {{edit:Expression}}
+          {{/Sentence}}
+        </div>
      {{/Definition}}
 
      <!-- Fallback Standard View for Extended Definition -->
@@ -23,10 +23,10 @@
        {{#Extended definition}}
          <div class="sentence-display">
            {{#Sentence}}
-             {{Sentence}}
+             {{edit:Sentence}}
            {{/Sentence}}
            {{^Sentence}}
-             {{Expression}}
+             {{edit:Expression}}
            {{/Sentence}}
          </div>
        {{/Extended definition}}
