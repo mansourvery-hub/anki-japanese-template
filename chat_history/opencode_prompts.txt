@@ -298,3 +298,8 @@ continue
 
 ---
 
+---
+
+I want you to add /home/mohamed/Desktop/anki-japanese-template.apkg as a realease in github, it contains a few cards with this newely creaetd notetype, add an explantion on how to how to install this note type via this file, you simply import it to anki and delete the cards (anki always remebers the note type ven if the cards are deleted), also add this in the readme /home/mohamed/Desktop/Screencast_20260901_035804.webm it a a 10 se vid showing the notetype in action
+
+---
