@@ -6,12 +6,9 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 ## 🎥 Demo in Action
 
-<details>
-<summary><i>Click here to view the template demo (10s)</i></summary>
-<video src="./assets/demo.webm" controls width="100%"></video>
-</details>
+[![Click to Play Demo](assets/demo_thumb.png)](https://github.com/mansourvery-hub/anki-japanese-template/blob/main/assets/demo.mp4?raw=true)
 
-*(Demonstrates zero-reflow furigana, circular SVG audio rings, lightbox zoom, and responsive scaling)*
+*(Click the image above to watch the template in action: zero-reflow furigana, circular audio progress rings, lightbox zoom, and fluid responsive scaling)*
 
 ---
 
