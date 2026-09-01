@@ -6,7 +6,10 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 ## 🎥 Demo in Action
 
-https://github.com/mansourvery-hub/anki-japanese-template/assets/demo.webm
+<video width="100%" controls>
+  <source src="https://github.com/mansourvery-hub/anki-japanese-template/blob/main/assets/demo.webm?raw=true" type="video/webm">
+  Your browser does not support the video tag.
+</video>
 
 *(Watch the template in action with zero-reflow furigana hover, circular SVG audio progress rings, lightbox image zoom, and fluid responsive scaling)*
 
@@ -84,6 +87,11 @@ This note type is fully compatible with **Yomitan / Yomichan** mining workflows:
 3. Once imported, you can delete the sample cards. Anki will retain the newly created Note Type, which you can now use for your own cards.
 
 ### Option 2: Automatic Sync via Anki-Connect
+*Prerequisite: Clone this repository to your local machine.*
+```bash
+git clone https://github.com/mansourvery-hub/anki-japanese-template.git
+cd anki-japanese-template
+```
 1. Make sure [Anki](https://apps.ankiweb.net/) is open with the [Anki-Connect](https://ankiweb.net/shared/info/2055492159) add-on installed.
 2. In your terminal, run the sync script:
    ```bash
@@ -92,9 +100,10 @@ This note type is fully compatible with **Yomitan / Yomichan** mining workflows:
 3. The script will automatically update the Front Template, Back Template, and CSS styling directly inside your Anki profile.
 
 ### Option 3: Manual Installation
-1. In Anki, go to **Tools** $\rightarrow$ **Manage Note Types**.
-2. Select or create your Japanese note type.
-3. Click **Cards...**:
+1. *Prerequisite: Clone this repository or copy the contents of the files.*
+2. In Anki, go to **Tools** $\rightarrow$ **Manage Note Types**.
+3. Select or create your Japanese note type.
+4. Click **Cards...**:
    - Paste the contents of `Card 1 - Front.template.anki` into **Front Template**.
    - Paste the contents of `Card 1 - Back.template.anki` into **Back Template**.
    - Paste the contents of `Card 1 - Style.css` into **Styling**.
