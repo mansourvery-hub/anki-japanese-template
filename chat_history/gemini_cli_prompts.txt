@@ -1,0 +1,2292 @@
+I need you to upgrade an anki template for japanese leanring from scrach. The goal is to create a clean, modern, minimalist, highly functional and above all produce an understanble code. You will be coding it from sctrach. you can check my older design to get a rough idea on what it does but feel free to deviate from it as it terrible. The card needs to be functional above all else. Also, it needs to work on my samsugn A50 as well as on my arch desktop. My old card template is called "CSS Standard Japanese Note type (Sentence card by Default)".My new one I called "Japanese Note type (Sentence card by Default)". Treat the 2 one as devoid of any code(html and css) but just use it to get the anki fields name. First, what do you think of all this? Then can you access the Anki Editor code extenstion and thus my local anki template.
+I'm using the anki eidotr addon in code.
+I am continuing work on my Anki Japanese note type. Read the existing front.html, back.html, style.css files in my project folder to inspect where we left off, then help me finish the template.
+
+---
+
+first read the history of my previous chat with the agent before you @/tmp/cline_history.txt
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+Content from @/tmp/cline_history.txt:
+
+
+---
+
+[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]
+
+user: [{"type":"text","text":"<task>\nI need you to upgrade an anki template for japanese leanring from scrach. The goal is to create a clean, modern, minimalist, highly functional and above all produce an understanble code. You will be coding it from sctrach. you can check my older design to get a rough idea on what it does but feel free to deviate from it as it terrible. The card needs to be functional above all else. Also, it needs to work on my samsugn A50 as well as on my arch desktop. My old card template is called \"CSS Standard Japanese Note type (Sentence card by Default)\".My new one I called \"Japanese Note type (Sentence card by Default)\". Treat the 2 one as devoid of any code(html and css) but just use it to get the anki fields name. First, what do you think of all this? Then can you access the Anki Editor code extenstion and thus my local anki template.\nI'm using the anki eidotr addon in code.\nI am continuing work on my Anki Japanese note type. Read the existing front.html, back.html, style.css files in my project folder to inspect where we left off, then help me finish the template.\n</task>"},{"type":"text","text":"\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures n... [truncated]
+assistant: [{"type":"text","text":"\n\n[Response interrupted by API Error]"}]
+user: [{"type":"text","text":"[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/home/mohamed/Desktop'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."},{"type":"text","text":"\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures nothing is missed.\n"},{"type":"text","text":"<environment_details>\n# Code - OSS Visible Files\n(No visible files)\n\n# Code - OSS Open Tabs\nanki-japanese-template/Card 1 - Front.template... [truncated]
+
+---
+
+
+--- End of content ---
+
+---
+
+Bracket-to-Ruby avoids this please, all furigna will be handlede by the yomitan extension externally. Also as a genral rule, add succint yet powerful comments explaing brielfy what everything does. Also The previous model miss understood the logic so you need to correct it(cards in anki are like a memory quiz so you can't logically put card and stence audio in the front, among other things). Also can you with anki connect or idk how exaclty but can you in short not only modify the local files like Card 1 - Front.template.anki but also the note type itself dynamically isnide anki
+
+---
+
+1 keep the snce as this a sentcen card template so the sntence is not a hint per say but shows the word in a ntrual context, the word will be exported bold from yoitan(but don't worry about that)
+3 your worng, these are just files in my desktop they don't show up in anki unless i manually copy paste their content
+
+---
+
+I'm ready to begin the implementation. I'll provide the code in chunks, clearly commented so you can easily copy-paste them into your Anki Note Type editor.
+this is not bad but I inefficent espaically for a long session. maybe this helps
+* **How to Update Note Type via Anki-Connect**
+* Anki-Connect does not offer a single `updateNoteType` API call. You must update card templates and CSS styling using two separate actions: **`updateModelTemplates`** and **`updateModelStyling`**.
+
+
+* **1. Update Front & Back Card Templates (`updateModelTemplates`)**
+* Sends updated HTML templates for card fronts and backs.
+* **Payload Structure:**
+```python
+import requests
+
+url = "http://127.0.0.1:8765"
+payload = {
+    "action": "updateModelTemplates",
+    "version": 6,
+    "params": {
+        "model": {
+            "name": "Japanese Note type (Sentence card by Default)",
+            "templates": {
+                "Card 1": {
+                    "Front": "YOUR_FRONT_HTML_HERE",
+                    "Back": "YOUR_BACK_HTML_HERE"
+                }
+            }
+        }
+    }
+}
+response = requests.post(url, json=payload).json()
+print("Templates update response:", response)
+
+```
+
+
+
+
+* **2. Update Card CSS Styling (`updateModelStyling`)**
+* Updates global CSS rules for all cards under the note type.
+* **Payload Structure:**
+```python
+payload = {
+    "action": "updateModelStyling",
+    "version": 6,
+    "params": {
+        "model": {
+            "name": "Japanese Note type (Sentence card by Default)",
+            "css": "YOUR_CSS_STYLING_HERE"
+        }
+    }
+}
+response = requests.post(url, json=payload).json()
+print("Styling update response:", response)
+
+```
+
+
+
+
+* **Crucial Key Names to Avoid API Errors:**
+* Parameter root key must be **`"model"`** containing **`"name"`** (e.g., `params.model.name`).
+* Using `"modelName"` directly inside `params` causes an API keyword exception.
+
+
+
+#gemini #gemini-android #anki #ankiconnect #python #api
+
+---
+
+yes
+
+---
+
+remove word form front, it will be visible because it will be bold so no need to have at the bottom
+text too small and it does not seem to adpat with window size/mobile 
+furi on does not work
+0 design was put into this, for ex why are the 2 play button at the bottom put them next the word at the top, also put the picture at bottom , defintion should be under the word itself not at the bottom 
+The card seems really bland
+furigana on hover is not working(it sholud be only in back card as not to give extra hints)
+
+---
+
+> remove word form front, it will be visible because it will be bold so no need to have at the bottom                                                                        
+   text too small and it does not seem to adpat with window size/mobile                                                                                                       
+   furi on does not work                                                                                                                                                      
+   0 design was put into this, for ex why are the 2 play button at the bottom put them next the word at the top, also put the picture at bottom , defintion should be under   
+   the word itself not at the bottom                                                                                                                                          
+   The card seems really bland                                                                                                                                                
+   furigana on hover is not working(it sholud be only in back card as not to give extra hints)       
+extended def field is also missing, should be at the bottom @/home/mohamed/Desktop/note-types.json 
+I added the note in json so that you also add the other missing fields
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+Content from @/home/mohamed/Desktop/note-types.json:
+
+
+---
+
+[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]
+
+{
+  "format_version": "1.0",
+  "note_types": [
+    {
+      "name": "Japanese Note type (Sentence card by Default)",
+      "type": 0,
+      "css": "/* ==========================================================================\n   ANormal Japanese Card Style - Modern, Minimal, Responsive\n   Optimized for Anki Desktop (Arch) & AnkiDroid (Samsung A50)\n   ========================================================================== */\n\n:root {\n  /* Colors - Light Mode (Slate & Indigo) */\n  --bg: #f8fafc;\n  --bg-elevated: #ffffff;\n  --text: #1e293b;\n  --text-muted: #64748b;\n  --accent: #6366f1; /* Indigo */\n  --accent-hover: #4f46e5;\n  --border: #e2e8f0;\n  --ruby-text: #94a3b8;\n  --hint-bg: #fefce8;\n  --hint-text: #854d0e;\n  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);\n\n  /* Typography - Fluid Scaling */\n  --font-ja: \"Yu Mincho\", \"Hiragino Mincho ProN\", serif;\n  --font-ui: system-ui, sans-serif;\n  --fs-sentence: clamp(1.2rem, 4vw, 2.2rem);\n  --fs-expression: clamp(2rem, 8vw, 3.5rem);\n  --fs-body: clamp(0.95rem, 2.5vw, 1.1rem);\n\n  /* Spacing & Borders */\n  --radius: 12px;\n  --transition: 0.2s ease;\n}\n\n/* Dark Mode Overrides */\n.nightMode {\n  --bg: #0f172a;\n  --bg-elevated: #1e293b;\n  --text: #f1f5f9;\n  --text-muted: #94a3b8;\n  --accent: #818cf8;\n  --border: #334155;\n  --ruby-text: #64748b;\n  --hint-bg: #422006;\n  --hint-text: #fef08a;\n}\n\n/* --- Base Reset --- */\nbody {\n  font-family: var(--font-ui);\n  background: var(--bg);\n  color: var(--text);\n  margin: 0;\n  padding: 0;\n  line-height: 1.6;\n  -webkit-font-smoothing: antialiased;\n}\n\n.card {\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 2rem;\n  text-align: center;\n}\n\n/* --- Furigana Toggle Logic --- */\n/* Controlled by a class on the body set via JS */\n.furi-hide rt { display: none !important; }\n\n/* --- Sentence & Expression Layout --- */\n.sentence {\n  font-family: var(--font-ja);\n  font-size: var(--fs-sentence);\n  margin-bottom: 1.5rem;\n  line-height: 1.8;\n}\n\n/* Yomitan bolding for target word */\n.sentence b {\n  color: var(--accent);\n  border-bottom: 2px solid var(--accent);\n... [truncated]
+      "latex_pre": "\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n",
+      "latex_post": "\\end{document}",
+      "latex_svg": false,
+      "sort_field_index": 0,
+      "fields": [
+        {
+          "name": "Expression",
+          "ord": 0,
+          "font": "Noto Sans",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "Term expressed (without inflections ! ie conjugation of verbs) using maximal kanji (learned the hard way). If kanji expression is not available, kana is used. This is the best field to put first for handling search and duplicates.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Definition",
+          "ord": 1,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Kanji Notes",
+          "ord": 2,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Empty by default. This field will contain any info about the kanji(s) of the expression you deem necessary: for example radicals, mnemonics, meaning of the kanji, jukugo, readings etc, for kanji n°1 to 4",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Source",
+          "ord": 3,
+          "font": "Noto Sans CJK JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "URL, show name, book name, etc",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence",
+          "ord": 4,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence (furigana)",
+          "ord": 5,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence Audio",
+          "ord": 6,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Translation",
+          "ord": 7,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "maybe also include a literal english translation",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Picture",
+          "ord": 8,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "context",
+          "ord": 9,
+          "font": "Liberation Sans",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "The whole paragrah/diologue. Typically in books",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Notes",
+          "ord": 10,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "everthing else is here, grammar, other words defintions",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word Audio",
+          "ord": 11,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Pitch Accent",
+          "ord": 12,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "furigana",
+          "ord": 13,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "I try to use the plain formatting for furigana as much as possible since it is seems more intuitive for me",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "reading",
+          "ord": 14,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Kana reading for the term, or empty for terms where the expression is the reading. This field should not contain any kanji.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "cloze-body",
+          "ord": 15,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Original inflected term as it appeared before being reduced to dictionary form by Yomitan.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Frequency",
+          "ord": 16,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "Frequency of the cloze body",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Extended definition",
+          "ord": 17,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Here we put the full Yomitan defintionin japanese",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        }
+      ],
+      "templates": [
+        {
+          "name": "Card 1",
+          "ord": 0,
+          "qfmt": "<button id=\"furi-toggle\" aria-label=\"Toggle Furigana\">Furi: ON</button>\n\n<div class=\"card\">\n  <!-- Sentence context provided on the front for contextual recall -->\n  <div class=\"sentence\">{{furigana:Sentence}}</div>\n  \n  <div class=\"expression\">{{Expression}}</div>\n</div>\n\n<script>\n/* Furigana Toggle Engine (Persists via localStorage) */\nconst toggleBtn = document.getElementById('furi-toggle');\nconst body = document.body;\nlet furiEnabled = localStorage.getItem('furiEnabled') !== 'false';\n\nfunction updateFuri() {\n  body.classList.toggle('furi-hide', !furiEnabled);\n  toggleBtn.innerText = furiEnabled ? 'Furi: ON' : 'Furi: OFF';\n  localStorage.setItem('furiEnabled', furiEnabled);\n}\n\ntoggleBtn.onclick = (e) => {\n  e.stopPropagation();\n  furiEnabled = !furiEnabled;\n  updateFuri();\n};\n\n/* Initialize state on load */\nupdateFuri();\n</script>\n",
+          "afmt": "<button id=\"furi-toggle\" aria-label=\"Toggle Furigana\">Furi: ON</button>\n\n<div class=\"card\">\n  <!-- Visual Anchor (Picture) -->\n  {{#Picture}}\n  <div class=\"img-container\" onclick=\"this.classList.toggle('img-full')\">\n    {{Picture}}\n  </div>\n  {{/Picture}}\n\n  <!-- Verification: Meaning & Reading -->\n  <div class=\"expression\">{{furigana:Expression}}</div>\n  \n  {{#Pitch Accent}}\n  <div class=\"pitch-accent\" style=\"color: var(--accent); font-weight: 600; margin-bottom: 1rem;\">\n    {{Pitch Accent}}\n  </div>\n  {{/Pitch Accent}}\n\n  <!-- Reinforcement: Sentence & Audio -->\n  <div class=\"sentence\">{{furigana:Sentence}}</div>\n\n  <div class=\"audio-row\">\n    {{Word Audio}}\n    {{Sentence Audio}}\n  </div>\n\n  <!-- Interactive Translation Hint -->\n  {{#Translation}}\n  <div class=\"hint-container\" onclick=\"this.classList.toggle('hint-revealed')\">\n    <span class=\"hint-label\">Reveal Translation</span>\n    <span class=\"hint-text\">{{Translation}}</span>\n  </div>\n  {{/Translation}}\n\n  <!-- Deep Dive Sections (Collapsible) -->\n  {{#Definition}}\n  <details>\n    <summary>Definition</summary>\n    <div class=\"details-content\">{{Definition}}</div>\n  </details>\n  {{/Definition}}\n\n  {{#Notes}}\n  <details>\n    <summary>Notes / Grammar</summary>\n    <div class=\"details-content\">{{Notes}}</div>\n  </details>\n  {{/Notes}}\n</div>\n\n<script>\n/* Sync Furigana state with Front */\nconst toggleBtn = document.getElementById('furi-toggle');\nconst body = document.body;\nlet furiEnabled = localStorage.getItem('furiEnabled') !== 'false';\n\nfunction updateFuri() {\n  body.classList.toggle('furi-hide', !furiEnabled);\n  toggleBtn.innerText = furiEnabled ? 'Furi: ON' : 'Furi: OFF';\n  localStorage.setItem('furiEnabled', furiEnabled);\n}\n\ntoggleBtn.onclick = (e) => {\n  e.stopPropagation();\n  furiEnabled = !furiEnabled;\n  updateFuri();\n};\n\nupdateFuri();\n</script>\n",
+          "bqfmt": "{{Expression}}",
+          "bafmt": ""
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "exported_at": "2026-08-30T00:33:37.034315Z",
+    "anki_version": "26.08.1",
+    "addon_version": "1.0.0",
+    "count": 1
+  }
+}
+
+---
+
+
+--- End of content ---
+
+---
+
+> remove word form front, it will be visible because it will be bold so no need to have at the bottom                                                                        
+   text too small and it does not seem to adpat with window size/mobile                                                                                                       
+   furi on does not work                                                                                                                                                      
+   0 design was put into this, for ex why are the 2 play button at the bottom put them next the word at the top, also put the picture at bottom , defintion should be under   
+   the word itself not at the bottom                                                                                                                                          
+   The card seems really bland                                                                                                                                                
+   furigana on hover is not working(it sholud be only in back card as not to give extra hints)       
+extended def field is also missing, should be at the bottom @/home/mohamed/Desktop/note-types.json 
+I added the note in json so that you also add the other missing fields
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+Content from @/home/mohamed/Desktop/note-types.json:
+
+
+---
+
+[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]
+
+{
+  "format_version": "1.0",
+  "note_types": [
+    {
+      "name": "Japanese Note type (Sentence card by Default)",
+      "type": 0,
+      "css": "/* ==========================================================================\n   ANormal Japanese Card Style - Modern, Minimal, Responsive\n   Optimized for Anki Desktop (Arch) & AnkiDroid (Samsung A50)\n   ========================================================================== */\n\n:root {\n  /* Colors - Light Mode (Slate & Indigo) */\n  --bg: #f8fafc;\n  --bg-elevated: #ffffff;\n  --text: #1e293b;\n  --text-muted: #64748b;\n  --accent: #6366f1; /* Indigo */\n  --accent-hover: #4f46e5;\n  --border: #e2e8f0;\n  --ruby-text: #94a3b8;\n  --hint-bg: #fefce8;\n  --hint-text: #854d0e;\n  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);\n\n  /* Typography - Fluid Scaling */\n  --font-ja: \"Yu Mincho\", \"Hiragino Mincho ProN\", serif;\n  --font-ui: system-ui, sans-serif;\n  --fs-sentence: clamp(1.2rem, 4vw, 2.2rem);\n  --fs-expression: clamp(2rem, 8vw, 3.5rem);\n  --fs-body: clamp(0.95rem, 2.5vw, 1.1rem);\n\n  /* Spacing & Borders */\n  --radius: 12px;\n  --transition: 0.2s ease;\n}\n\n/* Dark Mode Overrides */\n.nightMode {\n  --bg: #0f172a;\n  --bg-elevated: #1e293b;\n  --text: #f1f5f9;\n  --text-muted: #94a3b8;\n  --accent: #818cf8;\n  --border: #334155;\n  --ruby-text: #64748b;\n  --hint-bg: #422006;\n  --hint-text: #fef08a;\n}\n\n/* --- Base Reset --- */\nbody {\n  font-family: var(--font-ui);\n  background: var(--bg);\n  color: var(--text);\n  margin: 0;\n  padding: 0;\n  line-height: 1.6;\n  -webkit-font-smoothing: antialiased;\n}\n\n.card {\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 2rem;\n  text-align: center;\n}\n\n/* --- Furigana Toggle Logic --- */\n/* Controlled by a class on the body set via JS */\n.furi-hide rt { display: none !important; }\n\n/* --- Sentence & Expression Layout --- */\n.sentence {\n  font-family: var(--font-ja);\n  font-size: var(--fs-sentence);\n  margin-bottom: 1.5rem;\n  line-height: 1.8;\n}\n\n/* Yomitan bolding for target word */\n.sentence b {\n  color: var(--accent);\n  border-bottom: 2px solid var(--accent);\n... [truncated]
+      "latex_pre": "\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n",
+      "latex_post": "\\end{document}",
+      "latex_svg": false,
+      "sort_field_index": 0,
+      "fields": [
+        {
+          "name": "Expression",
+          "ord": 0,
+          "font": "Noto Sans",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "Term expressed (without inflections ! ie conjugation of verbs) using maximal kanji (learned the hard way). If kanji expression is not available, kana is used. This is the best field to put first for handling search and duplicates.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Definition",
+          "ord": 1,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Kanji Notes",
+          "ord": 2,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Empty by default. This field will contain any info about the kanji(s) of the expression you deem necessary: for example radicals, mnemonics, meaning of the kanji, jukugo, readings etc, for kanji n°1 to 4",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Source",
+          "ord": 3,
+          "font": "Noto Sans CJK JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "URL, show name, book name, etc",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence",
+          "ord": 4,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence (furigana)",
+          "ord": 5,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence Audio",
+          "ord": 6,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Translation",
+          "ord": 7,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "maybe also include a literal english translation",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Picture",
+          "ord": 8,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "context",
+          "ord": 9,
+          "font": "Liberation Sans",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "The whole paragrah/diologue. Typically in books",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Notes",
+          "ord": 10,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "everthing else is here, grammar, other words defintions",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word Audio",
+          "ord": 11,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Pitch Accent",
+          "ord": 12,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "furigana",
+          "ord": 13,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "I try to use the plain formatting for furigana as much as possible since it is seems more intuitive for me",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "reading",
+          "ord": 14,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Kana reading for the term, or empty for terms where the expression is the reading. This field should not contain any kanji.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "cloze-body",
+          "ord": 15,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Original inflected term as it appeared before being reduced to dictionary form by Yomitan.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Frequency",
+          "ord": 16,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "Frequency of the cloze body",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Extended definition",
+          "ord": 17,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Here we put the full Yomitan defintionin japanese",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        }
+      ],
+      "templates": [
+        {
+          "name": "Card 1",
+          "ord": 0,
+          "qfmt": "<button id=\"furi-toggle\" aria-label=\"Toggle Furigana\">Furi: ON</button>\n\n<div class=\"card\">\n  <!-- Sentence context provided on the front for contextual recall -->\n  <div class=\"sentence\">{{furigana:Sentence}}</div>\n  \n  <div class=\"expression\">{{Expression}}</div>\n</div>\n\n<script>\n/* Furigana Toggle Engine (Persists via localStorage) */\nconst toggleBtn = document.getElementById('furi-toggle');\nconst body = document.body;\nlet furiEnabled = localStorage.getItem('furiEnabled') !== 'false';\n\nfunction updateFuri() {\n  body.classList.toggle('furi-hide', !furiEnabled);\n  toggleBtn.innerText = furiEnabled ? 'Furi: ON' : 'Furi: OFF';\n  localStorage.setItem('furiEnabled', furiEnabled);\n}\n\ntoggleBtn.onclick = (e) => {\n  e.stopPropagation();\n  furiEnabled = !furiEnabled;\n  updateFuri();\n};\n\n/* Initialize state on load */\nupdateFuri();\n</script>\n",
+          "afmt": "<button id=\"furi-toggle\" aria-label=\"Toggle Furigana\">Furi: ON</button>\n\n<div class=\"card\">\n  <!-- Visual Anchor (Picture) -->\n  {{#Picture}}\n  <div class=\"img-container\" onclick=\"this.classList.toggle('img-full')\">\n    {{Picture}}\n  </div>\n  {{/Picture}}\n\n  <!-- Verification: Meaning & Reading -->\n  <div class=\"expression\">{{furigana:Expression}}</div>\n  \n  {{#Pitch Accent}}\n  <div class=\"pitch-accent\" style=\"color: var(--accent); font-weight: 600; margin-bottom: 1rem;\">\n    {{Pitch Accent}}\n  </div>\n  {{/Pitch Accent}}\n\n  <!-- Reinforcement: Sentence & Audio -->\n  <div class=\"sentence\">{{furigana:Sentence}}</div>\n\n  <div class=\"audio-row\">\n    {{Word Audio}}\n    {{Sentence Audio}}\n  </div>\n\n  <!-- Interactive Translation Hint -->\n  {{#Translation}}\n  <div class=\"hint-container\" onclick=\"this.classList.toggle('hint-revealed')\">\n    <span class=\"hint-label\">Reveal Translation</span>\n    <span class=\"hint-text\">{{Translation}}</span>\n  </div>\n  {{/Translation}}\n\n  <!-- Deep Dive Sections (Collapsible) -->\n  {{#Definition}}\n  <details>\n    <summary>Definition</summary>\n    <div class=\"details-content\">{{Definition}}</div>\n  </details>\n  {{/Definition}}\n\n  {{#Notes}}\n  <details>\n    <summary>Notes / Grammar</summary>\n    <div class=\"details-content\">{{Notes}}</div>\n  </details>\n  {{/Notes}}\n</div>\n\n<script>\n/* Sync Furigana state with Front */\nconst toggleBtn = document.getElementById('furi-toggle');\nconst body = document.body;\nlet furiEnabled = localStorage.getItem('furiEnabled') !== 'false';\n\nfunction updateFuri() {\n  body.classList.toggle('furi-hide', !furiEnabled);\n  toggleBtn.innerText = furiEnabled ? 'Furi: ON' : 'Furi: OFF';\n  localStorage.setItem('furiEnabled', furiEnabled);\n}\n\ntoggleBtn.onclick = (e) => {\n  e.stopPropagation();\n  furiEnabled = !furiEnabled;\n  updateFuri();\n};\n\nupdateFuri();\n</script>\n",
+          "bqfmt": "{{Expression}}",
+          "bafmt": ""
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "exported_at": "2026-08-30T00:33:37.034315Z",
+    "anki_version": "26.08.1",
+    "addon_version": "1.0.0",
+    "count": 1
+  }
+}
+
+---
+
+
+--- End of content ---
+
+---
+
+is it done ?
+
+---
+
+its better, colors are too agressive. bold + uderlined+color chnage for word is too much, im not retadede i can see the word in front, keep color change alone is enought.
+too mcuh eye candy
+furigana button too big, also does not work, also should not displayed in the front
+also furigana on hover still does not work on back of th card
+{{furigana:Expression}} is the worong way in back card it should be {{edit:furigana:furigana}}
+
+---
+
+User has manually exited Plan Mode. Switching to Default mode (edits will require confirmation).
+
+---
+
+User has manually exited Plan Mode. Switching to Default mode (edits will require confirmation).
+
+---
+
+ok
+
+---
+
+remove the furigana button entirely furigan should be on mosue hover
+the color palet is still atracious, the design is not elenagt or refined at all
+too much unused space, the card should very ergonmical
+the card seems to chnage dyncmally with screen size but it breaks at low dimension, typically of a phone
+picture should be bfore full defintion, full def should be expand on click
+also from now one accept ediths and sync automatically each time
+
+---
+
+remove the furigana button entirely furigan should be on mosue hover
+the color palet is still atracious, the design is not elenagt or refined at all
+too much unused space, the card should very ergonmical
+the card seems to chnage dyncmally with screen size but it breaks at low dimension, typically of a phone
+picture should be bfore full defintion, full def should be expand on click
+also from now one accept ediths and sync automatically each time
+ @/home/mohamed/Desktop/jp1kv3.json I added a very polished note type, the goal is not to coppy it but if anything has cought your eye feel free to get inspired and implement it, if it is a major feature ask me beofre
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+Content from @/home/mohamed/Desktop/jp1kv3.json:
+
+
+---
+
+[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]
+
+{
+  "format_version": "1.0",
+  "note_types": [
+    {
+      "name": "JP1Kv3",
+      "type": 0,
+      "css": ":root {\n  /* Increase this max-width-card value to increase the maximum width of your card! */\n  --max-width-card: 600px;\n\n  /* Increase the font-size to make the card easier to read! If you want to make the text bigger and easier to see, we suggest that you also increase the max-width of the card so you have more space. The card's max-width variable is the first variable, above this comment. */\n  --font-size-targetWord-front: 50px;\n  --font-size-targetWordReading-front: 30px;\n  --font-size-targetWord-back: 35px;\n  --font-size-targetWordReading-back: 16px;\n  --font-size-sentence: 30px;\n  --font-size-sentenceReading: 14px;\n  --font-size-sentenceTranslation: 16px;\n  --font-size-header: 16px;\n  --font-size-definition: 16px;\n  --font-size-instruction: 12px;\n\n  /* Change the color values of these variables to change the colors in your cards! NightMode colors are only active when you are running anki in Night Mode (dark mode). */\n  --color-text-primary: #18191f;\n  --color-nightMode-text-primary: #fbfafe;\n  --color-card-background: #ffffff;\n  --color-nightMode-card-background: #0b0716;\n  --color-box-shadow: rgba(18, 62, 119, 0.1);\n  --color-audio-button: #6544e9;\n  --color-hint: #6b7280;\n  --color-nightMode-hint: #9ca3af;\n  --color-sentence-translation: #6b7280;\n  --color-nightMode-sentence-translation: #9ca3af;\n  --color-header: #9ca3af;\n  --color-nightMode-header: rgba(255, 255, 255, 0.5);\n  --color-divider: #e5e7eb;\n  --color-nightMode-divider: #1f2937;\n}\n\n/* Chrome Base Styles */\np {\n  display: block;\n  margin-block-start: 1em;\n  margin-block-end: 1em;\n  margin-inline-start: 0px;\n  margin-inline-end: 0px;\n}\n\n/* Anki Browser Styles */\ndiv {\n  display: block;\n}\n\nbody {\n  display: block;\n  line-height: 1.187;\n}\n\nhtml {\n  display: block;\n  color: -internal-root-color;\n}\n\n/* http://meyerweb.com/eric/tools/css/reset/\n   v2.0 | 20110126\n   License: none (public domain)\n*/\n\nspan,\napplet,\nobject,\nifr... [truncated]
+      "latex_pre": "\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n",
+      "latex_post": "\\end{document}",
+      "latex_svg": false,
+      "sort_field_index": 1,
+      "fields": [
+        {
+          "name": "Index",
+          "ord": 0,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word",
+          "ord": 1,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word With Reading",
+          "ord": 2,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Definition",
+          "ord": 3,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Example Sentence",
+          "ord": 4,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence with Reading",
+          "ord": 5,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence Translation",
+          "ord": 6,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Kanji",
+          "ord": 7,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "word_audio",
+          "ord": 8,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "sentence_audio",
+          "ord": 9,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Image",
+          "ord": 10,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "helper_image_1",
+          "ord": 11,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "helper_image_2",
+          "ord": 12,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        }
+      ],
+      "templates": [
+        {
+          "name": "JP1K Vocab",
+          "ord": 0,
+          "qfmt": "{{#Kanji}}\n<div id=\"step_1\">\n  <div class=\"customCard horizontalPadding\">\n    <div class=\"targetWordFront jpFont word\">{{Word}}</div>\n    <div class=\"iconsContainer\">\n      <div class=\"iconsFlexContainer\">\n        <button\n          id=\"eyeButton\"\n          data-open=\"true\"\n          class=\"eyeButton\"\n          onClick=\"activateStep2()\"\n        >\n          <img\n            src=\"eyeOpenIconButton.png\"\n            alt=\"Show reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"instructionContainer\">\n    <div class=\"instruction instructionFront\">\n      <span>Step 1: Recall the word's reading. Then press the 👁  button.</span>\n    </div>\n  </div>\n</div>\n\n<div id=\"step_2\" style=\"display: none\">\n  <div class=\"customCard horizontalPadding\">\n    <div id=\"wordReading\" class=\"targetWordFront jpFont wordReading\">\n      {{furigana:Word With Reading}}\n    </div>\n    <div id=\"word\" class=\"targetWordFront jpFont word\" style=\"display: none\">\n      {{Word}}\n    </div>\n    <div class=\"iconsContainer\">\n      <div class=\"iconsFlexContainer\">\n        <button id=\"eyeButtonClosed\" class=\"eyeButton\" onClick=\"hideReading()\">\n          <img\n            src=\"eyeClosedIconButton.png\"\n            alt=\"Hide reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n        <button\n          id=\"eyeButtonOpen\"\n          class=\"eyeButton\"\n          onClick=\"showReading()\"\n          style=\"display: none\"\n        >\n          <img\n            src=\"eyeOpenIconButton.png\"\n            alt=\"Show reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n        <div id=\"wordAudio\">{{word_audio}}</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"instructionContainer\">\n    <div class=\"instruction instructionFront\">\n ... [truncated]
+          "afmt": "<div class=\"customCard cardBack\">\n  <div class=\"horizontalPadding\">\n    <div class=\"instruction instructionBack\">\n      <div id=\"regularInstruction\">\n\n{{^Kanji}}\n        Step 2: Grade yourself only on whether you got the meaning correct.\n{{/Kanji}}\n      </div>\n      <div id=\"leechInstruction\" style=\"display: none\">\n        <span style=\"color: red\">LEECH</span>: Pass the card no matter what.\n      </div>\n    </div>\n  </div>\n\n  <div class=\"horizontalPadding centerVertically targetWordContainer\">\n    {{#Kanji}}\n    <span id=\"wordReading\" class=\"targetWordBack jpFont wordReading\">\n      {{furigana:Word With Reading}}\n    </span>\n    <span id=\"word\" class=\"targetWordBack jpFont word\" style=\"display: none\">\n      {{Word}}\n    </span>\n    {{/Kanji}} {{^Kanji}}\n    <span id=\"word\" class=\"targetWordBack jpFont word\"> {{Word}} </span>\n    {{/Kanji}}\n    <div class=\"iconsFlexContainer\">\n      {{#Kanji}}\n      <button\n        id=\"eyeButtonClosedWord\"\n        class=\"eyeButton\"\n        onClick=\"hideWordReading()\"\n      >\n        <img\n          src=\"eyeClosedIconButton.png\"\n          alt=\"Hide reading eye button\"\n          class=\"eyeIconImage\"\n        />\n      </button>\n      <button\n        id=\"eyeButtonOpenWord\"\n        class=\"eyeButton\"\n        onClick=\"showWordReading()\"\n        style=\"display: none\"\n      >\n        <img\n          src=\"eyeOpenIconButton.png\"\n          alt=\"Show reading eye button\"\n          class=\"eyeIconImage\"\n        />\n      </button>\n      {{/Kanji}}\n      <div id=\"wordAudio\">{{word_audio}}</div>\n    </div>\n  </div>\n\n  <div class=\"dividerLine\"></div>\n\n  <div class=\"horizontalPadding\">\n    <div class=\"header\">definition:</div>\n    <div class=\"indent\">\n      <div class=\"definition\">{{hint:Definition}}</div>\n    </div>\n  </div>\n<!--\n  {{#Image}}\n  <div class=\"image\">{{Image}}</div>\n  {{/Image}} {{^Image... [truncated]
+          "bqfmt": "",
+          "bafmt": ""
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "exported_at": "2026-08-30T01:02:06.237930Z",
+    "anki_version": "26.08.1",
+    "addon_version": "1.0.0",
+    "count": 1
+  }
+}
+
+---
+
+
+--- End of content ---
+
+---
+
+remove the furigana button entirely furigan should be on mosue hover
+the color palet is still atracious, the design is not elenagt or refined at all
+too much unused space, the card should very ergonmical
+the card seems to chnage dyncmally with screen size but it breaks at low dimension, typically of a phone
+picture should be bfore full defintion, full def should be expand on click
+also from now one accept ediths and sync automatically each time
+ @/home/mohamed/Desktop/jp1kv3.json I added a very polished note type, the goal is not to coppy it but if anything has cought your eye feel free to get inspired and implement it, if it is a major feature ask me beofre
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+Content from @/home/mohamed/Desktop/jp1kv3.json:
+
+
+---
+
+[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]
+
+{
+  "format_version": "1.0",
+  "note_types": [
+    {
+      "name": "JP1Kv3",
+      "type": 0,
+      "css": ":root {\n  /* Increase this max-width-card value to increase the maximum width of your card! */\n  --max-width-card: 600px;\n\n  /* Increase the font-size to make the card easier to read! If you want to make the text bigger and easier to see, we suggest that you also increase the max-width of the card so you have more space. The card's max-width variable is the first variable, above this comment. */\n  --font-size-targetWord-front: 50px;\n  --font-size-targetWordReading-front: 30px;\n  --font-size-targetWord-back: 35px;\n  --font-size-targetWordReading-back: 16px;\n  --font-size-sentence: 30px;\n  --font-size-sentenceReading: 14px;\n  --font-size-sentenceTranslation: 16px;\n  --font-size-header: 16px;\n  --font-size-definition: 16px;\n  --font-size-instruction: 12px;\n\n  /* Change the color values of these variables to change the colors in your cards! NightMode colors are only active when you are running anki in Night Mode (dark mode). */\n  --color-text-primary: #18191f;\n  --color-nightMode-text-primary: #fbfafe;\n  --color-card-background: #ffffff;\n  --color-nightMode-card-background: #0b0716;\n  --color-box-shadow: rgba(18, 62, 119, 0.1);\n  --color-audio-button: #6544e9;\n  --color-hint: #6b7280;\n  --color-nightMode-hint: #9ca3af;\n  --color-sentence-translation: #6b7280;\n  --color-nightMode-sentence-translation: #9ca3af;\n  --color-header: #9ca3af;\n  --color-nightMode-header: rgba(255, 255, 255, 0.5);\n  --color-divider: #e5e7eb;\n  --color-nightMode-divider: #1f2937;\n}\n\n/* Chrome Base Styles */\np {\n  display: block;\n  margin-block-start: 1em;\n  margin-block-end: 1em;\n  margin-inline-start: 0px;\n  margin-inline-end: 0px;\n}\n\n/* Anki Browser Styles */\ndiv {\n  display: block;\n}\n\nbody {\n  display: block;\n  line-height: 1.187;\n}\n\nhtml {\n  display: block;\n  color: -internal-root-color;\n}\n\n/* http://meyerweb.com/eric/tools/css/reset/\n   v2.0 | 20110126\n   License: none (public domain)\n*/\n\nspan,\napplet,\nobject,\nifr... [truncated]
+      "latex_pre": "\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n",
+      "latex_post": "\\end{document}",
+      "latex_svg": false,
+      "sort_field_index": 1,
+      "fields": [
+        {
+          "name": "Index",
+          "ord": 0,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word",
+          "ord": 1,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word With Reading",
+          "ord": 2,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Definition",
+          "ord": 3,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Example Sentence",
+          "ord": 4,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence with Reading",
+          "ord": 5,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence Translation",
+          "ord": 6,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Kanji",
+          "ord": 7,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "word_audio",
+          "ord": 8,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "sentence_audio",
+          "ord": 9,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Image",
+          "ord": 10,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "helper_image_1",
+          "ord": 11,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "helper_image_2",
+          "ord": 12,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        }
+      ],
+      "templates": [
+        {
+          "name": "JP1K Vocab",
+          "ord": 0,
+          "qfmt": "{{#Kanji}}\n<div id=\"step_1\">\n  <div class=\"customCard horizontalPadding\">\n    <div class=\"targetWordFront jpFont word\">{{Word}}</div>\n    <div class=\"iconsContainer\">\n      <div class=\"iconsFlexContainer\">\n        <button\n          id=\"eyeButton\"\n          data-open=\"true\"\n          class=\"eyeButton\"\n          onClick=\"activateStep2()\"\n        >\n          <img\n            src=\"eyeOpenIconButton.png\"\n            alt=\"Show reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"instructionContainer\">\n    <div class=\"instruction instructionFront\">\n      <span>Step 1: Recall the word's reading. Then press the 👁  button.</span>\n    </div>\n  </div>\n</div>\n\n<div id=\"step_2\" style=\"display: none\">\n  <div class=\"customCard horizontalPadding\">\n    <div id=\"wordReading\" class=\"targetWordFront jpFont wordReading\">\n      {{furigana:Word With Reading}}\n    </div>\n    <div id=\"word\" class=\"targetWordFront jpFont word\" style=\"display: none\">\n      {{Word}}\n    </div>\n    <div class=\"iconsContainer\">\n      <div class=\"iconsFlexContainer\">\n        <button id=\"eyeButtonClosed\" class=\"eyeButton\" onClick=\"hideReading()\">\n          <img\n            src=\"eyeClosedIconButton.png\"\n            alt=\"Hide reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n        <button\n          id=\"eyeButtonOpen\"\n          class=\"eyeButton\"\n          onClick=\"showReading()\"\n          style=\"display: none\"\n        >\n          <img\n            src=\"eyeOpenIconButton.png\"\n            alt=\"Show reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n        <div id=\"wordAudio\">{{word_audio}}</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"instructionContainer\">\n    <div class=\"instruction instructionFront\">\n ... [truncated]
+          "afmt": "<div class=\"customCard cardBack\">\n  <div class=\"horizontalPadding\">\n    <div class=\"instruction instructionBack\">\n      <div id=\"regularInstruction\">\n\n{{^Kanji}}\n        Step 2: Grade yourself only on whether you got the meaning correct.\n{{/Kanji}}\n      </div>\n      <div id=\"leechInstruction\" style=\"display: none\">\n        <span style=\"color: red\">LEECH</span>: Pass the card no matter what.\n      </div>\n    </div>\n  </div>\n\n  <div class=\"horizontalPadding centerVertically targetWordContainer\">\n    {{#Kanji}}\n    <span id=\"wordReading\" class=\"targetWordBack jpFont wordReading\">\n      {{furigana:Word With Reading}}\n    </span>\n    <span id=\"word\" class=\"targetWordBack jpFont word\" style=\"display: none\">\n      {{Word}}\n    </span>\n    {{/Kanji}} {{^Kanji}}\n    <span id=\"word\" class=\"targetWordBack jpFont word\"> {{Word}} </span>\n    {{/Kanji}}\n    <div class=\"iconsFlexContainer\">\n      {{#Kanji}}\n      <button\n        id=\"eyeButtonClosedWord\"\n        class=\"eyeButton\"\n        onClick=\"hideWordReading()\"\n      >\n        <img\n          src=\"eyeClosedIconButton.png\"\n          alt=\"Hide reading eye button\"\n          class=\"eyeIconImage\"\n        />\n      </button>\n      <button\n        id=\"eyeButtonOpenWord\"\n        class=\"eyeButton\"\n        onClick=\"showWordReading()\"\n        style=\"display: none\"\n      >\n        <img\n          src=\"eyeOpenIconButton.png\"\n          alt=\"Show reading eye button\"\n          class=\"eyeIconImage\"\n        />\n      </button>\n      {{/Kanji}}\n      <div id=\"wordAudio\">{{word_audio}}</div>\n    </div>\n  </div>\n\n  <div class=\"dividerLine\"></div>\n\n  <div class=\"horizontalPadding\">\n    <div class=\"header\">definition:</div>\n    <div class=\"indent\">\n      <div class=\"definition\">{{hint:Definition}}</div>\n    </div>\n  </div>\n<!--\n  {{#Image}}\n  <div class=\"image\">{{Image}}</div>\n  {{/Image}} {{^Image... [truncated]
+          "bqfmt": "",
+          "bafmt": ""
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "exported_at": "2026-08-30T01:02:06.237930Z",
+    "anki_version": "26.08.1",
+    "addon_version": "1.0.0",
+    "count": 1
+  }
+}
+
+---
+
+
+--- End of content ---
+
+---
+
+clors too dark, too ugly,
+piture click no longer works
+furigana should appre on top of the word not on the side
+no furigna on the snetence at the back card
+too much wasted space, iedally nI should not scroll down form main elements like word, sentence, picture , definition(its ok for extentded def), extended def should be at the bottom of sthe screen
+why you removed all the other fields wtf
+did you read and udernstand and extract useful feature/implemention from @/home/mohamed/Desktop/jp1kv3.json ?
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+Content from @/home/mohamed/Desktop/jp1kv3.json:
+
+
+---
+
+[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]
+
+{
+  "format_version": "1.0",
+  "note_types": [
+    {
+      "name": "JP1Kv3",
+      "type": 0,
+      "css": ":root {\n  /* Increase this max-width-card value to increase the maximum width of your card! */\n  --max-width-card: 600px;\n\n  /* Increase the font-size to make the card easier to read! If you want to make the text bigger and easier to see, we suggest that you also increase the max-width of the card so you have more space. The card's max-width variable is the first variable, above this comment. */\n  --font-size-targetWord-front: 50px;\n  --font-size-targetWordReading-front: 30px;\n  --font-size-targetWord-back: 35px;\n  --font-size-targetWordReading-back: 16px;\n  --font-size-sentence: 30px;\n  --font-size-sentenceReading: 14px;\n  --font-size-sentenceTranslation: 16px;\n  --font-size-header: 16px;\n  --font-size-definition: 16px;\n  --font-size-instruction: 12px;\n\n  /* Change the color values of these variables to change the colors in your cards! NightMode colors are only active when you are running anki in Night Mode (dark mode). */\n  --color-text-primary: #18191f;\n  --color-nightMode-text-primary: #fbfafe;\n  --color-card-background: #ffffff;\n  --color-nightMode-card-background: #0b0716;\n  --color-box-shadow: rgba(18, 62, 119, 0.1);\n  --color-audio-button: #6544e9;\n  --color-hint: #6b7280;\n  --color-nightMode-hint: #9ca3af;\n  --color-sentence-translation: #6b7280;\n  --color-nightMode-sentence-translation: #9ca3af;\n  --color-header: #9ca3af;\n  --color-nightMode-header: rgba(255, 255, 255, 0.5);\n  --color-divider: #e5e7eb;\n  --color-nightMode-divider: #1f2937;\n}\n\n/* Chrome Base Styles */\np {\n  display: block;\n  margin-block-start: 1em;\n  margin-block-end: 1em;\n  margin-inline-start: 0px;\n  margin-inline-end: 0px;\n}\n\n/* Anki Browser Styles */\ndiv {\n  display: block;\n}\n\nbody {\n  display: block;\n  line-height: 1.187;\n}\n\nhtml {\n  display: block;\n  color: -internal-root-color;\n}\n\n/* http://meyerweb.com/eric/tools/css/reset/\n   v2.0 | 20110126\n   License: none (public domain)\n*/\n\nspan,\napplet,\nobject,\nifr... [truncated]
+      "latex_pre": "\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n",
+      "latex_post": "\\end{document}",
+      "latex_svg": false,
+      "sort_field_index": 1,
+      "fields": [
+        {
+          "name": "Index",
+          "ord": 0,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word",
+          "ord": 1,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word With Reading",
+          "ord": 2,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Definition",
+          "ord": 3,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Example Sentence",
+          "ord": 4,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence with Reading",
+          "ord": 5,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence Translation",
+          "ord": 6,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Kanji",
+          "ord": 7,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "word_audio",
+          "ord": 8,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "sentence_audio",
+          "ord": 9,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Image",
+          "ord": 10,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "helper_image_1",
+          "ord": 11,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "helper_image_2",
+          "ord": 12,
+          "font": "Arial",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        }
+      ],
+      "templates": [
+        {
+          "name": "JP1K Vocab",
+          "ord": 0,
+          "qfmt": "{{#Kanji}}\n<div id=\"step_1\">\n  <div class=\"customCard horizontalPadding\">\n    <div class=\"targetWordFront jpFont word\">{{Word}}</div>\n    <div class=\"iconsContainer\">\n      <div class=\"iconsFlexContainer\">\n        <button\n          id=\"eyeButton\"\n          data-open=\"true\"\n          class=\"eyeButton\"\n          onClick=\"activateStep2()\"\n        >\n          <img\n            src=\"eyeOpenIconButton.png\"\n            alt=\"Show reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"instructionContainer\">\n    <div class=\"instruction instructionFront\">\n      <span>Step 1: Recall the word's reading. Then press the 👁  button.</span>\n    </div>\n  </div>\n</div>\n\n<div id=\"step_2\" style=\"display: none\">\n  <div class=\"customCard horizontalPadding\">\n    <div id=\"wordReading\" class=\"targetWordFront jpFont wordReading\">\n      {{furigana:Word With Reading}}\n    </div>\n    <div id=\"word\" class=\"targetWordFront jpFont word\" style=\"display: none\">\n      {{Word}}\n    </div>\n    <div class=\"iconsContainer\">\n      <div class=\"iconsFlexContainer\">\n        <button id=\"eyeButtonClosed\" class=\"eyeButton\" onClick=\"hideReading()\">\n          <img\n            src=\"eyeClosedIconButton.png\"\n            alt=\"Hide reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n        <button\n          id=\"eyeButtonOpen\"\n          class=\"eyeButton\"\n          onClick=\"showReading()\"\n          style=\"display: none\"\n        >\n          <img\n            src=\"eyeOpenIconButton.png\"\n            alt=\"Show reading eye button\"\n            class=\"eyeIconImage\"\n          />\n        </button>\n        <div id=\"wordAudio\">{{word_audio}}</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"instructionContainer\">\n    <div class=\"instruction instructionFront\">\n ... [truncated]
+          "afmt": "<div class=\"customCard cardBack\">\n  <div class=\"horizontalPadding\">\n    <div class=\"instruction instructionBack\">\n      <div id=\"regularInstruction\">\n\n{{^Kanji}}\n        Step 2: Grade yourself only on whether you got the meaning correct.\n{{/Kanji}}\n      </div>\n      <div id=\"leechInstruction\" style=\"display: none\">\n        <span style=\"color: red\">LEECH</span>: Pass the card no matter what.\n      </div>\n    </div>\n  </div>\n\n  <div class=\"horizontalPadding centerVertically targetWordContainer\">\n    {{#Kanji}}\n    <span id=\"wordReading\" class=\"targetWordBack jpFont wordReading\">\n      {{furigana:Word With Reading}}\n    </span>\n    <span id=\"word\" class=\"targetWordBack jpFont word\" style=\"display: none\">\n      {{Word}}\n    </span>\n    {{/Kanji}} {{^Kanji}}\n    <span id=\"word\" class=\"targetWordBack jpFont word\"> {{Word}} </span>\n    {{/Kanji}}\n    <div class=\"iconsFlexContainer\">\n      {{#Kanji}}\n      <button\n        id=\"eyeButtonClosedWord\"\n        class=\"eyeButton\"\n        onClick=\"hideWordReading()\"\n      >\n        <img\n          src=\"eyeClosedIconButton.png\"\n          alt=\"Hide reading eye button\"\n          class=\"eyeIconImage\"\n        />\n      </button>\n      <button\n        id=\"eyeButtonOpenWord\"\n        class=\"eyeButton\"\n        onClick=\"showWordReading()\"\n        style=\"display: none\"\n      >\n        <img\n          src=\"eyeOpenIconButton.png\"\n          alt=\"Show reading eye button\"\n          class=\"eyeIconImage\"\n        />\n      </button>\n      {{/Kanji}}\n      <div id=\"wordAudio\">{{word_audio}}</div>\n    </div>\n  </div>\n\n  <div class=\"dividerLine\"></div>\n\n  <div class=\"horizontalPadding\">\n    <div class=\"header\">definition:</div>\n    <div class=\"indent\">\n      <div class=\"definition\">{{hint:Definition}}</div>\n    </div>\n  </div>\n<!--\n  {{#Image}}\n  <div class=\"image\">{{Image}}</div>\n  {{/Image}} {{^Image... [truncated]
+          "bqfmt": "",
+          "bafmt": ""
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "exported_at": "2026-08-30T01:02:06.237930Z",
+    "anki_version": "26.08.1",
+    "addon_version": "1.0.0",
+    "count": 1
+  }
+}
+
+---
+
+
+--- End of content ---
+
+---
+
+you desttroyed the card, its features and did 0 of what i asked
+the card still looks like shit, there are no ther fields displayed (please re read the card fields in @/home/mohamed/Desktop/note-types.json )
+furigana on hover not working
+clcik on picture not working
+Definition (Click to toggle) not working
+card looks uglier then before, still in balck
+Extended Definition expand not working
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+Content from @/home/mohamed/Desktop/note-types.json:
+
+
+---
+
+[WARNING: This file was truncated. To view the full content, use the 'read_file' tool on this specific file.]
+
+{
+  "format_version": "1.0",
+  "note_types": [
+    {
+      "name": "Japanese Note type (Sentence card by Default)",
+      "type": 0,
+      "css": "/* ==========================================================================\n   ANormal Japanese Card Style - Modern, Minimal, Responsive\n   Optimized for Anki Desktop (Arch) & AnkiDroid (Samsung A50)\n   ========================================================================== */\n\n:root {\n  /* Colors - Light Mode (Slate & Indigo) */\n  --bg: #f8fafc;\n  --bg-elevated: #ffffff;\n  --text: #1e293b;\n  --text-muted: #64748b;\n  --accent: #6366f1; /* Indigo */\n  --accent-hover: #4f46e5;\n  --border: #e2e8f0;\n  --ruby-text: #94a3b8;\n  --hint-bg: #fefce8;\n  --hint-text: #854d0e;\n  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);\n\n  /* Typography - Fluid Scaling */\n  --font-ja: \"Yu Mincho\", \"Hiragino Mincho ProN\", serif;\n  --font-ui: system-ui, sans-serif;\n  --fs-sentence: clamp(1.2rem, 4vw, 2.2rem);\n  --fs-expression: clamp(2rem, 8vw, 3.5rem);\n  --fs-body: clamp(0.95rem, 2.5vw, 1.1rem);\n\n  /* Spacing & Borders */\n  --radius: 12px;\n  --transition: 0.2s ease;\n}\n\n/* Dark Mode Overrides */\n.nightMode {\n  --bg: #0f172a;\n  --bg-elevated: #1e293b;\n  --text: #f1f5f9;\n  --text-muted: #94a3b8;\n  --accent: #818cf8;\n  --border: #334155;\n  --ruby-text: #64748b;\n  --hint-bg: #422006;\n  --hint-text: #fef08a;\n}\n\n/* --- Base Reset --- */\nbody {\n  font-family: var(--font-ui);\n  background: var(--bg);\n  color: var(--text);\n  margin: 0;\n  padding: 0;\n  line-height: 1.6;\n  -webkit-font-smoothing: antialiased;\n}\n\n.card {\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 2rem;\n  text-align: center;\n}\n\n/* --- Furigana Toggle Logic --- */\n/* Controlled by a class on the body set via JS */\n.furi-hide rt { display: none !important; }\n\n/* --- Sentence & Expression Layout --- */\n.sentence {\n  font-family: var(--font-ja);\n  font-size: var(--fs-sentence);\n  margin-bottom: 1.5rem;\n  line-height: 1.8;\n}\n\n/* Yomitan bolding for target word */\n.sentence b {\n  color: var(--accent);\n  border-bottom: 2px solid var(--accent);\n... [truncated]
+      "latex_pre": "\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n",
+      "latex_post": "\\end{document}",
+      "latex_svg": false,
+      "sort_field_index": 0,
+      "fields": [
+        {
+          "name": "Expression",
+          "ord": 0,
+          "font": "Noto Sans",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "Term expressed (without inflections ! ie conjugation of verbs) using maximal kanji (learned the hard way). If kanji expression is not available, kana is used. This is the best field to put first for handling search and duplicates.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Definition",
+          "ord": 1,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Kanji Notes",
+          "ord": 2,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Empty by default. This field will contain any info about the kanji(s) of the expression you deem necessary: for example radicals, mnemonics, meaning of the kanji, jukugo, readings etc, for kanji n°1 to 4",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Source",
+          "ord": 3,
+          "font": "Noto Sans CJK JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "URL, show name, book name, etc",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence",
+          "ord": 4,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence (furigana)",
+          "ord": 5,
+          "font": "Noto Sans JP",
+          "size": 30,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Sentence Audio",
+          "ord": 6,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Translation",
+          "ord": 7,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "maybe also include a literal english translation",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Picture",
+          "ord": 8,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "context",
+          "ord": 9,
+          "font": "Liberation Sans",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "The whole paragrah/diologue. Typically in books",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Notes",
+          "ord": 10,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "everthing else is here, grammar, other words defintions",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Word Audio",
+          "ord": 11,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Pitch Accent",
+          "ord": 12,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "furigana",
+          "ord": 13,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "I try to use the plain formatting for furigana as much as possible since it is seems more intuitive for me",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "reading",
+          "ord": 14,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Kana reading for the term, or empty for terms where the expression is the reading. This field should not contain any kanji.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "cloze-body",
+          "ord": 15,
+          "font": "Noto Sans JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Original inflected term as it appeared before being reduced to dictionary form by Yomitan.",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Frequency",
+          "ord": 16,
+          "font": "Noto Sans JP",
+          "size": 10,
+          "sticky": false,
+          "rtl": false,
+          "description": "Frequency of the cloze body",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        },
+        {
+          "name": "Extended definition",
+          "ord": 17,
+          "font": "Noto Sans CJK JP",
+          "size": 20,
+          "sticky": false,
+          "rtl": false,
+          "description": "Here we put the full Yomitan defintionin japanese",
+          "plainText": false,
+          "collapsed": false,
+          "excludeFromSearch": false
+        }
+      ],
+      "templates": [
+        {
+          "name": "Card 1",
+          "ord": 0,
+          "qfmt": "<button id=\"furi-toggle\" aria-label=\"Toggle Furigana\">Furi: ON</button>\n\n<div class=\"card\">\n  <!-- Sentence context provided on the front for contextual recall -->\n  <div class=\"sentence\">{{furigana:Sentence}}</div>\n  \n  <div class=\"expression\">{{Expression}}</div>\n</div>\n\n<script>\n/* Furigana Toggle Engine (Persists via localStorage) */\nconst toggleBtn = document.getElementById('furi-toggle');\nconst body = document.body;\nlet furiEnabled = localStorage.getItem('furiEnabled') !== 'false';\n\nfunction updateFuri() {\n  body.classList.toggle('furi-hide', !furiEnabled);\n  toggleBtn.innerText = furiEnabled ? 'Furi: ON' : 'Furi: OFF';\n  localStorage.setItem('furiEnabled', furiEnabled);\n}\n\ntoggleBtn.onclick = (e) => {\n  e.stopPropagation();\n  furiEnabled = !furiEnabled;\n  updateFuri();\n};\n\n/* Initialize state on load */\nupdateFuri();\n</script>\n",
+          "afmt": "<button id=\"furi-toggle\" aria-label=\"Toggle Furigana\">Furi: ON</button>\n\n<div class=\"card\">\n  <!-- Visual Anchor (Picture) -->\n  {{#Picture}}\n  <div class=\"img-container\" onclick=\"this.classList.toggle('img-full')\">\n    {{Picture}}\n  </div>\n  {{/Picture}}\n\n  <!-- Verification: Meaning & Reading -->\n  <div class=\"expression\">{{furigana:Expression}}</div>\n  \n  {{#Pitch Accent}}\n  <div class=\"pitch-accent\" style=\"color: var(--accent); font-weight: 600; margin-bottom: 1rem;\">\n    {{Pitch Accent}}\n  </div>\n  {{/Pitch Accent}}\n\n  <!-- Reinforcement: Sentence & Audio -->\n  <div class=\"sentence\">{{furigana:Sentence}}</div>\n\n  <div class=\"audio-row\">\n    {{Word Audio}}\n    {{Sentence Audio}}\n  </div>\n\n  <!-- Interactive Translation Hint -->\n  {{#Translation}}\n  <div class=\"hint-container\" onclick=\"this.classList.toggle('hint-revealed')\">\n    <span class=\"hint-label\">Reveal Translation</span>\n    <span class=\"hint-text\">{{Translation}}</span>\n  </div>\n  {{/Translation}}\n\n  <!-- Deep Dive Sections (Collapsible) -->\n  {{#Definition}}\n  <details>\n    <summary>Definition</summary>\n    <div class=\"details-content\">{{Definition}}</div>\n  </details>\n  {{/Definition}}\n\n  {{#Notes}}\n  <details>\n    <summary>Notes / Grammar</summary>\n    <div class=\"details-content\">{{Notes}}</div>\n  </details>\n  {{/Notes}}\n</div>\n\n<script>\n/* Sync Furigana state with Front */\nconst toggleBtn = document.getElementById('furi-toggle');\nconst body = document.body;\nlet furiEnabled = localStorage.getItem('furiEnabled') !== 'false';\n\nfunction updateFuri() {\n  body.classList.toggle('furi-hide', !furiEnabled);\n  toggleBtn.innerText = furiEnabled ? 'Furi: ON' : 'Furi: OFF';\n  localStorage.setItem('furiEnabled', furiEnabled);\n}\n\ntoggleBtn.onclick = (e) => {\n  e.stopPropagation();\n  furiEnabled = !furiEnabled;\n  updateFuri();\n};\n\nupdateFuri();\n</script>\n",
+          "bqfmt": "{{Expression}}",
+          "bafmt": ""
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "exported_at": "2026-08-30T00:33:37.034315Z",
+    "anki_version": "26.08.1",
+    "addon_version": "1.0.0",
+    "count": 1
+  }
+}
+
+---
+
+
+--- End of content ---
+
+---
+
+git checkout -- front.html back.html style.css
+
+---
+
+I made an anki card for learning japanese with the help of gemini, it is 95% done. A few final wteaks are in order. First read the code base, and I will tell you about what I want to chnage.
+
+---
+
+a few improvements:                                                                                                                                               
+   There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with    
+   thoses elments making me forced to swipe to check the bottom                                                                                                               
+   There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding         
+   also the vertical padding is way to agressive both front and back                                                                                                          
+   in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty            
+   space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space                      
+   Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+a few improvements:                                                                                                                                               
+   There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with    
+   thoses elments making me forced to swipe to check the bottom                                                                                                               
+   There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding         
+   also the vertical padding is way to agressive both front and back                                                                                                          
+   in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty            
+   space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space                      
+   Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+a few improvements:                                                                                                                                               
+   There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with    
+   thoses elments making me forced to swipe to check the bottom                                                                                                               
+   There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding         
+   also the vertical padding is way to agressive both front and back                                                                                                          
+   in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty            
+   space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space                      
+   Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+<session_context>
+This is the Gemini CLI. We are setting up the context for our chat.
+Today's date is Monday, August 31, 2026 (formatted according to the user's locale).
+My operating system is: linux
+The project's temporary directory is: /home/mohamed/.gemini/tmp/anki-japanese-template
+- **Workspace Directories:**
+  - /home/mohamed/Desktop/anki-japanese-template
+- **Directory Structure:**
+
+Showing up to 200 items (files + folders). Folders or files indicated with ... contain more items not shown, were ignored, or the display limit (200 items) was reached.
+
+/home/mohamed/Desktop/anki-japanese-template/
+├───Card 1 - Back.template.anki
+├───Card 1 - Front.template.anki
+├───Card 1 - Style.css
+├───Design.md
+├───Gemini.md
+├───JapNoteType.json
+├───styles.css
+├───sync_to_anki.py
+└───.git/...
+
+
+</session_context>
+
+---
+
+I made an anki card for learning japanese with the help of gemini, it is 95% done. A few final wteaks are in order. First read the code base, and I will tell you about what I want to chnage.
+
+---
+
+a few improvements:                                                                                                                                               
+   There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with    
+   thoses elments making me forced to swipe to check the bottom                                                                                                               
+   There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding         
+   also the vertical padding is way to agressive both front and back                                                                                                          
+   in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty            
+   space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space                      
+   Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+a few improvements:                                                                                                                                               
+   There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with    
+   thoses elments making me forced to swipe to check the bottom                                                                                                               
+   There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding         
+   also the vertical padding is way to agressive both front and back                                                                                                          
+   in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty            
+   space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space                      
+   Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+amazing job overall, tweaks:
+reduce the space between the card blocks(class="card-block")
+There still some uselss space/padding(for exmaple for the front card vertically, back card after source)
+The field called frequency is still missing
+The card is fully ergonimc at mobile screene size,feels very full, however at dektop screen size it can still be imporved: for exemeple, in some case, the fields notes and kanji will be empty and in that case, the space under picture will be empty so it is reasable to put stuff under it(like for example extended definition). If all of this seems too case by case, feel free to provide a general solution atht dynamically fills the screen. IF this is too complicated, no need to add extra layers of complexity for edge cases so just deal with those, your call.
+
+---
+
+I want to create a new "my japanese language learning anki note" template                                                                                     
+   - anki follows this pattern a front card, a back card and css                                                                                                              
+   - in the front will be displayed just the sentence with a word in it already in bold                                                                                       
+   - in the back there will be displayed in this order, the word(with on hover furigana, so the furigana anki field), pitch accent, word and sentence audio, word definition, 
+   sentence(with furigana hover), image, the rst of the fields, extended def at the bottom(expands by click), source at very bottom.                                          
+   - at the very top of the card, anki card tags should be dispalyed, floating above the card, stating fixed even if you scroll down                                          
+   - The card should inherently dynamically change when few fields are missing. for some fields like kanji and notes, if the field is empty we simply don't show it(say if    
+   the card was mined from a book then naturally there is no sentence audio)but if an improtant field is missing, typically the 2 definition fields are empty, then this a    
+   listening card and in the front we simply put only the sentence audio(the back is the same). Think of as much of these edge cases as possible and handle them.             
+   
+The note is 90% done now, so I need you only to fix a few minor things.                                                                                                    
+   First design: The card's desigh is now really bland. I want something simple yet elegant and refined.                                                                      
+   ergonomy, the card is now fully functional buta lot of space is watsed easpcailly on a big screen (like my laptop), I want to fill that empty as much as possible (done in 
+   thoughful way not randomly filling spcae)                                                                                                                                  
+   First read the code bas first and tell me what jumps to you, what cnahges you want to make etc. Any thing you have in mind no matter how minor it is please feel free to   
+   share
+
+---
+
+I want to create a new "my japanese language learning anki note" template                                                                                     
+   - anki follows this pattern a front card, a back card and css                                                                                                              
+   - in the front will be displayed just the sentence with a word in it already in bold                                                                                       
+   - in the back there will be displayed in this order, the word(with on hover furigana, so the furigana anki field), pitch accent, word and sentence audio, word definition, 
+   sentence(with furigana hover), image, the rst of the fields, extended def at the bottom(expands by click), source at very bottom.                                          
+   - at the very top of the card, anki card tags should be dispalyed, floating above the card, stating fixed even if you scroll down                                          
+   - The card should inherently dynamically change when few fields are missing. for some fields like kanji and notes, if the field is empty we simply don't show it(say if    
+   the card was mined from a book then naturally there is no sentence audio)but if an improtant field is missing, typically the 2 definition fields are empty, then this a    
+   listening card and in the front we simply put only the sentence audio(the back is the same). Think of as much of these edge cases as possible and handle them.             
+   
+The note is 90% done now, so I need you only to fix a few minor things.                                                                                                    
+   First design: The card's desigh is now really bland. I want something simple yet elegant and refined.                                                                      
+   ergonomy, the card is now fully functional buta lot of space is watsed easpcailly on a big screen (like my laptop), I want to fill that empty as much as possible (done in 
+   thoughful way not randomly filling spcae)                                                                                                                                  
+   First read the code bas first and tell me what jumps to you, what cnahges you want to make etc. Any thing you have in mind no matter how minor it is please feel free to   
+   share
+
+---
+
+did you sync to anki ?
+
+---
+
+- I want to create a new my japanese language learning anki note template from scratch
+- anki follows this pattern a front card, a back card and css
+- in the front will be displayed just the sentence with a word in it already in bold
+- in the back there will be displayed in this order, the word(with on hover furigana, so the furigana anki field), pitch accent, word and sentence audio, word definition, sentence(with furigana hover), image, the rst of the fields, extended def at the bottom(expands by click), source at very bottom.
+- at the very top of the card, anki card tags should be dispalyed, floating above the card, stating fixed even if you scroll down
+- The card should inherently dynamically change when few fields are missing. for some fields like kanji and notes, if the field is empty we simply don't show it(say if the card was mined from a book then naturally there is no sentence audio)but if an improtant field is missing, typically the 2 definition fields are empty, then this a listening card and in the front we simply put only the sentence audio(the back is the same). Think of as much of these edge cases as possible and handle them.
+- Initialize a git repository in this folder, configure my email/name as 'Mehdi', and create a baseline initial commit
+
+---
+
+not bad as a first version, here are my few critiques:
+ @/tmp/Spectacle.tgPUMG/Screenshot_20260831_041430.png as you can see @/tmp/Spectacle.mDDacL/Screenshot_20260831_041504.png space is not efficently utlised (mostly at the back card) but in egenral too much wasted empty space
+sentence trasanltion should be hidden by default(if it is avaiable) and apprea on click
+Reading field not to be shwon at all as it already accounter for in the furuigana field (don't show it)
+same for Original Inflected Term
+Frequency Rating should be at the very top next word, easy to spot
+tags should be hidden in the front as not to provide an unwarranted hint
+same with the sentence audio, it should be on the back
+card font is ugly, i wanr font-family: "Yu Mincho"
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+--- End of content ---
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+not bad as a first version, here are my few critiques:
+ @/tmp/Spectacle.tgPUMG/Screenshot_20260831_041430.png as you can see @/tmp/Spectacle.mDDacL/Screenshot_20260831_041504.png space is not efficently utlised (mostly at the back card) but in egenral too much wasted empty space
+sentence trasanltion should be hidden by default(if it is avaiable) and apprea on click
+Reading field not to be shwon at all as it already accounter for in the furuigana field (don't show it)
+same for Original Inflected Term
+Frequency Rating should be at the very top next word, easy to spot
+tags should be hidden in the front as not to provide an unwarranted hint
+same with the sentence audio, it should be on the back
+card font is ugly, i wanr font-family: "Yu Mincho"
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+--- End of content ---
+
+---
+
+mostly good changes, few remarks
+text size needs to be bigger(esspecailly in front card) and it needs to change dynamically with screen size
+again 0 ergonmical design, most of the screen is not used/empty for a desktop
+image should be by default a bit bigger and hosuld scale(a bit with screene size also)
+so much wasted space in this part @/tmp/Spectacle.EPZxFD/Screenshot_20260831_044334.png 
+sentence text in the back should be centered not in the left
+your comments like `     - Optimized for space efficiency: merges word header and main definition into a single block.` should be discarded, comments should not reflect the process(removing elments, chnages etc) but what the templateactually does, this will only confuse futre readers
+The image click works but it is not done propperly, the animation feels weird, as if the image teleports
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+--- End of content ---
+
+---
+
+mostly good changes, few remarks
+text size needs to be bigger(esspecailly in front card) and it needs to change dynamically with screen size
+again 0 ergonmical design, most of the screen is not used/empty for a desktop
+image should be by default a bit bigger and hosuld scale(a bit with screene size also)
+so much wasted space in this part @/tmp/Spectacle.EPZxFD/Screenshot_20260831_044334.png 
+sentence text in the back should be centered not in the left
+your comments like `     - Optimized for space efficiency: merges word header and main definition into a single block.` should be discarded, comments should not reflect the process(removing elments, chnages etc) but what the templateactually does, this will only confuse futre readers
+The image click works but it is not done propperly, the animation feels weird, as if the image teleports
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+--- End of content ---
+
+---
+
+you did very bad, please Run git reset --hard HEAD to revert all broken code back to the last clean commit.
+
+---
+
+lets try again, mostly good changes, few remarks
+text size needs to be bigger(esspecailly in front card) and it needs to change dynamically with screen size
+again 0 ergonmical design, most of the screen is not used/empty for a desktop
+image should be by default a bit bigger and hosuld scale(a bit with screene size also)
+so much wasted space in this part @/tmp/Spectacle.EPZxFD/Screenshot_20260831_044334.png 
+sentence text in the back should be centered not in the left
+your comments like `     - Optimized for space efficiency: merges word header and main definition into a single block.` should be discarded, comments should not reflect the process(removing elments, chnages etc) but what the templateactually does, this will only confuse futre readers
+The image click works but it is not done propperly, the animation feels weird, as if the image teleports
+
+---
+
+
+--- Content from referenced files ---
+
+---
+
+
+--- End of content ---
+
+---
+
+some things has gotten better, but again we suffer from the same issues for ergonomy, for ex the top part of the back card is still wasting so much precious space,
+as for the image, the first click to expand works well, but the senod click to reset to baseline is still buggy/weird. Also if click the image the opcity of background is too agressive, we see nothing
+Also a general theme, the card is looking uglier and uglier with each prompt, any notion of elegance, style and refinement is contually beeing stripped away
+
+---
+
+> slightly increase text size in front and back, same for image                                                                                                              
+   audio button design should return to vanilla
+
+---
+
+exit
+
+---
+
+> I want to create a new "my japanese language learning anki note" template                                                                                                  
+      - anki follows this pattern a front card, a back card and css                                                                                                           
+      - in the front will be displayed just the sentence with a word in it already in bold                                                                                    
+      - in the back there will be displayed in this order, the word(with on hover furigana, so the furigana anki field), pitch accent, word and sentence audio, word          
+   definition,                                                                                                                                                                
+      sentence(with furigana hover), image, the rst of the fields, extended def at the bottom(expands by click), source at very bottom.                                       
+      - at the very top of the card, anki card tags should be dispalyed, floating above the card, stating fixed even if you scroll down                                       
+      - The card should inherently dynamically change when few fields are missing. for some fields like kanji and notes, if the field is empty we simply don't show it(say if 
+      the card was mined from a book then naturally there is no sentence audio)but if an improtant field is missing, typically the 2 definition fields are empty, then this a 
+      listening card and in the front we simply put only the sentence audio(the back is the same). Think of as much of these edge cases as possible and handle them.          
+                                                                                                                                                                              
+   The note is 90% done now, so I need you only to fix a few minor things.                                                                                                    
+      First design: The card's desigh is now really bland. I want something simple yet elegant and refined.                                                                   
+      ergonomy, the card is now fully functional buta lot of space is watsed easpcailly on a big screen (like my laptop), I want to fill that empty as much as possible (done 
+   in                                                                                                                                                                         
+      thoughful way not randomly filling spcae)                                                                                                                               
+      First read the code bas first and tell me what jumps to you, what cnahges you want to make etc. Any thing you have in mind no matter how minor it is please feel free   
+   to                                                                                                                                                                         
+      share            
+NOTE: all the features mentioned here already implemented, so don"'t re do them from the begiining please, for now analyze the code base and think tahts all
+
+---
+
+I agree to everthing except  Premium Interactive Translation.
+Before we go any further, if you could get access to some notetypes I have via anki conncet please do that: Here are the few that I want you to read their source code(so front back and css) and if they have any meaning insigh both techinical or funtionality that i can get from them feel free to tell me:
+JP Mining Note
+JP1Kv3
+Mining-JP
+
+---
+
+I agree go ahead with everything
+
+---
+
+I agree, go ahead with everything
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+I agree, go ahead with everything
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+[System: You successfully executed a tool but returned an empty response. Please analyze the tool output and explain your progress or final answer.]
+
+---
+
+I agree, go ahead with everything
+
+---
+
+I agree, go ahead with everything
+
+---
+
+not bad, a few improvements:
+There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with thoses elments making me forced to swipe to check the bottom
+There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding
+also the vertical padding is way to agressive both front and back
+in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space
+Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+not bad, a few improvements:
+There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with thoses elments making me forced to swipe to check the bottom
+There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding
+also the vertical padding is way to agressive both front and back
+in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space
+Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+not bad, a few improvements:
+There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with thoses elments making me forced to swipe to check the bottom
+There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding
+also the vertical padding is way to agressive both front and back
+in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space
+Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+not bad, a few improvements:
+There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with thoses elments making me forced to swipe to check the bottom
+There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding
+also the vertical padding is way to agressive both front and back
+in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space
+Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+not bad, a few improvements:
+There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with thoses elments making me forced to swipe to check the bottom
+There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding
+also the vertical padding is way to agressive both front and back
+in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space
+Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+exit
+
+---
+
+<session_context>
+This is the Gemini CLI. We are setting up the context for our chat.
+Today's date is Monday, August 31, 2026 (formatted according to the user's locale).
+My operating system is: linux
+The project's temporary directory is: /home/mohamed/.gemini/tmp/anki-japanese-template
+- **Workspace Directories:**
+  - /home/mohamed/Desktop/anki-japanese-template
+- **Directory Structure:**
+
+Showing up to 200 items (files + folders). Folders or files indicated with ... contain more items not shown, were ignored, or the display limit (200 items) was reached.
+
+/home/mohamed/Desktop/anki-japanese-template/
+├───Card 1 - Back.template.anki
+├───Card 1 - Front.template.anki
+├───Card 1 - Style.css
+├───Design.md
+├───Gemini.md
+├───JapNoteType.json
+├───styles.css
+├───sync_to_anki.py
+└───.git/...
+
+
+</session_context>
+
+---
+
+> I want to create a new "my japanese language learning anki note" template                                                                                                  
+      - anki follows this pattern a front card, a back card and css                                                                                                           
+      - in the front will be displayed just the sentence with a word in it already in bold                                                                                    
+      - in the back there will be displayed in this order, the word(with on hover furigana, so the furigana anki field), pitch accent, word and sentence audio, word          
+   definition,                                                                                                                                                                
+      sentence(with furigana hover), image, the rst of the fields, extended def at the bottom(expands by click), source at very bottom.                                       
+      - at the very top of the card, anki card tags should be dispalyed, floating above the card, stating fixed even if you scroll down                                       
+      - The card should inherently dynamically change when few fields are missing. for some fields like kanji and notes, if the field is empty we simply don't show it(say if 
+      the card was mined from a book then naturally there is no sentence audio)but if an improtant field is missing, typically the 2 definition fields are empty, then this a 
+      listening card and in the front we simply put only the sentence audio(the back is the same). Think of as much of these edge cases as possible and handle them.          
+                                                                                                                                                                              
+   The note is 90% done now, so I need you only to fix a few minor things.                                                                                                    
+      First design: The card's desigh is now really bland. I want something simple yet elegant and refined.                                                                   
+      ergonomy, the card is now fully functional buta lot of space is watsed easpcailly on a big screen (like my laptop), I want to fill that empty as much as possible (done 
+   in                                                                                                                                                                         
+      thoughful way not randomly filling spcae)                                                                                                                               
+      First read the code bas first and tell me what jumps to you, what cnahges you want to make etc. Any thing you have in mind no matter how minor it is please feel free   
+   to                                                                                                                                                                         
+      share            
+NOTE: all the features mentioned here already implemented, so don"'t re do them from the begiining please, for now analyze the code base and think tahts all
+
+---
+
+I agree to everthing except  Premium Interactive Translation.
+Before we go any further, if you could get access to some notetypes I have via anki conncet please do that: Here are the few that I want you to read their source code(so front back and css) and if they have any meaning insigh both techinical or funtionality that i can get from them feel free to tell me:
+JP Mining Note
+JP1Kv3
+Mining-JP
+
+---
+
+I agree, go ahead with everything
+
+---
+
+not bad, a few improvements:
+There is a lot of watsed space in the word pitch accent 2 audio section, espically on mobile, for instance more then 60% of the screen on mobile is already filled with thoses elments making me forced to swipe to check the bottom
+There is still a lot of wasted space, for example: 30% of the screen is wasted at the very top of the front card with empty air with some usless horzental padding
+also the vertical padding is way to agressive both front and back
+in the back card there is also a lot of wasted space, at the very top again(before the word in furigana) usless padding, between fields there is too much empty space(between all fields but its very bad with distance between picture and the rest of the fields), after source gain alot of dead air, wasted space
+Besides what I underlined, you need to serioisly think about the effceint of the card, both on mobile and desktop(of course without fucking up the design and the logic)
+
+---
+
+exit
+
+---
+
+- I want to create a new my japanese language learning anki note template from scratch
+- anki follows this pattern a front card, a back card and css
+- in the front will be displayed just the sentence with a word in it already in bold
+- in the back there will be displayed in this order, the word(with on hover furigana, so the furigana anki field), pitch accent, word and sentence audio, word definition, sentence(with furigana hover), image, the rst of the fields, extended def at the bottom(expands by click), source at very bottom.
+- at the very top of the card, anki card tags should be dispalyed, floating above the card, stating fixed even if you scroll down
+- The card should inherently dynamically change when few fields are missing. for some fields like kanji and notes, if the field is empty we simply don't show it(say if the card was mined from a book then naturally there is no sentence audio)but if an improtant field is missing, typically the 2 definition fields are empty, then this a listening card and in the front we simply put only the sentence audio(the back is the same). Think of as much of these edge cases as possible and handle them.
+The note is 90% done now, so I need you only to fix a few minor things.
+First design: The card's desigh is now really bland. I want something simple yet elegant and refined.
+ergonomy, the card is now fully functional buta lot of space is watsed easpcailly on a big screen (like my laptop), I want to fill that empty as much as possible (done in thoughful way not randomly filling spcae)
+First read the code bas first and tell me what jumps to you, what cnahges you want to make etc. Any thing you have in mind no matter how minor it is please feel free to share
+
+---
+
+<session_context>
+This is the Gemini CLI. We are setting up the context for our chat.
+Today's date is Monday, August 31, 2026 (formatted according to the user's locale).
+My operating system is: linux
+The project's temporary directory is: /home/mohamed/.gemini/tmp/anki-japanese-template
+- **Workspace Directories:**
+  - /home/mohamed/Desktop/anki-japanese-template
+- **Directory Structure:**
+
+Showing up to 200 items (files + folders). Folders or files indicated with ... contain more items not shown, were ignored, or the display limit (200 items) was reached.
+
+/home/mohamed/Desktop/anki-japanese-template/
+├───Card 1 - Back.template.anki
+├───Card 1 - Front.template.anki
+├───Card 1 - Style.css
+├───Design.md
+├───Gemini.md
+├───JapNoteType.json
+├───styles.css
+├───sync_to_anki.py
+└───.git/...
+
+
+</session_context>
+
+---
+
+- I want to create a new my japanese language learning anki note template from scratch
+- anki follows this pattern a front card, a back card and css
+- in the front will be displayed just the sentence with a word in it already in bold
+- in the back there will be displayed in this order, the word(with on hover furigana, so the furigana anki field), pitch accent, word and sentence audio, word definition, sentence(with furigana hover), image, the rst of the fields, extended def at the bottom(expands by click), source at very bottom.
+- at the very top of the card, anki card tags should be dispalyed, floating above the card, stating fixed even if you scroll down
+- The card should inherently dynamically change when few fields are missing. for some fields like kanji and notes, if the field is empty we simply don't show it(say if the card was mined from a book then naturally there is no sentence audio)but if an improtant field is missing, typically the 2 definition fields are empty, then this a listening card and in the front we simply put only the sentence audio(the back is the same). Think of as much of these edge cases as possible and handle them.
+The note is 90% done now, so I need you only to fix a few minor things.
+First design: The card's desigh is now really bland. I want something simple yet elegant and refined.
+ergonomy, the card is now fully functional buta lot of space is watsed easpcailly on a big screen (like my laptop), I want to fill that empty as much as possible (done in thoughful way not randomly filling spcae)
+First read the code bas first and tell me what jumps to you, what cnahges you want to make etc. Any thing you have in mind no matter how minor it is please feel free to share
+
+---
+
+tell what you are trying to merge
+
+---
+
