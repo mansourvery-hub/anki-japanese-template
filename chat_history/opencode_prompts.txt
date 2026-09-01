@@ -18,23 +18,33 @@ go
 
 ---
 
-Disable plan mode — proceed with all edits
+good job on what you did but i meant all the previous git history stored locally not the 1.0 but what comes before it
 
 ---
 
-proceed with all edits
+how to export opencode's chat history, only my prompts, same with gemini cli(used it at the start) and store everything in github in a dedicated file/folder
 
 ---
 
-proceed with all edits
+in the read me add a mention on the tools used open code and gemini cli used to cerate this and the all the model called with % (say the main model is X with Y%)
 
 ---
 
-proceed with all edits
+don't halluicante the numbers(in %) calclaute them effectively
 
 ---
 
-continue
+how would i update it locally without breaking git, also how to synchornize my changes to github
+do I update inside anki, but then everything will stay local and git will break
+
+---
+
+a very small bug remains , hovering over furigana shows furrigana as it should but the whole ext moves by a few pixels to make room for the furigna that will apprer on top making an unpleasant effect each time I hover
+inceasing the spacing between lines will obviously solve this, but I need you to come with a clever dynamic solution that works at every screen size and is the minimal added distance necsary as I said multiple time screen real estate is really precious, espacially on mobile
+Another thing, from now on always update not only via sync and git but alos push to github.
+From now on always update my rpompt into chat_history in the appriote folder(and add a mention of it in the md file so future agents do the same)
+Also, update the Gemini.md(rename btw to amore universal name) with a mention to github(for future agents), add a quick section in readme about what you just told me about github.
+
 
 ---
 

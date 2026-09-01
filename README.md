@@ -103,6 +103,23 @@ This note type is fully compatible with **Yomitan / Yomichan** mining workflows:
 
 ---
 
+## 🔄 Development & Synchronization Workflow
+
+To ensure changes are tracked in Git and never overwritten accidentally, follow the **Local-First Workflow**:
+
+1. **Edit Local Files:** Always edit `Card 1 - Front.template.anki`, `Card 1 - Back.template.anki`, or `Card 1 - Style.css` directly in your code editor. *Never edit templates inside Anki's UI.*
+2. **Push to Anki:** Run `python3 sync_to_anki.py` to push changes to your active Anki collection.
+3. **Commit to Git:** Save a version snapshot:
+   ```bash
+   git add . && git commit -m "style: update layout"
+   ```
+4. **Backup to GitHub:** Push your commits to GitHub:
+   ```bash
+   git push origin main
+   ```
+
+---
+
 ## 🤖 Built With
 This template was architected using **Opencode** as the primary agentic builder for iterative refactoring, and **Gemini CLI** for initial project scaffolding and requirements analysis.
 

@@ -233,6 +233,7 @@
   font-size: clamp(3rem, 9vw, 5.8rem);
   font-weight: 600;
   line-height: 1.15;
+  padding-top: 0.35em;
   margin-bottom: 4px;
 }
 
@@ -382,6 +383,7 @@
   font-family: var(--font-japanese-serif);
   font-size: clamp(2rem, 5vw, 3.5rem);
   line-height: 1.5;
+  padding-top: 0.35em;
   margin-bottom: 8px;
   color: var(--text-primary);
   text-align: center;
@@ -431,25 +433,38 @@
 
 
 /* ==============================================================================
-   9. FURIGANA HOVER & TOUCH ERGONOMICS
+   9. FURIGANA HOVER & TOUCH ERGONOMICS (Zero-Reflow / Zero-Shift)
    ============================================================================== */
-ruby rt {
-  visibility: hidden;
-  opacity: 0;
-  font-size: 0.55em;
-  color: var(--accent-color);
-  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
-  pointer-events: none;
-  transform: translateY(2px);
+ruby {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
 }
 
+ruby rt {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 100%;
+  font-size: 0.55em;
+  line-height: 1;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  color: var(--accent-color);
+  transition: opacity 0.15s ease-out;
+  pointer-events: none;
+  user-select: none;
+  margin-bottom: 2px;
+}
+
+/* Mouse Hover & Mobile Tap Active - 100% Shift-free */
 ruby:hover rt,
 ruby:active rt,
 ruby:focus rt,
 ruby:focus-within rt {
   visibility: visible;
   opacity: 1;
-  transform: translateY(0);
 }
 
 
