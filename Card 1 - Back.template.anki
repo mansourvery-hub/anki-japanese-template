@@ -187,7 +187,7 @@
         <!-- General Notes -->
         {{#Notes}}
           <div class="card-block">
-            <div class="html-content">{{edit:Notes}}</div>
+            <div class="html-content">{{edit:furigana:Notes}}</div>
           </div>
         {{/Notes}}
 
