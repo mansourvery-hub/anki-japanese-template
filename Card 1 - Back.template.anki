@@ -46,11 +46,11 @@
           
           <div class="word-display">
             {{#furigana}}
-              {{furigana:furigana}}
+              {{edit:furigana:furigana}}
             {{/furigana}}
             {{^furigana}}
               {{#Expression}}
-                {{Expression}}
+                {{edit:furigana:Expression}}
               {{/Expression}}
             {{/furigana}}
           </div>
@@ -121,7 +121,7 @@
           <div class="card-block sentence-block">
             <div class="sentence-japanese">
               {{#Sentence (furigana)}}
-                {{furigana:Sentence (furigana)}}
+                {{edit:furigana:Sentence (furigana)}}
               {{/Sentence (furigana)}}
               {{^Sentence (furigana)}}
                 {{edit:Sentence}}
@@ -226,6 +226,9 @@
 <script>
   (function() {
     /* Dynamic Font Scaling for Sentence Display on Back */
+    /* Font size scales with text length; line-height always reserves exact
+       furigana headroom (rt 0.55em + 2px gap) so hover furigana on any
+       wrapped line never overlaps the line above. */
     function autoScaleBackSentence() {
       const sentences = document.querySelectorAll('.sentence-japanese');
       sentences.forEach(el => {
@@ -235,17 +238,16 @@
 
         if (len <= 10) {
           el.style.fontSize = 'clamp(2.8rem, 6.5vw, 4.5rem)';
-          el.style.lineHeight = '1.3';
         } else if (len <= 22) {
           el.style.fontSize = 'clamp(2.2rem, 5vw, 3.5rem)';
-          el.style.lineHeight = '1.35';
         } else if (len <= 40) {
           el.style.fontSize = 'clamp(1.8rem, 4vw, 2.8rem)';
-          el.style.lineHeight = '1.45';
         } else {
           el.style.fontSize = 'clamp(1.5rem, 3.2vw, 2.2rem)';
-          el.style.lineHeight = '1.5';
         }
+        /* line-height intentionally NOT set here: the stylesheet's
+           calc((0.55em + 2px) + 1em) reserves the exact furigana headroom
+           against this dynamically scaled font size — no overlap, no waste */
       });
     }
 
