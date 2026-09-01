@@ -2,9 +2,14 @@
  * ==============================================================================
  * Japanese Note Type - Premium Ergonomic Design System
  * (Tokyo Night Dark / Aki Paper Light)
- * 
+ *
+ * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
+ *
  * Optimized for full screen utilization on Arch Linux Desktop (Anki Desktop Qt6)
  * and Samsung Galaxy A50 (Android / AnkiDroid).
+ *
+ * Responsive strategy: fluid clamp() tokens scale continuously from phone to
+ * 4K with no discrete jumps; container queries drive the 2-column layout.
  * ==============================================================================
  */
 
@@ -31,11 +36,17 @@
   --border-radius-md: 8px;
   --border-radius-sm: 6px;
 
-  /* Spacing Tokens - Fluid viewport-based */
+  /* Spacing Tokens - Fluid viewport-based (single values, usable via padding: X Y) */
   --gap-block: clamp(2px, 1.5vmin, 8px);
-  --block-padding: clamp(6px 8px, 1.2vmin 3vmin, 12px 16px);
-  --container-padding-y: clamp(2px, 0.8vmin, 4px);
-  --container-padding-x: clamp(2px, 1vmin, 6px);
+  --block-pad-y: clamp(1px, 0.3vmin, 3px);
+  --block-pad-x: clamp(6px, 1.8vmin, 16px);
+  --container-pad-y: clamp(1px, 0.5vmin, 4px);
+  --container-pad-x: clamp(2px, 1vmin, 10px);
+
+  /* Furigana clearance: rt height (0.55em of parent font) + 2px hover gap.
+     em-based so it scales with font size (which scales with viewport) —
+     never a fixed pixel value. Consumed by furigana-bearing fields. */
+  --furigana-headroom: calc(0.55em + 2px);
   
   /* Fonts */
   --font-japanese-serif: "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", "Noto Serif JP", serif;
@@ -107,7 +118,7 @@
   width: 98%;
   max-width: 100%;
   margin: 0 auto;
-  padding: var(--container-padding-y) var(--container-padding-x);
+  padding: var(--container-pad-y) var(--container-pad-x);
   box-sizing: border-box;
   flex-grow: 1;
 }
@@ -121,6 +132,8 @@
   top: 0;
   z-index: 1000;
   width: 100%;
+  /* Stacked clearance (px-based so the sticky bar itself stays compact):
+     its own base padding + the word furigana headroom below it. */
   padding: 3px 0;
   background-color: var(--bg-sticky);
   backdrop-filter: blur(10px);
@@ -169,14 +182,18 @@
   gap: var(--gap-block);
 }
 
-@container anki-card (min-width: 768px) {
-  :root {
-    --gap-block: clamp(10px, 4vmin, 14px);
-    --block-padding: clamp(12px 14px, 2vmin 3.5vmin, 16px 20px);
-    --container-padding-y: clamp(8px, 3vmin, 10px);
-    --container-padding-x: clamp(10px, 4vmin, 14px);
-  }
+/* Tokens on the container itself (valid inside @container) — fluid from
+   phone to 4K, no discrete jumps. Values identical to :root defaults;
+   kept here so container queries can override if ever needed. */
+.card-wrapper {
+  --gap-block: clamp(2px, 1.5vmin, 8px);
+  --block-pad-y: clamp(1px, 0.3vmin, 3px);
+  --block-pad-x: clamp(6px, 1.8vmin, 16px);
+  --container-pad-y: clamp(1px, 0.5vmin, 4px);
+  --container-pad-x: clamp(2px, 1vmin, 10px);
+}
 
+@container anki-card (min-width: 768px) {
   .back-grid {
     grid-template-columns: 1fr 1fr;
     gap: var(--gap-block);
@@ -188,20 +205,11 @@
   }
 }
 
-@container anki-card (min-width: 1920px) {
-  :root {
-    --gap-block: clamp(12px, 3vmin, 16px);
-    --block-padding: clamp(14px 16px, 2.5vmin 4vmin, 18px 22px);
-    --container-padding-y: clamp(10px, 2.5vmin, 12px);
-    --container-padding-x: clamp(12px, 3vmin, 16px);
-  }
-}
-
 .card-block {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
-  padding: var(--block-padding);
+  padding: var(--block-pad-y) var(--block-pad-x);
   box-shadow: var(--shadow-premium);
   text-align: left;
 }
@@ -239,12 +247,16 @@
   text-align: center;
 }
 
+/* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.
+   Fields that use {{furigana:...}} get exactly that clearance as top padding
+   (plus the base pad), so hover furigana never clips or overlaps neighbors.
+   em-based => scales continuously with font size across all screen sizes. */
 .word-display {
   font-family: var(--font-japanese-serif);
   font-size: clamp(2.5rem, 6vw + 1.5rem, 5.8rem);
   font-weight: 600;
   line-height: 1.1;
-  padding-top: 0.35em;
+  padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
   margin-bottom: clamp(2px, 1vmin, 4px);
 }
 
@@ -393,8 +405,11 @@
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
   font-size: clamp(1.8rem, 4vw + 1rem, 3.5rem);
-  line-height: clamp(1.4, 1.5, 1.6);
-  padding-top: 0.35em;
+  /* Multi-line clearance: each wrapped line needs room for hover furigana
+     above it (rt height + gap), delivered via line-height. Final line is
+     covered by --furigana-headroom on top padding below. */
+  line-height: calc(var(--furigana-headroom) + 1em);
+  padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
   margin-bottom: clamp(4px, 2vmin, 8px);
   color: var(--text-primary);
   text-align: center;
@@ -466,6 +481,7 @@ ruby rt {
   transition: opacity 0.15s ease-out;
   pointer-events: none;
   user-select: none;
+  /* Gap above the base text — part of the reserved headroom */
   margin-bottom: 2px;
 }
 
@@ -605,15 +621,10 @@ ruby:focus-within rt {
 
 /* ==============================================================================
     13. MOBILE SPECIFIC OPTIMIZATIONS (< 600px / Samsung Galaxy A50)
+    Most sizing is already fluid via clamp()/vmin above; only true
+    mobile-only tweaks (element sizes, image caps) live here.
     ============================================================================== */
 @media (max-width: 600px) {
-  :root {
-    --gap-block: clamp(2px, 1vmin, 4px);
-    --block-padding: clamp(4px 6px, 1vmin 1.5vmin, 6px 8px);
-    --container-padding-y: clamp(1px, 0.6vmin, 2px);
-    --container-padding-x: clamp(1px, 0.8vmin, 2px);
-  }
-
   .tags-container {
     padding: clamp(0px, 0.3vmin, 1px) 0;
   }
@@ -625,14 +636,6 @@ ruby:focus-within rt {
   .word-meta-row {
     gap: clamp(2px, 1.5vmin, 3px);
     margin: clamp(0.5px, 0.3vmin, 1px) 0 clamp(1px, 0.5vmin, 2px) 0;
-  }
-
-  .sentence-japanese {
-    margin-bottom: clamp(1px, 0.5vmin, 2px);
-  }
-
-  .card-block {
-    padding: clamp(4px, 1vmin, 6px) clamp(6px, 1.5vmin, 8px);
   }
 
   .picture-container img {
