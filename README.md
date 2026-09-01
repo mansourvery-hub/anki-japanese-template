@@ -6,10 +6,7 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 ## 🎥 Demo in Action
 
-<video width="100%" controls>
-  <source src="https://github.com/mansourvery-hub/anki-japanese-template/blob/main/assets/demo.webm?raw=true" type="video/webm">
-  Your browser does not support the video tag.
-</video>
+![Demo](assets/demo.gif)
 
 *(Watch the template in action with zero-reflow furigana hover, circular SVG audio progress rings, lightbox image zoom, and fluid responsive scaling)*
 
