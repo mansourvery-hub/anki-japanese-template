@@ -99,9 +99,9 @@
             </div>
           </div>
 
-          <!-- Main Definition -->
+          <!-- Main Definition (compact: see "Definition Compactor" CSS section) -->
           {{#Definition}}
-            <div class="definition-box">
+            <div class="definition-box primary-definition">
               {{edit:furigana:Definition}}
             </div>
           {{/Definition}}

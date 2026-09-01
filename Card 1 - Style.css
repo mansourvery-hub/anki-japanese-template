@@ -296,8 +296,74 @@
 
 
 /* ==============================================================================
-   7. CIRCULAR AUDIO BUTTON WITH SVG PROGRESS RING
+   6b. DEFINITION COMPACTOR (scope: .primary-definition ONLY)
+   ==============================================================================
+   Yomitan mines the full Definition field as a .yomitan-glossary containing
+   one <li data-dictionary="..."> per dictionary plus embedded <style> blocks.
+   That is far too verbose for the main card. Rules below collapse it to:
+     - 1 dictionary entry (the first)
+     - at most 2 numbered senses within it
+     - no appendices (possible-forms / synonym / supplementary blocks)
+   Dictionary-agnostic: matches structural attributes, never dictionary
+   names. Deliberately does NOT touch .extended-def-content (Extended
+   definition stays full) or any other field.
    ============================================================================== */
+
+/* --- Collapse all dictionary entries after the first --- */
+.primary-definition .yomitan-glossary > ol > li ~ li {
+  display: none;
+}
+
+/* --- Keep at most 2 numbered senses per dictionary --- */
+/* Structured dictionaries (data-sc-name variants: 語義G sense blocks in
+   大辞林-style SC markup, data-sc-l3* sense wrappers in 大辞泉-style SC
+   markup). Sibling chains select everything from the 3rd occurrence on. */
+.primary-definition div[data-sc-name="語義G"] ~ div[data-sc-name="語義G"] ~ div[data-sc-name="語義G"],
+.primary-definition div[data-sc-l3] ~ div[data-sc-l3] ~ div[data-sc-l3],
+.primary-definition div[data-sc-l3-a] ~ div[data-sc-l3-a] {
+  display: none;
+}
+
+/* Simple merged dictionaries: plain gloss <li> lists — keep max 2 glosses */
+.primary-definition [data-sc-content="glossary"] > li ~ li ~ li {
+  display: none;
+}
+
+/* --- Hide sense appendices (any dictionary, structural match) --- */
+/* 補説G = supplementary note; 可能形 = possible-form line */
+.primary-definition div[data-sc-name="補説G"],
+.primary-definition span[data-sc-name="可能形"] {
+  display: none;
+}
+
+/* 大辞泉-style trailing commentary: div[data-sc-meaning] + data-sc-class="C"
+   carries 可能/類語 (possible form / synonyms) outside the numbered senses */
+.primary-definition div[data-sc-meaning][data-sc-class="C"] {
+  display: none;
+}
+
+/* Yomitan inline <style> blocks inside the glossary leak their own rules
+   (list display modes, per-dictionary colors). Neutralize styling that
+   fights the card theme; keep size/margins untouched so SC layouts hold. */
+.primary-definition .yomitan-glossary ul[data-sc-content="glossary"] {
+  display: inline;
+  list-style: none;
+  padding-left: 0;
+}
+.primary-definition .yomitan-glossary ul[data-sc-content="glossary"] > li {
+  display: inline;
+}
+.primary-definition .yomitan-glossary ul[data-sc-content="glossary"] > li:not(:first-child)::before {
+  content: " | ";
+  white-space: pre-wrap;
+  display: inline;
+  color: var(--text-muted);
+}
+
+
+/* ==============================================================================
+    7. CIRCULAR AUDIO BUTTON WITH SVG PROGRESS RING
+    ============================================================================== */
 .audio-row {
   display: inline-flex;
   align-items: center;
