@@ -39,6 +39,9 @@ echo "==> [4/5] Pushing to origin/main"
 git push origin main
 
 echo "==> [5/5] Creating GitHub release"
+# Sync remote tags first: gh release create makes tags on the REMOTE only,
+# so local tags lag behind and would produce a duplicate version bump.
+git fetch origin "refs/tags/*:refs/tags/*" --quiet
 # Auto-bump the patch version from the latest existing tag (v<major>.<minor>.<patch>)
 LATEST_TAG="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)"
 if [ -z "$LATEST_TAG" ]; then
