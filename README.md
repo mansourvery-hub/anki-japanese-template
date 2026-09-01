@@ -6,9 +6,12 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 ## 🎥 Demo in Action
 
-![Demo Video](assets/demo.webm)
+<details>
+<summary><i>Click here to view the template demo (10s)</i></summary>
+<video src="./assets/demo.webm" controls width="100%"></video>
+</details>
 
-*(Watch the template in action with zero-reflow furigana hover, circular SVG audio progress rings, lightbox image zoom, and fluid responsive scaling)*
+*(Demonstrates zero-reflow furigana, circular SVG audio rings, lightbox zoom, and responsive scaling)*
 
 ---
 
