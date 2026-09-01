@@ -79,7 +79,7 @@ This note type is fully compatible with **Yomitan / Yomichan** mining workflows:
 ## 🚀 Installation & Sync
 
 ### Option 1: Quick Install (Recommended)
-1. Download the latest `anki-japanese-template.apkg` file from the [Releases](https://github.com/mansourvery-hub/anki-japanese-template/releases) page.
+1. Download the latest `anki-japanese-template-{YYYYMMDD}.apkg` file from the [Releases](https://github.com/mansourvery-hub/anki-japanese-template/releases) page.
 2. In Anki, go to **File** $\rightarrow$ **Import...** and select the `.apkg` file.
 3. Once imported, you can delete the sample cards. Anki will retain the newly created Note Type, which you can now use for your own cards.
 
@@ -95,6 +95,10 @@ cd anki-japanese-template
    python3 sync_to_anki.py
    ```
 3. The script will automatically update the Front Template, Back Template, and CSS styling directly inside your Anki profile.
+4. Run the release script to export the sample deck to an apkg and push it to GitHub:
+   ```bash
+   python3 release_apkg.py
+   ```
 
 ### Option 3: Manual Installation
 1. *Prerequisite: Clone this repository or copy the contents of the files.*
@@ -125,12 +129,13 @@ cd anki-japanese-template
 To ensure changes are tracked in Git and never overwritten accidentally, follow the **Local-First Workflow**:
 
 1. **Edit Local Files:** Always edit `Card 1 - Front.template.anki`, `Card 1 - Back.template.anki`, or `Card 1 - Style.css` directly in your code editor. *Never edit templates inside Anki's UI.*
-2. **Push to Anki:** Run `python3 sync_to_anki.py` to push changes to your active Anki collection.
-3. **Commit to Git:** Save a version snapshot:
+2. **Push to Anki:** Run `python3 sync_to_anki.py` to push changes to your active Anki profile.
+3. **Export & Release:** Run `python3 release_apkg.py` to export the sample deck "My Life Decks::Japanese::anki-japanese-template" to an apkg file, commit it to Git, and push to GitHub.
+4. **Commit to Git:** Save a version snapshot:
    ```bash
    git add . && git commit -m "style: update layout"
    ```
-4. **Backup to GitHub:** Push your commits to GitHub:
+5. **Backup to GitHub:** Push your commits to GitHub:
    ```bash
    git push origin main
    ```
