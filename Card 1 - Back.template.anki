@@ -102,7 +102,7 @@
           <!-- Main Definition -->
           {{#Definition}}
             <div class="definition-box">
-              {{edit:Definition}}
+              {{edit:furigana:Definition}}
             </div>
           {{/Definition}}
 
@@ -110,7 +110,7 @@
           {{^Definition}}
             {{#Extended definition}}
               <div class="definition-box">
-                {{edit:Extended definition}}
+                {{Extended definition}}
               </div>
             {{/Extended definition}}
           {{/Definition}}
@@ -201,7 +201,7 @@
                   <span>▼</span>
                 </summary>
                 <div class="extended-def-content">
-                  {{edit:Extended definition}}
+                  {{Extended definition}}
                 </div>
               </details>
             </div>

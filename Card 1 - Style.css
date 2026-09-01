@@ -286,7 +286,10 @@
   line-height: 1.6;
   color: var(--text-primary);
   border-top: 1px solid var(--card-border);
-  padding-top: 8px;
+  /* Furigana headroom: Definition uses {{furigana:...}}; rt renders
+     0.55em + 2px above the text — reserve exactly that (em-based,
+     scales with fluid font size at every screen size). */
+  padding-top: calc(8px + var(--furigana-headroom));
   margin-top: 8px;
   width: 100%;
 }

@@ -332,3 +332,9 @@ add furigana: and edit: to most anki fields where editing and furigana are expec
 Works fine thx
 you forgot this step Export Sample Deck & Release
 if this is a normal behaviour for an LLM like you maybe make it clear somehow (either edit AGENTS.md or create a new dedicated file or idk). Do what you see fit so that the steps after each code change (sync to anki connect, update git, update to github, update the LLM conversation log file, update the release). Ideally it should not eat all your attention and context window but be done automatically at the end via scripts so you do not have to think about these last routine steps
+
+---
+
+lets try if this setup works
+remove edit from extended definition field
+enable furigana for definition field
