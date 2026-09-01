@@ -338,3 +338,7 @@ if this is a normal behaviour for an LLM like you maybe make it clear somehow (e
 lets try if this setup works
 remove edit from extended definition field
 enable furigana for definition field
+
+---
+
+everything works as intended!
