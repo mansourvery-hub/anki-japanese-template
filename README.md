@@ -129,16 +129,11 @@ cd anki-japanese-template
 To ensure changes are tracked in Git and never overwritten accidentally, follow the **Local-First Workflow**:
 
 1. **Edit Local Files:** Always edit `Card 1 - Front.template.anki`, `Card 1 - Back.template.anki`, or `Card 1 - Style.css` directly in your code editor. *Never edit templates inside Anki's UI.*
-2. **Push to Anki:** Run `python3 sync_to_anki.py` to push changes to your active Anki profile.
-3. **Export & Release:** Run `python3 release_apkg.py` to export the sample deck "My Life Decks::Japanese::anki-japanese-template" to an apkg file, commit it to Git, and push to GitHub.
-4. **Commit to Git:** Save a version snapshot:
+2. **Finish (one command does everything):**
    ```bash
-   git add . && git commit -m "style: update layout"
+   ./finish.sh "style: update layout"
    ```
-5. **Backup to GitHub:** Push your commits to GitHub:
-   ```bash
-   git push origin main
-   ```
+   This automatically: syncs templates to your Anki profile (Anki-Connect), exports the sample deck *"My Life Decks::Japanese::anki-japanese-template"* to an apkg, commits, pushes to GitHub, and publishes it as a new tagged release with the apkg attached.
 
 ---
 
