@@ -317,3 +317,5 @@ You are permitted to make file changes, run shell commands, and utilize your ars
 </system-reminder>
 
 ---
+
+Automation: Automatically export the sample deck (My Life Decks::Japanese::anki-japanese-template) to an apkg file each time the note template is updated, then commit and push to GitHub. Created release_apkg.py script that uses Anki-Connect API to export the deck, stages the apkg file, commits with appropriate message, and pushes to GitHub. Updated .gitignore to exclude *.apkg files. Updated AGENTS.md with the new 5-step workflow and documented the sample deck setup requirement. Updated README.md with release automation instructions. Testing: Sync script works, release script works but requires the deck to exist in Anki.

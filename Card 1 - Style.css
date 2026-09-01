@@ -593,34 +593,52 @@ ruby:focus-within rt {
 
 
 /* ==============================================================================
-   13. MOBILE SPECIFIC OPTIMIZATIONS (< 600px / Samsung Galaxy A50)
-   ============================================================================== */
+    13. MOBILE SPECIFIC OPTIMIZATIONS (< 600px / Samsung Galaxy A50)
+    ============================================================================== */
 @media (max-width: 600px) {
   :root {
-    --gap-block: 6px;
-    --block-padding: 8px 10px;
-    --container-padding-y: 4px;
-    --container-padding-x: 4px;
+    --gap-block: 2px;
+    --block-padding: 6px 8px;
+    --container-padding-y: 2px;
+    --container-padding-x: 2px;
   }
 
   .tags-container {
-    padding: 2px 0;
+    padding: 1px 0;
   }
 
   .sentence-display {
-    padding: 10px 4px;
+    padding: 6px 2px;
   }
-  
+
   .word-meta-row {
-    gap: 6px;
-    margin: 2px 0 4px 0;
+    gap: 3px;
+    margin: 1px 0 2px 0;
   }
-  
+
   .sentence-japanese {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+  }
+
+  .card-block {
+    padding: 6px 8px;
   }
 
   .picture-container img {
-    max-height: 30vh;
+    max-height: 25vh;
+    border-radius: 4px;
+  }
+
+  .audio-row {
+    gap: 4px;
+  }
+
+  .circular-audio-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .circular-audio-btn .audio-btn-label {
+    font-size: 0.7rem;
   }
 }
