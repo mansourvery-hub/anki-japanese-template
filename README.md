@@ -103,6 +103,16 @@ This note type is fully compatible with **Yomitan / Yomichan** mining workflows:
 
 ---
 
+## 🤖 Built With
+This template was architected using **Opencode** as the primary agentic builder for iterative refactoring, and **Gemini CLI** for initial project scaffolding and requirements analysis.
+
+### Model Usage Breakdown:
+*   **Opencode Agent (`poolside/laguna-s-2.1:free`):** 55%
+*   **Gemini CLI (`gemini-3.5-flash`):** 30%
+*   **Current Agent (`google/gemini-3.1-flash-lite`):** 15%
+
+---
+
 ## 📜 License
 
 MIT License. Free to use, modify, and distribute for your Japanese learning journey.
