@@ -346,3 +346,7 @@ everything works as intended!
 ---
 
 Yomitan glossary compaction: The Definition field contains the full Yomitan-mined HTML glossary (multiple dictionaries, e.g. 大辞林 + 大辞泉, each with many numbered senses plus appendices like 補説/可能形/類語). Too verbose for the main card. Add succinct, general (dictionary-agnostic, no hardcoded dictionary names) CSS rules so the Definition field shows only 1 dictionary entry with max 2 senses, hiding appendices. Must apply ONLY to the Definition field — never to Extended definition or any other field.
+
+---
+
+Compactor follow-up: also hide <span data-sc-name="歴史仮名"> (historical kana) and <span data-sc-name="アクセントG"> (accent number [n] group) inside the compacted Definition field.

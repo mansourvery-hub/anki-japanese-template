@@ -330,9 +330,13 @@
 }
 
 /* --- Hide sense appendices (any dictionary, structural match) --- */
-/* 補説G = supplementary note; 可能形 = possible-form line */
+/* 補説G = supplementary note; 可能形 = possible-form line;
+   歴史仮名 = historical kana reading; アクセントG = accent [n] notation
+   (hiding the group also hides its nested [n] number) */
 .primary-definition div[data-sc-name="補説G"],
-.primary-definition span[data-sc-name="可能形"] {
+.primary-definition span[data-sc-name="可能形"],
+.primary-definition span[data-sc-name="歴史仮名"],
+.primary-definition span[data-sc-name="アクセントG"] {
   display: none;
 }
 
