@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import time
+from datetime import datetime
 
 # Configuration for the Japanese Note Type
 ANKI_CONNECT_URL = "http://127.0.0.1:8765"
@@ -77,7 +78,7 @@ def snapshot_live_state():
         print("ERROR: live Anki state looks empty (model missing?) — aborting sync")
         sys.exit(1)
 
-    stamp = time.strftime("%Y%m%d-%H%M%S-%f")
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     dest = os.path.join(BACKUP_DIR, stamp)
     os.makedirs(dest, exist_ok=True)
     for card_name, pair in tpls.items():
