@@ -299,9 +299,10 @@
   color: var(--text-primary);
   border-top: 1px solid var(--card-border);
   /* Furigana headroom: Definition uses {{furigana:...}}; rt renders
-     0.55em + 2px above the text — reserve exactly that (em-based,
-     scales with fluid font size at every screen size). */
-  padding-top: calc(8px + var(--furigana-headroom));
+   *    0.55em + 2px above the text — reserve exactly that (em-based,
+   *    scales with fluid font size at every screen size).
+   I * manually changed to simply  padding-top: var(--furigana-headroom) after test as it wasted the least space*/
+  padding-top: var(--furigana-headroom);
   margin-top: 8px;
   width: 100%;
 }
