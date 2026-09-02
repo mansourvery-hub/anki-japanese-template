@@ -298,6 +298,11 @@
    definition stays full) or any other field.
    ============================================================================== */
 
+/* Hide empty word header block */
+.word-header:not(:has(.word-display, .frequency-badge, .pitch-accent-badge, .circular-audio-btn, .definition-box)) {
+  display: none;
+}
+
 /* --- Collapse all dictionary entries after the first --- */
 .primary-definition .yomitan-glossary > ol > li ~ li {
   display: none;

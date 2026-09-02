@@ -1,7 +1,8 @@
-import requests
+import urllib.request
+import json
 import os
 import sys
-from datetime import datetime
+import time
 
 # Configuration for the Japanese Note Type
 ANKI_CONNECT_URL = "http://127.0.0.1:8765"
@@ -31,24 +32,25 @@ def _read_file(path: str) -> str:
         sys.exit(1)
 
 
-def _send_payload(action: str, payload: dict) -> dict:
+def _send_payload(action: str, params: dict = None) -> dict:
     """Send a payload to Anki-Connect and return the parsed response."""
-    request = {
+    payload = {
         "action": action,
         "version": 6,
-        "params": payload,
+        "params": params or {},
     }
+    req = urllib.request.Request(
+        ANKI_CONNECT_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+    )
     try:
-        resp = requests.post(ANKI_CONNECT_URL, json=request, timeout=10)
-        resp.raise_for_status()
-        result = resp.json()
-    except requests.exceptions.ConnectionError:
-        print("ERROR: Could not connect to Anki-Connect. Is Anki running with the add-on installed?")
+        with urllib.request.urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except urllib.error.URLError as e:
+        print(f"ERROR: Could not connect to Anki-Connect. Is Anki running with the add-on installed? {e}")
         sys.exit(1)
-    except requests.exceptions.Timeout:
-        print("ERROR: Anki-Connect request timed out. Is Anki busy?")
-        sys.exit(1)
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print(f"ERROR: Anki-Connect request failed: {e}")
         sys.exit(1)
 
@@ -75,7 +77,7 @@ def snapshot_live_state():
         print("ERROR: live Anki state looks empty (model missing?) — aborting sync")
         sys.exit(1)
 
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamp = time.strftime("%Y%m%d-%H%M%S-%f")
     dest = os.path.join(BACKUP_DIR, stamp)
     os.makedirs(dest, exist_ok=True)
     for card_name, pair in tpls.items():

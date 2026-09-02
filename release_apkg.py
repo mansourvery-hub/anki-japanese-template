@@ -8,8 +8,9 @@ repo itself.
 """
 import os
 import sys
-
-import requests
+import json
+import urllib.request
+import urllib.error
 
 ANKI_CONNECT_URL = "http://127.0.0.1:8765"
 DECK_NAME = "My Life Decks::Japanese::anki-japanese-template"
@@ -24,14 +25,20 @@ def main() -> int:
         "version": 6,
         "params": {"deck": DECK_NAME, "path": EXPORT_PATH, "includeSched": False},
     }
+    
+    req = urllib.request.Request(
+        ANKI_CONNECT_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+    )
+    
     try:
-        resp = requests.post(ANKI_CONNECT_URL, json=payload, timeout=180)
-        resp.raise_for_status()
-        result = resp.json()
-    except requests.exceptions.ConnectionError:
+        with urllib.request.urlopen(req, timeout=180) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except urllib.error.URLError:
         print("ERROR: cannot reach Anki-Connect (is Anki running with the add-on?)")
         return 1
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print(f"ERROR: export request failed: {e}")
         return 1
 

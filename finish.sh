@@ -78,16 +78,22 @@ python3 release_apkg.py
 
 echo "==> [3/5] Committing changes"
 git add -A
+CHANGED=0
 if git diff --cached --quiet; then
-  echo "    (nothing to commit — skipping commit, release will reuse latest)"
+  echo "    (nothing to commit)"
 else
   git commit -m "$COMMIT_MSG"
+  CHANGED=1
 fi
 
 if [ "$LOCAL" -eq 1 ]; then
   echo ""
-  echo "Local run complete (synced, exported, committed). Review in Anki."
-  echo "Finish the batch with: ./finish.sh \"<message>\"   # no --local"
+  echo "Local run complete (synced, exported, committed)."
+  exit 0
+fi
+
+if [ "$CHANGED" -eq 0 ]; then
+  echo "    No changes detected. Nothing to push or release."
   exit 0
 fi
 

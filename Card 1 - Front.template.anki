@@ -131,71 +131,65 @@
     window.currentActiveAudio = window.currentActiveAudio || null;
     window.currentActiveBtn = window.currentActiveBtn || null;
 
-    window.playCircularAudio = function(btn) {
-      const ringFill = btn.querySelector('.ring-fill');
-      const circumference = ringFill ? parseFloat(ringFill.getAttribute('stroke-dasharray')) : 226.19;
-
-      if (window.currentActiveBtn === btn && window.currentActiveAudio && !window.currentActiveAudio.paused) {
-        window.currentActiveAudio.pause();
-        btn.classList.remove('is-playing');
-        btn.classList.add('is-paused');
-        return;
-      }
-
-      if (window.currentActiveAudio) {
-        window.currentActiveAudio.pause();
+    window.resetAudioState = function() {
+        if (window.currentActiveAudio) {
+            window.currentActiveAudio.pause();
+            window.currentActiveAudio = null;
+        }
         if (window.currentActiveBtn) {
-          window.currentActiveBtn.classList.remove('is-playing', 'is-paused');
-          const oldFill = window.currentActiveBtn.querySelector('.ring-fill');
-          if (oldFill) {
-            const oldCirc = parseFloat(oldFill.getAttribute('stroke-dasharray')) || 226.19;
-            oldFill.style.strokeDashoffset = oldCirc;
-          }
+            window.currentActiveBtn.classList.remove('is-playing');
+            const ring = window.currentActiveBtn.querySelector('.ring-fill');
+            if (ring) {
+                const circ = parseFloat(ring.getAttribute('stroke-dasharray')) || 226.19;
+                ring.style.strokeDashoffset = circ;
+            }
+            window.currentActiveBtn = null;
         }
-      }
+    };
 
-      const rawDiv = btn.querySelector('.raw-audio-source');
-      let audioSrc = '';
-      if (rawDiv) {
-        const match = rawDiv.innerHTML.match(/(?:src=["']|sound:)([^"'>\s]+)/i);
-        if (match) audioSrc = match[1];
-      }
+    window.playCircularAudio = function(btn) {
+        window.resetAudioState();
+        const ringFill = btn.querySelector('.ring-fill');
+        const circumference = ringFill ? parseFloat(ringFill.getAttribute('stroke-dasharray')) : 226.19;
 
-      const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
-
-      if (!audioSrc) {
-        if (nativeReplay) nativeReplay.click();
-        return;
-      }
-
-      const audio = new Audio(audioSrc);
-      window.currentActiveAudio = audio;
-      window.currentActiveBtn = btn;
-
-      btn.classList.remove('is-paused');
-      btn.classList.add('is-playing');
-
-      audio.play().catch(() => {
-        if (nativeReplay) nativeReplay.click();
-      });
-
-      const updateProgress = () => {
-        if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
-          const progress = audio.currentTime / audio.duration;
-          if (ringFill) {
-            ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
-          }
-          requestAnimationFrame(updateProgress);
+        const rawDiv = btn.querySelector('.raw-audio-source');
+        let audioSrc = '';
+        if (rawDiv) {
+            /* Robust regex: [^"'>\]]+ allows spaces, ] terminates sound: */
+            const match = rawDiv.innerHTML.match(/(?:src=["']|sound:)([^"'>\]]+)/i);
+            if (match) audioSrc = match[1];
         }
-      };
-      requestAnimationFrame(updateProgress);
 
-      audio.onended = () => {
-        btn.classList.remove('is-playing', 'is-paused');
-        if (ringFill) ringFill.style.strokeDashoffset = circumference;
-        window.currentActiveAudio = null;
-        window.currentActiveBtn = null;
-      };
+        const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
+        if (!audioSrc) {
+            if (nativeReplay) nativeReplay.click();
+            return;
+        }
+
+        const audio = new Audio(audioSrc);
+        window.currentActiveAudio = audio;
+        window.currentActiveBtn = btn;
+        btn.classList.add('is-playing');
+
+        audio.play().catch(() => {
+            window.resetAudioState();
+            if (nativeReplay) nativeReplay.click();
+        });
+
+        audio.onended = audio.onabort = audio.onerror = () => {
+            if (window.currentActiveAudio === audio) {
+                window.resetAudioState();
+            }
+        };
+
+        const updateProgress = () => {
+            if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
+                const progress = audio.currentTime / audio.duration;
+                ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
+                requestAnimationFrame(updateProgress);
+            }
+        };
+        requestAnimationFrame(updateProgress);
     };
   })();
 </script>
