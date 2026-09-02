@@ -725,21 +725,39 @@ ruby:focus-within rt {
 
 
 /* ==============================================================================
-    14. PAPER-CUT FUJI BACKDROP (Back card only)
+    14. BACKDROP SYSTEM (Back card only)
     ==============================================================================
-    Layered paper-cut scene — Mount Fuji (snow-capped), a red sun disc and
-    three hill sheets — rendered as one inline SVG data-URI per theme,
-    anchored to the bottom like the reference design (xMidYMax slice:
-    widescreen fits exactly, tall phone screens crop horizontally).
+    Full-card decorative background: fully isolated and swappable.
 
-    Deliberately whisper-quiet: 8% (dark) / 10% (light) opacity so the
-    scene reads as texture behind the content, never competes with text.
-    Zero JS, zero template markup, fully static, pointer-transparent.
-    Front card stays clean (class is only on the Back card-wrapper).
+    ENABLE / DISABLE THE BACKDROP
+      Delete or comment out everything between the two marker lines
+      ".backdrop-block-start" and ".backdrop-block-end" below. The rules
+      between the markers contain no comments of their own, so the whole
+      region can also be wrapped in a single block comment, or each rule
+      deleted individually. Nothing else in this stylesheet depends on
+      this block; the Back card then renders exactly as before this
+      section existed.
+
+    SWAP THE BACKGROUND (any future scene)
+      Edit ONLY the two --backdrop-image lines (rule 3 = dark theme,
+      rule 4 = Aki Paper light theme). Any CSS background value works:
+      a data-URI SVG, url(...), a gradient... The other rules are
+      art-agnostic plumbing:
+
+      Block contents, in order:
+        1. strength dial: --backdrop-opacity (currently 0.5)
+        2. generic placement: fixed full-viewport, bottom-anchored, cover
+        3. dark-theme scene: --backdrop-image (paper-cut Fuji)
+        4. light-theme scene: --backdrop-image (washi-tone variant)
+        5. z-index plumbing: keeps card content above the scene
     ============================================================================== */
 
+/* ================= .backdrop-block-start =================
+   (delete or comment everything from here...
+*/
+
 .back-card {
-  --backdrop-opacity: 0.08;
+  --backdrop-opacity: 0.5;
 }
 
 .back-card::before {
@@ -751,27 +769,24 @@ ruby:focus-within rt {
   bottom: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201600%20900'%20preserveAspectRatio='xMidYMax%20slice'%3E%3Ccircle%20cx='730'%20cy='380'%20r='140'%20fill='%23c9575f'/%3E%3Cpath%20d='M400%20900%20L400%20780%20C600%20620%20720%20460%20790%20335%20L815%20300%20C835%20285%20885%20285%20905%20300%20L930%20335%20C1000%20460%201120%20620%201280%20780%20L1280%20900%20Z'%20fill='%232e3a5c'/%3E%3Cpath%20d='M772%20362%20L815%20300%20C835%20285%20885%20285%20905%20300%20L948%20362%20C920%20370%20895%20358%20868%20364%20C840%20370%20815%20358%20795%20364%20C786%20366%20778%20364%20772%20362%20Z'%20fill='%23d8dde8'/%3E%3Cpath%20d='M-40%20900%20L-40%20812%20C240%20762%20480%20792%20720%20776%20C960%20760%201180%20724%201400%20748%20C1480%20756%201560%20772%201640%20782%20L1640%20900%20Z'%20fill='%23232f4d'/%3E%3Cpath%20d='M-40%20900%20L-40%20852%20C280%20812%20540%20842%20800%20828%20C1040%20816%201260%20786%201460%20818%20C1520%20828%201600%20844%201640%20838%20L1640%20900%20Z'%20fill='%231b2440'/%3E%3Cpath%20d='M-40%20900%20L-40%20880%20C320%20854%20620%20872%20900%20864%20C1140%20858%201390%20840%201640%20866%20L1640%20900%20Z'%20fill='%23151d33'/%3E%3C/svg%3E");
+  background-image: var(--backdrop-image);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: bottom center;
-  opacity: var(--backdrop-opacity, 0.08);
+  opacity: var(--backdrop-opacity, 0.5);
 }
 
-/* --- AKI PAPER LIGHT: washi-tone variant (pale baked colors need a nudge
-      more opacity than the dark theme to register as texture at all) --- */
-.card:not(.nightMode):not(.night_mode) .back-card {
-  --backdrop-opacity: 0.1;
+.back-card::before {
+  --backdrop-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201600%20900'%20preserveAspectRatio='xMidYMax%20slice'%3E%3Ccircle%20cx='730'%20cy='380'%20r='140'%20fill='%23c9575f'/%3E%3Cpath%20d='M400%20900%20L400%20780%20C600%20620%20720%20460%20790%20335%20L815%20300%20C835%20285%20885%20285%20905%20300%20L930%20335%20C1000%20460%201120%20620%201280%20780%20L1280%20900%20Z'%20fill='%232e3a5c'/%3E%3Cpath%20d='M772%20362%20L815%20300%20C835%20285%20885%20285%20905%20300%20L948%20362%20C920%20370%20895%20358%20868%20364%20C840%20370%20815%20358%20795%20364%20C786%20366%20778%20364%20772%20362%20Z'%20fill='%23d8dde8'/%3E%3Cpath%20d='M-40%20900%20L-40%20812%20C240%20762%20480%20792%20720%20776%20C960%20760%201180%20724%201400%20748%20C1480%20756%201560%20772%201640%20782%20L1640%20900%20Z'%20fill='%23232f4d'/%3E%3Cpath%20d='M-40%20900%20L-40%20852%20C280%20812%20540%20842%20800%20828%20C1040%20816%201260%20786%201460%20818%20C1520%20828%201600%20844%201640%20838%20L1640%20900%20Z'%20fill='%231b2440'/%3E%3Cpath%20d='M-40%20900%20L-40%20880%20C320%20854%20620%20872%20900%20864%20C1140%20858%201390%20840%201640%20866%20L1640%20900%20Z'%20fill='%23151d33'/%3E%3C/svg%3E");
 }
 
 .card:not(.nightMode):not(.night_mode) .back-card::before {
-  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201600%20900'%20preserveAspectRatio='xMidYMax%20slice'%3E%3Ccircle%20cx='730'%20cy='380'%20r='140'%20fill='%23cc5f43'/%3E%3Cpath%20d='M400%20900%20L400%20780%20C600%20620%20720%20460%20790%20335%20L815%20300%20C835%20285%20885%20285%20905%20300%20L930%20335%20C1000%20460%201120%20620%201280%20780%20L1280%20900%20Z'%20fill='%23d8bd96'/%3E%3Cpath%20d='M772%20362%20L815%20300%20C835%20285%20885%20285%20905%20300%20L948%20362%20C920%20370%20895%20358%20868%20364%20C840%20370%20815%20358%20795%20364%20C786%20366%20778%20364%20772%20362%20Z'%20fill='%23fbf7ee'/%3E%3Cpath%20d='M-40%20900%20L-40%20812%20C240%20762%20480%20792%20720%20776%20C960%20760%201180%20724%201400%20748%20C1480%20756%201560%20772%201640%20782%20L1640%20900%20Z'%20fill='%23e8dcc6'/%3E%3Cpath%20d='M-40%20900%20L-40%20852%20C280%20812%20540%20842%20800%20828%20C1040%20816%201260%20786%201460%20818%20C1520%20828%201600%20844%201640%20838%20L1640%20900%20Z'%20fill='%23dcc8a6'/%3E%3Cpath%20d='M-40%20900%20L-40%20880%20C320%20854%20620%20872%20900%20864%20C1140%20858%201390%20840%201640%20866%20L1640%20900%20Z'%20fill='%23cfb390'/%3E%3C/svg%3E");
+  --backdrop-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201600%20900'%20preserveAspectRatio='xMidYMax%20slice'%3E%3Ccircle%20cx='730'%20cy='380'%20r='140'%20fill='%23cc5f43'/%3E%3Cpath%20d='M400%20900%20L400%20780%20C600%20620%20720%20460%20790%20335%20L815%20300%20C835%20285%20885%20285%20905%20300%20L930%20335%20C1000%20460%201120%20620%201280%20780%20L1280%20900%20Z'%20fill='%23d8bd96'/%3E%3Cpath%20d='M772%20362%20L815%20300%20C835%20285%20885%20285%20905%20300%20L948%20362%20C920%20370%20895%20358%20868%20364%20C840%20370%20815%20358%20795%20364%20C786%20366%20778%20364%20772%20362%20Z'%20fill='%23fbf7ee'/%3E%3Cpath%20d='M-40%20900%20L-40%20812%20C240%20762%20480%20792%20720%20776%20C960%20760%201180%20724%201400%20748%20C1480%20756%201560%20772%201640%20782%20L1640%20900%20Z'%20fill='%23e8dcc6'/%3E%3Cpath%20d='M-40%20900%20L-40%20852%20C280%20812%20540%20842%20800%20828%20C1040%20816%201260%20786%201460%20818%20C1520%20828%201600%20844%201640%20838%20L1640%20900%20Z'%20fill='%23dcc8a6'/%3E%3Cpath%20d='M-40%20900%20L-40%20880%20C320%20854%20620%20872%20900%20864%20C1140%20858%201390%20840%201640%20866%20L1640%20900%20Z'%20fill='%23cfb390'/%3E%3C/svg%3E");
 }
 
-/* Content above the scene: the fixed ::before (z-index 0) would otherwise
-   paint over static blocks. Lift the whole container into its own layer.
-   (Tags bar is already z-index 1000.) */
 .back-card .card-container {
   position: relative;
   z-index: 1;
 }
+
+/* ...to here) ================== .backdrop-block-end ================= */
