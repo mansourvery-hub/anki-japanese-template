@@ -370,3 +370,7 @@ go
 ---
 
 (execution of the approved 4-phase plan: tooling flags + sync backups, template fixes, compactor test suite, zoomable lightbox, README overhaul, assets cleanup, single minor release at the end)
+
+---
+
+Lightbox zoom was overkill (pinch zoom is native). Revert to the old simple click-to-expand lightbox, remove all zoom mentions everywhere (README etc.), just make the backdrop less opaque.

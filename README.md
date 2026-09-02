@@ -8,7 +8,7 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 <video src="https://github.com/user-attachments/assets/40a7efb8-98e0-428c-83ad-b7033b6f2421" controls width="100%"></video>
 
-*(Watch the template in action with zero-reflow furigana hover, circular SVG audio progress rings, lightbox image zoom, and fluid responsive scaling)*
+*(Watch the template in action with zero-reflow furigana hover, circular SVG audio progress rings, click-to-expand lightbox, and fluid responsive scaling)*
 
 ---
 
@@ -39,10 +39,9 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
   - **Desktop:** Hover mouse over any word to reveal its furigana.
   - **Mobile:** Tap or hold any word to instantly reveal furigana without double-tap delay.
 
-- **🖼️ Lightbox Image Zoom:**
-  - Click or tap any card image to view it full-screen in a hardware-accelerated frosted-glass modal overlay.
-  - Zoom with the mouse wheel (toward the cursor) or pinch gestures; double-tap toggles between 1x and 2.5x; drag to pan.
-  - Close by clicking the backdrop (or the image at 1x) or pressing the <kbd>Escape</kbd> key.
+- **🖼️ Lightbox Image Expansion:**
+  - Click or tap any card image to view it full-screen in a frosted-glass modal overlay.
+  - Close by clicking the overlay or pressing the <kbd>Escape</kbd> key.
 
 - **🎧 Intelligent Listening Mode & Fallback Safety:**
   - When both definition fields are absent, the card automatically enters **Listening Mode** (displaying only the audio player).
