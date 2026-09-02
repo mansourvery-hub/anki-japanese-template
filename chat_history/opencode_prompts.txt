@@ -350,3 +350,19 @@ Yomitan glossary compaction: The Definition field contains the full Yomitan-mine
 ---
 
 Compactor follow-up: also hide <span data-sc-name="歴史仮名"> (historical kana) and <span data-sc-name="アクセントG"> (accent number [n] group) inside the compacted Definition field.
+
+---
+
+works! (Definition compactor confirmed good: 1 dictionary / 2 senses, no accent, no historical kana)
+
+---
+
+Codebase-wide review request: look at the whole codebase again, find bugs, propose features and improvements of any kind. Careful not to hallucinate problems. Proposals must be deep and well thought out.
+
+---
+
+Decisions on the review: A1/A2 audio behavior OK as-is (click = replay, no pause/resume). A3 A4 A5 A6 A7 + B1 B2 B3 B6 approved. B4 rejected (dict name badge wastes a line). B5 rejected (Yomitan already provides pitch SVG). B7 rejected (keep example quotes in senses). Execution plan: Phase 0 tooling (finish.sh flags + sync snapshot), Phase 1 template fixes (word-display gating + dead CSS), Phase 2 committed compactor tests, Phase 3 lightbox zoom (full design), Phase 4 docs overhaul + assets cleanup. Iterate with --local, one release at the end (--minor). Lightbox: wheel-zoom/pinch/double-tap/pan, click closes at 1x.
+
+---
+
+go

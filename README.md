@@ -133,7 +133,12 @@ To ensure changes are tracked in Git and never overwritten accidentally, follow 
    ```bash
    ./finish.sh "style: update layout"
    ```
-   This automatically: syncs templates to your Anki profile (Anki-Connect), exports the sample deck *"My Life Decks::Japanese::anki-japanese-template"* to an apkg, commits, pushes to GitHub, and publishes it as a new tagged release with the apkg attached.
+   This automatically: syncs templates to your Anki profile (Anki-Connect, with a safety snapshot of the live Anki state into `backups/` first), exports the sample deck *"My Life Decks::Japanese::anki-japanese-template"* to an apkg, commits, pushes to GitHub, and publishes it as a new tagged release with the apkg attached.
+   
+   **Flags:**
+   - `--local` — sync + export + commit only (no push, no release). Use it while iterating; run without the flag to publish the batch.
+   - `--minor` — bump the minor version (v1.x.0) instead of the patch version, for multi-feature releases.
+   - `--prompt "text"` — archive the prompt to `chat_history/opencode_prompts.txt` before running, so it lands in the same commit.
 
 ---
 

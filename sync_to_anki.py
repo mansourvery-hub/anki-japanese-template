@@ -1,6 +1,7 @@
 import requests
 import os
 import sys
+from datetime import datetime
 
 # Configuration for the Japanese Note Type
 ANKI_CONNECT_URL = "http://127.0.0.1:8765"
@@ -12,6 +13,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONT_FILE = os.path.join(SCRIPT_DIR, "Card 1 - Front.template.anki")
 BACK_FILE = os.path.join(SCRIPT_DIR, "Card 1 - Back.template.anki")
 CSS_FILE = os.path.join(SCRIPT_DIR, "Card 1 - Style.css")
+
+# Pre-sync snapshots of the live Anki state (gitignored safety net)
+BACKUP_DIR = os.path.join(SCRIPT_DIR, "backups")
 
 
 def _read_file(path: str) -> str:
@@ -54,6 +58,38 @@ def _send_payload(action: str, payload: dict) -> dict:
     return result
 
 
+def snapshot_live_state():
+    """Pull the live model from Anki into backups/<timestamp>/ before pushing.
+
+    Guard against clobbering unnoticed Anki-side edits: the snapshot keeps the
+    exact state that is about to be overwritten, so any manual change made in
+    the Anki UI stays recoverable. Failures here abort the sync (never push
+    over a state we failed to back up).
+    """
+    templates = _send_payload("modelTemplates", {"modelName": MODEL_NAME})
+    styling = _send_payload("modelStyling", {"modelName": MODEL_NAME})
+
+    tpls = templates.get("result") or {}
+    sty = styling.get("result") or {}
+    if not tpls or not isinstance(tpls, dict) or not sty.get("css"):
+        print("ERROR: live Anki state looks empty (model missing?) — aborting sync")
+        sys.exit(1)
+
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    dest = os.path.join(BACKUP_DIR, stamp)
+    os.makedirs(dest, exist_ok=True)
+    for card_name, pair in tpls.items():
+        safe = card_name.replace(os.sep, "_")
+        with open(os.path.join(dest, f"{safe}.front.anki"), "w", encoding="utf-8") as f:
+            f.write(pair.get("Front", ""))
+        with open(os.path.join(dest, f"{safe}.back.anki"), "w", encoding="utf-8") as f:
+            f.write(pair.get("Back", ""))
+    with open(os.path.join(dest, "style.css"), "w", encoding="utf-8") as f:
+        f.write(sty.get("css", ""))
+    print(f"Backup:        {os.path.relpath(dest, SCRIPT_DIR)}/")
+    return dest
+
+
 def sync_to_anki():
     """
     Reads local template files and pushes them to Anki via Anki-Connect.
@@ -64,7 +100,10 @@ def sync_to_anki():
     back_html = _read_file(BACK_FILE)
     css_content = _read_file(CSS_FILE)
 
-    # 2. Update Templates (Front/Back HTML)
+    # 2. Snapshot the live Anki state we are about to overwrite
+    snapshot_live_state()
+
+    # 3. Update Templates (Front/Back HTML)
     _send_payload("updateModelTemplates", {
         "model": {
             "name": MODEL_NAME,
@@ -78,7 +117,7 @@ def sync_to_anki():
     })
     print("Template Sync: Success")
 
-    # 3. Update Styling (CSS)
+    # 4. Update Styling (CSS)
     _send_payload("updateModelStyling", {
         "model": {
             "name": MODEL_NAME,
