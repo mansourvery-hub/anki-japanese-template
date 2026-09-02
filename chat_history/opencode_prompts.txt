@@ -366,3 +366,7 @@ Decisions on the review: A1/A2 audio behavior OK as-is (click = replay, no pause
 ---
 
 go
+
+---
+
+(execution of the approved 4-phase plan: tooling flags + sync backups, template fixes, compactor test suite, zoomable lightbox, README overhaul, assets cleanup, single minor release at the end)

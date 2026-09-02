@@ -41,7 +41,8 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 - **🖼️ Lightbox Image Zoom:**
   - Click or tap any card image to view it full-screen in a hardware-accelerated frosted-glass modal overlay.
-  - Close by clicking anywhere on the overlay or pressing the <kbd>Escape</kbd> key.
+  - Zoom with the mouse wheel (toward the cursor) or pinch gestures; double-tap toggles between 1x and 2.5x; drag to pan.
+  - Close by clicking the backdrop (or the image at 1x) or pressing the <kbd>Escape</kbd> key.
 
 - **🎧 Intelligent Listening Mode & Fallback Safety:**
   - When both definition fields are absent, the card automatically enters **Listening Mode** (displaying only the audio player).
@@ -79,7 +80,7 @@ This note type is fully compatible with **Yomitan / Yomichan** mining workflows:
 ## 🚀 Installation & Sync
 
 ### Option 1: Quick Install (Recommended)
-1. Download the latest `anki-japanese-template-{YYYYMMDD}.apkg` file from the [Releases](https://github.com/mansourvery-hub/anki-japanese-template/releases) page.
+1. Download the latest `anki-japanese-template.apkg` file from the [Releases](https://github.com/mansourvery-hub/anki-japanese-template/releases) page.
 2. In Anki, go to **File** $\rightarrow$ **Import...** and select the `.apkg` file.
 3. Once imported, you can delete the sample cards. Anki will retain the newly created Note Type, which you can now use for your own cards.
 
@@ -94,8 +95,8 @@ cd anki-japanese-template
    ```bash
    python3 sync_to_anki.py
    ```
-3. The script will automatically update the Front Template, Back Template, and CSS styling directly inside your Anki profile.
-4. Run the release script to export the sample deck to an apkg and push it to GitHub:
+   The script snapshots the live Anki template state into `backups/<timestamp>/` first, then updates the Front Template, Back Template, and CSS styling directly inside your Anki profile.
+3. To export the sample deck to `dist/anki-japanese-template.apkg` (for local use only — pushing and releasing happen via `finish.sh`):
    ```bash
    python3 release_apkg.py
    ```
@@ -115,12 +116,34 @@ cd anki-japanese-template
 
 ```
 ├── Card 1 - Front.template.anki   # Front card HTML template & dynamic scaling script
-├── Card 1 - Back.template.anki    # Back card HTML template, lightbox & audio controller
+├── Card 1 - Back.template.anki    # Back card HTML template, audio & lightbox scripts
 ├── Card 1 - Style.css             # Tokyo Night & Aki Paper CSS responsive styling
-├── JapNoteType.json               # Note type schema export definition
-├── sync_to_anki.py                # Python automation script communicating with Anki-Connect
-└── README.md                      # Project documentation
+├── JapNoteType.json               # Note type schema export definition (18 fields)
+├── finish.sh                      # One-command routine: tests + sync + export + commit + push + release
+├── sync_to_anki.py                # Push templates to Anki via Anki-Connect (with pre-sync backup)
+├── release_apkg.py                # Export sample deck to dist/*.apkg via Anki-Connect
+├── tests/                         # Definition Compactor regression tests (run by finish.sh)
+├── chat_history/                  # Archived AI-agent conversation logs
+├── dist/                          # Exported .apkg (gitignored, released via GitHub)
+├── backups/                       # Pre-sync snapshots of live Anki state (gitignored)
+├── AGENTS.md                      # Operational guidelines for AI coding agents
+├── Design.md                      # Original design goals
+└── README.md                      # This file
 ```
+
+---
+
+## 🗜️ Definition Compaction (Yomitan Glossary)
+
+The **Definition** field usually contains the full Yomitan-mined glossary: every dictionary entry, every numbered sense, plus appendices. On the main card this is collapsed to the essentials, purely via CSS:
+
+- **1 dictionary entry** (the first) — later dictionaries are hidden.
+- **Max 2 numbered senses** — sense 3+ hidden (structured SC dictionaries and plain gloss lists alike).
+- **Appendices hidden**: possible forms (可能形), synonym lists (類語), supplementary notes (補説G), accent numbers, historical kana readings.
+
+The full, untouched glossary is always available in the **Extended definition** accordion on the back card. Compaction is scoped exclusively to the main definition box (`.primary-definition`) — no other field is affected.
+
+*To disable it:* remove the `6b. DEFINITION COMPACTOR` rules from `Card 1 - Style.css` and the `primary-definition` class from the Definition `<div>` in `Card 1 - Back.template.anki`. The regression suite in `tests/test_compactor.py` verifies this behavior — run it with `python3 tests/test_compactor.py` after any change.
 
 ---
 
