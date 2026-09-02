@@ -97,7 +97,13 @@ def main():
     check("CSS: empty word-header guard (:has)",
           ".word-header:not(:has(" in css)
 
-    # --- 7. Sync tooling invariants ---
+    # --- 7. Font sizing source-of-truth ---
+    check("Back: no JS font-scaler overriding CSS (inline fontSize ban)",
+          "el.style.fontSize" not in back and "autoScaleBackSentence" not in back)
+    check("CSS: .sentence-japanese clamp() is the sizing authority",
+          re.search(r"\.sentence-japanese\s*\{[^}]*font-size:\s*clamp\(", css) is not None)
+
+    # --- 8. Sync tooling invariants ---
     sync = open(os.path.join(ROOT, "sync_to_anki.py"), encoding="utf-8").read()
     check("sync_to_anki.py: zero third-party imports (standard lib only)",
           "import requests" not in sync and "import urllib.request" in sync)

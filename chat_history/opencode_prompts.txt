@@ -390,3 +390,7 @@ External LLM review triage: implement approved items — lightbox click-propagat
 ---
 
 More compactor filters: hide the <i>(dictionary name)</i> labels including grouped sub-entry variants like <i>(子, 大辞林　第四版)</i>, suppress the ol '1.' list marker before the definition, and apply the compactor to the Extended-definition fallback box (when Definition is empty) which currently renders unfiltered.
+
+---
+
+Tried to change the back sentence font-size via the CSS clamp() line — no effect, even deleting the line did nothing. Root cause: Back template JS autoScaleBackSentence() overrode CSS with an inline style.fontSize (inline beats stylesheet). Fix: remove the Back JS scaler so CSS is authoritative; add regression guard banning JS font overrides on the Back card.

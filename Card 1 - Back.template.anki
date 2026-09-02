@@ -227,36 +227,13 @@
   </div> <!-- End card-container -->
 </div>
 
-<!-- Lightbox, Auto-Scaling & Audio Scripts -->
+<!-- Lightbox & Audio Scripts -->
 <script>
   (function() {
-    /* Dynamic Font Scaling for Sentence Display on Back */
-    /* Font size scales with text length; line-height always reserves exact
-       furigana headroom (rt 0.55em + 2px gap) so hover furigana on any
-       wrapped line never overlaps the line above. */
-    function autoScaleBackSentence() {
-      const sentences = document.querySelectorAll('.sentence-japanese');
-      sentences.forEach(el => {
-        const text = el.innerText ? el.innerText.trim() : '';
-        const len = text.length;
-        if (len === 0) return;
-
-        if (len <= 10) {
-          el.style.fontSize = 'clamp(2.8rem, 6.5vw, 4.5rem)';
-        } else if (len <= 22) {
-          el.style.fontSize = 'clamp(2.2rem, 5vw, 3.5rem)';
-        } else if (len <= 40) {
-          el.style.fontSize = 'clamp(1.8rem, 4vw, 2.8rem)';
-        } else {
-          el.style.fontSize = 'clamp(1.5rem, 3.2vw, 2.2rem)';
-        }
-        /* line-height intentionally NOT set here: the stylesheet's
-           calc((0.55em + 2px) + 1em) reserves the exact furigana headroom
-           against this dynamically scaled font size — no overlap, no waste */
-      });
-    }
-
-    autoScaleBackSentence();
+    /* NOTE: sentence font sizing is pure CSS now.
+       The stylesheet's .sentence-japanese clamp() is the single source of
+       truth. A previous JS length-tier scaler overrode it with an inline
+       font-size, which silently defeated any manual CSS edits. */
 
     /* --- LIGHTBOX CONTROLLER (click to expand / click outside to close) --- */
     window.openLightbox = function(target) {
