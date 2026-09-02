@@ -44,16 +44,20 @@
         <!-- Word Header -->
         <div class="card-block word-header">
           
-          <div class="word-display">
-            {{#furigana}}
+          <!-- Word Header (hidden entirely when the word fields are empty:
+               audio-only / picture-only cards no longer show a padded void) -->
+          {{#furigana}}
+            <div class="word-display">
               {{edit:furigana:furigana}}
-            {{/furigana}}
-            {{^furigana}}
-              {{#Expression}}
+            </div>
+          {{/furigana}}
+          {{^furigana}}
+            {{#Expression}}
+              <div class="word-display">
                 {{edit:furigana:Expression}}
-              {{/Expression}}
-            {{/furigana}}
-          </div>
+              </div>
+            {{/Expression}}
+          {{/furigana}}
 
           <!-- Metadata & Circular Audio Controllers -->
           <div class="word-meta-row">
