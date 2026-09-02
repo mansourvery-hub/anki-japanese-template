@@ -8,7 +8,7 @@
      - Side: Lightbox Picture, Kanji Notes, General Notes, Extended Definition
 -->
 
-<div class="card-wrapper">
+<div class="card-wrapper back-card">
 
   <!-- Sticky Tags Bar -->
   {{#Tags}}

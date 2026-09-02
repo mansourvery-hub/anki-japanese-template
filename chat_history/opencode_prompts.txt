@@ -374,3 +374,7 @@ go
 ---
 
 Lightbox zoom was overkill (pinch zoom is native). Revert to the old simple click-to-expand lightbox, remove all zoom mentions everywhere (README etc.), just make the backdrop less opaque.
+
+---
+
+I want a similar design to https://miaai-lab.github.io/Fable-5.1-100-HTML-Files/010-paper-cut-layers.html , no need for drag the slider · move the pointer element, also the background should be japanese related so maybe mount fuji or somthing, just in the same style, the background should be very weak so it does not overwhel all the text that will be on top of it.
