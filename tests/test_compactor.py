@@ -101,6 +101,23 @@ def main():
     check("plain: gloss 3+ hidden", "to look unconcerned" not in out and "fifth gloss" not in out)
     check("plain: second dictionary hidden", "Proper name entry" not in out)
 
+    # --- 2b. Dictionary labels / sub-entries (会社 sample) ---
+    field = f'<div class="definition-box primary-definition">{fixture("yomitan_dict_label.html")}</div>'
+    out = visible_text(field)
+    check("label: <i>(大辞林　第四版)</i> hidden", "(大辞林　第四版)" not in out)
+    check("label: sub-entry <i>(子, ...)</i> hidden", "(子," not in out)
+    check("label: sub-entry word 会社員 hidden", "会社員" not in out)
+    check("label: headword kept", "会社" in out)
+    check("label: sense kept", "営利を目的とする社団法人" in out)
+
+    # --- 2c. Extended-definition FALLBACK box (when Definition is absent)
+    #     must be compacted identically (it also carries primary-definition) ---
+    field = f'<div class="definition-box primary-definition">{fixture("yomitan_dict_label.html")}</div>'
+    out_fallback = visible_text(field)
+    check("fallback: compacted like main Definition",
+          "(大辞林　第四版)" not in out_fallback and "会社員" not in out_fallback
+          and "営利を目的とする社団法人" in out_fallback)
+
     # --- 3. Extended definition control (must be UNTOUCHED) ---
     ext = fixture("extended_definition_control.html")
     out = visible_text(ext)

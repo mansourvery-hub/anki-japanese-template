@@ -323,6 +323,19 @@
    ============================================================================== */
 
 /* --- Collapse all dictionary entries after the first --- */
+/* List markers: Yomitan emits <ol><li> per dictionary; suppress the "1."
+   numbering and the ol indent so the kept entry reads as plain text. */
+.primary-definition .yomitan-glossary > ol {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+/* Dictionary name labels emitted as <i>(大辞林　第四版)</i> — including
+   grouped sub-entry variants like <i>(子, 大辞林　第四版)</i> — are noise. */
+.primary-definition .yomitan-glossary > ol > li > i:first-child,
+.primary-definition .yomitan-glossary ol > li > i:only-child {
+  display: none;
+}
 .primary-definition .yomitan-glossary > ol > li ~ li {
   display: none;
 }

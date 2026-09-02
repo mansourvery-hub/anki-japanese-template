@@ -110,10 +110,11 @@
             </div>
           {{/Definition}}
 
-          <!-- Fallback: Show Extended definition if Definition is absent -->
+          <!-- Fallback: Show Extended definition if Definition is absent
+               (compacted identically — see 6b DEFINITION COMPACTOR in CSS) -->
           {{^Definition}}
             {{#Extended definition}}
-              <div class="definition-box">
+              <div class="definition-box primary-definition">
                 {{Extended definition}}
               </div>
             {{/Extended definition}}
