@@ -257,7 +257,11 @@
 
     autoScaleBackSentence();
 
-    /* --- LIGHTBOX CONTROLLER --- */
+    /* --- ZOOMABLE LIGHTBOX CONTROLLER --- */
+    /* Desktop: wheel-zoom toward cursor, drag-to-pan. Click closes at 1x;
+       when zoomed only the backdrop (outside the image) closes; Esc always.
+       Mobile: pinch-zoom, double-tap toggles 1x<->2.5x, one-finger pan.
+       Scale clamp 1..5; touch gestures never scroll the card behind. */
     window.openLightbox = function(target) {
       const img = target.querySelector('img') || (target.tagName === 'IMG' ? target : null);
       if (!img) return;
@@ -273,18 +277,140 @@
       overlay.appendChild(clone);
       document.body.appendChild(overlay);
 
+      /* --- zoom state (tx/ty = pan, s = scale) --- */
+      let s = 1, tx = 0, ty = 0;
+      let dragging = false, moved = false;
+      let lastX = 0, lastY = 0;
+      let pinchDist = 0, pinchScale = 1;
+      let lastTap = 0;
+
+      const MIN_S = 1, MAX_S = 5, DBL_S = 2.5, DRAG_T = 5;
+
+      const apply = () => {
+        clone.style.transform =
+          'translate(-50%, -50%) translate(' + tx + 'px, ' + ty + 'px) scale(' + s + ')';
+        overlay.style.cursor = s > 1 ? 'default' : 'zoom-out';
+        clone.style.cursor = s > 1 ? (dragging ? 'grabbing' : 'grab') : 'zoom-out';
+      };
+      apply();
+
+      /* Zoom anchored at viewport point (px,py) so that point stays fixed */
+      const zoomAt = (px, py, ns) => {
+        /* first gesture: freeze entrance animation so its transform stops
+           fighting the inline zoom transform */
+        if (!overlay.classList.contains('is-zooming')) {
+          overlay.classList.add('is-zooming');
+        }
+        ns = Math.min(Math.max(ns, MIN_S), MAX_S);
+        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+        const dx = px - cx, dy = py - cy;
+        tx = dx - (dx - tx) * (ns / s);
+        ty = dy - (dy - ty) * (ns / s);
+        s = ns;
+        if (s === 1) { tx = 0; ty = 0; }
+        apply();
+      };
+
+      /* --- close --- */
       const closeOverlay = () => {
+        dragging = false;
         if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
         document.removeEventListener('keydown', handleKey);
       };
+      const handleKey = (e) => { if (e.key === 'Escape') closeOverlay(); };
+      document.addEventListener('keydown', handleKey);
 
-      const handleKey = (e) => {
-        if (e.key === 'Escape') closeOverlay();
+      /* --- desktop: wheel zoom toward cursor --- */
+      overlay.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        zoomAt(e.clientX, e.clientY, s * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
+      }, { passive: false });
+
+      /* --- pan (mouse & touch share the math) --- */
+      const panStart = (x, y) => {
+        dragging = true; moved = false;
+        lastX = x; lastY = y;
+      };
+      const panMove = (x, y) => {
+        if (!dragging) return;
+        if (Math.abs(x - lastX) + Math.abs(y - lastY) > DRAG_T) moved = true;
+        if (s > 1) {
+          tx += x - lastX;
+          ty += y - lastY;
+          apply();
+        }
+        lastX = x; lastY = y;
       };
 
-      overlay.onclick = closeOverlay;
-      clone.onclick = closeOverlay;
-      document.addEventListener('keydown', handleKey);
+      /* --- mouse: drag pans; clean click closes at 1x, or on backdrop
+             (outside the image) even when zoomed --- */
+      overlay.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        panStart(e.clientX, e.clientY);
+        const mm = (ev) => panMove(ev.clientX, ev.clientY);
+        const mu = (ev) => {
+          panEnd(ev);
+          window.removeEventListener('mousemove', mm);
+          window.removeEventListener('mouseup', mu);
+        };
+        window.addEventListener('mousemove', mm);
+        window.addEventListener('mouseup', mu);
+      });
+      const panEnd = (ev) => {
+        dragging = false;
+        if (!moved && (s === 1 || ev.target === overlay)) closeOverlay();
+        apply();
+      };
+
+      /* --- touch: pinch / double-tap / one-finger pan --- */
+      const t0xy = (e) => [e.touches[0].clientX, e.touches[0].clientY];
+      overlay.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          dragging = false;
+          pinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY);
+          pinchScale = s;
+        } else if (e.touches.length === 1) {
+          const now = Date.now();
+          if (now - lastTap < 300) {
+            e.preventDefault(); /* stop synthetic dblclick / browser zoom */
+            const t = e.touches[0];
+            zoomAt(t.clientX, t.clientY, s > 1 ? 1 : DBL_S);
+            lastTap = 0;
+          } else {
+            lastTap = now;
+            const [x, y] = t0xy(e);
+            panStart(x, y);
+          }
+        }
+      }, { passive: false });
+      overlay.addEventListener('touchmove', (e) => {
+        /* fullscreen modal: never let the card scroll behind it */
+        e.preventDefault();
+        if (e.touches.length === 2 && pinchDist) {
+          const d = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY);
+          const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          zoomAt(cx, cy, pinchScale * d / pinchDist);
+          moved = true;
+        } else if (e.touches.length === 1 && dragging) {
+          const [x, y] = t0xy(e);
+          panMove(x, y);
+        }
+      }, { passive: false });
+      overlay.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+          pinchDist = 0;
+          if (!moved && (s === 1 || e.target === overlay)) closeOverlay();
+          dragging = false;
+        } else if (e.touches.length === 1) {
+          pinchDist = 0;
+        }
+      }, { passive: true });
     };
 
     /* --- CIRCULAR AUDIO CONTROLLER --- */
