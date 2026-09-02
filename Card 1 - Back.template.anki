@@ -76,7 +76,7 @@
             <!-- Circular Audio Buttons with SVG Progress Ring -->
             <div class="audio-row">
               {{#Word Audio}}
-                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" onclick="playCircularAudio(this)">
+                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
                   <svg class="audio-progress-ring" viewBox="0 0 44 44">
                     <circle class="ring-bg" cx="22" cy="22" r="19" />
                     <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
@@ -89,7 +89,7 @@
               {{/Word Audio}}
               
               {{#Sentence Audio}}
-                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" onclick="playCircularAudio(this)">
+                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
                   <svg class="audio-progress-ring" viewBox="0 0 44 44">
                     <circle class="ring-bg" cx="22" cy="22" r="19" />
                     <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
@@ -257,7 +257,7 @@
 
     autoScaleBackSentence();
 
-    /* --- LIGHTBOX CONTROLLER (click to expand / click to close) --- */
+    /* --- LIGHTBOX CONTROLLER (click to expand / click outside to close) --- */
     window.openLightbox = function(target) {
       const img = target.querySelector('img') || (target.tagName === 'IMG' ? target : null);
       if (!img) return;
@@ -265,10 +265,13 @@
 
       const overlay = document.createElement('div');
       overlay.className = 'lightbox-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
 
       const clone = document.createElement('img');
       clone.src = img.src;
       clone.className = 'expanded-img';
+      if (img.alt) clone.alt = img.alt;
 
       overlay.appendChild(clone);
       document.body.appendChild(overlay);
@@ -276,13 +279,18 @@
       const closeOverlay = () => {
         if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
         document.removeEventListener('keydown', handleKey);
+        if (img.focus) img.focus();
       };
 
       const handleKey = (e) => {
         if (e.key === 'Escape') closeOverlay();
       };
 
-      overlay.onclick = closeOverlay;
+      /* Only a click on the backdrop itself (outside the image) closes —
+         clicks on the enlarged image stop here and never bubble up. */
+      overlay.onclick = (e) => {
+        if (e.target === overlay) closeOverlay();
+      };
       document.addEventListener('keydown', handleKey);
     };
 
@@ -299,7 +307,7 @@
             window.currentActiveBtn.classList.remove('is-playing');
             const ring = window.currentActiveBtn.querySelector('.ring-fill');
             if (ring) {
-                const circ = parseFloat(window.currentActiveBtn.querySelector('.audio-progress-ring .ring-fill').getAttribute('stroke-dasharray')) || 119.38;
+                const circ = parseFloat(ring.getAttribute('stroke-dasharray')) || 119.38;
                 ring.style.strokeDashoffset = circ;
             }
             window.currentActiveBtn = null;

@@ -64,10 +64,11 @@ if [ -n "$PROMPT_TEXT" ]; then
   echo "    (prompt archived to chat_history/opencode_prompts.txt)"
 fi
 
-# ---------- step 0: compactor regression tests ----------
+# ---------- step 0: regression tests (compactor CSS + template invariants) ----------
 if [ -d tests ]; then
-  echo "==> [0/5] Running compactor tests"
+  echo "==> [0/5] Running regression tests"
   python3 tests/test_compactor.py
+  python3 tests/test_templates.py
 fi
 
 echo "==> [1/5] Syncing templates to Anki (Anki-Connect)"

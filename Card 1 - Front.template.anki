@@ -45,7 +45,7 @@
         {{#Sentence Audio}}
           <div class="listening-view">
             <div class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn large-audio-btn" title="Play Sentence Audio" onclick="playCircularAudio(this)">
+              <button type="button" class="circular-audio-btn large-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
                 <svg class="audio-progress-ring" viewBox="0 0 80 80">
                   <circle class="ring-bg" cx="40" cy="40" r="36" />
                   <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
@@ -64,7 +64,7 @@
           {{#Word Audio}}
             <div class="listening-view">
               <div class="audio-btn-wrapper">
-                <button type="button" class="circular-audio-btn large-audio-btn" title="Play Word Audio" onclick="playCircularAudio(this)">
+                <button type="button" class="circular-audio-btn large-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
                   <svg class="audio-progress-ring" viewBox="0 0 80 80">
                     <circle class="ring-bg" cx="40" cy="40" r="36" />
                     <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />

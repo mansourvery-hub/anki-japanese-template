@@ -382,3 +382,7 @@ I want a similar design to https://miaai-lab.github.io/Fable-5.1-100-HTML-Files/
 ---
 
 set --backdrop-opacity: 0.5 / make the code section for the background as isolated as possible so i can disable it simply by deleting a specific section or making it a comment without messing up the rest of the code, also make it general in case I want a different background in the future
+
+---
+
+External LLM review triage: implement approved items — lightbox click-propagation fix (image click must not close, outside-click closes), audio simplified to restart-only (delete pause remnants), robust audio failure cleanup, ghost word-header hidden via :has, aria-labels + dialog semantics, :focus-visible, prefers-reduced-motion, 100dvh, container-query media fallback, stdlib-only Python (drop requests), microsecond backups, no-op release protection, template invariant tests

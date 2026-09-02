@@ -84,7 +84,7 @@ This note type is fully compatible with **Yomitan / Yomichan** mining workflows:
 3. Once imported, you can delete the sample cards. Anki will retain the newly created Note Type, which you can now use for your own cards.
 
 ### Option 2: Automatic Sync via Anki-Connect
-*Prerequisite: Clone this repository to your local machine.*
+*Prerequisite: Clone this repository to your local machine. Only Python 3 (standard library) is needed — no `pip install` required.*
 ```bash
 git clone https://github.com/mansourvery-hub/anki-japanese-template.git
 cd anki-japanese-template
@@ -121,7 +121,7 @@ cd anki-japanese-template
 ├── finish.sh                      # One-command routine: tests + sync + export + commit + push + release
 ├── sync_to_anki.py                # Push templates to Anki via Anki-Connect (with pre-sync backup)
 ├── release_apkg.py                # Export sample deck to dist/*.apkg via Anki-Connect
-├── tests/                         # Definition Compactor regression tests (run by finish.sh)
+├── tests/                         # Regression tests: compactor CSS + template invariants (run by finish.sh, stdlib only)
 ├── chat_history/                  # Archived AI-agent conversation logs
 ├── dist/                          # Exported .apkg (gitignored, released via GitHub)
 ├── backups/                       # Pre-sync snapshots of live Anki state (gitignored)
@@ -142,7 +142,7 @@ The **Definition** field usually contains the full Yomitan-mined glossary: every
 
 The full, untouched glossary is always available in the **Extended definition** accordion on the back card. Compaction is scoped exclusively to the main definition box (`.primary-definition`) — no other field is affected.
 
-*To disable it:* remove the `6b. DEFINITION COMPACTOR` rules from `Card 1 - Style.css` and the `primary-definition` class from the Definition `<div>` in `Card 1 - Back.template.anki`. The regression suite in `tests/test_compactor.py` verifies this behavior — run it with `python3 tests/test_compactor.py` after any change.
+*To disable it:* remove the `6b. DEFINITION COMPACTOR` rules from `Card 1 - Style.css` and the `primary-definition` class from the Definition `<div>` in `Card 1 - Back.template.anki`. The regression suite in `tests/` verifies this behavior (plus template invariants like the front-card furigana ban) — run it with `python3 tests/test_compactor.py && python3 tests/test_templates.py` after any change.
 
 ---
 

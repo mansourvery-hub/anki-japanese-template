@@ -43,7 +43,7 @@ After **every** modification to the note templates/CSS, finish with exactly one 
 ```
 
 It runs, in order, and stops on first failure:
-0. `tests/test_compactor.py` — regression-check the Definition Compactor CSS (auto-skipped while `tests/` is absent)
+0. `tests/` — regression suites: `test_compactor.py` (Definition Compactor CSS) + `test_templates.py` (structural invariants: front-furigana ban, aria-labels, restart-only audio, lightbox close semantics, balanced conditionals, a11y CSS). Auto-skipped while `tests/` is absent.
 1. `sync_to_anki.py` — push Front/Back/CSS into the live Anki profile; snapshots the live Anki state into gitignored `backups/<timestamp>/` first
 2. `release_apkg.py` — export the sample deck to `dist/anki-japanese-template.apkg`
 3. `git add -A && git commit` — snapshot (includes the chat_history log)

@@ -107,7 +107,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  /* 100vh fallback for older WebViews; dvh tracks mobile browser chrome */
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
   container-type: inline-size;
@@ -194,6 +196,20 @@
   }
 }
 
+/* Portability fallback: environments without container-query support
+   (older AnkiDroid WebViews) still get the desktop 2-column layout via a
+   conventional media query. Container rules above win where supported. */
+@media (min-width: 768px) {
+  .back-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .side-content {
+    position: sticky;
+    top: clamp(16px, 4vmin, 24px);
+  }
+}
+
 .card-block {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -232,6 +248,13 @@
 /* ==============================================================================
     6. BACK CARD WORD HEADER & META - Fluid Typography
     ============================================================================== */
+/* Empty-state guard: hide the whole header block on cards that have no
+   word, furigana, badges, audio buttons or definition (audio-only front
+   flows / picture-only cards) — otherwise it would render a padded void. */
+.word-header:not(:has(.word-display, .frequency-badge, .pitch-accent-badge, .circular-audio-btn, .definition-box)) {
+  display: none;
+}
+
 .word-header {
   text-align: center;
 }
@@ -297,11 +320,6 @@
    names. Deliberately does NOT touch .extended-def-content (Extended
    definition stays full) or any other field.
    ============================================================================== */
-
-/* Hide empty word header block */
-.word-header:not(:has(.word-display, .frequency-badge, .pitch-accent-badge, .circular-audio-btn, .definition-box)) {
-  display: none;
-}
 
 /* --- Collapse all dictionary entries after the first --- */
 .primary-definition .yomitan-glossary > ol > li ~ li {
@@ -392,6 +410,16 @@
 .small-audio-btn {
   width: 44px;
   height: 44px;
+}
+
+/* Keyboard focus indicator (outline: none above only affects mouse clicks;
+   :focus-visible restores a compact accent ring for keyboard navigation) */
+.circular-audio-btn:focus-visible,
+.translation-box:focus-visible,
+.modern-summary:focus-visible,
+.picture-container:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 .large-audio-btn {
@@ -795,3 +823,18 @@ ruby:focus-within rt {
 }
 
 /* ...to here) ================== .backdrop-block-end ================= */
+
+
+/* ==============================================================================
+    15. REDUCED MOTION
+    ============================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
