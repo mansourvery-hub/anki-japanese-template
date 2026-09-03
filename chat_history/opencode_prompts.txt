@@ -394,3 +394,7 @@ More compactor filters: hide the <i>(dictionary name)</i> labels including group
 ---
 
 Tried to change the back sentence font-size via the CSS clamp() line — no effect, even deleting the line did nothing. Root cause: Back template JS autoScaleBackSentence() overrode CSS with an inline style.fontSize (inline beats stylesheet). Fix: remove the Back JS scaler so CSS is authoritative; add regression guard banning JS font overrides on the Back card.
+
+---
+
+Frequency as an abstract number isn't helpful for the learner as he cannot easily interpert it, a color scheme, grade scheme (from 1st grade to university) or N1 to N5 system, will be much better figure out a clver solution that uses the number in frequency field and produces an immediate valubale information

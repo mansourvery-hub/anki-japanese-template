@@ -103,7 +103,17 @@ def main():
     check("CSS: .sentence-japanese clamp() is the sizing authority",
           re.search(r"\.sentence-japanese\s*\{[^}]*font-size:\s*clamp\(", css) is not None)
 
-    # --- 8. Sync tooling invariants ---
+    # --- 8. Frequency visualizer invariants ---
+    check("Back: frequency-badge with data-freq attribute present",
+          'class="frequency-badge" data-freq="{{Frequency}}"' in back)
+    check("Back: frequency visualizer JS function defined",
+          "window.renderFrequencyIndicator = function" in back)
+    check("CSS: all 5 frequency tier theme variables defined",
+          all(f"--freq-{t}:" in css for t in ("very-common", "common", "medium", "uncommon", "rare")))
+    check("CSS: frequency bar track & fill styled",
+          ".frequency-bar-track" in css and ".frequency-bar-fill" in css)
+
+    # --- 9. Sync tooling invariants ---
     sync = open(os.path.join(ROOT, "sync_to_anki.py"), encoding="utf-8").read()
     check("sync_to_anki.py: zero third-party imports (standard lib only)",
           "import requests" not in sync and "import urllib.request" in sync)

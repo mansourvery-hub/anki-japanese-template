@@ -62,8 +62,11 @@
           <!-- Metadata & Circular Audio Controllers -->
           <div class="word-meta-row">
             {{#Frequency}}
-              <div class="frequency-badge">
-                {{edit:Frequency}}
+              <div class="frequency-badge" data-freq="{{Frequency}}">
+                <div class="frequency-bar-track">
+                  <div class="frequency-bar-fill"></div>
+                </div>
+                <span class="frequency-stars"></span>
               </div>
             {{/Frequency}}
 
@@ -327,14 +330,75 @@
             }
         };
 
-        const updateProgress = () => {
-            if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
-                const progress = audio.currentTime / audio.duration;
-                ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
-                requestAnimationFrame(updateProgress);
-            }
-        };
-        requestAnimationFrame(updateProgress);
+         const updateProgress = () => {
+             if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
+                 const progress = audio.currentTime / audio.duration;
+                 ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
+                 requestAnimationFrame(updateProgress);
+             }
+         };
+         requestAnimationFrame(updateProgress);
+     };
+
+    /* --- FREQUENCY VISUALIZER (Progress Bar + 5-Star Scale + Tier Colors) --- */
+    window.renderFrequencyIndicator = function() {
+      const badges = document.querySelectorAll('.frequency-badge[data-freq]');
+      badges.forEach(badge => {
+        const raw = badge.getAttribute('data-freq') || '';
+        const match = raw.replace(/,/g, '').match(/\d+(?:\.\d+)?/);
+        if (!match) return;
+
+        const val = parseFloat(match[0]);
+        if (isNaN(val) || val <= 0) return;
+
+        // Japanese Frequency Tiers (Top 500 / 2.5k / 7k / 18k / Rare)
+        let stars = 1;
+        let tierClass = 'freq-rare';
+        let tierLabel = 'Rare';
+        let fillPercent = 15;
+
+        if (val <= 500) {
+          stars = 5;
+          tierClass = 'freq-very-common';
+          tierLabel = 'Very Common (Top 500)';
+          fillPercent = 95;
+        } else if (val <= 2500) {
+          stars = 4;
+          tierClass = 'freq-common';
+          tierLabel = 'Common (Top 2.5k)';
+          fillPercent = 75;
+        } else if (val <= 7000) {
+          stars = 3;
+          tierClass = 'freq-medium';
+          tierLabel = 'Intermediate (Top 7k)';
+          fillPercent = 55;
+        } else if (val <= 18000) {
+          stars = 2;
+          tierClass = 'freq-uncommon';
+          tierLabel = 'Advanced (Top 18k)';
+          fillPercent = 35;
+        } else {
+          stars = 1;
+          tierClass = 'freq-rare';
+          tierLabel = 'Rare (18k+)';
+          fillPercent = 15;
+        }
+
+        badge.classList.add(tierClass);
+        /* (per M) in hover/tooltip per instructions; no percentages typed out */
+        badge.setAttribute('title', `Frequency: ${raw.trim()} (per M) • ${tierLabel}`);
+        badge.setAttribute('aria-label', `Frequency: ${tierLabel}`);
+
+        const fill = badge.querySelector('.frequency-bar-fill');
+        if (fill) fill.style.width = fillPercent + '%';
+
+        const starContainer = badge.querySelector('.frequency-stars');
+        if (starContainer) {
+          starContainer.textContent = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+        }
+      });
     };
+
+    window.renderFrequencyIndicator();
   })();
 </script>
