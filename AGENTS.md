@@ -10,7 +10,7 @@ This document defines the strict operational rules, architectural guidelines, an
   - **Desktop:** Arch Linux (Anki Desktop Qt6 WebEngine, widescreen 100% fill).
   - **Mobile:** Samsung Galaxy A50 (AnkiDroid / WebKit, small screen, ultra-compact zero-waste vertical spacing).
 - **Core Files:**
-  - `Card 1 - Front.template.anki` (Front card HTML & dynamic scaling script)
+  - `Card 1 - Front.template.anki` (Front card HTML & dynamic scaling script + Mature Word Mode)
   - `Card 1 - Back.template.anki` (Back card HTML, circular audio & lightbox script)
   - `Card 1 - Style.css` (Tokyo Night & Aki Paper themes, responsive clamps)
   - `JapNoteType.json` (Source of truth for all 18 note field names and configurations)

@@ -398,3 +398,7 @@ Tried to change the back sentence font-size via the CSS clamp() line — no effe
 ---
 
 Frequency as an abstract number isn't helpful for the learner as he cannot easily interpert it, a color scheme, grade scheme (from 1st grade to university) or N1 to N5 system, will be much better figure out a clver solution that uses the number in frequency field and produces an immediate valubale information
+
+---
+
+Implement mature word mode: if interval >= 365 days, show only expression on front to avoid overlearning. Uses AnkiConnect on desktop and AnkiDroid JS API on mobile.

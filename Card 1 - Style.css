@@ -235,7 +235,8 @@
 /* ==============================================================================
     5. FRONT CARD TYPOGRAPHY - Fluid Multi-Stop Sizing
     ============================================================================== */
-.sentence-display {
+.sentence-display,
+.front-word-display {
   font-family: var(--font-japanese-serif);
   font-size: clamp(1.8rem, 5vw + 1.5rem, 5rem);
   line-height: 1.4;
@@ -249,11 +250,28 @@
 .sentence-display b,
 .sentence-display strong,
 .sentence-japanese b,
-.sentence-japanese strong {
+.sentence-japanese strong,
+.front-word-display b,
+.front-word-display strong {
   color: var(--accent-color);
   font-weight: 700;
   background: linear-gradient(transparent 75%, var(--accent-light) 75%);
   padding: 0 4px;
+}
+
+/* 5b. MATURE-CARD WORD MODE
+   Used when card interval >= LONG_INTERVAL_DAYS.
+   Swaps the sentence display for the bare expression. */
+.front-word-display {
+  display: none;
+}
+
+.card-wrapper.word-mode .sentence-display {
+  display: none;
+}
+
+.card-wrapper.word-mode .front-word-display {
+  display: block;
 }
 
 

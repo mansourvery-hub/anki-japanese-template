@@ -43,9 +43,11 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
   - Click or tap any card image to view it full-screen in a frosted-glass modal overlay.
   - Close by clicking the overlay or pressing the <kbd>Escape</kbd> key.
 
-- **🎧 Intelligent Listening Mode & Fallback Safety:**
-  - When both definition fields are absent, the card automatically enters **Listening Mode** (displaying only the audio player).
-  - If a card has neither definitions nor audio files attached, it automatically displays the text fallback to prevent "soft-locked" unstudyable cards.
+- **🎓 Mature-Card Word Mode (Anti-Overlearning):**
+  - When a card's interval reaches a threshold (default: 365 days), the front card automatically switches from showing the full sentence to showing only the target word/expression.
+  - This prevents the "overlearning" effect where you memorize the sentence context instead of the word itself.
+  - **How it works:** Uses the AnkiDroid JS API on mobile and AnkiConnect on desktop to detect current interval in real-time.
+  - **Configuration:** Threshold can be adjusted via the `LONG_INTERVAL_DAYS` constant in `Card 1 - Front.template.anki`.
 
 ---
 

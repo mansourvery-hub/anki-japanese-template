@@ -9,7 +9,9 @@
 -->
 
 <div class="card-wrapper">
-  <div class="card-container">
+  <div class="card-container" style="visibility: hidden;">
+    <!-- Mature-Card Word Mode probe: shown instead of sentence when interval >= threshold -->
+    <div class="front-word-display">{{edit:Expression}}</div>
 
     <!-- Standard Study View -->
     {{#Definition}}
@@ -100,10 +102,12 @@
 </div>
 
 <script>
-  (function() {
+  (async function() {
+    const LONG_INTERVAL_DAYS = 365;
+
     /* Dynamic Font Scaling for Front Sentence / Expression */
     function autoScaleFrontText() {
-      const displays = document.querySelectorAll('.sentence-display');
+      const displays = document.querySelectorAll('.sentence-display, .front-word-display');
       displays.forEach(el => {
         const text = el.innerText ? el.innerText.trim() : '';
         const len = text.length;
@@ -125,7 +129,48 @@
       });
     }
 
-    autoScaleFrontText();
+    const container = document.querySelector('.card-container');
+    const wrapper = document.querySelector('.card-wrapper');
+    if (container && wrapper) {
+      let wordMode = false;
+      try {
+        /* 1. AnkiDroid JS API check */
+        if (typeof AnkiDroidJS !== 'undefined') {
+          const api = new AnkiDroidJS({ version: "0.0.3", developer: "template@example.com" });
+          const res = await api.ankiGetCardInterval();
+          if (res && res.success && typeof res.value === 'number' && res.value >= LONG_INTERVAL_DAYS) {
+            wordMode = true;
+          }
+        } 
+        /* 2. Desktop AnkiConnect check (reads cardId from URL) */
+        else {
+          const urlParams = new URLSearchParams(window.location.search);
+          const cardId = urlParams.get('card');
+          if (cardId) {
+            const response = await fetch('http://127.0.0.1:8765', {
+              method: 'POST',
+              body: JSON.stringify({
+                action: 'getCardsInfo',
+                version: 6,
+                params: { cards: [cardId] }
+              })
+            });
+            const data = await response.json();
+            if (data.result && data.result[0] && data.result[0].ivl >= LONG_INTERVAL_DAYS) {
+              wordMode = true;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Interval retrieval failed, falling back to sentence view.', e);
+      }
+
+      if (wordMode) {
+        wrapper.classList.add('word-mode');
+      }
+      container.style.visibility = 'visible';
+      autoScaleFrontText();
+    }
 
     /* Circular Audio Player */
     window.currentActiveAudio = window.currentActiveAudio || null;
