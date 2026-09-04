@@ -123,6 +123,8 @@ def main():
     check("Front: desktop flow guiCurrentCard -> cardsInfo -> interval",
           "guiCurrentCard" in front and "cardsInfo" in front
           and re.search(r"cardsInfo.*?interval", front, re.S) is not None)
+    check("Front: previewer fallback via content search (findCards)",
+          "findCards" in front and "content search" in front)
     check("Front: no nonexistent Anki-Connect actions",
           "getCardsInfo" not in front)
     check("Front: no card-id-from-URL guess (no URLSearchParams)",

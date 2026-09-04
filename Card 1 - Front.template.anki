@@ -8,8 +8,9 @@
       - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
         the front shows only the Expression instead of the sentence (anti-overlearning).
         Interval is read at review time: AnkiDroid JS API (ankiGetCardInterval) on mobile,
-        AnkiConnect (guiCurrentCard -> cardsInfo) on desktop. Any failure falls back
-        to the normal sentence front.
+        AnkiConnect on desktop — guiCurrentCard during active review, with a content
+        search fallback (Expression field) for the Browse previewer where no review
+        is active. Any failure falls back to the normal sentence front.
       - Dynamic Font Auto-Scaling: Automatically enlarges short sentences/expressions to fill the viewport.
 
 -->
@@ -140,10 +141,30 @@
     if (container && wrapper) {
       let wordMode = false;
       let interval = null;
+      let source = 'unavailable';
+
+      /* Anki-Connect helpers */
+      const post = (action, params) => fetch('http://127.0.0.1:8765', {
+        method: 'POST',
+        body: JSON.stringify({ action: action, version: 6, params: params })
+      }).then(r => r.json()).then(data => {
+        if (data.error) throw new Error(data.error);
+        return data.result;
+      });
+      /* Escape a string for use inside an Anki search query */
+      const escQuery = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      /* Normalize HTML / DOM text for field-vs-card comparison */
+      const normText = (s) => s
+        .replace(/<br\s*\/?>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
       try {
         /* 1. AnkiDroid JS API (official AnkiDroidJS class, contract version 0.0.3).
               Returns {success, value}; review-card intervals are positive days,
-              learning steps are negative seconds (days >= threshold check handles both). */
+              learning steps are negative seconds. */
         if (typeof AnkiDroidJS !== 'undefined') {
           const api = new AnkiDroidJS({
             developer: 'mansourvery-hub@users.noreply.github.com',
@@ -153,25 +174,50 @@
           console.log('[Mature Word Mode] AnkiDroid response:', res);
           if (res && res.success && typeof res.value === 'number') {
             interval = res.value;
+            source = 'ankiDroid';
           }
         }
-        /* 2. Desktop AnkiConnect: guiCurrentCard -> cardId -> cardsInfo -> interval.
-              (There is no card-id URL parameter in the reviewer webview.) */
+        /* 2. Desktop AnkiConnect */
         else {
-          const post = (action, params) => fetch('http://127.0.0.1:8765', {
-            method: 'POST',
-            body: JSON.stringify({ action: action, version: 6, params: params })
-          }).then(r => r.json()).then(data => {
-            if (data.error) throw new Error(data.error);
-            return data.result;
-          });
-
-          const current = await post('guiCurrentCard', {});
-          console.log('[Mature Word Mode] cardId:', current && current.cardId);
-          if (current && current.cardId) {
-            const infos = await post('cardsInfo', { cards: [current.cardId] });
-            if (infos && infos[0]) {
-              interval = infos[0].interval;
+          /* Path A: active review — the exact card being reviewed */
+          try {
+            const current = await post('guiCurrentCard', {});
+            console.log('[Mature Word Mode] guiCurrentCard cardId:', current && current.cardId);
+            if (current && current.cardId) {
+              const infos = await post('cardsInfo', { cards: [current.cardId] });
+              if (infos && infos[0]) {
+                interval = infos[0].interval;
+                source = 'guiCurrentCard';
+              }
+            }
+          } catch (reviewErr) {
+            /* Path B: previewer / no active review — locate this card by its own
+               rendered content (same technique as jp-mining-note: field search).
+               Works in the Browse previewer where guiCurrentCard is unavailable. */
+            console.log('[Mature Word Mode] no active review, trying content search');
+            const wordEl = document.querySelector('.front-word-display');
+            const sentEl = document.querySelector('.sentence-display');
+            const NOTE_TYPE = '{{Type}}';
+            const exprDom = wordEl ? normText(wordEl.innerText || wordEl.textContent || '') : '';
+            if (exprDom) {
+              const query = '"Expression:' + escQuery(exprDom) + '" "note:' + escQuery(NOTE_TYPE) + '"';
+              const ids = await post('findCards', { query: query });
+              console.log('[Mature Word Mode] content search ids:', ids);
+              if (ids && ids.length) {
+                const infos = await post('cardsInfo', { cards: ids });
+                const fieldText = (info, name) =>
+                  normText((info.fields && info.fields[name] && info.fields[name].value) || '');
+                let matches = infos.filter(i => fieldText(i, 'Expression') === exprDom);
+                if (matches.length > 1 && sentEl) {
+                  const sentDom = normText(sentEl.innerText || sentEl.textContent || '');
+                  const withSent = matches.filter(i => fieldText(i, 'Sentence') === sentDom);
+                  if (withSent.length) matches = withSent;
+                }
+                if (matches.length) {
+                  interval = matches[0].interval;
+                  source = 'content-search';
+                }
+              }
             }
           }
         }
@@ -182,6 +228,7 @@
       if (typeof interval === 'number' && interval >= LONG_INTERVAL_DAYS) {
         wordMode = true;
       }
+      console.log('[Mature Word Mode] source:', source);
       console.log('[Mature Word Mode] interval:', interval);
       console.log('[Mature Word Mode] threshold:', LONG_INTERVAL_DAYS);
       console.log('[Mature Word Mode] wordMode:', wordMode);
