@@ -402,3 +402,7 @@ Frequency as an abstract number isn't helpful for the learner as he cannot easil
 ---
 
 Implement mature word mode: if interval >= 365 days, show only expression on front to avoid overlearning. Uses AnkiConnect on desktop and AnkiDroid JS API on mobile.
+
+---
+
+Mature Word Mode does nothing on a 27-year-interval card. Fix interval retrieval: desktop used nonexistent Anki-Connect action getCardsInfo and a card=? URL param that the reviewer webview does not expose; use guiCurrentCard -> cardsInfo -> interval instead. Verify AnkiDroid JS API contract. Add word-mode regression tests + console diagnostics.

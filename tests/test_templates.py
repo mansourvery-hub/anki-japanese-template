@@ -113,6 +113,36 @@ def main():
     check("CSS: frequency bar track & fill styled",
           ".frequency-bar-track" in css and ".frequency-bar-fill" in css)
 
+    # --- 8b. Mature Word Mode invariants (interval-gated front) ---
+    check("Front: LONG_INTERVAL_DAYS threshold constant defined",
+          re.search(r"const LONG_INTERVAL_DAYS\s*=\s*\d+\s*;", front) is not None)
+    check("Front: threshold not hard-coded elsewhere (single definition of 365)",
+          len(re.findall(r"365", front)) == 1)
+    check("Front: word probe div present with Expression",
+          re.search(r'class="front-word-display">\s*\{\{edit:Expression\}\}', front) is not None)
+    check("Front: desktop flow guiCurrentCard -> cardsInfo -> interval",
+          "guiCurrentCard" in front and "cardsInfo" in front
+          and re.search(r"cardsInfo.*?interval", front, re.S) is not None)
+    check("Front: no nonexistent Anki-Connect actions",
+          "getCardsInfo" not in front)
+    check("Front: no card-id-from-URL guess (no URLSearchParams)",
+          "URLSearchParams" not in front)
+    check("Front: AnkiDroid JS API with verified contract",
+          "ankiGetCardInterval" in front and 'new AnkiDroidJS(' in front)
+    check("Front: anti-flash visibility gate present",
+          'style="visibility: hidden;"' in front
+          and "container.style.visibility = 'visible'" in front)
+    check("Front: word-mode class applied to card wrapper",
+          "wrapper.classList.add('word-mode')" in front)
+    check("Front: retrieval failure falls back to sentence (try/catch + typed interval check)",
+          "catch" in front and "typeof interval === 'number'" in front)
+    check("CSS: word-mode display rules present",
+          ".card-wrapper.word-mode .sentence-display" in css
+          and ".card-wrapper.word-mode .front-word-display" in css)
+    check("CSS: word mode leaves listening view untouched",
+          ".listening-view" not in css.split("5b. MATURE-CARD WORD MODE")[1].split("6. BACK CARD")[0]
+          if "5b. MATURE-CARD WORD MODE" in css else False)
+
     # --- 9. Sync tooling invariants ---
     sync = open(os.path.join(ROOT, "sync_to_anki.py"), encoding="utf-8").read()
     check("sync_to_anki.py: zero third-party imports (standard lib only)",

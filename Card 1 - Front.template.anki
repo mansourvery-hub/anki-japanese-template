@@ -1,11 +1,17 @@
 <!-- FRONT CARD TEMPLATE
      Premium Ergonomic Japanese Front Card
      
-     Behavior:
-     - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
-     - Listening: Shows circular interactive audio player if definitions are missing.
-     - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
-     - Dynamic Font Auto-Scaling: Automatically enlarges short sentences/expressions to fill the viewport.
+      Behavior:
+      - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
+      - Listening: Shows circular interactive audio player if definitions are missing.
+      - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
+      - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
+        the front shows only the Expression instead of the sentence (anti-overlearning).
+        Interval is read at review time: AnkiDroid JS API (ankiGetCardInterval) on mobile,
+        AnkiConnect (guiCurrentCard -> cardsInfo) on desktop. Any failure falls back
+        to the normal sentence front.
+      - Dynamic Font Auto-Scaling: Automatically enlarges short sentences/expressions to fill the viewport.
+
 -->
 
 <div class="card-wrapper">
@@ -133,37 +139,52 @@
     const wrapper = document.querySelector('.card-wrapper');
     if (container && wrapper) {
       let wordMode = false;
+      let interval = null;
       try {
-        /* 1. AnkiDroid JS API check */
+        /* 1. AnkiDroid JS API (official AnkiDroidJS class, contract version 0.0.3).
+              Returns {success, value}; review-card intervals are positive days,
+              learning steps are negative seconds (days >= threshold check handles both). */
         if (typeof AnkiDroidJS !== 'undefined') {
-          const api = new AnkiDroidJS({ version: "0.0.3", developer: "template@example.com" });
+          const api = new AnkiDroidJS({
+            developer: 'mansourvery-hub@users.noreply.github.com',
+            version: '0.0.3'
+          });
           const res = await api.ankiGetCardInterval();
-          if (res && res.success && typeof res.value === 'number' && res.value >= LONG_INTERVAL_DAYS) {
-            wordMode = true;
+          console.log('[Mature Word Mode] AnkiDroid response:', res);
+          if (res && res.success && typeof res.value === 'number') {
+            interval = res.value;
           }
-        } 
-        /* 2. Desktop AnkiConnect check (reads cardId from URL) */
+        }
+        /* 2. Desktop AnkiConnect: guiCurrentCard -> cardId -> cardsInfo -> interval.
+              (There is no card-id URL parameter in the reviewer webview.) */
         else {
-          const urlParams = new URLSearchParams(window.location.search);
-          const cardId = urlParams.get('card');
-          if (cardId) {
-            const response = await fetch('http://127.0.0.1:8765', {
-              method: 'POST',
-              body: JSON.stringify({
-                action: 'getCardsInfo',
-                version: 6,
-                params: { cards: [cardId] }
-              })
-            });
-            const data = await response.json();
-            if (data.result && data.result[0] && data.result[0].ivl >= LONG_INTERVAL_DAYS) {
-              wordMode = true;
+          const post = (action, params) => fetch('http://127.0.0.1:8765', {
+            method: 'POST',
+            body: JSON.stringify({ action: action, version: 6, params: params })
+          }).then(r => r.json()).then(data => {
+            if (data.error) throw new Error(data.error);
+            return data.result;
+          });
+
+          const current = await post('guiCurrentCard', {});
+          console.log('[Mature Word Mode] cardId:', current && current.cardId);
+          if (current && current.cardId) {
+            const infos = await post('cardsInfo', { cards: [current.cardId] });
+            if (infos && infos[0]) {
+              interval = infos[0].interval;
             }
           }
         }
       } catch (e) {
-        console.warn('Interval retrieval failed, falling back to sentence view.', e);
+        console.warn('[Mature Word Mode] interval retrieval failed, falling back to sentence view.', e);
       }
+
+      if (typeof interval === 'number' && interval >= LONG_INTERVAL_DAYS) {
+        wordMode = true;
+      }
+      console.log('[Mature Word Mode] interval:', interval);
+      console.log('[Mature Word Mode] threshold:', LONG_INTERVAL_DAYS);
+      console.log('[Mature Word Mode] wordMode:', wordMode);
 
       if (wordMode) {
         wrapper.classList.add('word-mode');
