@@ -3,3 +3,4 @@
 - the card should work on PC(arch linux) but also on a smaller screen(samsung galaxy A50), text size and even visual elements should change with screen size
 - furigana should be dispalyed only in back card, on mouse hover using the furigana fields(like {{furigana}} with the help of `furigana:`, for ex, {{furigana:furigana}} to display the word with furigana hover)
 - on click on the image, it should expand, another click outside it should bring it back to normal
+- anti-overlearning: once a card is mature (interval >= 365 days, see `LONG_INTERVAL_DAYS` in the front template), the front shows only the word instead of the sentence — the familiar sentence must never become the retrieval cue; the interval is read live from the card (no addons, no new fields), and any retrieval failure falls back to the normal sentence front

@@ -10,7 +10,7 @@ This document defines the strict operational rules, architectural guidelines, an
   - **Desktop:** Arch Linux (Anki Desktop Qt6 WebEngine, widescreen 100% fill).
   - **Mobile:** Samsung Galaxy A50 (AnkiDroid / WebKit, small screen, ultra-compact zero-waste vertical spacing).
 - **Core Files:**
-  - `Card 1 - Front.template.anki` (Front card HTML & dynamic scaling script + Mature Word Mode)
+  - `Card 1 - Front.template.anki` (Front card HTML & dynamic scaling script + Mature Word Mode: interval-gated word-only front, threshold const `LONG_INTERVAL_DAYS`, AnkiConnect `guiCurrentCard`/content-search + AnkiDroid JS API retrieval, graceful sentence fallback)
   - `Card 1 - Back.template.anki` (Back card HTML, circular audio & lightbox script)
   - `Card 1 - Style.css` (Tokyo Night & Aki Paper themes, responsive clamps)
   - `JapNoteType.json` (Source of truth for all 18 note field names and configurations)
@@ -65,5 +65,6 @@ Do not skip, reorder, or substitute steps. The user reviews cards inside Anki af
 ### 4. Technical Constraints
 - **Zero-Reflow Furigana:** Furigana must remain hidden by default and reveal on `:hover` (Desktop) / `:active` (Mobile) without shifting surrounding Japanese text by even a single pixel (uses absolute ruby positioning).
 - **Audio Buttons:** Uses custom standalone circular SVG progress buttons (`文` for sentence, `言葉` for word). Avoid default browser audio controls.
+- **Mature Word Mode (interval-gated front):** When the current card's SRS interval ≥ `LONG_INTERVAL_DAYS` (const in the Front template script, default 365), the front shows only the `Expression` instead of the sentence (anti-overlearning). Hard rules: no `{{Interval}}` marker exists — the interval must be fetched at render time (AnkiConnect `guiCurrentCard` during active review, `findCards` content search in the Browse previewer, AnkiDroid JS API `ankiGetCardInterval()` on mobile); any retrieval failure MUST degrade to the normal sentence front; no Python/addon/new-field solutions; listening-mode fronts stay untouched; keep the anti-flash `visibility:hidden` gate.
 - **Screen Real Estate:** Screen space is precious. Avoid adding useless debug badges or verbose header labels (`Sentence`, `Listening Card Active`, etc.).
 - **Minimal JS Footprint:** Avoid external libraries. All scripts must be vanilla, scoped, and resilient to Anki WebView DOM re-use.

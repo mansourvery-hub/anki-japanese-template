@@ -410,3 +410,7 @@ Mature Word Mode does nothing on a 27-year-interval card. Fix interval retrieval
 ---
 
 Mature Word Mode still does nothing on the 27-year card. Root cause: the card is not currently reviewable (due 2049) so it is viewed in the Browse previewer, where guiCurrentCard always throws and the template silently fell back to the sentence. Fix: add a previewer-safe fallback that locates the card by content (Expression field search via findCards, then disambiguate against cardsInfo fields, technique from jp-mining-note), keeping guiCurrentCard for active review and AnkiDroid JS API for mobile.
+
+---
+
+It works now. Add appropriate mentions of the Mature Word Mode feature in all relevant md files (README dedicated section, AGENTS.md constraints, Design.md goals) and a comment on the LONG_INTERVAL_DAYS constant in the code, then ship everything.

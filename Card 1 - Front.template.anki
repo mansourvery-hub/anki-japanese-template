@@ -110,6 +110,9 @@
 
 <script>
   (async function() {
+    /* Mature Word Mode threshold: card interval (days) at/above which the front
+       swaps the sentence for the bare Expression. Single source of truth —
+       change it here, then ./finish.sh to sync. */
     const LONG_INTERVAL_DAYS = 365;
 
     /* Dynamic Font Scaling for Front Sentence / Expression */

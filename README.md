@@ -44,10 +44,7 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
   - Close by clicking the overlay or pressing the <kbd>Escape</kbd> key.
 
 - **🎓 Mature-Card Word Mode (Anti-Overlearning):**
-  - When a card's interval reaches a threshold (default: 365 days), the front card automatically switches from showing the full sentence to showing only the target word/expression.
-  - This prevents the "overlearning" effect where you memorize the sentence context instead of the word itself.
-  - **How it works:** Uses the AnkiDroid JS API on mobile and AnkiConnect on desktop to detect current interval in real-time.
-  - **Configuration:** Threshold can be adjusted via the `LONG_INTERVAL_DAYS` constant in `Card 1 - Front.template.anki`.
+  - Cards with a review interval ≥ 365 days automatically show only the target word on the front instead of the sentence — see the [full section below](#-mature-card-word-mode-anti-overlearning) for how it works and how to configure it.
 
 ---
 
@@ -116,7 +113,7 @@ cd anki-japanese-template
 ## 🛠️ Project Structure
 
 ```
-├── Card 1 - Front.template.anki   # Front card HTML template & dynamic scaling script
+├── Card 1 - Front.template.anki   # Front card HTML, dynamic scaling & Mature Word Mode (interval-gated word-only front)
 ├── Card 1 - Back.template.anki    # Back card HTML template, audio & lightbox scripts
 ├── Card 1 - Style.css             # Tokyo Night & Aki Paper CSS responsive styling
 ├── JapNoteType.json               # Note type schema export definition (18 fields)
@@ -147,6 +144,43 @@ The full, untouched glossary is always available in the **Extended definition** 
 *To disable it:* remove the `6b. DEFINITION COMPACTOR` rules from `Card 1 - Style.css` and the `primary-definition` class from the Definition `<div>` in `Card 1 - Back.template.anki`. The regression suite in `tests/` verifies this behavior (plus template invariants like the front-card furigana ban) — run it with `python3 tests/test_compactor.py && python3 tests/test_templates.py` after any change.
 
 ---
+
+## 🎓 Mature-Card Word Mode (Anti-Overlearning)
+
+Sentence cards have a hidden failure mode: once a card is old enough, you stop retrieving the word from memory and instead recognize the *sentence* — its rhythm, its context, even its length become the retrieval cue. Anki's efficiency collapses into passive reading. **Mature Word Mode** breaks that crutch: when a card's review interval reaches a configurable threshold (default: 365 days), the front shows **only the target word**, forcing genuine word-recall. The sentence returns on the back card as usual.
+
+### How the interval is read (no addons, no extra fields)
+
+There is no `{{Interval}}` template marker in Anki, so the front-card script queries the interval live at render time through whichever native bridge the current platform provides:
+
+| Platform | Mechanism | Notes |
+| :--- | :--- | :--- |
+| **Anki Desktop** (active review) | AnkiConnect `guiCurrentCard` → `cardsInfo` | Exact card ID of the card being reviewed. |
+| **Anki Desktop** (Browse previewer) | AnkiConnect `findCards` content search on the `Expression` field → `cardsInfo` | `guiCurrentCard` only works during active review, so in the previewer the script locates the card by its own rendered content (same technique as jp-mining-note), then disambiguates duplicates by Sentence text. |
+| **AnkiDroid** | AnkiDroid JS API `ankiGetCardInterval()` | Official in-template JS API (contract version `0.0.3`). |
+
+Requirements: Anki with the [Anki-Connect](https://ankiweb.net/shared/info/2055492159) add-on on desktop (already required by this repo's sync workflow), AnkiDroid ≥ 2.18 on mobile. If the interval cannot be retrieved — AnkiConnect not running, previewer edge cases, old AnkiDroid without the JS API, JavaScript disabled — the card **always degrades gracefully to the normal sentence front**. The feature can never break a card.
+
+### Configuration
+
+The threshold is a single constant at the top of the front-card script in `Card 1 - Front.template.anki`:
+
+```js
+const LONG_INTERVAL_DAYS = 365;
+```
+
+Change `365` to any number of days (e.g. `180` for half-year), save, and re-run `./finish.sh` to sync. The comparison is `interval >= LONG_INTERVAL_DAYS`, so exactly 365 days triggers word mode at the default value.
+
+### Behavior details
+
+- **Anti-flash:** the front container starts `visibility: hidden` and is revealed only after the interval decision is made — the sentence never visibly flashes before being swapped for the word.
+- **Word-only, no scaffolding:** the mature front shows the bare `Expression` (same serif typography and length-based auto-scaling as the sentence view) — no furigana, no audio buttons, no reveal-the-sentence escape hatch. The full back card is unchanged.
+- **Listening-mode cards untouched:** audio-only cards (no definition fields) keep their circular audio player front.
+- **Diagnostics:** every decision is logged to the console as `[Mature Word Mode] …` (source, interval, threshold, wordMode) — visible in Anki's web console / debug tools.
+- **Scope:** applies only to cards of this note type; the swap is done by toggling the `word-mode` class on `.card-wrapper` (CSS section `5b. MATURE-CARD WORD MODE`).
+
+ ---
+
 
 ## 🔄 Development & Synchronization Workflow
 
