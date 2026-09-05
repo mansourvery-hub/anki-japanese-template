@@ -430,3 +430,7 @@ Implement fixes from other model: 1) Mobile CSS button sizing, 2) Audio feedback
 ---
 
 Fix AnkiDroid audio buttons (native-only playback, replay link moved out of button, visually-hidden source, re-tap debounce) and mature-mode interval parsing (accept plain-number return, skip API on listening cards)
+
+---
+
+Harden AnkiDroid mature-mode bridge: own 800ms timeout race, explicit {success:false} rejection

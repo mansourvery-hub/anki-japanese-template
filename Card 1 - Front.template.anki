@@ -232,16 +232,26 @@
            (also avoids needless AnkiDroid JS-API calls, which can trigger
            AnkiDroid's known false-positive "Failed to load *.bin" toast). */
         const isListening = !!document.querySelector('.listening-view');
+        /* AnkiDroid bridge watchdog: on some devices/WebViews the /jsapi
+           fetch never settles (AnkiDroid may also toast a "Failed to load
+           *.bin" card-content error — upstream issue #16510). Never let the
+           bridge delay or break the card; the safety reveal below is the
+           final backstop. */
+        const withBridgeTimeout = (p, ms) => Promise.race([
+          p, new Promise((_, rej) => setTimeout(() => rej(new Error('AnkiDroid bridge timeout')), ms))
+        ]);
         if (!isListening && typeof AnkiDroidJS !== 'undefined') {
-          /* AnkiDroid JS API 0.0.3 returns the interval DIRECTLY (a number:
-             positive = days, negative = learning-step seconds) — not a
-             {success, value} wrapper. Accept every documented shape. */
+          /* AnkiDroid JS API 0.0.3 resolves {success, value} (see the
+             official wiki). {success:false} carries type-safe defaults
+             (number => -1) and must never be mistaken for an interval. */
           const api = new AnkiDroidJS({
             developer: 'mansourvery-hub@users.noreply.github.com',
             version: '0.0.3'
           });
-          const res = await api.ankiGetCardInterval();
-          if (typeof res === 'number') {
+          const res = await withBridgeTimeout(api.ankiGetCardInterval(), 800);
+          if (res && res.success === false) {
+            source = 'ankiDroid-unavailable';
+          } else if (typeof res === 'number') {
             interval = res;
             source = 'ankiDroid';
           } else if (typeof res === 'string' && res.trim() !== '' && isFinite(Number(res))) {

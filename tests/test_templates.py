@@ -147,8 +147,12 @@ def main():
           "URLSearchParams" not in front)
     check("Front: AnkiDroid JS API with verified contract",
           "ankiGetCardInterval" in front and 'new AnkiDroidJS(' in front)
-    check("Front: accepts AnkiDroid plain-number interval (0.0.3 returns a number)",
-          "typeof res === 'number'" in front)
+    check("Front: accepts AnkiDroid {success,value} shape (official wiki contract)",
+          "typeof res.value === 'number'" in front)
+    check("Front: rejects {success:false} failure defaults (number => -1)",
+          "res.success === false" in front)
+    check("Front: bridge call has its own timeout (never hangs the card)",
+          "withBridgeTimeout" in front)
     check("Front: skips ALL retrieval on listening cards (no needless JS-API calls)",
           "isListening" in front)
     check("Front: anti-flash visibility gate present",
