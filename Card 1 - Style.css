@@ -461,10 +461,8 @@
   margin: 0;
   padding-left: 0;
 }
-/* Dictionary name labels emitted as <i>(大辞林　第四版)</i> — including
-   grouped sub-entry variants like <i>(子, 大辞林　第四版)</i> — are noise. */
-.primary-definition .yomitan-glossary > ol > li > i:first-child,
-.primary-definition .yomitan-glossary ol > li > i:only-child {
+/* Dictionary name labels and metadata <i>(...)</i> are noise. */
+.primary-definition i {
   display: none;
 }
 .primary-definition .yomitan-glossary > ol > li ~ li {
