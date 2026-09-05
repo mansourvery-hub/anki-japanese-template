@@ -288,11 +288,11 @@
   padding: 0 4px;
 }
 
-/* Back sentence keeps the bold target highlight; only the headword is light. */
+/* Back sentence target matches surrounding weight — color + underline mark it. */
 .sentence-japanese b,
 .sentence-japanese strong {
   color: var(--accent-color);
-  font-weight: 700;
+  font-weight: 400;
   background: linear-gradient(transparent 75%, var(--accent-light) 75%);
   padding: 0 4px;
 }
