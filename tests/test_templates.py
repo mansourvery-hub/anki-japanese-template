@@ -151,6 +151,9 @@ def main():
           "ankiGetCardInterval" in front and 'new AnkiDroidJS(' in front)
     check("Front: supports constructor + direct bridge APIs",
           "apiKind" in front and "'constructor'" in front and "'direct'" in front)
+    check("Front: never invokes new-reviewer stub bridge (signal:jsapi guard)",
+          "signal" in front and "jsapi" in front
+          and "ankiDroid-stub" in front)
     check("Front: accepts AnkiDroid {success,value} shape (official wiki contract)",
           "parseDroidInterval" in front
           and "hasOwnProperty" in front

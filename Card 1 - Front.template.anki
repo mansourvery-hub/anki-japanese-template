@@ -7,10 +7,12 @@
       - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
       - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
         the front shows only the Expression instead of the sentence (anti-overlearning).
-        Interval is read at review time: AnkiDroid JS API (ankiGetCardInterval) on mobile,
-        AnkiConnect on desktop — guiCurrentCard during active review, with a content
-        search fallback (Expression field) for the Browse previewer where no review
-        is active. Any failure falls back to the normal sentence front.
+         Interval is read at review time: AnkiDroid JS API (ankiGetCardInterval) on mobile,
+         AnkiConnect on desktop — guiCurrentCard during active review, with a content
+         search fallback (Expression field) for the Browse previewer where no review
+         is active. Mobile preview screens have no JS bridge (only the reviewer
+         injects js-api.js), so they always fall back to the sentence front.
+         Any failure falls back to the normal sentence front.
       - Dynamic Font Auto-Scaling: Automatically enlarges short sentences/expressions to fill the viewport.
 
 -->
@@ -377,6 +379,21 @@
               throw new Error('ankiGetCardInterval is unavailable');
             }
 
+            /* New-reviewer stub guard: AnkiDroid's fragment-based reviewer
+               injects a placeholder AnkiDroidJS whose methods only navigate
+               to 'signal:jsapi' (no data). Never invoke it — the navigation
+               is unhandled and yields nothing. Detect by method source. */
+            let methodSrc = '';
+            try {
+              methodSrc = Function.prototype.toString.call(api.ankiGetCardInterval);
+            } catch (_) { /* fall through to the call */ }
+            if (/signal\s*:\s*jsapi/.test(methodSrc)) {
+              return {
+                interval: null,
+                source: 'ankiDroid-stub (reviewer without interval API)'
+              };
+            }
+
             const raw = await withBridgeTimeout(
               api.ankiGetCardInterval(),
               1200
@@ -416,7 +433,13 @@
             interval = r.interval;
             source = r.source;
           } else {
-            source = 'no-bridge-mobile';
+            /* No bridge script in the page: on AnkiDroid this means a
+               preview screen (card browser / template / editor preview),
+               never a real review — the legacy reviewer always injects
+               js-api.js synchronously via card_template.html <head>.
+               Sentence fallback is correct here; review the card for
+               real to exercise mature mode. */
+            source = 'no-bridge-mobile (preview? bridge exists only in reviewer)';
           }
         } else if (!isListening) {
           try {
