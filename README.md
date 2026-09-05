@@ -38,6 +38,13 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
   - Furigana is hidden by default to test raw kanji recall.
   - **Desktop:** Hover mouse over any word to reveal its furigana.
   - **Mobile:** Tap or hold any word to instantly reveal furigana without double-tap delay.
+  - Tap again to hide it (zero-reflow).
+
+- **🔊 Circular Audio Player with SVG Progress Ring:**
+  - Custom circular play/pause button with centered Japanese Kanji/labels (`文` for Sentence, `言葉` for Word).
+  - Dynamic SVG progress border that fills smoothly as audio plays and resets on completion.
+  - Visual feedback (ring fill animation) when using native Anki replay buttons.
+  - Supports native HTML5 `Audio()` playback with automatic fallback to Anki replay buttons.
 
 - **🖼️ Lightbox Image Expansion:**
   - Click or tap any card image to view it full-screen in a frosted-glass modal overlay.
@@ -45,6 +52,13 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 - **🎓 Mature-Card Word Mode (Anti-Overlearning):**
   - Cards with a review interval ≥ 365 days automatically show only the target word on the front instead of the sentence — see the [full section below](#-mature-card-word-mode-anti-overlearning) for how it works and how to configure it.
+  - **Bug fix:** Listening-mode cards are now protected: Word Mode is skipped when a listening view is active, preventing the answer from leaking onto the front.
+
+- **📱 Mobile-First Optimizations:**
+  - **Fixed:** Large listening button on mobile is no longer shrunk to small button size.
+  - **Fixed:** Empty side column on the back card no longer splits content — the grid uses 1-column layout when there's no side content.
+  - **Performance:** Removed `backdrop-filter: blur()` on the sticky tags bar for Samsung Galaxy A50 to prevent scroll stutter on mid-range Mali GPUs.
+  - **Accessibility:** Image lightbox now supports keyboard navigation (tab index, Enter/Space keys).
 
 ---
 
@@ -159,7 +173,12 @@ There is no `{{Interval}}` template marker in Anki, so the front-card script que
 | **Anki Desktop** (Browse previewer) | AnkiConnect `findCards` content search on the `Expression` field → `cardsInfo` | `guiCurrentCard` only works during active review, so in the previewer the script locates the card by its own rendered content (same technique as jp-mining-note), then disambiguates duplicates by Sentence text. |
 | **AnkiDroid** | AnkiDroid JS API `ankiGetCardInterval()` | Official in-template JS API (contract version `0.0.3`). |
 
-Requirements: Anki with the [Anki-Connect](https://ankiweb.net/shared/info/2055492159) add-on on desktop (already required by this repo's sync workflow), AnkiDroid ≥ 2.18 on mobile. If the interval cannot be retrieved — AnkiConnect not running, previewer edge cases, old AnkiDroid without the JS API, JavaScript disabled — the card **always degrades gracefully to the normal sentence front**. The feature can never break a card.
+Requirements: Anki with the [Anki-Connect](https://ankiweb.net/shared/info/2055492159) add-on on desktop (already required by this repo's sync workflow), AnkiDroid ≥ 2.18 on mobile.   If the interval cannot be retrieved — AnkiConnect not running, previewer edge cases, old AnkiDroid without the JS API, JavaScript disabled — the card **always degrades gracefully to the normal sentence front**. The feature can never break a card.
+
+  **Robustness improvements (2026):**
+  - Safety timeout & finally block: Front card is guaranteed to reveal even if AnkiConnect hangs (1.5s safety timeout).
+  - Type-name safety: Uses `data-notetype` attribute instead of a JS string literal to prevent syntax errors when note type names contain single quotes.
+  - AnkiConnect reliability: Wrapped `post` requests in a `Promise.race` with an 800ms timeout to prevent infinite hangs.
 
 ### Configuration
 

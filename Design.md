@@ -4,3 +4,11 @@
 - furigana should be dispalyed only in back card, on mouse hover using the furigana fields(like {{furigana}} with the help of `furigana:`, for ex, {{furigana:furigana}} to display the word with furigana hover)
 - on click on the image, it should expand, another click outside it should bring it back to normal
 - anti-overlearning: once a card is mature (interval >= 365 days, see `LONG_INTERVAL_DAYS` in the front template), the front shows only the word instead of the sentence — the familiar sentence must never become the retrieval cue; the interval is read live from the card (no addons, no new fields), and any retrieval failure falls back to the normal sentence front
+- mature word mode no longer triggers on listening cards (prevents answer leak)
+- frequency tooltips corrected (ranks, not per M)
+- translation box no longer collapses when clicking inside revealed text
+- empty side column now uses 1-column layout on cards without side content
+- audio feedback includes visual pulse when using native Anki replay buttons
+- front card blank-rendering risks mitigated with safety timeout and finally block
+- backdrop fixed positioning corrected
+- furigana tap interaction improved (double-tap or click)

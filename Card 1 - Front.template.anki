@@ -16,7 +16,7 @@
 -->
 
 <div class="card-wrapper">
-  <div class="card-container" style="visibility: hidden;">
+  <div class="card-container" data-notetype="{{Type}}" style="visibility: hidden;">
     <!-- Mature-Card Word Mode probe: shown instead of sentence when interval >= threshold -->
     <div class="front-word-display">{{edit:Expression}}</div>
 
@@ -110,11 +110,8 @@
 
 <script>
   (async function() {
-    /* Mature Word Mode threshold: card interval (days) at/above which the front
-       swaps the sentence for the bare Expression. Single source of truth —
-       change it here, then ./finish.sh to sync. */
-    const LONG_INTERVAL_DAYS = 365;
-
+    /* --- 1. HOISTED UTILITIES & FUNCTIONS --- */
+    
     /* Dynamic Font Scaling for Front Sentence / Expression */
     function autoScaleFrontText() {
       const displays = document.querySelectorAll('.sentence-display, .front-word-display');
@@ -124,126 +121,17 @@
         if (len === 0) return;
 
         if (len <= 8) {
-          el.style.fontSize = 'clamp(3.8rem, 10vw, 6.8rem)';
-          el.style.lineHeight = '1.2';
+          el.dataset.len = 'short';
         } else if (len <= 18) {
-          el.style.fontSize = 'clamp(2.8rem, 7vw, 5rem)';
-          el.style.lineHeight = '1.3';
+          el.dataset.len = 'medium-short';
         } else if (len <= 35) {
-          el.style.fontSize = 'clamp(2.2rem, 5vw, 3.8rem)';
-          el.style.lineHeight = '1.4';
+          el.dataset.len = 'medium-long';
         } else {
-          el.style.fontSize = 'clamp(1.8rem, 3.8vw, 2.8rem)';
-          el.style.lineHeight = '1.45';
+          el.dataset.len = 'long';
         }
       });
     }
 
-    const container = document.querySelector('.card-container');
-    const wrapper = document.querySelector('.card-wrapper');
-    if (container && wrapper) {
-      let wordMode = false;
-      let interval = null;
-      let source = 'unavailable';
-
-      /* Anki-Connect helpers */
-      const post = (action, params) => fetch('http://127.0.0.1:8765', {
-        method: 'POST',
-        body: JSON.stringify({ action: action, version: 6, params: params })
-      }).then(r => r.json()).then(data => {
-        if (data.error) throw new Error(data.error);
-        return data.result;
-      });
-      /* Escape a string for use inside an Anki search query */
-      const escQuery = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      /* Normalize HTML / DOM text for field-vs-card comparison */
-      const normText = (s) => s
-        .replace(/<br\s*\/?>/gi, ' ')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/&nbsp;/gi, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      try {
-        /* 1. AnkiDroid JS API (official AnkiDroidJS class, contract version 0.0.3).
-              Returns {success, value}; review-card intervals are positive days,
-              learning steps are negative seconds. */
-        if (typeof AnkiDroidJS !== 'undefined') {
-          const api = new AnkiDroidJS({
-            developer: 'mansourvery-hub@users.noreply.github.com',
-            version: '0.0.3'
-          });
-          const res = await api.ankiGetCardInterval();
-          console.log('[Mature Word Mode] AnkiDroid response:', res);
-          if (res && res.success && typeof res.value === 'number') {
-            interval = res.value;
-            source = 'ankiDroid';
-          }
-        }
-        /* 2. Desktop AnkiConnect */
-        else {
-          /* Path A: active review — the exact card being reviewed */
-          try {
-            const current = await post('guiCurrentCard', {});
-            console.log('[Mature Word Mode] guiCurrentCard cardId:', current && current.cardId);
-            if (current && current.cardId) {
-              const infos = await post('cardsInfo', { cards: [current.cardId] });
-              if (infos && infos[0]) {
-                interval = infos[0].interval;
-                source = 'guiCurrentCard';
-              }
-            }
-          } catch (reviewErr) {
-            /* Path B: previewer / no active review — locate this card by its own
-               rendered content (same technique as jp-mining-note: field search).
-               Works in the Browse previewer where guiCurrentCard is unavailable. */
-            console.log('[Mature Word Mode] no active review, trying content search');
-            const wordEl = document.querySelector('.front-word-display');
-            const sentEl = document.querySelector('.sentence-display');
-            const NOTE_TYPE = '{{Type}}';
-            const exprDom = wordEl ? normText(wordEl.innerText || wordEl.textContent || '') : '';
-            if (exprDom) {
-              const query = '"Expression:' + escQuery(exprDom) + '" "note:' + escQuery(NOTE_TYPE) + '"';
-              const ids = await post('findCards', { query: query });
-              console.log('[Mature Word Mode] content search ids:', ids);
-              if (ids && ids.length) {
-                const infos = await post('cardsInfo', { cards: ids });
-                const fieldText = (info, name) =>
-                  normText((info.fields && info.fields[name] && info.fields[name].value) || '');
-                let matches = infos.filter(i => fieldText(i, 'Expression') === exprDom);
-                if (matches.length > 1 && sentEl) {
-                  const sentDom = normText(sentEl.innerText || sentEl.textContent || '');
-                  const withSent = matches.filter(i => fieldText(i, 'Sentence') === sentDom);
-                  if (withSent.length) matches = withSent;
-                }
-                if (matches.length) {
-                  interval = matches[0].interval;
-                  source = 'content-search';
-                }
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.warn('[Mature Word Mode] interval retrieval failed, falling back to sentence view.', e);
-      }
-
-      if (typeof interval === 'number' && interval >= LONG_INTERVAL_DAYS) {
-        wordMode = true;
-      }
-      console.log('[Mature Word Mode] source:', source);
-      console.log('[Mature Word Mode] interval:', interval);
-      console.log('[Mature Word Mode] threshold:', LONG_INTERVAL_DAYS);
-      console.log('[Mature Word Mode] wordMode:', wordMode);
-
-      if (wordMode) {
-        wrapper.classList.add('word-mode');
-      }
-      container.style.visibility = 'visible';
-      autoScaleFrontText();
-    }
-
-    /* Circular Audio Player */
     window.currentActiveAudio = window.currentActiveAudio || null;
     window.currentActiveBtn = window.currentActiveBtn || null;
 
@@ -257,6 +145,7 @@
             const ring = window.currentActiveBtn.querySelector('.ring-fill');
             if (ring) {
                 const circ = parseFloat(ring.getAttribute('stroke-dasharray')) || 226.19;
+                ring.style.transition = '';
                 ring.style.strokeDashoffset = circ;
             }
             window.currentActiveBtn = null;
@@ -271,14 +160,26 @@
         const rawDiv = btn.querySelector('.raw-audio-source');
         let audioSrc = '';
         if (rawDiv) {
-            /* Robust regex: [^"'>\]]+ allows spaces, ] terminates sound: */
             const match = rawDiv.innerHTML.match(/(?:src=["']|sound:)([^"'>\]]+)/i);
             if (match) audioSrc = match[1];
         }
 
         const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
         if (!audioSrc) {
-            if (nativeReplay) nativeReplay.click();
+            if (nativeReplay) {
+                nativeReplay.click();
+                btn.classList.add('is-playing');
+                if (ringFill) {
+                    ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
+                    ringFill.style.strokeDashoffset = '0';
+                }
+                window.currentActiveBtn = btn;
+                setTimeout(() => {
+                    if (window.currentActiveBtn === btn) {
+                        window.resetAudioState();
+                    }
+                }, 800);
+            }
             return;
         }
 
@@ -307,5 +208,108 @@
         };
         requestAnimationFrame(updateProgress);
     };
+
+    /* --- 2. MAIN EXECUTION BLOCK --- */
+    const container = document.querySelector('.card-container');
+    const wrapper = document.querySelector('.card-wrapper');
+
+    if (container && wrapper) {
+      let wordMode = false;
+      let interval = null;
+      let source = 'unavailable';
+
+      /* Safety Reveal: Ensure card shows even if async calls hang */
+      const reveal = () => {
+        container.style.visibility = 'visible';
+        autoScaleFrontText();
+      };
+      const safetyTimeout = setTimeout(reveal, 1500);
+
+      /* Anki-Connect helper with timeout */
+      const post = (action, params) => {
+        const timeout = new Promise((_, rej) => 
+          setTimeout(() => rej(new Error('AnkiConnect timeout')), 800)
+        );
+        const fetchPromise = fetch('http://127.0.0.1:8765', {
+          method: 'POST',
+          body: JSON.stringify({ action: action, version: 6, params: params })
+        }).then(r => r.json()).then(data => {
+          if (data.error) throw new Error(data.error);
+          return data.result;
+        });
+        return Promise.race([fetchPromise, timeout]);
+      };
+
+      const escQuery = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/([*_])/g, '\\$1');
+      const normText = (s) => s
+        .replace(/<br\s*\/?>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      try {
+        if (typeof AnkiDroidJS !== 'undefined') {
+          const api = new AnkiDroidJS({
+            developer: 'mansourvery-hub@users.noreply.github.com',
+            version: '0.0.3'
+          });
+          const res = await api.ankiGetCardInterval();
+          if (res && res.success && typeof res.value === 'number') {
+            interval = res.value;
+            source = 'ankiDroid';
+          }
+        } else {
+          try {
+            const current = await post('guiCurrentCard', {});
+            if (current && current.cardId) {
+              const infos = await post('cardsInfo', { cards: [current.cardId] });
+              if (infos && infos[0]) {
+                interval = infos[0].interval;
+                source = 'guiCurrentCard';
+              }
+            }
+          } catch (reviewErr) {
+            console.log('[Mature Word Mode] no active review, trying content search');
+            const wordEl = document.querySelector('.front-word-display');
+            const sentEl = document.querySelector('.sentence-display');
+            const listeningView = document.querySelector('.listening-view');
+            const NOTE_TYPE = container.dataset.notetype || '';
+            const exprDom = wordEl ? normText(wordEl.innerText || wordEl.textContent || '') : '';
+            if (exprDom && !listeningView) {
+              const query = '"Expression:' + escQuery(exprDom) + '" "note:' + escQuery(NOTE_TYPE) + '"';
+              const ids = await post('findCards', { query: query });
+              if (ids && ids.length) {
+                const infos = await post('cardsInfo', { cards: ids });
+                const fieldText = (info, name) =>
+                  normText((info.fields && info.fields[name] && info.fields[name].value) || '');
+                let matches = infos.filter(i => fieldText(i, 'Expression') === exprDom);
+                if (matches.length > 1 && sentEl) {
+                  const sentDom = normText(sentEl.innerText || sentEl.textContent || '');
+                  const withSent = matches.filter(i => fieldText(i, 'Sentence') === sentDom);
+                  if (withSent.length) matches = withSent;
+                }
+                if (matches.length) {
+                  interval = matches[0].interval;
+                  source = 'content-search';
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[Mature Word Mode] retrieval failed, falling back to sentence view.', e);
+      } finally {
+        clearTimeout(safetyTimeout);
+        const listeningView = document.querySelector('.listening-view');
+        if (typeof interval === 'number' && interval >= 365 && !listeningView) {
+          wordMode = true;
+        }
+        if (wordMode) {
+          wrapper.classList.add('word-mode');
+        }
+        reveal();
+      }
+    }
   })();
 </script>

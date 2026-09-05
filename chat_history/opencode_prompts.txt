@@ -414,3 +414,15 @@ Mature Word Mode still does nothing on the 27-year card. Root cause: the card is
 ---
 
 It works now. Add appropriate mentions of the Mature Word Mode feature in all relevant md files (README dedicated section, AGENTS.md constraints, Design.md goals) and a comment on the LONG_INTERVAL_DAYS constant in the code, then ship everything.
+
+---
+
+Implement fixes from other model: 1) Mobile CSS button sizing, 2) Audio feedback, 3) Front blank rendering, 4) Word mode + listening conflict, 5) Frequency attribute escape, 6) Translation click fix, 7) Empty side grid, 8) CSS clamp font scaling, 9) Fixed backdrop, 10) Accessibility and cleanup
+
+---
+
+Continue sync and commit
+
+---
+
+Implement fixes from other model: 1) Mobile CSS button sizing, 2) Audio feedback, 3) Front blank rendering, 4) Word mode + listening conflict, 5) Frequency attribute escape, 6) Translation click fix, 7) Empty side grid, 8) CSS clamp font scaling, 9) Fixed backdrop, 10) Accessibility and cleanup

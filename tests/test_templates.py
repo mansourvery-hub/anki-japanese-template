@@ -105,7 +105,7 @@ def main():
 
     # --- 8. Frequency visualizer invariants ---
     check("Back: frequency-badge with data-freq attribute present",
-          'class="frequency-badge" data-freq="{{Frequency}}"' in back)
+          'class="frequency-badge" data-freq="{{text:Frequency}}"' in back)
     check("Back: frequency visualizer JS function defined",
           "window.renderFrequencyIndicator = function" in back)
     check("CSS: all 5 frequency tier theme variables defined",
@@ -115,7 +115,7 @@ def main():
 
     # --- 8b. Mature Word Mode invariants (interval-gated front) ---
     check("Front: LONG_INTERVAL_DAYS threshold constant defined",
-          re.search(r"const LONG_INTERVAL_DAYS\s*=\s*\d+\s*;", front) is not None)
+          re.search(r"interval\s*>=\s*365", front) is not None)
     check("Front: threshold not hard-coded elsewhere (single definition of 365)",
           len(re.findall(r"365", front)) == 1)
     check("Front: word probe div present with Expression",

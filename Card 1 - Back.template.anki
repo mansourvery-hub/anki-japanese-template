@@ -62,7 +62,7 @@
           <!-- Metadata & Circular Audio Controllers -->
           <div class="word-meta-row">
             {{#Frequency}}
-              <div class="frequency-badge" data-freq="{{Frequency}}">
+              <div class="frequency-badge" data-freq="{{text:Frequency}}">
                 <div class="frequency-bar-track">
                   <div class="frequency-bar-fill"></div>
                 </div>
@@ -84,9 +84,9 @@
                     <circle class="ring-bg" cx="22" cy="22" r="19" />
                     <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
                   </svg>
-                  <div class="audio-btn-content">
+                  <span class="audio-btn-content">
                     <span class="audio-btn-label">言葉</span>
-                  </div>
+                  </span>
                   <div class="raw-audio-source" style="display:none;">{{Word Audio}}</div>
                 </button>
               {{/Word Audio}}
@@ -97,9 +97,9 @@
                     <circle class="ring-bg" cx="22" cy="22" r="19" />
                     <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
                   </svg>
-                  <div class="audio-btn-content">
+                  <span class="audio-btn-content">
                     <span class="audio-btn-label">文</span>
-                  </div>
+                  </span>
                   <div class="raw-audio-source" style="display:none;">{{Sentence Audio}}</div>
                 </button>
               {{/Sentence Audio}}
@@ -141,7 +141,7 @@
                    role="button"
                    tabindex="0"
                    aria-expanded="false"
-                   onclick="this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
+                    onclick="if(event.target.closest('.translation-text')) return; this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
                    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
                 <div class="translation-hint">👁️ Translation</div>
                 <div class="translation-text">{{edit:Translation}}</div>
@@ -179,7 +179,7 @@
         <!-- Picture Block (Click to Expand Lightbox) -->
         {{#Picture}}
           <div class="card-block picture-block">
-            <div class="picture-container" onclick="openLightbox(this)">
+            <div class="picture-container" onclick="openLightbox(this)" role="button" tabindex="0" aria-label="Expand image" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click()}">
               {{Picture}}
             </div>
           </div>
@@ -289,6 +289,7 @@
             const ring = window.currentActiveBtn.querySelector('.ring-fill');
             if (ring) {
                 const circ = parseFloat(ring.getAttribute('stroke-dasharray')) || 119.38;
+                ring.style.transition = '';
                 ring.style.strokeDashoffset = circ;
             }
             window.currentActiveBtn = null;
@@ -310,7 +311,20 @@
 
         const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
         if (!audioSrc) {
-            if (nativeReplay) nativeReplay.click();
+            if (nativeReplay) {
+                nativeReplay.click();
+                btn.classList.add('is-playing');
+                if (ringFill) {
+                    ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
+                    ringFill.style.strokeDashoffset = '0';
+                }
+                window.currentActiveBtn = btn;
+                setTimeout(() => {
+                    if (window.currentActiveBtn === btn) {
+                        window.resetAudioState();
+                    }
+                }, 800);
+            }
             return;
         }
 
@@ -386,7 +400,7 @@
 
         badge.classList.add(tierClass);
         /* (per M) in hover/tooltip per instructions; no percentages typed out */
-        badge.setAttribute('title', `Frequency: ${raw.trim()} (per M) • ${tierLabel}`);
+            badge.setAttribute('title', `Frequency: ${raw.trim()} • ${tierLabel}`);
         badge.setAttribute('aria-label', `Frequency: ${tierLabel}`);
 
         const fill = badge.querySelector('.frequency-bar-fill');
