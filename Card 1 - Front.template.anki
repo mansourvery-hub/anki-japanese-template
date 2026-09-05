@@ -215,12 +215,15 @@
         container.style.visibility = 'visible';
         autoScaleFrontText();
       };
-      const safetyTimeout = setTimeout(reveal, 1500);
+      const safetyTimeout = setTimeout(reveal, 1200);
 
-      /* Anki-Connect helper with timeout */
+      /* Anki-Connect helper with timeout. 500ms is ~15x the measured
+         healthy localhost latency (~25ms/call), so it only ever binds
+         a wedged/busy Anki — and the fallback is always the safe
+         sentence front, never a hang. */
       const post = (action, params) => {
         const timeout = new Promise((_, rej) => 
-          setTimeout(() => rej(new Error('AnkiConnect timeout')), 800)
+          setTimeout(() => rej(new Error('AnkiConnect timeout')), 500)
         );
         const fetchPromise = fetch('http://127.0.0.1:8765', {
           method: 'POST',

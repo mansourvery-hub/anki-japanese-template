@@ -474,3 +474,12 @@ ship
 ---
 
 everything works but it takes abit too long to load at the start (imagine that times 1000 reviews), is there a way to measure anki connect request times/mobile bridge times and reduce the delays without breaking the feature, also the mature card feature should not excute both ways of trying to get the card interval on both platforms, on mobile do only what works there and on desktop only the method that works there
+
+---
+
+There is no debug console by default in anki, I use an add on that lets me input python script and view output
+do the debugging yourself and make the delay shorter without breaking the feature
+
+---
+
+ship
