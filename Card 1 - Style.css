@@ -246,6 +246,7 @@
   width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
+  font-weight: 400;
 }
 
 .sentence-display[data-len="short"],
@@ -289,6 +290,7 @@
    Swaps the sentence display for the bare expression. */
 .front-word-display {
   display: none;
+  font-weight: 400;
 }
 
 .card-wrapper.word-mode .sentence-display {
@@ -321,7 +323,7 @@
 .word-display {
   font-family: var(--font-japanese-serif);
   font-size: clamp(2.5rem, 6vw + 1.5rem, 5.8rem);
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.1;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
   margin-bottom: clamp(2px, 1vmin, 4px);
@@ -496,9 +498,8 @@
   display: none;
 }
 
-/* 大辞泉-style trailing commentary: div[data-sc-meaning] + data-sc-class="C"
-   carries 可能/類語 (possible form / synonyms) outside the numbered senses */
-.primary-definition div[data-sc-meaning][data-sc-class="C"] {
+/* Hide attribution (JMdict | Tatoeba) */
+.primary-definition div[data-sc-content="attribution"] {
   display: none;
 }
 
@@ -740,6 +741,7 @@ ruby:focus-within rt {
 .picture-block {
   text-align: center;
   padding: 4px;
+  margin-top: -16px;
 }
 
 .picture-container img {

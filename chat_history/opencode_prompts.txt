@@ -495,3 +495,7 @@ add another CSS filter in defnition that removes the dict name
 ---
 
 also remove forms, this with this [provides example HTML]
+
+---
+
+remove JMdict attribution, reduce word font weight, align picture box top
