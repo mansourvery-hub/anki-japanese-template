@@ -470,3 +470,7 @@ On desktop the log is correct and works
 works in actual review !!!
 flip DEBUG_MATURE_MODE = false
 ship
+
+---
+
+everything works but it takes abit too long to load at the start (imagine that times 1000 reviews), is there a way to measure anki connect request times/mobile bridge times and reduce the delays without breaking the feature, also the mature card feature should not excute both ways of trying to get the card interval on both platforms, on mobile do only what works there and on desktop only the method that works there

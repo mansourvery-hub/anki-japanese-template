@@ -198,13 +198,24 @@
       let wordMode = false;
       let interval = null;
       let source = 'unavailable';
+      /* Latency probe: t0 at script start; elapsed retrieval time is
+         logged with the decision, so AnkiConnect (desktop) vs bridge
+         (mobile) costs can be compared per card. */
+      const nowMs = () => (
+        (typeof performance !== 'undefined' && performance.now)
+          ? performance.now()
+          : Date.now()
+      );
+      const t0 = nowMs();
 
-      /* Safety Reveal: Ensure card shows even if async calls hang */
+      /* Safety Reveal: Ensure card shows even if async calls hang.
+         The cap sits well above the slowest happy path (low hundreds
+         of ms) and only binds failure paths. */
       const reveal = () => {
         container.style.visibility = 'visible';
         autoScaleFrontText();
       };
-      const safetyTimeout = setTimeout(reveal, 2000);
+      const safetyTimeout = setTimeout(reveal, 1500);
 
       /* Anki-Connect helper with timeout */
       const post = (action, params) => {
@@ -360,7 +371,7 @@
               if (typeof api.init === 'function') {
                 const initialized = await withBridgeTimeout(
                   api.init(JSON.stringify(options)),
-                  1200
+                  1000
                 );
 
                 if (
@@ -396,7 +407,7 @@
 
             const raw = await withBridgeTimeout(
               api.ankiGetCardInterval(),
-              1200
+              1000
             );
 
             return {
@@ -411,37 +422,52 @@
             };
           }
         };
-        if (!isListening && bridgeAvailable()) {
-          const r = await getAnkiDroidInterval();
-          interval = r.interval;
-          source = r.source;
-        } else if (!isListening && isMobile) {
-          /* Phone without an (already injected) bridge: AnkiDroid injects
-             its API around card load, often AFTER card scripts run — so poll
-             for it while the card is still hidden (no flash risk), then give
-             up to the sentence front. AnkiConnect is never attempted here. */
-          const waitForBridge = async (deadlineMs, stepMs) => {
-            const start = Date.now();
-            while (!bridgeAvailable()) {
-              if (Date.now() - start >= deadlineMs) return false;
-              await new Promise(r => setTimeout(r, stepMs));
-            }
-            return true;
-          };
-          if (await waitForBridge(1000, 100)) {
+        /* Platform-exclusive retrieval. Phones use ONLY the AnkiDroid
+           bridge (AnkiConnect is unreachable from a mobile WebView — the
+           refused fetch surfaces natively as "Failed to load
+           downloadfile.bin"). Desktops use ONLY AnkiConnect (no
+           AnkiDroidJS global exists there). Neither platform ever
+           attempts the other's method. */
+        if (!isListening && isMobile) {
+          if (bridgeAvailable()) {
             const r = await getAnkiDroidInterval();
             interval = r.interval;
             source = r.source;
           } else {
-            /* No bridge script in the page: on AnkiDroid this means a
-               preview screen (card browser / template / editor preview),
-               never a real review — the legacy reviewer always injects
-               js-api.js synchronously via card_template.html <head>.
-               Sentence fallback is correct here; review the card for
-               real to exercise mature mode. */
-            source = 'no-bridge-mobile (preview? bridge exists only in reviewer)';
+            /* Phone without an (already injected) bridge: AnkiDroid injects
+               its API around card load, often AFTER card scripts run — so poll
+               for it while the card is still hidden (no flash risk), then give
+               up to the sentence front. 700ms cap: the legacy reviewer
+               injects js-api.js synchronously in <head>, so a longer wait
+               only delays preview screens, where the sentence fallback is
+               correct anyway. */
+            const waitForBridge = async (deadlineMs, stepMs) => {
+              const start = Date.now();
+              while (!bridgeAvailable()) {
+                if (Date.now() - start >= deadlineMs) return false;
+                await new Promise(r => setTimeout(r, stepMs));
+              }
+              return true;
+            };
+            if (await waitForBridge(700, 100)) {
+              const r = await getAnkiDroidInterval();
+              interval = r.interval;
+              source = r.source;
+            } else {
+              /* No bridge script in the page: on AnkiDroid this means a
+                 preview screen (card browser / template / editor preview),
+                 never a real review — the legacy reviewer always injects
+                 js-api.js synchronously via card_template.html <head>.
+                 Sentence fallback is correct here; review the card for
+                 real to exercise mature mode. */
+              source = 'no-bridge-mobile (preview? bridge exists only in reviewer)';
+            }
           }
         } else if (!isListening) {
+          /* DESKTOP-ONLY: AnkiConnect guiCurrentCard -> cardsInfo. The
+             bridge is never touched here. guiCurrentCard carries no
+             interval field (per the AnkiConnect action docs), so the
+             cardsInfo follow-up is mandatory, not redundant. */
           try {
             const current = await post('guiCurrentCard', {});
             if (current && current.cardId) {
@@ -484,6 +510,9 @@
         console.warn('[Mature Word Mode]', e);
       } finally {
         clearTimeout(safetyTimeout);
+        const elapsedMs = Math.round(nowMs() - t0);
+        console.log('[Mature Word Mode] source=' + source +
+          ' ivl=' + String(interval) + ' in ' + elapsedMs + 'ms');
 
         const LONG_INTERVAL_DAYS = 365;
 
@@ -525,7 +554,8 @@
             'Mature mode: ' + (wordMode ? 'ON' : 'OFF') +
             ' | interval=' + String(interval) +
             ' | threshold=' + LONG_INTERVAL_DAYS +
-            ' | source=' + source;
+            ' | source=' + source +
+            ' | ' + elapsedMs + 'ms';
         }
 
         reveal();

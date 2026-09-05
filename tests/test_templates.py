@@ -171,6 +171,15 @@ def main():
           "bridgeAvailable" in front)
     check("Front: polls for late-injected bridge with a firm deadline",
           "waitForBridge" in front)
+    check("Front: bridge poll capped short (fast preview fallback)",
+          "waitForBridge(700" in front)
+    check("Front: platform-exclusive retrieval (mobile bridge vs desktop AnkiConnect)",
+          "Platform-exclusive retrieval" in front and "DESKTOP-ONLY" in front)
+    check("Front: retrieval latency is measured and logged",
+          "performance.now" in front and "elapsedMs" in front
+          and "[Mature Word Mode] source=" in front)
+    check("Front: safety reveal cap bounds worst-case hidden time",
+          "setTimeout(reveal, 1500)" in front)
     check("Front: temporary toast diagnostic removed (no TEMP-DIAG remnants)",
           "TEMP-DIAG" not in front and "ankiShowToast" not in front)
     check("Front: on-card debug diagnostic present (mwm-debug)",
