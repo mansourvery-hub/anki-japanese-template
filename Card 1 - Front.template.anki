@@ -59,11 +59,11 @@
                   <circle class="ring-bg" cx="40" cy="40" r="36" />
                   <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
                 </svg>
-                <div class="audio-btn-content">
+                <span class="audio-btn-content">
                   <span class="audio-btn-label">文</span>
-                </div>
-                <div class="raw-audio-source" style="display:none;">{{Sentence Audio}}</div>
+                </span>
               </button>
+              <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
             </div>
           </div>
         {{/Sentence Audio}}
@@ -78,11 +78,11 @@
                     <circle class="ring-bg" cx="40" cy="40" r="36" />
                     <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
                   </svg>
-                  <div class="audio-btn-content">
+                  <span class="audio-btn-content">
                     <span class="audio-btn-label">言葉</span>
-                  </div>
-                  <div class="raw-audio-source" style="display:none;">{{Word Audio}}</div>
+                  </span>
                 </button>
+                <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
               </div>
             </div>
           {{/Word Audio}}
@@ -132,13 +132,19 @@
       });
     }
 
-    window.currentActiveAudio = window.currentActiveAudio || null;
+    /* --- CIRCULAR AUDIO CONTROLLER (native-only) ---
+       Always delegates to Anki's own replay link (desktop `replay-button`,
+       AnkiDroid `replaybutton`). Never constructs an HTML5 audio element:
+       on AnkiDroid the rendered link carries no usable filename (old builds
+       emit `playsound:q:0`, which would be loaded as a bogus file and fail).
+       The ring is a decorative play-pulse, not true progress. */
     window.currentActiveBtn = window.currentActiveBtn || null;
+    window.currentActiveTimer = window.currentActiveTimer || null;
 
     window.resetAudioState = function() {
-        if (window.currentActiveAudio) {
-            window.currentActiveAudio.pause();
-            window.currentActiveAudio = null;
+        if (window.currentActiveTimer) {
+            clearTimeout(window.currentActiveTimer);
+            window.currentActiveTimer = null;
         }
         if (window.currentActiveBtn) {
             window.currentActiveBtn.classList.remove('is-playing');
@@ -153,60 +159,33 @@
     };
 
     window.playCircularAudio = function(btn) {
+        /* Debounce: native playback can't be stopped programmatically, so
+           ignore rapid re-taps on the already-playing button (prevents
+           overlapping audio on AnkiDroid). */
+        if (window.currentActiveBtn === btn) return;
         window.resetAudioState();
         const ringFill = btn.querySelector('.ring-fill');
-        const circumference = ringFill ? parseFloat(ringFill.getAttribute('stroke-dasharray')) : 226.19;
 
-        const rawDiv = btn.querySelector('.raw-audio-source');
-        let audioSrc = '';
-        if (rawDiv) {
-            const match = rawDiv.innerHTML.match(/(?:src=["']|sound:)([^"'>\]]+)/i);
-            if (match) audioSrc = match[1];
-        }
-
-        const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
-        if (!audioSrc) {
-            if (nativeReplay) {
-                nativeReplay.click();
-                btn.classList.add('is-playing');
-                if (ringFill) {
-                    ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
-                    ringFill.style.strokeDashoffset = '0';
+        /* The replay link lives in the sibling .raw-audio-source (kept OUT
+           of the <button>: <a> inside <button> is invalid HTML and Android
+           WebView mishandles taps on it). */
+        const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
+        const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
+          || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
+        if (nativeReplay) {
+            try { nativeReplay.click(); } catch (e) { return; }
+            btn.classList.add('is-playing');
+            if (ringFill) {
+                ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
+                ringFill.style.strokeDashoffset = '0';
+            }
+            window.currentActiveBtn = btn;
+            window.currentActiveTimer = setTimeout(() => {
+                if (window.currentActiveBtn === btn) {
+                    window.resetAudioState();
                 }
-                window.currentActiveBtn = btn;
-                setTimeout(() => {
-                    if (window.currentActiveBtn === btn) {
-                        window.resetAudioState();
-                    }
-                }, 800);
-            }
-            return;
+            }, 800);
         }
-
-        const audio = new Audio(audioSrc);
-        window.currentActiveAudio = audio;
-        window.currentActiveBtn = btn;
-        btn.classList.add('is-playing');
-
-        audio.play().catch(() => {
-            window.resetAudioState();
-            if (nativeReplay) nativeReplay.click();
-        });
-
-        audio.onended = audio.onabort = audio.onerror = () => {
-            if (window.currentActiveAudio === audio) {
-                window.resetAudioState();
-            }
-        };
-
-        const updateProgress = () => {
-            if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
-                const progress = audio.currentTime / audio.duration;
-                ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
-                requestAnimationFrame(updateProgress);
-            }
-        };
-        requestAnimationFrame(updateProgress);
     };
 
     /* --- 2. MAIN EXECUTION BLOCK --- */
@@ -249,17 +228,33 @@
         .trim();
 
       try {
-        if (typeof AnkiDroidJS !== 'undefined') {
+        /* Listening cards never use word mode — skip ALL retrieval up front
+           (also avoids needless AnkiDroid JS-API calls, which can trigger
+           AnkiDroid's known false-positive "Failed to load *.bin" toast). */
+        const isListening = !!document.querySelector('.listening-view');
+        if (!isListening && typeof AnkiDroidJS !== 'undefined') {
+          /* AnkiDroid JS API 0.0.3 returns the interval DIRECTLY (a number:
+             positive = days, negative = learning-step seconds) — not a
+             {success, value} wrapper. Accept every documented shape. */
           const api = new AnkiDroidJS({
             developer: 'mansourvery-hub@users.noreply.github.com',
             version: '0.0.3'
           });
           const res = await api.ankiGetCardInterval();
-          if (res && res.success && typeof res.value === 'number') {
+          if (typeof res === 'number') {
+            interval = res;
+            source = 'ankiDroid';
+          } else if (typeof res === 'string' && res.trim() !== '' && isFinite(Number(res))) {
+            interval = Number(res);
+            source = 'ankiDroid';
+          } else if (res && typeof res.value === 'number') {
             interval = res.value;
             source = 'ankiDroid';
+          } else if (res && typeof res.interval === 'number') {
+            interval = res.interval;
+            source = 'ankiDroid';
           }
-        } else {
+        } else if (!isListening) {
           try {
             const current = await post('guiCurrentCard', {});
             if (current && current.cardId) {

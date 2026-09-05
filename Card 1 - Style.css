@@ -853,9 +853,27 @@ ruby:focus-within rt {
 }
 
 .audio-btn-wrapper {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+/* Holds Anki's own replay link. Visually hidden but KEPT in layout:
+   display:none breaks programmatic .click() playback on some clients,
+   and the link must not live inside the <button> (invalid HTML that
+   Android WebView mishandles). */
+.raw-audio-source {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
 }
 
 

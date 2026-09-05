@@ -79,29 +79,33 @@
             <!-- Circular Audio Buttons with SVG Progress Ring -->
             <div class="audio-row">
               {{#Word Audio}}
-                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
-                  <svg class="audio-progress-ring" viewBox="0 0 44 44">
-                    <circle class="ring-bg" cx="22" cy="22" r="19" />
-                    <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-                  </svg>
-                  <span class="audio-btn-content">
-                    <span class="audio-btn-label">言葉</span>
-                  </span>
-                  <div class="raw-audio-source" style="display:none;">{{Word Audio}}</div>
-                </button>
+                <span class="audio-btn-wrapper">
+                  <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
+                    <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                      <circle class="ring-bg" cx="22" cy="22" r="19" />
+                      <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+                    </svg>
+                    <span class="audio-btn-content">
+                      <span class="audio-btn-label">言葉</span>
+                    </span>
+                  </button>
+                  <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
+                </span>
               {{/Word Audio}}
-              
+
               {{#Sentence Audio}}
-                <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
-                  <svg class="audio-progress-ring" viewBox="0 0 44 44">
-                    <circle class="ring-bg" cx="22" cy="22" r="19" />
-                    <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-                  </svg>
-                  <span class="audio-btn-content">
-                    <span class="audio-btn-label">文</span>
-                  </span>
-                  <div class="raw-audio-source" style="display:none;">{{Sentence Audio}}</div>
-                </button>
+                <span class="audio-btn-wrapper">
+                  <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
+                    <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                      <circle class="ring-bg" cx="22" cy="22" r="19" />
+                      <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+                    </svg>
+                    <span class="audio-btn-content">
+                      <span class="audio-btn-label">文</span>
+                    </span>
+                  </button>
+                  <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
+                </span>
               {{/Sentence Audio}}
             </div>
           </div>
@@ -275,14 +279,18 @@
       document.addEventListener('keydown', handleKey);
     };
 
-    /* --- CIRCULAR AUDIO CONTROLLER --- */
-    window.currentActiveAudio = window.currentActiveAudio || null;
+    /* --- CIRCULAR AUDIO CONTROLLER (native-only) ---
+       Always delegates to Anki's own replay link (desktop `replay-button`,
+       AnkiDroid `replaybutton`). Never constructs an HTML5 audio element:
+       on AnkiDroid the rendered link carries no usable filename. The ring
+       is a decorative play-pulse, not true progress. */
     window.currentActiveBtn = window.currentActiveBtn || null;
+    window.currentActiveTimer = window.currentActiveTimer || null;
 
     window.resetAudioState = function() {
-        if (window.currentActiveAudio) {
-            window.currentActiveAudio.pause();
-            window.currentActiveAudio = null;
+        if (window.currentActiveTimer) {
+            clearTimeout(window.currentActiveTimer);
+            window.currentActiveTimer = null;
         }
         if (window.currentActiveBtn) {
             window.currentActiveBtn.classList.remove('is-playing');
@@ -297,62 +305,34 @@
     };
 
     window.playCircularAudio = function(btn) {
+        /* Debounce: native playback can't be stopped programmatically, so
+           ignore rapid re-taps on the already-playing button (prevents
+           overlapping audio on AnkiDroid). */
+        if (window.currentActiveBtn === btn) return;
         window.resetAudioState();
         const ringFill = btn.querySelector('.ring-fill');
-        const circumference = ringFill ? parseFloat(ringFill.getAttribute('stroke-dasharray')) : 119.38;
 
-        const rawDiv = btn.querySelector('.raw-audio-source');
-        let audioSrc = '';
-        if (rawDiv) {
-            /* Robust regex: [^"'>\]]+ allows spaces, ] terminates sound: */
-            const match = rawDiv.innerHTML.match(/(?:src=["']|sound:)([^"'>\]]+)/i);
-            if (match) audioSrc = match[1];
-        }
-
-        const nativeReplay = btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
-        if (!audioSrc) {
-            if (nativeReplay) {
-                nativeReplay.click();
-                btn.classList.add('is-playing');
-                if (ringFill) {
-                    ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
-                    ringFill.style.strokeDashoffset = '0';
+        /* The replay link lives in the sibling .raw-audio-source (kept OUT
+           of the <button>: <a> inside <button> is invalid HTML and Android
+           WebView mishandles taps on it). */
+        const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
+        const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
+          || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
+        if (nativeReplay) {
+            try { nativeReplay.click(); } catch (e) { return; }
+            btn.classList.add('is-playing');
+            if (ringFill) {
+                ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
+                ringFill.style.strokeDashoffset = '0';
+            }
+            window.currentActiveBtn = btn;
+            window.currentActiveTimer = setTimeout(() => {
+                if (window.currentActiveBtn === btn) {
+                    window.resetAudioState();
                 }
-                window.currentActiveBtn = btn;
-                setTimeout(() => {
-                    if (window.currentActiveBtn === btn) {
-                        window.resetAudioState();
-                    }
-                }, 800);
-            }
-            return;
+            }, 800);
         }
-
-        const audio = new Audio(audioSrc);
-        window.currentActiveAudio = audio;
-        window.currentActiveBtn = btn;
-        btn.classList.add('is-playing');
-
-        audio.play().catch(() => {
-            window.resetAudioState();
-            if (nativeReplay) nativeReplay.click();
-        });
-
-        audio.onended = audio.onabort = audio.onerror = () => {
-            if (window.currentActiveAudio === audio) {
-                window.resetAudioState();
-            }
-        };
-
-         const updateProgress = () => {
-             if (window.currentActiveAudio === audio && !audio.paused && audio.duration) {
-                 const progress = audio.currentTime / audio.duration;
-                 ringFill.style.strokeDashoffset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
-                 requestAnimationFrame(updateProgress);
-             }
-         };
-         requestAnimationFrame(updateProgress);
-     };
+    };
 
     /* --- FREQUENCY VISUALIZER (Progress Bar + 5-Star Scale + Tier Colors) --- */
     window.renderFrequencyIndicator = function() {

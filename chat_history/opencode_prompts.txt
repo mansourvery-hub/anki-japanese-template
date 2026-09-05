@@ -426,3 +426,7 @@ Continue sync and commit
 ---
 
 Implement fixes from other model: 1) Mobile CSS button sizing, 2) Audio feedback, 3) Front blank rendering, 4) Word mode + listening conflict, 5) Frequency attribute escape, 6) Translation click fix, 7) Empty side grid, 8) CSS clamp font scaling, 9) Fixed backdrop, 10) Accessibility and cleanup
+
+---
+
+Fix AnkiDroid audio buttons (native-only playback, replay link moved out of button, visually-hidden source, re-tap debounce) and mature-mode interval parsing (accept plain-number return, skip API on listening cards)

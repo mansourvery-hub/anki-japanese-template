@@ -42,9 +42,8 @@ A modern, refined, and ergonomic Japanese sentence-mining note type for Anki. De
 
 - **🔊 Circular Audio Player with SVG Progress Ring:**
   - Custom circular play/pause button with centered Japanese Kanji/labels (`文` for Sentence, `言葉` for Word).
-  - Dynamic SVG progress border that fills smoothly as audio plays and resets on completion.
-  - Visual feedback (ring fill animation) when using native Anki replay buttons.
-  - Supports native HTML5 `Audio()` playback with automatic fallback to Anki replay buttons.
+  - Playback always delegates to Anki's own replay link (desktop `replay-button`, AnkiDroid `replaybutton`) — no custom HTML5 audio element, so it works identically on Desktop and AnkiDroid. The ring is a decorative play-pulse.
+  - Rapid re-taps on the playing button are ignored (native playback can't be stopped, this prevents overlapping audio on AnkiDroid).
 
 - **🖼️ Lightbox Image Expansion:**
   - Click or tap any card image to view it full-screen in a frosted-glass modal overlay.
@@ -179,6 +178,9 @@ Requirements: Anki with the [Anki-Connect](https://ankiweb.net/shared/info/20554
   - Safety timeout & finally block: Front card is guaranteed to reveal even if AnkiConnect hangs (1.5s safety timeout).
   - Type-name safety: Uses `data-notetype` attribute instead of a JS string literal to prevent syntax errors when note type names contain single quotes.
   - AnkiConnect reliability: Wrapped `post` requests in a `Promise.race` with an 800ms timeout to prevent infinite hangs.
+  - AnkiDroid interval parsing: Accepts the plain-number return shape of API 0.0.3 (plus string/wrapper shapes for safety).
+  - Listening cards skip interval retrieval entirely — no needless JS-API calls.
+  - Known AnkiDroid quirk: the JS API can randomly show a `Card Content Error: Failed to load '*.bin'` toast even when everything works ([upstream issue](https://github.com/ankidroid/Anki-Android/issues/16510)). It is harmless and never breaks the card — the front always falls back to the sentence view.
 
 ### Configuration
 

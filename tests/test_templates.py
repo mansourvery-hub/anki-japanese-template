@@ -57,19 +57,35 @@ def main():
     check(f"all {len(buttons)} audio buttons have aria-label",
           len(buttons) >= 4 and all("aria-label" in b for b in buttons))
 
-    # --- 3. Audio controller: restart-only (no pause state machine) ---
+    # --- 3. Audio controller: native-only (no HTML5 Audio path) ---
     for name, src in (("Front", front), ("Back", back)):
         check(f"{name}: no is-paused state remnants",
               "is-paused" not in src)
         check(f"{name}: resetAudioState defined",
               "window.resetAudioState = function" in src)
-        check(f"{name}: error/abort/ended cleanup wired",
-              "onended" in src and ("onabort" in src and "onerror" in src))
-        check(f"{name}: space-tolerant audio regex",
-              "sound:)([^\"'>\\]]+)" in src)
+        check(f"{name}: native-only playback (no new Audio garbage-loads on AnkiDroid)",
+              "new Audio(" not in src)
+        check(f"{name}: delegates to Anki replay link",
+              "nativeReplay.click()" in src)
+        check(f"{name}: replay link resolved via wrapper scope (not nested in button)",
+              "closest('.audio-btn-wrapper')" in src)
+        check(f"{name}: re-tap debounce (native audio can't be stopped)",
+              "window.currentActiveBtn === btn" in src)
         # restart-only: every click path goes through resetAudioState first
         check(f"{name}: playCircularAudio starts with resetAudioState",
-              re.search(r"window\.playCircularAudio = function\(btn\) \{\s*window\.resetAudioState\(\);", src) is not None)
+              re.search(r"window\.playCircularAudio = function\(btn\) \{\s*(/\*.*?\*/\s*)*if \(window\.currentActiveBtn === btn\) return;\s*window\.resetAudioState\(\);", src, re.S) is not None)
+
+    # --- 3b. Audio markup: valid + clickable on AnkiDroid ---
+    for name, src in (("Front", front), ("Back", back)):
+        check(f"{name}: replay source lives OUTSIDE the button (sibling span)",
+              re.search(r"</button>\s*<span class=\"raw-audio-source\"", src) is not None)
+        check(f"{name}: no display:none audio source (breaks .click() playback)",
+              "raw-audio-source\" style=\"display:none" not in src)
+        check(f"{name}: no div-inside-button (invalid HTML, breaks AnkiDroid taps)",
+              '<div class="audio-btn-content">' not in src)
+    check("CSS: raw-audio-source visually hidden but present (no display:none)",
+          re.search(r"\.raw-audio-source\s*\{[^}]*position:\s*absolute", css) is not None
+          and ".raw-audio-source" in css)
 
     # --- 4. Lightbox: backdrop-only close ---
     check("lightbox closes only on backdrop click (e.target === overlay)",
@@ -131,6 +147,10 @@ def main():
           "URLSearchParams" not in front)
     check("Front: AnkiDroid JS API with verified contract",
           "ankiGetCardInterval" in front and 'new AnkiDroidJS(' in front)
+    check("Front: accepts AnkiDroid plain-number interval (0.0.3 returns a number)",
+          "typeof res === 'number'" in front)
+    check("Front: skips ALL retrieval on listening cards (no needless JS-API calls)",
+          "isListening" in front)
     check("Front: anti-flash visibility gate present",
           'style="visibility: hidden;"' in front
           and "container.style.visibility = 'visible'" in front)
