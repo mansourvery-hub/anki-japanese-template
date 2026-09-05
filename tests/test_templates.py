@@ -131,9 +131,11 @@ def main():
 
     # --- 8b. Mature Word Mode invariants (interval-gated front) ---
     check("Front: LONG_INTERVAL_DAYS threshold constant defined",
-          re.search(r"interval\s*>=\s*365", front) is not None)
-    check("Front: threshold not hard-coded elsewhere (single definition of 365)",
-          len(re.findall(r"365", front)) == 1)
+          re.search(r"const\s+LONG_INTERVAL_DAYS\s*=\s*365", front) is not None
+          and "interval >= LONG_INTERVAL_DAYS" in front)
+    check("Front: threshold not hard-coded elsewhere (single const definition)",
+          len(re.findall(r"LONG_INTERVAL_DAYS\s*=\s*365", front)) == 1
+          and len(re.findall(r">=\s*365", front)) == 0)
     check("Front: word probe div present with Expression",
           re.search(r'class="front-word-display">\s*\{\{edit:Expression\}\}', front) is not None)
     check("Front: desktop flow guiCurrentCard -> cardsInfo -> interval",
@@ -147,10 +149,16 @@ def main():
           "URLSearchParams" not in front)
     check("Front: AnkiDroid JS API with verified contract",
           "ankiGetCardInterval" in front and 'new AnkiDroidJS(' in front)
+    check("Front: supports constructor + direct bridge APIs",
+          "apiKind" in front and "'constructor'" in front and "'direct'" in front)
     check("Front: accepts AnkiDroid {success,value} shape (official wiki contract)",
-          "typeof res.value === 'number'" in front)
+          "parseDroidInterval" in front
+          and "hasOwnProperty" in front
+          and "'value'" in front)
     check("Front: rejects {success:false} failure defaults (number => -1)",
-          "res.success === false" in front)
+          "success === false" in front)
+    check("Front: parses numeric strings + JSON-encoded responses",
+          "JSON.parse" in front and "Number.isFinite" in front)
     check("Front: bridge call has its own timeout (never hangs the card)",
           "withBridgeTimeout" in front)
     check("Front: never fetches AnkiConnect from mobile WebViews (downloadfile.bin toast)",
@@ -160,15 +168,18 @@ def main():
           "bridgeAvailable" in front)
     check("Front: polls for late-injected bridge with a firm deadline",
           "waitForBridge" in front)
-    check("Front: temporary toast diagnostic is marked for removal",
-          "TEMP-DIAG" in front)
+    check("Front: temporary toast diagnostic removed (no TEMP-DIAG remnants)",
+          "TEMP-DIAG" not in front and "ankiShowToast" not in front)
+    check("Front: on-card debug diagnostic present (mwm-debug)",
+          "DEBUG_MATURE_MODE" in front and "mwm-debug" in front
+          and "Mature mode: " in front)
     check("Front: skips ALL retrieval on listening cards (no needless JS-API calls)",
           "isListening" in front)
     check("Front: anti-flash visibility gate present",
           'style="visibility: hidden;"' in front
           and "container.style.visibility = 'visible'" in front)
     check("Front: word-mode class applied to card wrapper",
-          "wrapper.classList.add('word-mode')" in front)
+          "wrapper.classList.toggle('word-mode'" in front)
     check("Front: retrieval failure falls back to sentence (try/catch + typed interval check)",
           "catch" in front and "typeof interval === 'number'" in front)
     check("CSS: word-mode display rules present",

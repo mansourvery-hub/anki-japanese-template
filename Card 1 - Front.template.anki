@@ -237,32 +237,162 @@
            "Failed to load 'downloadfile.bin'". Never fetch from a phone. */
         const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
         const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
-        const bridgeAvailable = () => (typeof AnkiDroidJS !== 'undefined');
-        /* AnkiDroid bridge watchdog: on some devices/WebViews the /jsapi
-           fetch never settles (AnkiDroid may also toast a "Failed to load
-           *.bin" card-content error — upstream issue #16510). Never let the
-           bridge delay or break the card; the safety reveal below is the
-           final backstop. */
-        const withBridgeTimeout = (p, ms) => Promise.race([
-          p, new Promise((_, rej) => setTimeout(() => rej(new Error('AnkiDroid bridge timeout')), ms))
-        ]);
-        /* Official wiki contract: resolves {success, value}. {success:false}
-           carries type-safe defaults (number => -1) and must never be
-           mistaken for an interval. Extra shapes kept as harmless defense. */
-        const getAnkiDroidInterval = async () => {
-          const api = new AnkiDroidJS({
-            developer: 'mansourvery-hub@users.noreply.github.com',
-            version: '0.0.3'
+        /* AnkiDroid compatibility helpers */
+        const bridgeAvailable = () =>
+          typeof AnkiDroidJS !== 'undefined' &&
+          AnkiDroidJS !== null;
+
+        const withBridgeTimeout = (promise, ms) =>
+          new Promise((resolve, reject) => {
+            const timer = setTimeout(
+              () => reject(new Error('AnkiDroid bridge timeout')),
+              ms
+            );
+
+            Promise.resolve(promise).then(
+              value => {
+                clearTimeout(timer);
+                resolve(value);
+              },
+              error => {
+                clearTimeout(timer);
+                reject(error);
+              }
+            );
           });
-          const res = await withBridgeTimeout(api.ankiGetCardInterval(), 800);
-          if (res && res.success === false) return { interval: null, source: 'ankiDroid-unavailable' };
-          if (typeof res === 'number') return { interval: res, source: 'ankiDroid' };
-          if (typeof res === 'string' && res.trim() !== '' && isFinite(Number(res))) {
-            return { interval: Number(res), source: 'ankiDroid' };
+
+        /*
+         * Accept:
+         *   365
+         *   "365"
+         *   {success: true, value: 365}
+         *   {success: true, value: "365"}
+         *   JSON-encoded versions of these responses
+         *
+         * Never turn null, false, or an empty string into an interval.
+         */
+        const parseDroidInterval = raw => {
+          let value = raw;
+
+          for (let depth = 0; depth < 6; depth++) {
+            if (typeof value === 'number') {
+              if (!Number.isFinite(value) || value < 0) {
+                throw new Error('No usable card interval');
+              }
+              return value;
+            }
+
+            if (typeof value === 'string') {
+              const text = value.trim();
+
+              if (!text) {
+                throw new Error('Empty interval response');
+              }
+
+              // Ordinary numeric string.
+              const number = Number(text);
+              if (Number.isFinite(number)) {
+                value = number;
+                continue;
+              }
+
+              // JSON-encoded response.
+              try {
+                value = JSON.parse(text);
+              } catch (_) {
+                throw new Error(
+                  'Unrecognized interval response: ' + text.slice(0, 120)
+                );
+              }
+              continue;
+            }
+
+            if (value && typeof value === 'object') {
+              if (
+                value.success === false ||
+                value.success === 'false'
+              ) {
+                throw new Error('AnkiDroid reported success=false');
+              }
+
+              if (
+                Object.prototype.hasOwnProperty.call(value, 'value')
+              ) {
+                value = value.value;
+                continue;
+              }
+
+              if (
+                Object.prototype.hasOwnProperty.call(value, 'interval')
+              ) {
+                value = value.interval;
+                continue;
+              }
+            }
+
+            throw new Error('Unsupported interval response');
           }
-          if (res && typeof res.value === 'number') return { interval: res.value, source: 'ankiDroid' };
-          if (res && typeof res.interval === 'number') return { interval: res.interval, source: 'ankiDroid' };
-          return { interval: null, source: 'ankiDroid-unknown-shape' };
+
+          throw new Error('Unexpectedly nested interval response');
+        };
+
+        const getAnkiDroidInterval = async () => {
+          try {
+            const options = {
+              developer: 'mansourvery-hub@users.noreply.github.com',
+              version: '0.0.3'
+            };
+
+            let api;
+            let apiKind;
+
+            if (typeof AnkiDroidJS === 'function') {
+              // Constructor-based API.
+              api = new AnkiDroidJS(options);
+              apiKind = 'constructor';
+            } else {
+              // Direct/native bridge API.
+              api = AnkiDroidJS;
+              apiKind = 'direct';
+
+              if (typeof api.init === 'function') {
+                const initialized = await withBridgeTimeout(
+                  api.init(JSON.stringify(options)),
+                  1200
+                );
+
+                if (
+                  initialized === false ||
+                  initialized === 'false'
+                ) {
+                  throw new Error('AnkiDroid API initialization failed');
+                }
+              }
+            }
+
+            if (
+              !api ||
+              typeof api.ankiGetCardInterval !== 'function'
+            ) {
+              throw new Error('ankiGetCardInterval is unavailable');
+            }
+
+            const raw = await withBridgeTimeout(
+              api.ankiGetCardInterval(),
+              1200
+            );
+
+            return {
+              interval: parseDroidInterval(raw),
+              source: 'ankiDroid-' + apiKind
+            };
+          } catch (error) {
+            return {
+              interval: null,
+              source: 'ankiDroid-error: ' +
+                (error && error.message ? error.message : String(error))
+            };
+          }
         };
         if (!isListening && bridgeAvailable()) {
           const r = await getAnkiDroidInterval();
@@ -326,31 +456,55 @@
             }
           }
         }
-        /* TEMP-DIAG (remove once AnkiDroid mature-mode is confirmed working):
-           surface the retrieval decision as a transient toast — AnkiDroid
-           users have no web console. Absence of any toast means the bridge
-           never became available. Never allowed to break the card. */
-        try {
-          if (bridgeAvailable()) {
-            const dbg = new AnkiDroidJS({
-              developer: 'mansourvery-hub@users.noreply.github.com',
-              version: '0.0.3'
-            });
-            const p = dbg.ankiShowToast('MWM src=' + source + ' ivl=' + String(interval));
-            if (p && typeof p.catch === 'function') p.catch(() => {});
-          }
-        } catch (dbgErr) { /* diagnostic only */ }
       } catch (e) {
-        console.warn('[Mature Word Mode] retrieval failed, falling back to sentence view.', e);
+        source = 'error: ' + (e && e.message ? e.message : String(e));
+        console.warn('[Mature Word Mode]', e);
       } finally {
         clearTimeout(safetyTimeout);
-        const listeningView = document.querySelector('.listening-view');
-        if (typeof interval === 'number' && interval >= 365 && !listeningView) {
-          wordMode = true;
+
+        const LONG_INTERVAL_DAYS = 365;
+
+        // Set to false after confirming that Android works.
+        const DEBUG_MATURE_MODE = true;
+
+        const listeningView = container.querySelector('.listening-view');
+        const wordEl = container.querySelector('.front-word-display');
+        const hasExpression = !!(
+          wordEl && (wordEl.textContent || '').trim()
+        );
+
+        wordMode =
+          typeof interval === 'number' &&
+          Number.isFinite(interval) &&
+          interval >= LONG_INTERVAL_DAYS &&
+          !listeningView &&
+          hasExpression;
+
+        // Explicitly reset the class as well as enabling it.
+        wrapper.classList.toggle('word-mode', wordMode);
+
+        if (DEBUG_MATURE_MODE) {
+          let diagnostic = wrapper.querySelector('.mwm-debug');
+
+          if (!diagnostic) {
+            diagnostic = document.createElement('div');
+            diagnostic.className = 'mwm-debug';
+            diagnostic.style.cssText =
+              'padding:6px 10px;' +
+              'font:12px/1.4 sans-serif;' +
+              'color:var(--text-secondary,#888);' +
+              'overflow-wrap:anywhere;' +
+              'text-align:left;';
+            wrapper.appendChild(diagnostic);
+          }
+
+          diagnostic.textContent =
+            'Mature mode: ' + (wordMode ? 'ON' : 'OFF') +
+            ' | interval=' + String(interval) +
+            ' | threshold=' + LONG_INTERVAL_DAYS +
+            ' | source=' + source;
         }
-        if (wordMode) {
-          wrapper.classList.add('word-mode');
-        }
+
         reveal();
       }
     }

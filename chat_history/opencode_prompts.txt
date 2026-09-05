@@ -442,3 +442,20 @@ Fix mature-mode downloadfile.bin error: gate AnkiConnect behind non-mobile UA, r
 ---
 
 Poll for late AnkiDroid bridge injection and add temporary toast diagnostic for mature-mode
+
+---
+
+here is an attempt to fix the mature card issue bug not working on mobile (Android 11, ankidroid 2.24.0), analyze it
+Yes—the likely failure is in the AnkiDroid interval-reading code, not your CSS. Your script assumes AnkiDroidJS is a constructor and only accepts some response formats. If the bridge is exposed differently, or returns a JSON/string value, it silently falls back to the sentence.
+
+Below is a compatibility patch that handles those cases, leaves your working desktop code unchanged, and adds an optional on-card diagnostic so Android errors are no longer invisible. I can't test it directly on your Galaxy A50, so the diagnostic is useful if there is an additional API issue.
+
+1. Replace the AnkiDroid helper code (support constructor + direct bridge APIs, robust interval parsing with timeout + JSON/string shapes)
+2. Remove the temporary toast code (TEMP-DIAG section through its ending catch)
+3. Replace the final catch / finally (record source on error, LONG_INTERVAL_DAYS const, DEBUG_MATURE_MODE on-card diagnostic showing Mature mode ON/OFF | interval | threshold | source)
+
+Test on AnkiDroid: sync the edited template, leave the reviewer, and reopen it. Test a non-listening card whose current interval is at least 365 days. Expected diagnostic: Mature mode: ON | interval=400 | threshold=365 | source=ankiDroid-constructor (or ankiDroid-direct). If it still shows the sentence, report the exact diagnostic line (no-bridge-mobile vs ankiDroid-error). Once confirmed working, set DEBUG_MATURE_MODE = false.
+
+---
+
+go ahead applly everything yourself
