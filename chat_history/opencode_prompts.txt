@@ -434,3 +434,7 @@ Fix AnkiDroid audio buttons (native-only playback, replay link moved out of butt
 ---
 
 Harden AnkiDroid mature-mode bridge: own 800ms timeout race, explicit {success:false} rejection
+
+---
+
+Fix mature-mode downloadfile.bin error: gate AnkiConnect behind non-mobile UA, retry late-injected AnkiDroid bridge once

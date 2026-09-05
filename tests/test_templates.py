@@ -153,6 +153,11 @@ def main():
           "res.success === false" in front)
     check("Front: bridge call has its own timeout (never hangs the card)",
           "withBridgeTimeout" in front)
+    check("Front: never fetches AnkiConnect from mobile WebViews (downloadfile.bin toast)",
+          "isMobile" in front and "no-bridge-mobile" in front
+          and "127.0.0.1" in front)
+    check("Front: one deferred bridge retry on mobile while still hidden",
+          "bridgeAvailable" in front)
     check("Front: skips ALL retrieval on listening cards (no needless JS-API calls)",
           "isListening" in front)
     check("Front: anti-flash visibility gate present",

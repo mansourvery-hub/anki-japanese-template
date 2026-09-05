@@ -232,6 +232,12 @@
            (also avoids needless AnkiDroid JS-API calls, which can trigger
            AnkiDroid's known false-positive "Failed to load *.bin" toast). */
         const isListening = !!document.querySelector('.listening-view');
+        /* Mobile WebViews (AnkiDroid / AnkiMobile) have no AnkiConnect: a
+           fetch to 127.0.0.1 is refused and Android surfaces it natively as
+           "Failed to load 'downloadfile.bin'". Never fetch from a phone. */
+        const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+        const bridgeAvailable = () => (typeof AnkiDroidJS !== 'undefined');
         /* AnkiDroid bridge watchdog: on some devices/WebViews the /jsapi
            fetch never settles (AnkiDroid may also toast a "Failed to load
            *.bin" card-content error — upstream issue #16510). Never let the
@@ -240,29 +246,40 @@
         const withBridgeTimeout = (p, ms) => Promise.race([
           p, new Promise((_, rej) => setTimeout(() => rej(new Error('AnkiDroid bridge timeout')), ms))
         ]);
-        if (!isListening && typeof AnkiDroidJS !== 'undefined') {
-          /* AnkiDroid JS API 0.0.3 resolves {success, value} (see the
-             official wiki). {success:false} carries type-safe defaults
-             (number => -1) and must never be mistaken for an interval. */
+        /* Official wiki contract: resolves {success, value}. {success:false}
+           carries type-safe defaults (number => -1) and must never be
+           mistaken for an interval. Extra shapes kept as harmless defense. */
+        const getAnkiDroidInterval = async () => {
           const api = new AnkiDroidJS({
             developer: 'mansourvery-hub@users.noreply.github.com',
             version: '0.0.3'
           });
           const res = await withBridgeTimeout(api.ankiGetCardInterval(), 800);
-          if (res && res.success === false) {
-            source = 'ankiDroid-unavailable';
-          } else if (typeof res === 'number') {
-            interval = res;
-            source = 'ankiDroid';
-          } else if (typeof res === 'string' && res.trim() !== '' && isFinite(Number(res))) {
-            interval = Number(res);
-            source = 'ankiDroid';
-          } else if (res && typeof res.value === 'number') {
-            interval = res.value;
-            source = 'ankiDroid';
-          } else if (res && typeof res.interval === 'number') {
-            interval = res.interval;
-            source = 'ankiDroid';
+          if (res && res.success === false) return { interval: null, source: 'ankiDroid-unavailable' };
+          if (typeof res === 'number') return { interval: res, source: 'ankiDroid' };
+          if (typeof res === 'string' && res.trim() !== '' && isFinite(Number(res))) {
+            return { interval: Number(res), source: 'ankiDroid' };
+          }
+          if (res && typeof res.value === 'number') return { interval: res.value, source: 'ankiDroid' };
+          if (res && typeof res.interval === 'number') return { interval: res.interval, source: 'ankiDroid' };
+          return { interval: null, source: 'ankiDroid-unknown-shape' };
+        };
+        if (!isListening && bridgeAvailable()) {
+          const r = await getAnkiDroidInterval();
+          interval = r.interval;
+          source = r.source;
+        } else if (!isListening && isMobile) {
+          /* Phone without an (already injected) bridge: AnkiDroid may inject
+             its API just after card parse, so retry ONCE while the card is
+             still hidden (no flash risk), then give up to the sentence front.
+             AnkiConnect is never attempted from here. */
+          await new Promise(r => setTimeout(r, 400));
+          if (bridgeAvailable()) {
+            const r = await getAnkiDroidInterval();
+            interval = r.interval;
+            source = r.source;
+          } else {
+            source = 'no-bridge-mobile';
           }
         } else if (!isListening) {
           try {
