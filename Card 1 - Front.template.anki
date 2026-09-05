@@ -488,7 +488,7 @@
         const LONG_INTERVAL_DAYS = 365;
 
         // Set to false after confirming that Android works.
-        const DEBUG_MATURE_MODE = true;
+        const DEBUG_MATURE_MODE = false;
 
         const listeningView = container.querySelector('.listening-view');
         const wordEl = container.querySelector('.front-word-display');
