@@ -188,6 +188,8 @@
   grid-template-columns: 1fr;
   gap: var(--gap-block);
   align-items: start;
+  /* Ensure children (main, side) align top to top by default */
+  align-items: stretch;
 }
 
 .main-content,
@@ -741,7 +743,6 @@ ruby:focus-within rt {
 .picture-block {
   text-align: center;
   padding: 4px;
-  margin-top: -16px;
 }
 
 .picture-container img {
