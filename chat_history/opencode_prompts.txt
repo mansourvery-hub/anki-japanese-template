@@ -503,3 +503,7 @@ remove JMdict attribution, reduce word font weight, align picture box top
 ---
 
 Revert picture box alignment, set back-grid to stretch, ensure font-weight 400 on both sides.
+
+---
+
+Force font-weight 400 on bold tags in front word display
