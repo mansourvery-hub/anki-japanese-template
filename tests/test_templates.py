@@ -158,6 +158,10 @@ def main():
           and "127.0.0.1" in front)
     check("Front: one deferred bridge retry on mobile while still hidden",
           "bridgeAvailable" in front)
+    check("Front: polls for late-injected bridge with a firm deadline",
+          "waitForBridge" in front)
+    check("Front: temporary toast diagnostic is marked for removal",
+          "TEMP-DIAG" in front)
     check("Front: skips ALL retrieval on listening cards (no needless JS-API calls)",
           "isListening" in front)
     check("Front: anti-flash visibility gate present",

@@ -438,3 +438,7 @@ Harden AnkiDroid mature-mode bridge: own 800ms timeout race, explicit {success:f
 ---
 
 Fix mature-mode downloadfile.bin error: gate AnkiConnect behind non-mobile UA, retry late-injected AnkiDroid bridge once
+
+---
+
+Poll for late AnkiDroid bridge injection and add temporary toast diagnostic for mature-mode

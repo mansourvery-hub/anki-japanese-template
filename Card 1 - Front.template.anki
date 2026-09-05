@@ -202,7 +202,7 @@
         container.style.visibility = 'visible';
         autoScaleFrontText();
       };
-      const safetyTimeout = setTimeout(reveal, 1500);
+      const safetyTimeout = setTimeout(reveal, 2000);
 
       /* Anki-Connect helper with timeout */
       const post = (action, params) => {
@@ -269,12 +269,19 @@
           interval = r.interval;
           source = r.source;
         } else if (!isListening && isMobile) {
-          /* Phone without an (already injected) bridge: AnkiDroid may inject
-             its API just after card parse, so retry ONCE while the card is
-             still hidden (no flash risk), then give up to the sentence front.
-             AnkiConnect is never attempted from here. */
-          await new Promise(r => setTimeout(r, 400));
-          if (bridgeAvailable()) {
+          /* Phone without an (already injected) bridge: AnkiDroid injects
+             its API around card load, often AFTER card scripts run — so poll
+             for it while the card is still hidden (no flash risk), then give
+             up to the sentence front. AnkiConnect is never attempted here. */
+          const waitForBridge = async (deadlineMs, stepMs) => {
+            const start = Date.now();
+            while (!bridgeAvailable()) {
+              if (Date.now() - start >= deadlineMs) return false;
+              await new Promise(r => setTimeout(r, stepMs));
+            }
+            return true;
+          };
+          if (await waitForBridge(1000, 100)) {
             const r = await getAnkiDroidInterval();
             interval = r.interval;
             source = r.source;
@@ -319,6 +326,20 @@
             }
           }
         }
+        /* TEMP-DIAG (remove once AnkiDroid mature-mode is confirmed working):
+           surface the retrieval decision as a transient toast — AnkiDroid
+           users have no web console. Absence of any toast means the bridge
+           never became available. Never allowed to break the card. */
+        try {
+          if (bridgeAvailable()) {
+            const dbg = new AnkiDroidJS({
+              developer: 'mansourvery-hub@users.noreply.github.com',
+              version: '0.0.3'
+            });
+            const p = dbg.ankiShowToast('MWM src=' + source + ' ivl=' + String(interval));
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+          }
+        } catch (dbgErr) { /* diagnostic only */ }
       } catch (e) {
         console.warn('[Mature Word Mode] retrieval failed, falling back to sentence view.', e);
       } finally {
