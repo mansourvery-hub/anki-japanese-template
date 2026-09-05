@@ -70,29 +70,9 @@
           </div>
         {{/Sentence Audio}}
 
-        <!-- Word Audio available (Sentence Audio missing) -->
-        {{^Sentence Audio}}
-          {{#Word Audio}}
-            <div class="listening-view">
-              <div class="audio-btn-wrapper">
-                <button type="button" class="circular-audio-btn large-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
-                  <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                    <circle class="ring-bg" cx="40" cy="40" r="36" />
-                    <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                  </svg>
-                  <span class="audio-btn-content">
-                    <span class="audio-btn-label">言葉</span>
-                  </span>
-                </button>
-                <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-              </div>
-            </div>
-          {{/Word Audio}}
-        {{/Sentence Audio}}
 
-        <!-- Bulletproof Fallback: Neither definition NOR audio exists -->
+        <!-- Bulletproof Fallback: No Sentence audio -->
         {{^Sentence Audio}}
-          {{^Word Audio}}
             <div class="sentence-display">
               {{#Sentence}}
                 {{edit:Sentence}}
@@ -101,9 +81,7 @@
                 {{edit:Expression}}
               {{/Sentence}}
             </div>
-          {{/Word Audio}}
         {{/Sentence Audio}}
-
       {{/Extended definition}}
     {{/Definition}}
 

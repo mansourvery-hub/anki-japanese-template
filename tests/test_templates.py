@@ -53,9 +53,11 @@ def main():
           "{{edit:Sentence}}" in front and "{{edit:Expression}}" in front)
 
     # --- 2. Audio buttons: aria-labels present ---
+    # Front is sentence-audio-only (1) + Back has word + sentence (2) = 3 total.
+    # (Word-audio fallback was removed from the front listening mode.)
     buttons = re.findall(r"<button[^>]*circular-audio-btn[^>]*>", front + back)
     check(f"all {len(buttons)} audio buttons have aria-label",
-          len(buttons) >= 4 and all("aria-label" in b for b in buttons))
+          len(buttons) >= 3 and all("aria-label" in b for b in buttons))
 
     # --- 3. Audio controller: native-only (no HTML5 Audio path) ---
     for name, src in (("Front", front), ("Back", back)):
