@@ -275,8 +275,20 @@
   line-height: 1.45;
 }
 
+/* Front: Yomitan wraps the target word in <b> even for word-only fronts
+   (Sentence field = "<b>word</b>"). Force it light — color + underline
+   still mark it without the heavy stroke. */
 .sentence-display b,
 .sentence-display strong,
+.front-word-display b,
+.front-word-display strong {
+  color: var(--accent-color);
+  font-weight: 400;
+  background: linear-gradient(transparent 75%, var(--accent-light) 75%);
+  padding: 0 4px;
+}
+
+/* Back sentence keeps the bold target highlight; only the headword is light. */
 .sentence-japanese b,
 .sentence-japanese strong {
   color: var(--accent-color);
@@ -285,12 +297,10 @@
   padding: 0 4px;
 }
 
-.front-word-display b,
-.front-word-display strong {
-  color: var(--accent-color);
+/* Back headword: never bold, even if Yomitan injects <b>/<strong>. */
+.word-display b,
+.word-display strong {
   font-weight: 400;
-  background: linear-gradient(transparent 75%, var(--accent-light) 75%);
-  padding: 0 4px;
 }
 
 /* 5b. MATURE-CARD WORD MODE

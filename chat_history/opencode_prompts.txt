@@ -507,3 +507,7 @@ Revert picture box alignment, set back-grid to stretch, ensure font-weight 400 o
 ---
 
 Force font-weight 400 on bold tags in front word display
+
+---
+
+THE word in front is still too strong, does not change formatting, keep in mind it will be bold automatically
