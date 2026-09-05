@@ -491,3 +491,7 @@ fixed somecodelogic by hand a test failed, if the code runs ok , for get the tes
 ---
 
 add another CSS filter in defnition that removes the dict name
+
+---
+
+also remove forms, this with this [provides example HTML]

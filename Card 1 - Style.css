@@ -491,7 +491,8 @@
 .primary-definition div[data-sc-name="補説G"],
 .primary-definition span[data-sc-name="可能形"],
 .primary-definition span[data-sc-name="歴史仮名"],
-.primary-definition span[data-sc-name="アクセントG"] {
+.primary-definition span[data-sc-name="アクセントG"],
+.primary-definition li[data-sc-content="forms"] {
   display: none;
 }
 
