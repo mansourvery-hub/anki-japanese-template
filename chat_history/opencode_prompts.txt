@@ -527,3 +527,7 @@ still text too big and too complicated implementation
 ---
 
 Add definition truncation feature with expand/collapse indicator for long dictionary definitions
+
+---
+
+Improve definition truncation indicator design - make it more elegant and integrated with card theme

@@ -521,61 +521,90 @@
 /* ==============================================================================
     6c. DEFINITION TRUNCATOR & EXPANDABLE UI
     ==============================================================================
-    Limit definitions to 3 lines maximum with expand/collapse indicator.
+    Limit definitions to 3 lines with elegant expand/collapse indicator.
     The truncation applies only to the compact primary definition display.
+    Design principles: subtle, integrated, smooth transitions.
     ============================================================================== */
 
 .primary-definition {
   position: relative;
   overflow: hidden;
-  max-height: 3.2em;
-  transition: max-height 0.3s ease, padding-bottom 0.3s ease;
+  max-height: 3.1em;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.4s ease;
 }
 
 .primary-definition.is-expanded {
   max-height: none;
-  padding-bottom: 8px;
+  padding-bottom: 0;
 }
 
-/* Expand indicator - chevron arrow */
-.primary-definition::after {
-  content: "▼";
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Expand indicator - integrated pill design */
+.primary-definition::before {
+  content: "Expand";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  padding: 2px 8px;
+  background: var(--card-bg);
+  color: var(--accent-color);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+/* Fading edge overlay when truncated */
+.primary-definition:not(.is-expanded)::after {
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 1.2em;
-  background: linear-gradient(to bottom, transparent, var(--card-bg) 90%);
-  color: var(--accent-color);
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
-  user-select: none;
-  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+  height: 1.8em;
+  background: linear-gradient(to bottom, transparent 0%, var(--card-bg) 80%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
 .primary-definition.is-expanded::after {
-  transform: rotate(180deg);
-  background: linear-gradient(to bottom, transparent, var(--card-bg) 95%);
+  opacity: 0;
 }
 
-.primary-definition:hover::after,
-.primary-definition:focus::after {
-  background: linear-gradient(to bottom, transparent, var(--card-bg) 85%);
-}
-
-.primary-definition::after:hover,
-.primary-definition::after:focus {
+/* Show indicator when truncated */
+.primary-definition:not(.is-expanded)::before {
   opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
-/* Accessibility support for keyboard expansion */
-.primary-definition[aria-expanded="true"]::after {
-  content: "▲";
-  transform: rotate(180deg);
+/* Hide indicator when expanded */
+.primary-definition.is-expanded::before {
+  transform: translateX(-50%) translateY(100%);
+  opacity: 0;
+}
+
+/* Hover and focus states */
+.primary-definition:hover:not(.is-expanded)::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.primary-definition:focus-within:not(.is-expanded)::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Accessibility support */
+.primary-definition[aria-expanded="true"]::before {
+  content: "▼";
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  letter-spacing: 0;
 }
 
 /* ==============================================================================
