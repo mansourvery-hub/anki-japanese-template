@@ -522,15 +522,15 @@
     6c. DEFINITION TRUNCATOR & EXPANDABLE UI
     ==============================================================================
     Limit definitions to 3 lines with elegant expand/collapse indicator.
+    Progressive fade effect indicates "there's more below" without text.
     The truncation applies only to the compact primary definition display.
-    Design principles: subtle, integrated, smooth transitions.
     ============================================================================== */
 
 .primary-definition {
   position: relative;
   overflow: hidden;
   max-height: 3.1em;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.4s ease;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.3s ease;
 }
 
 .primary-definition.is-expanded {
@@ -538,42 +538,35 @@
   padding-bottom: 0;
 }
 
-/* Expand indicator - integrated pill design */
-.primary-definition::before {
-  content: "Expand";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%) translateY(100%);
-  padding: 2px 8px;
-  background: var(--card-bg);
-  color: var(--accent-color);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  border-radius: 4px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
-  opacity: 0;
-  pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-}
-
-/* Fading edge overlay when truncated */
+/* Progressive fade effect - shows content is truncated */
 .primary-definition:not(.is-expanded)::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 1.8em;
-  background: linear-gradient(to bottom, transparent 0%, var(--card-bg) 80%);
+  height: 1.5em;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    transparent 30%,
+    var(--card-bg) 100%
+  );
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
-.primary-definition.is-expanded::after {
+/* Expand indicator - subtle chevron arrow */
+.primary-definition:not(.is-expanded)::before {
+  content: "▼";
+  position: absolute;
+  bottom: 0.5em;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  transition: transform 0.2s ease, color 0.2s ease;
   opacity: 0;
+  pointer-events: none;
 }
 
 /* Show indicator when truncated */
@@ -590,21 +583,26 @@
 
 /* Hover and focus states */
 .primary-definition:hover:not(.is-expanded)::before {
-  opacity: 1;
+  color: var(--accent-color);
   transform: translateX(-50%) translateY(0);
 }
 
 .primary-definition:focus-within:not(.is-expanded)::before {
-  opacity: 1;
+  color: var(--accent-color);
   transform: translateX(-50%) translateY(0);
 }
 
-/* Accessibility support */
+/* Accessibility support - chevron shows collapsed state */
 .primary-definition[aria-expanded="true"]::before {
   content: "▼";
-  padding: 2px 6px;
-  font-size: 0.7rem;
-  letter-spacing: 0;
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Chevron rotates when expanded */
+.primary-definition.is-expanded::before {
+  transform: translateX(-50%) translateY(100%);
+  opacity: 0;
 }
 
 /* ==============================================================================

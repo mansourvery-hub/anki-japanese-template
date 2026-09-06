@@ -531,3 +531,7 @@ Add definition truncation feature with expand/collapse indicator for long dictio
 ---
 
 Improve definition truncation indicator design - make it more elegant and integrated with card theme
+
+---
+
+Redesign definition truncation with minimal arrow indicator and progressive fade effect
