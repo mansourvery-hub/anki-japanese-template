@@ -543,3 +543,7 @@ Reduce truncation to 2 lines and adjust fade overlay
 ---
 
 Reduce truncation to 1.8em (about 1 line)
+
+---
+
+Fix truncation with CSS line-clamp instead of max-height

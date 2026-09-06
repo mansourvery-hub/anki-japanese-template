@@ -521,16 +521,21 @@
 /* ==============================================================================
     6c. DEFINITION TRUNCATOR & EXPANDABLE UI
     ==============================================================================
-    Limit definitions to 3 lines with elegant expand/collapse indicator.
+    Limit definitions to 1 line with elegant expand/collapse indicator.
     Progressive fade effect indicates "there's more below" without text.
     The truncation applies only to the compact primary definition display.
     ============================================================================== */
 
-.primary-definition {
+.definition-box.primary-definition {
   position: relative;
   overflow: hidden;
-  max-height: 1.8em;
+  max-height: 1.5em;
+  line-clamp: 1;
   transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.3s ease;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
 }
 
 .primary-definition.is-expanded {
