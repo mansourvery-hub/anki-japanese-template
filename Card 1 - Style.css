@@ -888,10 +888,10 @@ ruby:focus-within rt {
 
   .sentence-display,
   .front-word-display {
-    font-size: clamp(1.3rem, 4.5vmin + 0.75rem, 2.4rem);
+    font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);
     padding: clamp(4px, 1.5vmin, 6px) clamp(1px, 0.5vmin, 2px);
   }
-
+  .sentence-japanese {    font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);}
   .word-meta-row {
     gap: clamp(2px, 1.5vmin, 3px);
     margin: clamp(0.5px, 0.3vmin, 1px) 0 clamp(1px, 0.5vmin, 2px) 0;
