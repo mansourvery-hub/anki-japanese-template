@@ -563,3 +563,7 @@ forget it then. I will manage fields in exculsivly inside anki. how would my age
 ---
 
 all good go, also remove the old json in the end since we will have a more up to date file by the end, test your script
+
+---
+
+A small undrelated QOL bug, if we have no defintions we go to listening mode, which is the correct behaviour but if the frequency field is not empty, we should not show aduio button at front, instead just the usual sentence. This is because some old cards have no defintions (they english defintions but I deleted them) but have a frequency

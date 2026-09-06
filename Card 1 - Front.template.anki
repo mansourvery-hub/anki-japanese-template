@@ -1,10 +1,11 @@
 <!-- FRONT CARD TEMPLATE
      Premium Ergonomic Japanese Front Card
      
-      Behavior:
-      - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
-      - Listening: Shows circular interactive audio player if definitions are missing.
-      - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
+       Behavior:
+       - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
+       - Listening: Shows circular interactive audio player if definitions are missing AND Frequency is empty.
+       - Frequency legacy: No definitions but Frequency present (old cards with deleted glosses) → usual sentence, never the audio button.
+       - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
       - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
         the front shows only the Expression instead of the sentence (anti-overlearning).
          Interval is read at review time: AnkiDroid JS API (ankiGetCardInterval) on mobile,
@@ -52,7 +53,22 @@
     <!-- Listening Mode / Pathological Fallback -->
     {{^Definition}}
       {{^Extended definition}}
-        
+
+        <!-- Frequency present but definitions missing (legacy cards with
+             deleted English glosses): NOT a listening card — show the
+             usual sentence instead of the audio button. -->
+        {{#Frequency}}
+            <div class="sentence-display">
+              {{#Sentence}}
+                {{edit:Sentence}}
+              {{/Sentence}}
+              {{^Sentence}}
+                {{edit:Expression}}
+              {{/Sentence}}
+            </div>
+        {{/Frequency}}
+
+        {{^Frequency}}
         <!-- Sentence Audio available -->
         {{#Sentence Audio}}
           <div class="listening-view">
@@ -83,6 +99,7 @@
               {{/Sentence}}
             </div>
         {{/Sentence Audio}}
+        {{/Frequency}}
       {{/Extended definition}}
     {{/Definition}}
 
