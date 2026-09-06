@@ -112,7 +112,7 @@
 
           <!-- Main Definition (compact: see "Definition Compactor" CSS section) -->
           {{#Definition}}
-            <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="toggleDefinition(this)">
+            <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="toggleDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
               {{edit:furigana:Definition}}
             </div>
           {{/Definition}}
@@ -121,7 +121,7 @@
                (compacted identically — see 6b DEFINITION COMPACTOR in CSS) -->
           {{^Definition}}
             {{#Extended definition}}
-              <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="toggleDefinition(this)">
+              <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="toggleDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
                 {{Extended definition}}
               </div>
             {{/Extended definition}}
@@ -395,19 +395,41 @@
 
     window.renderFrequencyIndicator();
 
-    /* --- DEFINITION EXPANDER (Click to expand/collapse long definitions) --- */
+    /* --- DEFINITION TRUNCATOR (1-line cap + click to expand) ---
+       .is-truncated is set only when content truly overflows the 1-line
+       cap, so short glosses never show a misleading fade/chevron. Toggle
+       always works (even if measured pre-font-load) — chevron is a hint,
+       not the switch. Idempotent: safe under Anki WebView DOM re-use. */
     window.toggleDefinition = function(element) {
-      // Toggle expanded state
       const isExpanded = element.classList.toggle('is-expanded');
       element.setAttribute('aria-expanded', isExpanded.toString());
+    };
 
-      // Handle keyboard navigation
-      if (event && event.type === 'keydown') {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          element.click();
-        }
+    window.handleDefinitionKey = function(evt, element) {
+      if (evt.key === 'Enter' || evt.key === ' ') {
+        evt.preventDefault();
+        window.toggleDefinition(element);
       }
     };
+
+    window.initDefinitionTruncation = function(root) {
+      const scope = root || document;
+      scope.querySelectorAll('.primary-definition').forEach(function(box) {
+        box.classList.remove('is-expanded');
+        box.setAttribute('aria-expanded', 'false');
+        const overflows = box.scrollHeight > box.clientHeight + 2;
+        box.classList.toggle('is-truncated', overflows);
+      });
+    };
+
+    window.initDefinitionTruncation();
+    /* Late fonts can reflow line breaks: re-check once loading settles. */
+    try {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function() { window.initDefinitionTruncation(); });
+      } else {
+        window.addEventListener('load', function() { window.initDefinitionTruncation(); });
+      }
+    } catch (e) { /* measure-once fallback above already ran */ }
   })();
 </script>

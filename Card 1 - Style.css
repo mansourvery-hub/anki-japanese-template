@@ -521,30 +521,43 @@
 /* ==============================================================================
     6c. DEFINITION TRUNCATOR & EXPANDABLE UI
     ==============================================================================
-    Limit definitions to 1 line with elegant expand/collapse indicator.
-    Progressive fade effect indicates "there's more below" without text.
-    The truncation applies only to the compact primary definition display.
+    Primary definition is capped at ONE line (line-height 1.6 => 1.6em).
+    Longer content clips and gets a progressive fade + one small ▼ chevron
+    (no text label). Click, tap, Enter or Space toggles .is-expanded.
+
+    Mechanics are deliberately boring so they hold for ANY nested Yomitan
+    markup on every client (Qt6 WebEngine + AnkiDroid WebKit):
+      - display:block + max-height + overflow:hidden clips everything.
+        (-webkit-line-clamp was tried and reverted: it needs -webkit-box,
+        miscounts nested block children, and silently kept .is-expanded
+        clamped because the clamp was never unset on expand.)
+      - .is-truncated is added by JS only when content truly overflows
+        (scrollHeight > clientHeight), so 1-line glosses never show a
+        misleading fade/chevron. Without JS the box is just a plain full
+        definition — never broken, never misleading.
     ============================================================================== */
 
+/* Collapsed cap = exactly 1 line (line-height:1.6 inherited from .definition-box) */
 .definition-box.primary-definition {
   position: relative;
   overflow: hidden;
-  max-height: 1.5em;
-  line-clamp: 1;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.3s ease;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
+  max-height: 1.6em;
+  cursor: default;
 }
 
-.primary-definition.is-expanded {
+/* Expanded: cap removed entirely */
+.definition-box.primary-definition.is-expanded {
   max-height: none;
-  padding-bottom: 0;
+  cursor: pointer;
 }
 
-/* Progressive fade effect - shows content is truncated */
-.primary-definition:not(.is-expanded)::after {
+/* Overflow confirmed by JS: clickable affordance */
+.definition-box.primary-definition.is-truncated {
+  cursor: pointer;
+}
+
+/* Progressive fade: line bottom dissolves into the card => "there's more" */
+.definition-box.primary-definition.is-truncated:not(.is-expanded)::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -553,61 +566,27 @@
   height: 1.1em;
   background: linear-gradient(to bottom,
     transparent 0%,
-    transparent 25%,
     var(--card-bg) 100%
   );
   pointer-events: none;
-  transition: opacity 0.2s ease;
 }
 
-/* Expand indicator - subtle chevron arrow */
-.primary-definition:not(.is-expanded)::before {
+/* Collapsed indicator: one small chevron, no text */
+.definition-box.primary-definition.is-truncated:not(.is-expanded)::before {
   content: "▼";
   position: absolute;
-  bottom: 0.5em;
+  bottom: 0;
   left: 50%;
-  transform: translateX(-50%) translateY(100%);
+  transform: translateX(-50%);
   color: var(--text-muted);
-  font-size: 0.7rem;
-  transition: transform 0.2s ease, color 0.2s ease;
-  opacity: 0;
+  font-size: 0.65rem;
+  line-height: 1;
   pointer-events: none;
 }
 
-/* Show indicator when truncated */
-.primary-definition:not(.is-expanded)::before {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Hide indicator when expanded */
-.primary-definition.is-expanded::before {
-  transform: translateX(-50%) translateY(100%);
-  opacity: 0;
-}
-
-/* Hover and focus states */
-.primary-definition:hover:not(.is-expanded)::before {
+.definition-box.primary-definition.is-truncated:not(.is-expanded):hover::before,
+.definition-box.primary-definition.is-truncated:not(.is-expanded):focus-visible::before {
   color: var(--accent-color);
-  transform: translateX(-50%) translateY(0);
-}
-
-.primary-definition:focus-within:not(.is-expanded)::before {
-  color: var(--accent-color);
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Accessibility support - chevron shows collapsed state */
-.primary-definition[aria-expanded="true"]::before {
-  content: "▼";
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-
-/* Chevron rotates when expanded */
-.primary-definition.is-expanded::before {
-  transform: translateX(-50%) translateY(100%);
-  opacity: 0;
 }
 
 /* ==============================================================================

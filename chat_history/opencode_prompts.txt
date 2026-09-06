@@ -547,3 +547,7 @@ Reduce truncation to 1.8em (about 1 line)
 ---
 
 Fix truncation with CSS line-clamp instead of max-height
+
+---
+
+Definition Truncation Feature - Handoff: fix the 1-line truncator so collapse/expand visibly works (block max-height, overflow-gated chevron+fade)
