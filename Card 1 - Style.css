@@ -53,11 +53,6 @@
      em-based so it scales with font size (which scales with viewport) —
      never a fixed pixel value. Consumed by furigana-bearing fields. */
   --furigana-headroom: calc(0.55em + 2px);
-
-  /* Front-card shrink-to-fit floor: the JS fitter only ever shrinks the
-     front sentence/word down to this size. Below it, genuinely long
-     content is allowed to scroll. Tune here — no JS change needed. */
-  --front-min-font: 1.125rem;
   
   /* Fonts */
   --font-japanese-serif: "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", "Noto Serif JP", serif;
@@ -241,13 +236,9 @@
 
 
 /* ==============================================================================
-    5. FRONT CARD TYPOGRAPHY - Shrink-to-Fit Sizing
-       CSS owns the aesthetic maximum (fluid via vmin so short text fills
-       the viewport on any screen/orientation). JS owns the fit guarantee:
-       it measures real viewport overflow and shrinks — never enlarges —
-       down to --front-min-font. Below that floor, genuinely long content
-       scrolls. No character-count buckets: length, width, font metrics
-       and viewport are all captured implicitly by the measurement.
+    5. FRONT CARD TYPOGRAPHY - Fluid Sizing
+       One base clamp for all screens (vmin respects height too), plus a
+       smaller override in the mobile block (section 13) for phones.
     ============================================================================== */
 .sentence-display,
 .front-word-display {
@@ -895,7 +886,9 @@ ruby:focus-within rt {
     -webkit-backdrop-filter: none;
   }
 
-  .sentence-display {
+  .sentence-display,
+  .front-word-display {
+    font-size: clamp(1.3rem, 4.5vmin + 0.75rem, 2.4rem);
     padding: clamp(4px, 1.5vmin, 6px) clamp(1px, 0.5vmin, 2px);
   }
 
