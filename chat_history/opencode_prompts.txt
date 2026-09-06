@@ -515,3 +515,7 @@ THE word in front is still too strong, does not change formatting, keep in mind 
 ---
 
 sentence-japanese b/strong is still 700, in the back, leave it as the rest
+
+---
+
+the way that the CSS handle setence font size in front card is clever (using sentence length) but it iscurrently mal calibrated on my phone. I get sometimes too big of a text and have to scroll down which unpleasnt on mobile. If the text is too long I don't mind scroling, but scroling because its too big i really bad. Fix it please with a genral clean soloution not any hacks that solve the issue now but create more problems in the futre (say for adifferent scrren size or a different sentence lenght etc)

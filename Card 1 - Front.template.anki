@@ -13,7 +13,9 @@
          is active. Mobile preview screens have no JS bridge (only the reviewer
          injects js-api.js), so they always fall back to the sentence front.
          Any failure falls back to the normal sentence front.
-      - Dynamic Font Auto-Scaling: Automatically enlarges short sentences/expressions to fill the viewport.
+      - Dynamic Font Shrink-to-Fit: CSS provides the fluid maximum so
+        short sentences fill the viewport; JS only shrinks until the page
+        fits without scroll (floor: --front-min-font, then scroll).
 
 -->
 
@@ -92,23 +94,69 @@
   (async function() {
     /* --- 1. HOISTED UTILITIES & FUNCTIONS --- */
     
-    /* Dynamic Font Scaling for Front Sentence / Expression */
-    function autoScaleFrontText() {
-      const displays = document.querySelectorAll('.sentence-display, .front-word-display');
-      displays.forEach(el => {
-        const text = el.innerText ? el.innerText.trim() : '';
-        const len = text.length;
-        if (len === 0) return;
-
-        if (len <= 8) {
-          el.dataset.len = 'short';
-        } else if (len <= 18) {
-          el.dataset.len = 'medium-short';
-        } else if (len <= 35) {
-          el.dataset.len = 'medium-long';
-        } else {
-          el.dataset.len = 'long';
+    /* --- SHRINK-TO-FIT FRONT SCALING ---
+       CSS owns the aesthetic maximum; this only ever shrinks — never
+       enlarges — until the whole page fits the viewport without scroll,
+       or --front-min-font is reached (genuinely long content then
+       scrolls, which is intended). Measurement captures sentence
+       length, viewport size, orientation and font metrics implicitly,
+       so no character-count buckets or per-device tuning is needed. */
+    function getFrontMinPx() {
+      try {
+        const raw = getComputedStyle(document.documentElement)
+          .getPropertyValue('--front-min-font').trim();
+        if (raw) {
+          const rootPx = parseFloat(
+            getComputedStyle(document.documentElement).fontSize) || 16;
+          if (raw.endsWith('rem')) return parseFloat(raw) * rootPx;
+          if (raw.endsWith('px')) return parseFloat(raw);
+          const n = parseFloat(raw);
+          if (Number.isFinite(n) && n > 0) return n;
         }
+      } catch (_) { /* fall through to default */ }
+      return 18;
+    }
+
+    function frontPageOverflows(el) {
+      const docH = Math.max(
+        (document.documentElement && document.documentElement.scrollHeight) || 0,
+        (document.body && document.body.scrollHeight) || 0
+      );
+      const viewportH = window.innerHeight ||
+        (document.documentElement && document.documentElement.clientHeight) || docH;
+      if (docH > viewportH + 2) return true;
+      if (el && el.scrollWidth > el.clientWidth + 2) return true;
+      return false;
+    }
+
+    function fitFrontTextToViewport() {
+      let displays = null;
+      try {
+        displays = document.querySelectorAll('.sentence-display, .front-word-display');
+      } catch (_) { return; }
+      if (!displays || !displays.length) return;
+      const minPx = getFrontMinPx();
+      displays.forEach(el => {
+        if (!el || !el.isConnected) return;
+        let cs = null;
+        try { cs = window.getComputedStyle(el); } catch (_) { return; }
+        if (cs && cs.display === 'none') return;
+        const text = el.innerText || el.textContent || '';
+        if (!text.trim()) return;
+        el.style.fontSize = '';
+        let maxPx = 0;
+        try { maxPx = parseFloat(window.getComputedStyle(el).fontSize); } catch (_) { return; }
+        if (!Number.isFinite(maxPx) || maxPx <= minPx) return;
+        if (!frontPageOverflows(el)) return;
+        let lo = minPx, hi = maxPx, best = minPx, guard = 0;
+        while (hi - lo > 1 && guard < 20) {
+          guard++;
+          const mid = (lo + hi) / 2;
+          el.style.fontSize = mid + 'px';
+          if (frontPageOverflows(el)) hi = mid;
+          else { best = mid; lo = mid; }
+        }
+        el.style.fontSize = best + 'px';
       });
     }
 
@@ -188,12 +236,46 @@
 
       /* Safety Reveal: Ensure card shows even if async calls hang.
          The cap sits well above the slowest happy path (low hundreds
-         of ms) and only binds failure paths. */
+         of ms) and only binds failure paths. Fit runs while still
+         hidden (visibility:hidden keeps layout measurable) so no
+         oversized flash appears. */
       const reveal = () => {
+        try { fitFrontTextToViewport(); } catch (_) { /* keep CSS size */ }
         container.style.visibility = 'visible';
-        autoScaleFrontText();
       };
       const safetyTimeout = setTimeout(reveal, 1200);
+
+      /* Re-fit on rotation/resize. The WebView is reused across cards,
+         so drop the previous card's listeners first (no accumulation). */
+      try {
+        if (window._frontFitCleanup) window._frontFitCleanup();
+      } catch (_) { /* ignore stale cleanup */ }
+      let frontFitTimer = null;
+      const refitFront = () => {
+        if (!container.isConnected) return;
+        try { fitFrontTextToViewport(); } catch (_) { /* keep current size */ }
+      };
+      const scheduleRefit = () => {
+        if (frontFitTimer) clearTimeout(frontFitTimer);
+        frontFitTimer = setTimeout(refitFront, 150);
+      };
+      window.addEventListener('resize', scheduleRefit);
+      window.addEventListener('orientationchange', scheduleRefit);
+      window._frontFitCleanup = () => {
+        window.removeEventListener('resize', scheduleRefit);
+        window.removeEventListener('orientationchange', scheduleRefit);
+        if (frontFitTimer) clearTimeout(frontFitTimer);
+      };
+      /* Web-font swap can change metrics after first fit — re-fit once
+         they settle (guarded: old AnkiDroid WebViews lack the API). */
+      try {
+        if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+          document.fonts.ready.then(() => {
+            if (container.isConnected &&
+              container.style.visibility === 'visible') refitFront();
+          }).catch(() => {});
+        }
+      } catch (_) { /* non-critical */ }
 
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured
          healthy localhost latency (~25ms/call), so it only ever binds
