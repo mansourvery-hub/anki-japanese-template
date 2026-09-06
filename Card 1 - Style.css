@@ -521,9 +521,11 @@
 /* ==============================================================================
     6c. DEFINITION TRUNCATOR & EXPANDABLE UI
     ==============================================================================
-    Primary definition is capped at ONE line (line-height 1.6 => 1.6em).
-    Longer content clips and gets a progressive fade + one small ▼ chevron
-    (no text label). Click, tap, Enter or Space toggles .is-expanded.
+    Primary definition shows FOUR lines by default (line-height 1.6 =>
+    6.4em). Longer content clips and gets a progressive fade + one small
+    ▼ chevron (no text label). Click, tap, Enter or Space expands to the
+    full text and STAYS expanded (one-way: a second click never
+    re-collapses it).
 
     Mechanics are deliberately boring so they hold for ANY nested Yomitan
     markup on every client (Qt6 WebEngine + AnkiDroid WebKit):
@@ -532,23 +534,23 @@
         miscounts nested block children, and silently kept .is-expanded
         clamped because the clamp was never unset on expand.)
       - .is-truncated is added by JS only when content truly overflows
-        (scrollHeight > clientHeight), so 1-line glosses never show a
+        (scrollHeight > clientHeight), so short glosses never show a
         misleading fade/chevron. Without JS the box is just a plain full
         definition — never broken, never misleading.
     ============================================================================== */
 
-/* Collapsed cap = exactly 1 line (line-height:1.6 inherited from .definition-box) */
+/* Collapsed cap = 4 lines (line-height:1.6 inherited from .definition-box) */
 .definition-box.primary-definition {
   position: relative;
   overflow: hidden;
-  max-height: 1.6em;
+  max-height: calc(1.6em * 4);
   cursor: default;
 }
 
-/* Expanded: cap removed entirely */
+/* Expanded: cap removed entirely, stays expanded (no re-collapse) */
 .definition-box.primary-definition.is-expanded {
   max-height: none;
-  cursor: pointer;
+  cursor: default;
 }
 
 /* Overflow confirmed by JS: clickable affordance */

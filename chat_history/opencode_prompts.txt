@@ -551,3 +551,7 @@ Fix truncation with CSS line-clamp instead of max-height
 ---
 
 Definition Truncation Feature - Handoff: fix the 1-line truncator so collapse/expand visibly works (block max-height, overflow-gated chevron+fade)
+
+---
+
+nothing is fixed, second click still closes the expanded definition and the definition is still showing only the first line by default I said I needed 3 or 4 minimum by default
