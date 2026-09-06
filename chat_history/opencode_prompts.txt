@@ -539,3 +539,7 @@ Redesign definition truncation with minimal arrow indicator and progressive fade
 ---
 
 Reduce truncation to 2 lines and adjust fade overlay
+
+---
+
+Reduce truncation to 1.8em (about 1 line)

@@ -529,7 +529,7 @@
 .primary-definition {
   position: relative;
   overflow: hidden;
-  max-height: 2.2em;
+  max-height: 1.8em;
   transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.3s ease;
 }
 
@@ -545,10 +545,10 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 1.3em;
+  height: 1.1em;
   background: linear-gradient(to bottom,
     transparent 0%,
-    transparent 20%,
+    transparent 25%,
     var(--card-bg) 100%
   );
   pointer-events: none;
