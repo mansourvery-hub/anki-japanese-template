@@ -518,6 +518,65 @@
   color: var(--text-muted);
 }
 
+/* ==============================================================================
+    6c. DEFINITION TRUNCATOR & EXPANDABLE UI
+    ==============================================================================
+    Limit definitions to 3 lines maximum with expand/collapse indicator.
+    The truncation applies only to the compact primary definition display.
+    ============================================================================== */
+
+.primary-definition {
+  position: relative;
+  overflow: hidden;
+  max-height: 3.2em;
+  transition: max-height 0.3s ease, padding-bottom 0.3s ease;
+}
+
+.primary-definition.is-expanded {
+  max-height: none;
+  padding-bottom: 8px;
+}
+
+/* Expand indicator - chevron arrow */
+.primary-definition::after {
+  content: "▼";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1.2em;
+  background: linear-gradient(to bottom, transparent, var(--card-bg) 90%);
+  color: var(--accent-color);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  user-select: none;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+
+.primary-definition.is-expanded::after {
+  transform: rotate(180deg);
+  background: linear-gradient(to bottom, transparent, var(--card-bg) 95%);
+}
+
+.primary-definition:hover::after,
+.primary-definition:focus::after {
+  background: linear-gradient(to bottom, transparent, var(--card-bg) 85%);
+}
+
+.primary-definition::after:hover,
+.primary-definition::after:focus {
+  opacity: 1;
+}
+
+/* Accessibility support for keyboard expansion */
+.primary-definition[aria-expanded="true"]::after {
+  content: "▲";
+  transform: rotate(180deg);
+}
 
 /* ==============================================================================
     7. CIRCULAR AUDIO BUTTON WITH SVG PROGRESS RING

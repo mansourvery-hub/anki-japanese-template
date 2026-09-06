@@ -523,3 +523,7 @@ the way that the CSS handle setence font size in front card is clever (using sen
 ---
 
 still text too big and too complicated implementation
+
+---
+
+Add definition truncation feature with expand/collapse indicator for long dictionary definitions

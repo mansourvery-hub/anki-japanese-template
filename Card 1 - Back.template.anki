@@ -112,7 +112,7 @@
 
           <!-- Main Definition (compact: see "Definition Compactor" CSS section) -->
           {{#Definition}}
-            <div class="definition-box primary-definition">
+            <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="toggleDefinition(this)">
               {{edit:furigana:Definition}}
             </div>
           {{/Definition}}
@@ -121,7 +121,7 @@
                (compacted identically — see 6b DEFINITION COMPACTOR in CSS) -->
           {{^Definition}}
             {{#Extended definition}}
-              <div class="definition-box primary-definition">
+              <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="toggleDefinition(this)">
                 {{Extended definition}}
               </div>
             {{/Extended definition}}
@@ -334,7 +334,7 @@
         }
     };
 
-    /* --- FREQUENCY VISUALIZER (Progress Bar + 5-Star Scale + Tier Colors) --- */
+     /* --- FREQUENCY VISUALIZER (Progress Bar + 5-Star Scale + Tier Colors) --- */
     window.renderFrequencyIndicator = function() {
       const badges = document.querySelectorAll('.frequency-badge[data-freq]');
       badges.forEach(badge => {
@@ -394,5 +394,20 @@
     };
 
     window.renderFrequencyIndicator();
+
+    /* --- DEFINITION EXPANDER (Click to expand/collapse long definitions) --- */
+    window.toggleDefinition = function(element) {
+      // Toggle expanded state
+      const isExpanded = element.classList.toggle('is-expanded');
+      element.setAttribute('aria-expanded', isExpanded.toString());
+
+      // Handle keyboard navigation
+      if (event && event.type === 'keydown') {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          element.click();
+        }
+      }
+    };
   })();
 </script>
