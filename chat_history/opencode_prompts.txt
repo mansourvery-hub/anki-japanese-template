@@ -535,3 +535,7 @@ Improve definition truncation indicator design - make it more elegant and integr
 ---
 
 Redesign definition truncation with minimal arrow indicator and progressive fade effect
+
+---
+
+Reduce truncation to 2 lines and adjust fade overlay
