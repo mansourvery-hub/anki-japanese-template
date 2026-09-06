@@ -31,7 +31,7 @@ This document defines the strict operational rules, architectural guidelines, an
 
 ### 0. Field-Name Bootstrap (fields live in Anki, never in the repo)
 - Note-type fields are managed **exclusively inside the Anki UI**. The repo keeps **no** static field list (the old `JapNoteType.json` snapshot was deleted for exactly this reason — it went stale).
-- At session start, **before** any template work, run `python3 fetch_anki_fields.py` and read the generated `.anki_fields.json` snapshot for exact field names.
+- At session start, **before** any template work, run `python3 fetch_anki_fields.py` and read the generated `.anki_fields.json` snapshot for exact field names and descriptions.
 - If Anki / Anki-Connect is unreachable, **stop and ask the user to start Anki** — never guess, invent, or reuse field names from memory or chat history.
 
 ### 1. Local Files are the Single Source of Truth
