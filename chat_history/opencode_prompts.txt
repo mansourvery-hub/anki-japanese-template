@@ -555,3 +555,11 @@ Definition Truncation Feature - Handoff: fix the 1-line truncator so collapse/ex
 ---
 
 nothing is fixed, second click still closes the expanded definition and the definition is still showing only the first line by default I said I needed 3 or 4 minimum by default
+
+---
+
+forget it then. I will manage fields in exculsivly inside anki. how would my agents know my field name when they read the repo, going to the anki database each time to get exact names? should add it as a rule? after reading all the files in my repo as thenfirst promt, agent should download the fields from anki database.
+
+---
+
+all good go, also remove the old json in the end since we will have a more up to date file by the end, test your script

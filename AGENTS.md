@@ -13,7 +13,7 @@ This document defines the strict operational rules, architectural guidelines, an
   - `Card 1 - Front.template.anki` (Front card HTML & dynamic scaling script + Mature Word Mode: interval-gated word-only front, threshold const `LONG_INTERVAL_DAYS`, AnkiConnect `guiCurrentCard`/content-search + AnkiDroid JS API retrieval, graceful sentence fallback)
   - `Card 1 - Back.template.anki` (Back card HTML, circular audio & lightbox script)
   - `Card 1 - Style.css` (Tokyo Night & Aki Paper themes, responsive clamps)
-  - `JapNoteType.json` (Source of truth for all 18 note field names and configurations)
+  - `fetch_anki_fields.py` (Read-only AnkiConnect dump of the live note-type field names into gitignored `.anki_fields.json`; stdlib only — see rule 0)
   - `finish.sh` (⭐ THE post-change routine: tests + sync + export + commit + push + release in one command; flags: `--local`, `--minor`, `--prompt`)
   - `sync_to_anki.py` (Pushes templates & styles to Anki via Anki-Connect; snapshots the live Anki state into gitignored `backups/<timestamp>/` before overwriting; step 1 of finish.sh)
   - `release_apkg.py` (Exports sample deck to `dist/anki-japanese-template.apkg` via Anki-Connect `exportPackage`; step 2 of finish.sh)
@@ -28,6 +28,11 @@ This document defines the strict operational rules, architectural guidelines, an
 ---
 
 ## 🔒 Mandatory Golden Rules for All Agents
+
+### 0. Field-Name Bootstrap (fields live in Anki, never in the repo)
+- Note-type fields are managed **exclusively inside the Anki UI**. The repo keeps **no** static field list (the old `JapNoteType.json` snapshot was deleted for exactly this reason — it went stale).
+- At session start, **before** any template work, run `python3 fetch_anki_fields.py` and read the generated `.anki_fields.json` snapshot for exact field names.
+- If Anki / Anki-Connect is unreachable, **stop and ask the user to start Anki** — never guess, invent, or reuse field names from memory or chat history.
 
 ### 1. Local Files are the Single Source of Truth
 - **Never** instruct the user to edit HTML/CSS inside the Anki application UI.

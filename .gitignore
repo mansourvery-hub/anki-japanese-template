@@ -1,3 +1,4 @@
 __pycache__/
 *.apkg
 backups/
+.anki_fields.json

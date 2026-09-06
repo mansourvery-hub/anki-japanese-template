@@ -129,7 +129,7 @@ cd anki-japanese-template
 ├── Card 1 - Front.template.anki   # Front card HTML, dynamic scaling & Mature Word Mode (interval-gated word-only front)
 ├── Card 1 - Back.template.anki    # Back card HTML template, audio & lightbox scripts
 ├── Card 1 - Style.css             # Tokyo Night & Aki Paper CSS responsive styling
-├── JapNoteType.json               # Note type schema export definition (18 fields)
+├── fetch_anki_fields.py            # Read-only dump of live Anki field names into gitignored .anki_fields.json (fields are managed in Anki, never here)
 ├── finish.sh                      # One-command routine: tests + sync + export + commit + push + release
 ├── sync_to_anki.py                # Push templates to Anki via Anki-Connect (with pre-sync backup)
 ├── release_apkg.py                # Export sample deck to dist/*.apkg via Anki-Connect
