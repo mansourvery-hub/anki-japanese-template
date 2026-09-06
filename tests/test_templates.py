@@ -89,6 +89,20 @@ def main():
           re.search(r"\.raw-audio-source\s*\{[^}]*position:\s*absolute", css) is not None
           and ".raw-audio-source" in css)
 
+    # --- 2c. Cloze fallback: bold-less Sentence rebuilt from cloze trio ---
+    check("Front: hidden cloze probe with plain prefix/body/suffix fields",
+          'class="cloze-probe"' in front
+          and "{{cloze-prefix}}" in front and "{{cloze-body}}" in front
+          and "{{cloze-suffix}}" in front)
+    check("Front: probe uses plain fields (no edit: filter, stays furigana-free)",
+          "edit:cloze" not in front)
+    check("Front: reconstruction only fires when sentence lacks bold",
+          "querySelector('b, strong')" in front)
+    check("Front: reconstruction requires the complete trio (no partial rebuild)",
+          "clozePre && clozeMid && clozeSuf" in front)
+    check("Front: rebuilt term uses <b> (inherits sentence-display styling)",
+          "createElement('b')" in front)
+
     # --- 4. Lightbox: backdrop-only close ---
     check("lightbox closes only on backdrop click (e.target === overlay)",
           "if (e.target === overlay) closeOverlay()" in back)

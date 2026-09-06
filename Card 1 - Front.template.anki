@@ -4,6 +4,10 @@
        Behavior:
        - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
        - Listening: Shows circular interactive audio player if definitions are missing AND Frequency is empty.
+       - Cloze Fallback: Sentence without a bold term (jidoushio mobile
+         exports) is rebuilt in JS from cloze-prefix + <b>cloze-body</b>
+         + cloze-suffix when all three are non-empty; otherwise the
+         usual sentence is kept untouched.
        - Frequency legacy: No definitions but Frequency present (old cards with deleted glosses) → usual sentence, never the audio button.
        - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
       - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
@@ -23,6 +27,15 @@
   <div class="card-container" data-notetype="{{Type}}" style="visibility: hidden;">
     <!-- Mature-Card Word Mode probe: shown instead of sentence when interval >= threshold -->
     <div class="front-word-display">{{edit:Expression}}</div>
+
+    <!-- Cloze-fallback probe (jidoushio mobile exports): hidden source
+         parts for JS sentence reconstruction when Sentence has no bold
+         term. Plain filters — never displayed, never edited. -->
+    <div class="cloze-probe" hidden>
+      <span class="cloze-pre">{{cloze-prefix}}</span>
+      <span class="cloze-mid">{{cloze-body}}</span>
+      <span class="cloze-suf">{{cloze-suffix}}</span>
+    </div>
 
     <!-- Standard Study View -->
     {{#Definition}}
@@ -191,6 +204,41 @@
         container.style.visibility = 'visible';
       };
       const safetyTimeout = setTimeout(reveal, 1200);
+
+      /* --- CLOZE FALLBACK (BEGIN — headless check extracts this block verbatim) ---
+         jidoujisho mobile exports often carry a Sentence with no <b>
+         target term. When the rendered sentence has no bold element but
+         the cloze trio (prefix/body/suffix) is complete, rebuild it as
+         prefix + <b>body</b> + suffix so the front is indistinguishable
+         from a proper Yomitan sentence (same .sentence-display b styling).
+         Any gap or failure keeps the original sentence untouched. */
+      try {
+        const probe = container.querySelector('.cloze-probe');
+        const probeText = (sel) => {
+          const el = probe && probe.querySelector(sel);
+          return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : '';
+        };
+        const clozePre = probeText('.cloze-pre');
+        const clozeMid = probeText('.cloze-mid');
+        const clozeSuf = probeText('.cloze-suf');
+        if (clozePre && clozeMid && clozeSuf) {
+          container.querySelectorAll('.sentence-display').forEach((sd) => {
+            if (!sd.querySelector('b, strong')) {
+              sd.textContent = '';
+              const bold = document.createElement('b');
+              bold.textContent = clozeMid;
+              sd.append(
+                document.createTextNode(clozePre),
+                bold,
+                document.createTextNode(clozeSuf)
+              );
+            }
+          });
+        }
+      } catch (clozeErr) {
+        console.warn('[Cloze Fallback]', clozeErr);
+      }
+      /* --- CLOZE FALLBACK (END) --- */
 
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured
          healthy localhost latency (~25ms/call), so it only ever binds

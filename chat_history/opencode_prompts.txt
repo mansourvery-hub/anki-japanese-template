@@ -567,3 +567,7 @@ all good go, also remove the old json in the end since we will have a more up to
 ---
 
 A small undrelated QOL bug, if we have no defintions we go to listening mode, which is the correct behaviour but if the frequency field is not empty, we should not show aduio button at front, instead just the usual sentence. This is because some old cards have no defintions (they english defintions but I deleted them) but have a frequency
+
+---
+
+More QOL of featurse, if the sentence does not have a bold term (typically because it was exported via jidoushio from mobile) use the close body close sufix and close prefix fields to reconscrtuct the sentence. In front in this unique case, show close suffix close body (in bold) and then close suffix (it should look undistinginshbale from other cards with a propper sentence with a bold expression). Note this only works if these fields (cloze suffix, cloze prefix and cloze budy are not empty), if any of them is, then just show the usual sentence. IF you can do this in a clever way with JS that would be great
