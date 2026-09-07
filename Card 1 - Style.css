@@ -17,18 +17,18 @@
    1. COLOR SYSTEM & CSS VARIABLES
    ============================================================================== */
 :root {
-  /* --- TOKYO NIGHT DARK (Default) --- */
-  --bg-color: #0f141c;
-  --card-bg: #182030;
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f0f6fc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  /* --- TOKYO NIGHT DARK (Default - Refined to DiskBuddy Obsidian) --- */
+  --bg-color: #090a10;
+  --card-bg: #121520;
+  --card-border: rgba(255, 255, 255, 0.065);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
   
-   --accent-color: #38bdf8;
-  --accent-light: rgba(56, 189, 248, 0.12);
-  --accent-soft: rgba(56, 189, 248, 0.22);
-  --accent-glow: 0 0 16px rgba(56, 189, 248, 0.35);
+  --accent-color: #818cf8;
+  --accent-light: rgba(129, 140, 248, 0.08);
+  --accent-soft: rgba(129, 140, 248, 0.16);
+  --accent-glow: 0 0 16px rgba(129, 140, 248, 0.25);
 
   --freq-very-common: #10b981;
   --freq-common: #22c55e;
@@ -36,11 +36,11 @@
   --freq-uncommon: #f97316;
   --freq-rare: #ef4444;
 
-  --shadow-premium: 0 6px 20px -3px rgba(0, 0, 0, 0.4);
-  --bg-sticky: rgba(15, 20, 28, 0.92);
-  --border-radius-lg: 12px;
-  --border-radius-md: 8px;
-  --border-radius-sm: 6px;
+  --shadow-premium: 0 12px 30px -4px rgba(0, 0, 0, 0.5);
+  --bg-sticky: rgba(9, 10, 16, 0.92);
+  --border-radius-lg: 18px;
+  --border-radius-md: 12px;
+  --border-radius-sm: 8px;
 
   /* Spacing Tokens - Fluid viewport-based (single values, usable via padding: X Y) */
   --gap-block: clamp(2px, 1.5vmin, 8px);
@@ -57,24 +57,24 @@
   /* Fonts */
   --font-japanese-serif: "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", "Noto Serif JP", serif;
   --font-japanese-sans: "Inter", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
-  --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   
   --max-content-width: 100%;
 }
 
-/* --- AKI PAPER LIGHT THEME --- */
+/* --- AKI PAPER LIGHT THEME (Refined to DiskBuddy Light) --- */
 .card:not(.nightMode):not(.night_mode) {
-  --bg-color: #fcfaf6;
+  --bg-color: #f4f5f6;
   --card-bg: #ffffff;
-  --card-border: #e4e2dd;
-  --text-primary: #1a1b1e;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-muted: #9ca3af;
   
-  --accent-color: #d97706;
-  --accent-light: rgba(217, 119, 6, 0.08);
-  --accent-soft: rgba(217, 119, 6, 0.16);
-  --accent-glow: 0 0 16px rgba(217, 119, 6, 0.25);
+  --accent-color: #4f46e5;
+  --accent-light: rgba(79, 70, 229, 0.05);
+  --accent-soft: rgba(79, 70, 229, 0.12);
+  --accent-glow: 0 0 12px rgba(79, 70, 229, 0.15);
 
   --freq-very-common: #059669;
   --freq-common: #16a34a;
@@ -82,22 +82,22 @@
   --freq-uncommon: #ea580c;
   --freq-rare: #dc2626;
 
-  --bg-sticky: rgba(252, 250, 246, 0.95);
-  --shadow-premium: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --bg-sticky: rgba(244, 245, 246, 0.92);
+  --shadow-premium: 0 8px 24px -3px rgba(0, 0, 0, 0.04);
 }
 
 .card.nightMode,
 .card.night_mode {
   /* These are redundant as they are identical to :root, but kept for specificity */
-  --bg-color: #0f141c;
-  --card-bg: #182030;
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f0f6fc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-color: #38bdf8;
-  --accent-light: rgba(56, 189, 248, 0.12);
-  --accent-soft: rgba(56, 189, 248, 0.22);
+  --bg-color: #090a10;
+  --card-bg: #121520;
+  --card-border: rgba(255, 255, 255, 0.065);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --accent-color: #818cf8;
+  --accent-light: rgba(129, 140, 248, 0.08);
+  --accent-soft: rgba(129, 140, 248, 0.16);
 }
 
 
@@ -149,10 +149,10 @@
   width: 100%;
   /* Stacked clearance (px-based so the sticky bar itself stays compact):
      its own base padding + the word furigana headroom below it. */
-  padding: 3px 0;
+  padding: 4px 0;
   background-color: var(--bg-sticky);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--card-border);
   display: flex;
   justify-content: center;
@@ -161,22 +161,29 @@
 .tags-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
-  padding: 0 8px;
+  padding: 0 12px;
 }
 
 .tag-pill {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
   background-color: var(--accent-light);
   border: 1px solid var(--card-border);
-  padding: 2px 10px;
-  border-radius: 12px;
+  padding: 3px 12px;
+  border-radius: 9999px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tag-pill:hover {
+  color: var(--accent-color);
+  border-color: var(--accent-soft);
+  transform: translateY(-1px);
 }
 
 
@@ -232,6 +239,9 @@
   padding: var(--block-pad-y) var(--block-pad-x);
   box-shadow: var(--shadow-premium);
   text-align: left;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
 }
 
 
@@ -262,18 +272,24 @@
 .front-word-display b,
 .front-word-display strong {
   color: var(--accent-color);
-  font-weight: 400;
-  background: linear-gradient(transparent 75%, var(--accent-light) 75%);
-  padding: 0 4px;
+  font-weight: 500;
+  background-color: var(--accent-light);
+  border-bottom: 2px solid var(--accent-color);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 0 2px;
 }
 
 /* Back sentence target matches surrounding weight — color + underline mark it. */
 .sentence-japanese b,
 .sentence-japanese strong {
   color: var(--accent-color);
-  font-weight: 400;
-  background: linear-gradient(transparent 75%, var(--accent-light) 75%);
-  padding: 0 4px;
+  font-weight: 500;
+  background-color: var(--accent-light);
+  border-bottom: 2px solid var(--accent-color);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 0 2px;
 }
 
 /* Back headword: never bold, even if Yomitan injects <b>/<strong>. */
@@ -339,88 +355,125 @@
 .pitch-accent-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: 8px;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--accent-color);
   background-color: var(--accent-light);
-  border: 1px solid var(--accent-soft);
-  padding: 2px 10px;
-  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  padding: 3px 12px;
+  border-radius: 9999px;
   line-height: 1;
   cursor: default;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pitch-accent-badge {
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.25);
+  background-color: rgba(192, 132, 252, 0.08);
+}
+
+.card:not(.nightMode):not(.night_mode) .pitch-accent-badge {
+  color: #5b21b6;
+  border-color: rgba(91, 33, 182, 0.15);
+  background-color: rgba(91, 33, 182, 0.05);
 }
 
 .frequency-bar-track {
-  width: 34px;
-  height: 5px;
-  border-radius: 3px;
-  background-color: rgba(255, 255, 255, 0.12);
+  width: 38px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
 .card:not(.nightMode):not(.night_mode) .frequency-bar-track {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.08);
 }
 
 .frequency-bar-fill {
   height: 100%;
   width: 0%;
-  border-radius: 3px;
-  transition: width 0.3s ease;
+  border-radius: 9999px;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .frequency-stars {
   font-size: 0.72rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   line-height: 1;
 }
 
-/* Frequency Tier Theming */
+/* Frequency Tier Theming - Premium DiskBuddy Pastel Colors */
 .frequency-badge.freq-very-common {
-  color: var(--freq-very-common);
-  border-color: rgba(16, 185, 129, 0.3);
-  background-color: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.2);
+  background-color: rgba(52, 211, 153, 0.08);
+}
+.card:not(.nightMode):not(.night_mode) .frequency-badge.freq-very-common {
+  color: #065f46;
+  border-color: rgba(5, 150, 105, 0.15);
+  background-color: rgba(5, 150, 105, 0.06);
 }
 .frequency-badge.freq-very-common .frequency-bar-fill {
-  background-color: var(--freq-very-common);
+  background-color: #10b981;
 }
 
 .frequency-badge.freq-common {
-  color: var(--freq-common);
-  border-color: rgba(34, 197, 94, 0.3);
-  background-color: rgba(34, 197, 94, 0.1);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.2);
+  background-color: rgba(96, 165, 250, 0.08);
+}
+.card:not(.nightMode):not(.night_mode) .frequency-badge.freq-common {
+  color: #1e40af;
+  border-color: rgba(30, 64, 175, 0.15);
+  background-color: rgba(30, 64, 175, 0.06);
 }
 .frequency-badge.freq-common .frequency-bar-fill {
-  background-color: var(--freq-common);
+  background-color: #3b82f6;
 }
 
 .frequency-badge.freq-medium {
-  color: var(--freq-medium);
-  border-color: rgba(234, 179, 8, 0.3);
-  background-color: rgba(234, 179, 8, 0.1);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.2);
+  background-color: rgba(251, 191, 36, 0.08);
+}
+.card:not(.nightMode):not(.night_mode) .frequency-badge.freq-medium {
+  color: #854d0e;
+  border-color: rgba(202, 138, 4, 0.15);
+  background-color: rgba(202, 138, 4, 0.06);
 }
 .frequency-badge.freq-medium .frequency-bar-fill {
-  background-color: var(--freq-medium);
+  background-color: #eab308;
 }
 
 .frequency-badge.freq-uncommon {
-  color: var(--freq-uncommon);
-  border-color: rgba(249, 115, 22, 0.3);
-  background-color: rgba(249, 115, 22, 0.1);
+  color: #fb923c;
+  border-color: rgba(251, 146, 60, 0.2);
+  background-color: rgba(251, 146, 60, 0.08);
+}
+.card:not(.nightMode):not(.night_mode) .frequency-badge.freq-uncommon {
+  color: #9a3412;
+  border-color: rgba(234, 88, 12, 0.15);
+  background-color: rgba(234, 88, 12, 0.06);
 }
 .frequency-badge.freq-uncommon .frequency-bar-fill {
-  background-color: var(--freq-uncommon);
+  background-color: #f97316;
 }
 
 .frequency-badge.freq-rare {
-  color: var(--freq-rare);
-  border-color: rgba(244, 63, 94, 0.3);
-  background-color: rgba(244, 63, 94, 0.1);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
+  background-color: rgba(248, 113, 113, 0.08);
+}
+.card:not(.nightMode):not(.night_mode) .frequency-badge.freq-rare {
+  color: #991b1b;
+  border-color: rgba(220, 38, 38, 0.15);
+  background-color: rgba(220, 38, 38, 0.06);
 }
 .frequency-badge.freq-rare .frequency-bar-fill {
-  background-color: var(--freq-rare);
+  background-color: #ef4444;
 }
 
 .definition-box {
@@ -605,20 +658,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--card-bg);
+  background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--card-border);
   border-radius: 50%;
   cursor: pointer;
   padding: 0;
   margin: 0;
   outline: none;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.2s ease,
-              border-color 0.2s ease,
-              background-color 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease,
+              background-color 0.25s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+.card:not(.nightMode):not(.night_mode) .circular-audio-btn {
+  background-color: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .small-audio-btn {
@@ -643,15 +701,16 @@
 
 .circular-audio-btn:hover,
 .circular-audio-btn:active {
-  transform: scale(1.08);
+  transform: scale(1.06);
   border-color: var(--accent-color);
   box-shadow: var(--accent-glow);
+  background-color: var(--accent-light);
 }
 
 .circular-audio-btn.is-playing {
   border-color: var(--accent-color);
   box-shadow: var(--accent-glow);
-  background-color: var(--accent-light);
+  background-color: var(--accent-soft);
 }
 
 .audio-progress-ring {
@@ -667,13 +726,13 @@
 .audio-progress-ring .ring-bg {
   fill: none;
   stroke: var(--accent-light);
-  stroke-width: 3px;
+  stroke-width: 2.5px;
 }
 
 .audio-progress-ring .ring-fill {
   fill: none;
   stroke: var(--accent-color);
-  stroke-width: 3px;
+  stroke-width: 2.5px;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.08s linear;
 }
@@ -686,20 +745,20 @@
 }
 
 .small-audio-btn .audio-btn-label {
-  font-family: var(--font-japanese-serif);
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-family: var(--font-interface);
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--accent-color);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   line-height: 1;
 }
 
 .large-audio-btn .audio-btn-label {
-  font-family: var(--font-japanese-serif);
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-family: var(--font-interface);
+  font-size: 1.4rem;
+  font-weight: 600;
   color: var(--accent-color);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   line-height: 1;
 }
 
@@ -725,33 +784,50 @@
 }
 
 .translation-box {
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--card-border);
   border-left: 3px solid var(--accent-color);
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 10px 16px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
   width: 100%;
   box-sizing: border-box;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .card:not(.nightMode):not(.night_mode) .translation-box {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.015);
+}
+
+.translation-box:hover {
+  background-color: var(--accent-light);
+  border-color: var(--accent-soft);
+  border-left-color: var(--accent-color);
+  transform: translateY(-1px);
 }
 
 .translation-hint {
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .translation-text {
   display: none;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: var(--text-secondary);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .translation-box.revealed .translation-text { display: block; }
@@ -820,11 +896,22 @@ ruby:focus-within rt {
   border-radius: var(--border-radius-md);
   border: 1px solid var(--card-border);
   cursor: zoom-in;
-  transition: transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease;
+}
+
+.card:not(.nightMode):not(.night_mode) .picture-container img {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .picture-container img:hover {
-  transform: scale(1.015);
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.card:not(.nightMode):not(.night_mode) .picture-container img:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .lightbox-overlay {
@@ -833,10 +920,10 @@ ruby:focus-within rt {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.75);
   z-index: 2000;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -874,17 +961,31 @@ ruby:focus-within rt {
 .modern-details {
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-md);
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.02);
   overflow: hidden;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.card:not(.nightMode):not(.night_mode) .modern-details {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.modern-details:hover {
+  border-color: var(--accent-soft);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.card:not(.nightMode):not(.night_mode) .modern-details:hover {
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .modern-summary {
-  padding: 10px 16px;
+  padding: 12px 18px;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -893,20 +994,24 @@ ruby:focus-within rt {
 }
 
 .extended-def-content {
-  padding: 12px 16px;
+  padding: 14px 18px;
   font-size: 1.15rem;
   line-height: 1.6;
   border-top: 1px solid var(--card-border);
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.card:not(.nightMode):not(.night_mode) .extended-def-content {
+  background-color: rgba(0, 0, 0, 0.01);
 }
 
 .source-footer {
   text-align: center;
-  padding: 8px 0;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 12px 0;
+  font-size: 0.72rem;
+  font-weight: 500;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 

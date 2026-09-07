@@ -571,3 +571,9 @@ A small undrelated QOL bug, if we have no defintions we go to listening mode, wh
 ---
 
 More QOL of featurse, if the sentence does not have a bold term (typically because it was exported via jidoushio from mobile) use the close body close sufix and close prefix fields to reconscrtuct the sentence. In front in this unique case, show close suffix close body (in bold) and then close suffix (it should look undistinginshbale from other cards with a propper sentence with a bold expression). Note this only works if these fields (cloze suffix, cloze prefix and cloze budy are not empty), if any of them is, then just show the usual sentence. IF you can do this in a clever way with JS that would be great
+
+---
+
+import the visual theme/style/feel of this site onto my anki card
+This should be only a visual overhall, don't touch the features(don't remove the audio button for exmaple) but you can change layout as long as you keep the orginal constraints.
+As for git, create a new branch to test things out, let me commit to main if I like the design
