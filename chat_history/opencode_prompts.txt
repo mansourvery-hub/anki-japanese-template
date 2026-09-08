@@ -575,3 +575,7 @@ More QOL of featurse, if the sentence does not have a bold term (typically becau
 ---
 
 fix the general layout of the back card so that the right boxes( class="card-block"  ) take less horizantal space. Ideally their lentgh should correspondto the image dimensions( not the actually dimensions but the ones displayed). This will give more space for the more important boxes placed in the left(containing word and sentence) to expand, making the card more functional
+
+---
+
+Works/functional, but as screen size decreases some pathological behaviour occurs: the image keeps its size while the sentence container keeps getting smaller (sentence and word are more important to a learner). This continues until mobile resolutions where things are fixed suddenly. Also a tiny pb at mobile: the image container is not fitted perfectly to the image (modulo some padding), there are a few loose pixels at the bottom.

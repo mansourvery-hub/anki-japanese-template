@@ -219,9 +219,12 @@
 
   /* Keep the side picture from colliding with the min-content track:
      100% (percentage of the column) is indefinite during track sizing and
-     forces a circular collapse, so pin it to the viewport width instead. */
+     forces a circular collapse, so pin it to viewport lengths instead.
+     The 40vw cap also makes the track RESIZE with the window: without it
+     the image (40vh-driven) ignores window width and the 1fr main column
+     absorbs all the shrinkage until the mobile breakpoint. */
   .side-content .picture-container img {
-    max-width: 100vw;
+    max-width: 40vw;
   }
 }
 
@@ -243,7 +246,7 @@
   }
 
   .side-content .picture-container img {
-    max-width: 100vw;
+    max-width: 40vw;
   }
 }
 
@@ -835,6 +838,11 @@ ruby:focus-within rt {
 }
 
 .picture-container img {
+  /* Block-level: kills the inline-baseline descender gap that left a few
+     loose pixels under the image inside its card-block. margin-inline:auto
+     takes over the centering duty from .picture-block's text-align. */
+  display: block;
+  margin-inline: auto;
   max-width: 100%;
   max-height: 40vh;
   height: auto;
