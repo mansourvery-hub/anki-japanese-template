@@ -200,14 +200,28 @@
 }
 
 @container anki-card (min-width: 768px) {
+  /* Side column shrink-wraps its content: it hugs the displayed picture
+     width (40vh-capped), so the right card-blocks are never wider than the
+     image. The main column (word/sentence) receives every remaining pixel. */
   .back-grid:has(.side-content > *) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) min-content;
     gap: var(--gap-block);
   }
 
   .side-content {
     position: sticky;
     top: calc(clamp(16px, 4vmin, 24px) + 30px);
+  }
+
+  .main-content {
+    min-width: 0;
+  }
+
+  /* Keep the side picture from colliding with the min-content track:
+     100% (percentage of the column) is indefinite during track sizing and
+     forces a circular collapse, so pin it to the viewport width instead. */
+  .side-content .picture-container img {
+    max-width: 100vw;
   }
 }
 
@@ -216,12 +230,20 @@
    conventional media query. Container rules above win where supported. */
 @media (min-width: 768px) {
   .back-grid:has(.side-content > *) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) min-content;
   }
 
   .side-content {
     position: sticky;
     top: calc(clamp(16px, 4vmin, 24px) + 30px);
+  }
+
+  .main-content {
+    min-width: 0;
+  }
+
+  .side-content .picture-container img {
+    max-width: 100vw;
   }
 }
 
