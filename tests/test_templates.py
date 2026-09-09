@@ -122,8 +122,9 @@ def main():
           ":focus-visible" in css)
     check("CSS: prefers-reduced-motion present",
           "prefers-reduced-motion: reduce" in css)
-    check("CSS: 100dvh with 100vh fallback",
-          "min-height: 100vh" in css and "min-height: 100dvh" in css)
+    check("CSS: content-driven card sizing (no forced viewport fill)",
+          "min-height: 100vh" not in css and "min-height: 100dvh" not in css
+          and "container-type: inline-size" in css)
     check("CSS: container-query media fallback for 2-column layout",
           re.search(r"@media \(min-width: 768px\)[\s\S]{0,200}\.back-grid", css) is not None)
     check("CSS: empty word-header guard (:has)",

@@ -1,6 +1,6 @@
 # 🎴 Japanese Anki Note Template (Ergonomic & Responsive)
 
-A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for full-screen use on **Desktop (Arch Linux, Qt6)** and **Mobile (AnkiDroid, small screens)**.
+A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for dense, information-efficient review on **Desktop (Arch Linux, Qt6)** and **Mobile (AnkiDroid, small screens)**.
 
 ---
 
@@ -13,7 +13,7 @@ A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for f
 ## ✨ Features
 
 - **🌙 Dual themes** — Tokyo Night dark (default) and Aki Paper light, following Anki's Night Mode.
-- **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoints jumps; 2-column dashboard on desktop, 1-column on phones; container queries with a media-query fallback for old WebViews.
+- **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoints jumps; 2-column dashboard on desktop, 1-column on phones; container queries with a media-query fallback for old WebViews. Cards size to their content (no forced viewport fill), so everything important is visible sooner with almost no dead space.
 - **🔤 Zero-reflow furigana** — hidden by default, revealed on hover (desktop) / tap (mobile) via absolute ruby positioning; surrounding text never shifts.
 - **🔊 Circular audio buttons** (`文` sentence, `言葉` word) — always delegate to Anki's native replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid.
 - **📊 Frequency & pitch badges** — frequency rank rendered as a tiered bar + 5-star scale (Top 500 → Rare); pitch accent pill.
@@ -42,7 +42,7 @@ A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for f
 ## 📖 Back Card
 
 - **Definition Compactor** (CSS §6b): the Yomitan glossary is trimmed to the first dictionary, max 2 senses, no appendices (possible forms, synonyms, supplementary notes, accent numbers). Extended-definition accordion stays full.
-- **Definition Truncator** (CSS §6c): 4-line cap with progressive fade + small `▼`; click expands and stays open. Short glosses never show the chevron.
+- **Definition Truncator** (CSS §6c): 3-line cap with progressive fade + small `▼`; click expands and stays open. Short glosses never show the chevron.
 - Word header (furigana, badges, audio), sentence + translation toggle, picture / kanji / general notes, source footer.
 
 ---

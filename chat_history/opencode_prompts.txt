@@ -587,3 +587,13 @@ on wide screens there is a lot of wasted space, make the layout adapt dynaimcall
 ---
 
 is it synced in anki? also why is the version updated nowhere in the source code anki(say in css at the very start); look at all space wasted around the word with the audio buttons and pitch accent graph
+
+---
+
+# Task: Tighten and improve the Anki Japanese card design
+
+Repository: https://github.com/mansourvery-hub/anki-japanese-template
+
+## Objective
+
+Improve the visual design of the Anki Japanese card template so that it uses significantly less wasted vertical space while preserving readability, hierarchy, responsiveness, furigana support, and existing functionality. The main goal is to make the cards feel dense, deliberate, and information-efficient. [full spec implemented: content-driven sizing, tightened spacing tokens, headword/sentence/definition/secondary typography hierarchy, 3-line definition cap, compact listening view, tighter accordion/source, mobile + desktop verified]

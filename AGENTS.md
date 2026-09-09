@@ -7,7 +7,7 @@ This document defines the strict operational rules, architectural guidelines, an
 ## 🎯 Project Overview & Core Goals
 - **Goal:** Modern, refined, ultra-compact, ergonomic Japanese sentence-mining note type for Anki.
 - **Target Environments:**
-  - **Desktop:** Arch Linux (Anki Desktop Qt6 WebEngine, widescreen 100% fill).
+  - **Desktop:** Arch Linux (Anki Desktop Qt6 WebEngine, widescreen, content-driven dense layout).
   - **Mobile:** Samsung Galaxy A50 (AnkiDroid / WebKit, small screen, ultra-compact zero-waste vertical spacing).
 - **Core Files:**
   - `Card 1 - Front.template.anki` (Front card HTML & dynamic scaling script + Mature Word Mode: interval-gated word-only front, threshold const `LONG_INTERVAL_DAYS`, AnkiConnect `guiCurrentCard`/content-search + AnkiDroid JS API retrieval, graceful sentence fallback)

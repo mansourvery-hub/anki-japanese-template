@@ -68,11 +68,13 @@ if [ -n "$PROMPT_TEXT" ]; then
   echo "    (prompt archived to chat_history/opencode_prompts.txt)"
 fi
 
-# ---------- step 0: regression tests (compactor CSS + template invariants) ----------
+# ---------- step 0: regression tests (compactor CSS + template invariants + layout) ----------
 if [ -d tests ]; then
   echo "==> [0/6] Running regression tests"
   python3 tests/test_compactor.py
   python3 tests/test_templates.py
+  # Headless-Chrome layout checks; skipped gracefully when Chrome is absent.
+  python3 tests/test_layout.py
 fi
 
 # ---------- step 1: version stamp (BEFORE the sync so Anki gets the new tag) ----------

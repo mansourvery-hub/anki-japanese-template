@@ -4,10 +4,11 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.3.31 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.4.0 — auto-bumped by finish.sh; matches the GitHub release tag
  *
- * Optimized for full screen utilization on Arch Linux Desktop (Anki Desktop Qt6)
- * and Samsung Galaxy A50 (Android / AnkiDroid).
+ * Optimized for dense, information-efficient review on Arch Linux Desktop
+ * (Anki Desktop Qt6) and Samsung Galaxy A50 (Android / AnkiDroid):
+ * cards size to their content — no forced viewport fill, no dead space.
  *
  * Responsive strategy: fluid clamp() tokens scale continuously from phone to
  * 4K with no discrete jumps; container queries drive the 2-column layout.
@@ -43,12 +44,14 @@
   --border-radius-md: 8px;
   --border-radius-sm: 6px;
 
-  /* Spacing Tokens - Fluid viewport-based (single values, usable via padding: X Y) */
-  --gap-block: clamp(2px, 1.5vmin, 8px);
-  --block-pad-y: clamp(1px, 0.3vmin, 3px);
-  --block-pad-x: clamp(6px, 1.8vmin, 16px);
-  --container-pad-y: clamp(1px, 0.5vmin, 4px);
-  --container-pad-x: clamp(2px, 1vmin, 10px);
+  /* Spacing Tokens - Fluid viewport-based (single values, usable via padding: X Y).
+     Tightened for density: the card should read as one compact hierarchy,
+     not a stack of padded boxes. */
+  --gap-block: clamp(2px, 0.8vmin, 6px);
+  --block-pad-y: clamp(0px, 0.2vmin, 2px);
+  --block-pad-x: clamp(6px, 1.4vmin, 14px);
+  --container-pad-y: clamp(0px, 0.25vmin, 2px);
+  --container-pad-x: clamp(2px, 0.7vmin, 8px);
 
   /* Furigana clearance: rt height (0.55em of parent font) + 2px hover gap.
      em-based so it scales with font size (which scales with viewport) —
@@ -121,9 +124,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  /* 100vh fallback for older WebViews; dvh tracks mobile browser chrome */
-  min-height: 100vh;
-  min-height: 100dvh;
+  /* Content-driven sizing: the card is exactly as tall as its content.
+     No viewport fill — spare screen space stays BELOW the card, where
+     it is harmless, instead of being distributed between sections. */
   margin: 0;
   padding: 0;
   container-type: inline-size;
@@ -136,7 +139,6 @@
   margin: 0 auto;
   padding: var(--container-pad-y) var(--container-pad-x);
   box-sizing: border-box;
-  flex-grow: 1;
 }
 
 
@@ -188,8 +190,8 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-block);
-  align-items: start;
-  /* Ensure children (main, side) align top to top by default */
+  /* Children (main, side) stretch to equal heights so short columns do
+     not leave their background floating mid-card. */
   align-items: stretch;
 }
 
@@ -203,15 +205,12 @@
 @container anki-card (min-width: 768px) {
   /* Side column shrink-wraps its content: it hugs the displayed picture
      width (40vh-capped), so the right card-blocks are never wider than the
-     image. The main column (word/sentence) receives every remaining pixel. */
+     image. The main column (word/sentence) receives every remaining pixel.
+     No position:sticky anymore: the card is content-driven, so the side
+     column no longer floats over a scrolling viewport-filling card. */
   .back-grid:has(.side-content > *) {
     grid-template-columns: minmax(0, 1fr) min-content;
     gap: var(--gap-block);
-  }
-
-  .side-content {
-    position: sticky;
-    top: calc(clamp(16px, 4vmin, 24px) + 30px);
   }
 
   .main-content {
@@ -250,9 +249,8 @@
   }
 
   .word-display-row .word-display {
-    /* keep furigana headroom as top padding (rule below), then hand the
-       bottom spacing duty to the row's row-gap */
-    margin: 0;
+    /* headroom stays as top padding (base rule); bottom spacing is the
+       row's row-gap now that the base margin-bottom is gone */
     text-align: left;
   }
 
@@ -262,6 +260,13 @@
 
   .word-display-row .word-meta-row {
     margin: 0 0 clamp(2px, 0.6vmin, 8px) 0;
+  }
+
+  /* Dense card, but the desktop is still a pointer+keyboard environment:
+     keep the small audio buttons at their a11y-friendly 44px floor. */
+  .small-audio-btn {
+    width: 44px;
+    height: 44px;
   }
 }
 
@@ -273,11 +278,7 @@
     grid-template-columns: minmax(0, 1fr) min-content;
   }
 
-  .side-content {
-    position: sticky;
-    top: calc(clamp(16px, 4vmin, 24px) + 30px);
-  }
-
+  /* No sticky here either — content-driven cards (see container block). */
   .main-content {
     min-width: 0;
   }
@@ -338,11 +339,11 @@
 .sentence-display,
 .front-word-display {
   font-family: var(--font-japanese-serif);
-  /* Cap raised for widescreen: 6vmin growth hits 5rem around ~1070px and
-     would strand every wider window in whitespace; 6.5rem keeps filling. */
-  font-size: clamp(1.8rem, 6vmin + 1rem, 6.5rem);
-  line-height: 1.4;
-  padding: clamp(8px, 2vmin, 16px) clamp(6px, 1.5vmin, 12px);
+  /* Density-tuned cap: 5.25rem keeps the sentence dominant without
+     flooding a widescreen front with a single line of huge text. */
+  font-size: clamp(1.8rem, 5vmin + 0.75rem, 5.25rem);
+  line-height: 1.3;
+  padding: 4px 6px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
@@ -424,10 +425,6 @@
   gap: 2px;
 }
 
-.word-display-row .word-display {
-  margin-bottom: 0;
-}
-
 .word-display-row .word-meta-row {
   margin: 0;
 }
@@ -438,13 +435,13 @@
    em-based => scales continuously with font size across all screen sizes. */
 .word-display {
   font-family: var(--font-japanese-serif);
-  /* Cap raised for widescreen: growth would hit 5.8rem around ~1150px;
-     7rem keeps the headword scaling on wide desktops. */
-  font-size: clamp(2.5rem, 6vw + 1.5rem, 7rem);
+  /* Density-tuned: smaller slope + 5.75rem cap. The headword stays the
+     loudest element on the card, just no longer billboard-sized. */
+  font-size: clamp(2.5rem, 5vw + 1rem, 5.75rem);
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.05;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
-  margin-bottom: clamp(2px, 1vmin, 4px);
+  margin: 0;
 }
 
 .word-meta-row {
@@ -545,19 +542,20 @@
 }
 
 .definition-box {
-  /* Fluid body text: grows with the window so wide main columns don't
-     strand a fixed 1.25rem line in a sea of whitespace. Phones stay at
-     the 1.25rem floor; the 6c truncator cap is em-based and grows with it. */
-  font-size: clamp(1.25rem, 0.55vw + 0.95rem, 1.8rem);
-  line-height: 1.6;
+  /* Medium emphasis: clearly smaller than the sentence, one step above
+     notes/translation. Fluid so wide main columns stay filled. */
+  font-size: clamp(1.05rem, 0.45vw + 0.85rem, 1.55rem);
+  /* Furigana-safe density: the Definition field is furigana-bearing
+     ({{furigana:...}}), and hover rt renders in the inter-line gap, so
+     line-height must stay >= headroom + 1em. 1.5 satisfies that with a
+     little slack; the old 1.6 was roomier than rt ever needs. */
+  line-height: calc(var(--furigana-headroom) + 1em + 0.05em);
   color: var(--text-primary);
   border-top: 1px solid var(--card-border);
-  /* Furigana headroom: Definition uses {{furigana:...}}; rt renders
-   *    0.55em + 2px above the text — reserve exactly that (em-based,
-   *    scales with fluid font size at every screen size).
-   I * manually changed to simply  padding-top: var(--furigana-headroom) after test as it wasted the least space*/
+  /* Furigana headroom: rt renders 0.55em + 2px above the text — reserve
+     exactly that (em-based, scales with fluid font size). */
   padding-top: var(--furigana-headroom);
-  margin-top: 8px;
+  margin-top: 5px;
   width: 100%;
 }
 
@@ -663,11 +661,14 @@
         definition — never broken, never misleading.
     ============================================================================== */
 
-/* Collapsed cap = 4 lines (line-height:1.6 inherited from .definition-box) */
+/* Collapsed cap = 3 lines. Line-height is the furigana-headroom formula
+   from .definition-box; max-height applies to the CONTENT box (no
+   box-sizing override here), so the top headroom padding sits outside
+   the cap — no extra term needed. */
 .definition-box.primary-definition {
   position: relative;
   overflow: hidden;
-  max-height: calc(1.6em * 4);
+  max-height: calc((var(--furigana-headroom) + 1em + 0.05em) * 3);
   cursor: default;
 }
 
@@ -837,9 +838,11 @@
     ============================================================================== */
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
-  /* Cap raised for widescreen: growth would hit 3.5rem at ~1000px;
-     4.5rem keeps filling wider windows. */
-  font-size: clamp(1.8rem, 4vw + 1rem, 4.5rem);
+  /* Hierarchy: second to the headword, dominant over the definition.
+     Cap 3.5rem: with headroom-based line-height, every wrapped line costs
+     ~1.65em, so a 4.5rem sentence was the single largest vertical expense
+     on the card. 3.5rem keeps the example sentence loud but affordable. */
+  font-size: clamp(1.8rem, 3.5vw + 0.9rem, 3.5rem);
   /* Multi-line clearance: each wrapped line needs room for hover furigana
      above it (rt height + gap), delivered via line-height. Final line is
      covered by --furigana-headroom on top padding below. */
@@ -853,13 +856,13 @@
 .translation-box {
   background-color: rgba(0, 0, 0, 0.15);
   border-left: 3px solid var(--accent-color);
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .card:not(.nightMode):not(.night_mode) .translation-box {
@@ -875,8 +878,9 @@
 
 .translation-text {
   display: none;
-  /* Fluid: fills wide columns instead of a fixed 1.2rem strip */
-  font-size: clamp(1.2rem, 0.45vw + 0.95rem, 1.55rem);
+  /* Lower emphasis tier: floor sits below the definition's 1.05rem floor
+     so revealed translations read as secondary. */
+  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
   color: var(--text-secondary);
   line-height: 1.45;
 }
@@ -885,13 +889,14 @@
 .translation-box.revealed .translation-hint { display: none; }
 
 .context-block {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .html-content {
-  /* Fluid: notes/context fill wide columns; phone keeps the 1.15rem floor */
-  font-size: clamp(1.15rem, 0.45vw + 0.9rem, 1.5rem);
-  line-height: 1.6;
+  /* Lower emphasis tier: notes/context are support material, quieter
+     than the definition (and floor-below it, unlike before). */
+  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
+  line-height: 1.5;
 }
 
 
@@ -1012,10 +1017,10 @@ ruby:focus-within rt {
 }
 
 .modern-summary {
-  padding: 10px 16px;
+  padding: 7px 12px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   display: flex;
@@ -1026,17 +1031,17 @@ ruby:focus-within rt {
 }
 
 .extended-def-content {
-  padding: 12px 16px;
-  /* Fluid like .html-content above */
-  font-size: clamp(1.15rem, 0.45vw + 0.9rem, 1.5rem);
-  line-height: 1.6;
+  padding: 8px 12px;
+  /* Fluid like .html-content; same secondary tier */
+  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
+  line-height: 1.45;
   border-top: 1px solid var(--card-border);
   background-color: rgba(0, 0, 0, 0.04);
 }
 
 .source-footer {
   text-align: center;
-  padding: 8px 0;
+  padding: 4px 0;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -1052,7 +1057,12 @@ ruby:focus-within rt {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 12px;
+  /* Deliberate presence: enough height that the lone audio button reads
+     as THE card, not an accident — but a fraction of the old 32px-padded
+     slab. 28vh is the sweet spot for both the desktop reviewer and the
+     A50's tall screen. */
+  min-height: 28vh;
+  padding: 12px;
 }
 
 .audio-btn-wrapper {
@@ -1082,8 +1092,8 @@ ruby:focus-within rt {
 
 /* ==============================================================================
     13. MOBILE SPECIFIC OPTIMIZATIONS (< 600px / Samsung Galaxy A50)
-    Most sizing is already fluid via clamp()/vmin above; only true
-    mobile-only tweaks (element sizes, image caps) live here.
+    Density, hierarchy, furigana, and JS interactions stay intact on the
+    narrow screen.
     ============================================================================== */
 @media (max-width: 600px) {
   .tags-container {
@@ -1095,7 +1105,7 @@ ruby:focus-within rt {
   .sentence-display,
   .front-word-display {
     font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);
-    padding: clamp(4px, 1.5vmin, 6px) clamp(1px, 0.5vmin, 2px);
+    padding: 2px 4px;
   }
   .sentence-japanese {    font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);}
   .word-meta-row {

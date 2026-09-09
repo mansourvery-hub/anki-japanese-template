@@ -6,6 +6,8 @@
      - 2-Column Desktop Grid / 1-Column Mobile Layout
      - Main: Word/Furigana, Frequency/Pitch, Circular Audio Buttons, Definition, Sentence & Translation
      - Side: Lightbox Picture, Kanji Notes, General Notes, Extended Definition
+     Density: content-driven card height (CSS has no viewport fill);
+     word + meta share one row on desktop; definition truncates at 3 lines.
 -->
 
 <div class="card-wrapper back-card">
@@ -399,8 +401,8 @@
 
     window.renderFrequencyIndicator();
 
-    /* --- DEFINITION TRUNCATOR (4-line cap + click to expand, stays open) ---
-       .is-truncated is set only when content truly overflows the 4-line
+    /* --- DEFINITION TRUNCATOR (3-line cap + click to expand, stays open) ---
+       .is-truncated is set only when content truly overflows the 3-line
        cap, so short glosses never show a misleading fade/chevron. Expand
        is one-way: once open it never re-collapses (a second click is a
        no-op). Idempotent: safe under Anki WebView DOM re-use. */
