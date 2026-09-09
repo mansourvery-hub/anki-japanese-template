@@ -579,3 +579,7 @@ fix the general layout of the back card so that the right boxes( class="card-blo
 ---
 
 Works/functional, but as screen size decreases some pathological behaviour occurs: the image keeps its size while the sentence container keeps getting smaller (sentence and word are more important to a learner). This continues until mobile resolutions where things are fixed suddenly. Also a tiny pb at mobile: the image container is not fitted perfectly to the image (modulo some padding), there are a few loose pixels at the bottom.
+
+---
+
+on wide screens there is a lot of wasted space, make the layout adapt dynaimcally to minimize wasted space
