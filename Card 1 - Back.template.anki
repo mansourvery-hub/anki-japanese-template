@@ -45,22 +45,25 @@
         <div class="card-block word-header">
           
           <!-- Word Header (hidden entirely when the word fields are empty:
-               audio-only / picture-only cards no longer show a padded void) -->
-          {{#furigana}}
-            <div class="word-display">
-              {{edit:furigana:furigana}}
-            </div>
-          {{/furigana}}
-          {{^furigana}}
-            {{#Expression}}
+               audio-only / picture-only cards no longer show a padded void).
+               Wide screens: word sits LEFT of the meta row (baseline-aligned,
+               one visual row) via .word-header-grid; phones stack as before. -->
+          <div class="word-display-row">
+            {{#furigana}}
               <div class="word-display">
-                {{edit:furigana:Expression}}
+                {{edit:furigana:furigana}}
               </div>
-            {{/Expression}}
-          {{/furigana}}
+            {{/furigana}}
+            {{^furigana}}
+              {{#Expression}}
+                <div class="word-display">
+                  {{edit:furigana:Expression}}
+                </div>
+              {{/Expression}}
+            {{/furigana}}
 
-          <!-- Metadata & Circular Audio Controllers -->
-          <div class="word-meta-row">
+            <!-- Metadata & Circular Audio Controllers -->
+            <div class="word-meta-row">
             {{#Frequency}}
               <div class="frequency-badge" data-freq="{{text:Frequency}}">
                 <div class="frequency-bar-track">
@@ -108,7 +111,8 @@
                 </span>
               {{/Sentence Audio}}
             </div>
-          </div>
+            </div>
+          </div> <!-- End word-display-row -->
 
           <!-- Main Definition (compact: see "Definition Compactor" CSS section) -->
           {{#Definition}}

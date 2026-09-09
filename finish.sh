@@ -15,15 +15,16 @@
 #                    BEFORE anything else runs (AGENTS.md rule 3), so the log
 #                    lands in the same commit.
 #
-# It executes, in order:
+#   It executes, in order:
 #   0. compactor tests — verify the Definition Compactor CSS selectors
 #                        (skipped silently when tests/ is absent)
 #   1. sync_to_anki.py — push templates+CSS into Anki via Anki-Connect
 #                        (also snapshots live Anki state into backups/)
 #   2. release_apkg.py — export sample deck to dist/*.apkg via Anki-Connect
 #   3. git commit     — stage everything (incl. chat_history log) & commit
-#   4. git push       — push to origin/main              (skipped with --local)
-#   5. GitHub release — auto-bump tag (v1.x.y) + apkg   (skipped with --local)
+#   4. GitHub release — auto-bump tag (v1.x.y), stamp the version into the
+#                        CSS header comment (amended into the commit), apkg
+#   5. git push       — push commit + tag to origin/main
 #
 # Any failure stops the chain with a clear message (set -e). Requires: Anki
 # running with Anki-Connect, gh CLI authenticated (full mode only).
@@ -98,10 +99,7 @@ if [ "$CHANGED" -eq 0 ]; then
   exit 0
 fi
 
-echo "==> [4/5] Pushing to origin/main"
-git push origin main
-
-echo "==> [5/5] Creating GitHub release"
+echo "==> [4/5] Creating GitHub release"
 # Sync remote tags first: gh release create makes tags on the REMOTE only,
 # so local tags lag behind and would produce a duplicate version bump.
 git fetch origin "refs/tags/*:refs/tags/*" --quiet
@@ -120,6 +118,29 @@ else:
 PY
 )"
 fi
+
+# Stamp the new version into the CSS header comment so the live template
+# always shows which release it came from (user-visible in the template
+# editor), then fold it into the commit BEFORE pushing so origin, the
+# tag, and the working tree never disagree.
+python3 - "$NEW_TAG" <<'PY'
+import re, sys
+tag = sys.argv[1]
+path = "Card 1 - Style.css"
+css = open(path, encoding="utf-8").read()
+new, n = re.subn(
+    r"( \* Version: )v[0-9]+\.[0-9]+\.[0-9]+[^\n]*",
+    rf"\g<1>{tag} — auto-bumped by finish.sh; matches the GitHub release tag",
+    css, count=1)
+if n and new != css:
+    open(path, "w", encoding="utf-8").write(new)
+    print(f"    (stamped {tag} into Card 1 - Style.css header)")
+PY
+if ! git diff --quiet -- "Card 1 - Style.css"; then
+  git add "Card 1 - Style.css"
+  git commit --amend --no-edit --quiet
+fi
+
 NOTES="Automated release from commit: $COMMIT_MSG
 
 Install: import the .apkg in Anki, then delete the sample cards — the note type is retained."
@@ -127,6 +148,10 @@ gh release create "$NEW_TAG" dist/anki-japanese-template.apkg \
   --title "$NEW_TAG" \
   --notes "$NOTES" \
   --latest
+
+echo "==> [5/5] Pushing to origin/main (commit + ${NEW_TAG})"
+git push origin main
+git push origin "refs/tags/${NEW_TAG}"
 
 echo ""
 echo "All done: synced, exported, committed, pushed, released as $NEW_TAG"

@@ -4,6 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
+ * Version: v1.3.30 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Optimized for full screen utilization on Arch Linux Desktop (Anki Desktop Qt6)
  * and Samsung Galaxy A50 (Android / AnkiDroid).
@@ -235,6 +236,33 @@
   .back-grid:has(.side-content > *):not(:has(.picture-container)) {
     grid-template-columns: minmax(0, 1fr) minmax(clamp(180px, 16vw, 400px), min-content);
   }
+
+  /* Word header: one visual row on wide screens — word left, meta
+     (frequency/pitch/audio) right, bottom-aligned to sit on the word's
+     baseline. Audio-only cards (no word) collapse to a centered row. */
+  .word-display-row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    flex-wrap: wrap;
+    column-gap: 18px;
+    row-gap: 6px;
+  }
+
+  .word-display-row .word-display {
+    /* keep furigana headroom as top padding (rule below), then hand the
+       bottom spacing duty to the row's row-gap */
+    margin: 0;
+    text-align: left;
+  }
+
+  .word-display-row:has(.word-display) {
+    justify-content: space-between;
+  }
+
+  .word-display-row .word-meta-row {
+    margin: 0 0 clamp(2px, 0.6vmin, 8px) 0;
+  }
 }
 
 /* Portability fallback: environments without container-query support
@@ -262,6 +290,33 @@
      (this block serves WebViews without container-query support). */
   .back-grid:has(.side-content > *):not(:has(.picture-container)) {
     grid-template-columns: minmax(0, 1fr) minmax(clamp(180px, 16vw, 400px), min-content);
+  }
+
+  /* Word header: one visual row on wide screens — word left, meta
+     (frequency/pitch/audio) right, bottom-aligned to sit on the word's
+     baseline. Empties (audio-only cards) collapse to a centered row. */
+  .word-display-row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    flex-wrap: wrap;
+    column-gap: 18px;
+    row-gap: 6px;
+  }
+
+  .word-display-row .word-display {
+    /* keep furigana headroom as top padding (rule above), then hand the
+       bottom spacing duty to the row's row-gap */
+    margin: 0;
+    text-align: left;
+  }
+
+  .word-display-row:has(.word-display) {
+    justify-content: space-between;
+  }
+
+  .word-display-row .word-meta-row {
+    margin: 0 0 clamp(2px, 0.6vmin, 8px) 0;
   }
 }
 
@@ -353,6 +408,28 @@
 
 .word-header {
   text-align: center;
+}
+
+/* --- 6a. WORD DISPLAY ROW ---
+   Wraps .word-display + .word-meta-row. Default (phones): stacked and
+   centered, exactly the old layout. Wide screens (overrides in the
+   container-query & media blocks of section 4): one visual row — word
+   left, frequency/pitch/audio right, bottom-aligned near the word
+   baseline — so the header stops burning two half-empty centered lines
+   of vertical space. */
+.word-display-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.word-display-row .word-display {
+  margin-bottom: 0;
+}
+
+.word-display-row .word-meta-row {
+  margin: 0;
 }
 
 /* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.

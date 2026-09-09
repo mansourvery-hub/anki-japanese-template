@@ -583,3 +583,7 @@ Works/functional, but as screen size decreases some pathological behaviour occur
 ---
 
 on wide screens there is a lot of wasted space, make the layout adapt dynaimcally to minimize wasted space
+
+---
+
+is it synced in anki? also why is the version updated nowhere in the source code anki(say in css at the very start); look at all space wasted around the word with the audio buttons and pitch accent graph
