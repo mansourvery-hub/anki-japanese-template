@@ -18,13 +18,15 @@
 #   It executes, in order:
 #   0. compactor tests — verify the Definition Compactor CSS selectors
 #                        (skipped silently when tests/ is absent)
-#   1. sync_to_anki.py — push templates+CSS into Anki via Anki-Connect
+#   1. version stamp  — compute the next release tag and rewrite the CSS
+#                        header Version: line (full runs only; the stamp is
+#                        what Anki receives in step 2, so it never lags)
+#   2. sync_to_anki.py — push templates+CSS into Anki via Anki-Connect
 #                        (also snapshots live Anki state into backups/)
-#   2. release_apkg.py — export sample deck to dist/*.apkg via Anki-Connect
-#   3. git commit     — stage everything (incl. chat_history log) & commit
-#   4. GitHub release — auto-bump tag (v1.x.y), stamp the version into the
-#                        CSS header comment (amended into the commit), apkg
-#   5. git push       — push commit to origin/main; fetch the release tag
+#   3. release_apkg.py — export sample deck to dist/*.apkg via Anki-Connect
+#   4. git commit     — stage everything (incl. chat_history log) & commit
+#   5. GitHub release — auto-bump tag (v1.x.y) + apkg
+#   6. git push       — push commit to origin/main; fetch the release tag
 #                        (gh creates it remotely; local syncs for next bump)
 #
 # Any failure stops the chain with a clear message (set -e). Requires: Anki
@@ -68,18 +70,57 @@ fi
 
 # ---------- step 0: regression tests (compactor CSS + template invariants) ----------
 if [ -d tests ]; then
-  echo "==> [0/5] Running regression tests"
+  echo "==> [0/6] Running regression tests"
   python3 tests/test_compactor.py
   python3 tests/test_templates.py
 fi
 
-echo "==> [1/5] Syncing templates to Anki (Anki-Connect)"
+# ---------- step 1: version stamp (BEFORE the sync so Anki gets the new tag) ----------
+# Local runs skip it: no release is published, so the stamp stays at the
+# last released version and the working tree is not polluted.
+NEW_TAG=""
+if [ "$LOCAL" -eq 0 ]; then
+  git fetch origin "refs/tags/*:refs/tags/*" --quiet
+  # Auto-bump version from the latest existing tag (v<major>.<minor>.<patch>)
+  LATEST_TAG="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)"
+  if [ -z "$LATEST_TAG" ]; then
+    NEW_TAG="v1.0.1"
+  else
+    NEW_TAG="$(python3 - "$LATEST_TAG" "$BUMP_KIND" <<'PY'
+import sys
+major, minor, patch = sys.argv[1][1:].split(".")
+if sys.argv[2] == "minor":
+    print(f"v{major}.{int(minor) + 1}.0")
+else:
+    print(f"v{major}.{minor}.{int(patch) + 1}")
+PY
+)"
+  fi
+  # Rewrite the Version: line in the CSS header comment. The stamp is what
+  # step 2 pushes to Anki and what step 4 commits — tag, tree and the live
+  # template can never disagree.
+  python3 - "$NEW_TAG" <<'PY'
+import re, sys
+tag = sys.argv[1]
+path = "Card 1 - Style.css"
+css = open(path, encoding="utf-8").read()
+new, n = re.subn(
+    r"( \* Version: )v[0-9]+\.[0-9]+\.[0-9]+[^\n]*",
+    rf"\g<1>{tag} — auto-bumped by finish.sh; matches the GitHub release tag",
+    css, count=1)
+if n and new != css:
+    open(path, "w", encoding="utf-8").write(new)
+    print(f"    (stamped {tag} into Card 1 - Style.css header)")
+PY
+fi
+
+echo "==> [1/6] Syncing templates to Anki (Anki-Connect)"
 python3 sync_to_anki.py
 
-echo "==> [2/5] Exporting sample deck to dist/"
+echo "==> [2/6] Exporting sample deck to dist/"
 python3 release_apkg.py
 
-echo "==> [3/5] Committing changes"
+echo "==> [3/6] Committing changes"
 git add -A
 CHANGED=0
 if git diff --cached --quiet; then
@@ -100,48 +141,7 @@ if [ "$CHANGED" -eq 0 ]; then
   exit 0
 fi
 
-echo "==> [4/5] Creating GitHub release"
-# Sync remote tags first: gh release create makes tags on the REMOTE only,
-# so local tags lag behind and would produce a duplicate version bump.
-git fetch origin "refs/tags/*:refs/tags/*" --quiet
-# Auto-bump version from the latest existing tag (v<major>.<minor>.<patch>)
-LATEST_TAG="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)"
-if [ -z "$LATEST_TAG" ]; then
-  NEW_TAG="v1.0.1"
-else
-  NEW_TAG="$(python3 - "$LATEST_TAG" "$BUMP_KIND" <<'PY'
-import sys
-major, minor, patch = sys.argv[1][1:].split(".")
-if sys.argv[2] == "minor":
-    print(f"v{major}.{int(minor) + 1}.0")
-else:
-    print(f"v{major}.{minor}.{int(patch) + 1}")
-PY
-)"
-fi
-
-# Stamp the new version into the CSS header comment so the live template
-# always shows which release it came from (user-visible in the template
-# editor), then fold it into the commit BEFORE pushing so origin, the
-# tag, and the working tree never disagree.
-python3 - "$NEW_TAG" <<'PY'
-import re, sys
-tag = sys.argv[1]
-path = "Card 1 - Style.css"
-css = open(path, encoding="utf-8").read()
-new, n = re.subn(
-    r"( \* Version: )v[0-9]+\.[0-9]+\.[0-9]+[^\n]*",
-    rf"\g<1>{tag} — auto-bumped by finish.sh; matches the GitHub release tag",
-    css, count=1)
-if n and new != css:
-    open(path, "w", encoding="utf-8").write(new)
-    print(f"    (stamped {tag} into Card 1 - Style.css header)")
-PY
-if ! git diff --quiet -- "Card 1 - Style.css"; then
-  git add "Card 1 - Style.css"
-  git commit --amend --no-edit --quiet
-fi
-
+echo "==> [4/6] Creating GitHub release"
 NOTES="Automated release from commit: $COMMIT_MSG
 
 Install: import the .apkg in Anki, then delete the sample cards — the note type is retained."
@@ -150,11 +150,12 @@ gh release create "$NEW_TAG" dist/anki-japanese-template.apkg \
   --notes "$NOTES" \
   --latest
 
-echo "==> [5/5] Pushing to origin/main"
+echo "==> [5/6] Pushing to origin/main"
 git push origin main
 # The release tag was created on the REMOTE by gh above; fetch it so local
 # tag bookkeeping stays in sync for the next run's version bump.
 git fetch origin "refs/tags/*:refs/tags/*" --quiet
 
+echo "==> [6/6] Done"
 echo ""
 echo "All done: synced, exported, committed, pushed, released as $NEW_TAG"
