@@ -24,7 +24,8 @@
 #   3. git commit     — stage everything (incl. chat_history log) & commit
 #   4. GitHub release — auto-bump tag (v1.x.y), stamp the version into the
 #                        CSS header comment (amended into the commit), apkg
-#   5. git push       — push commit + tag to origin/main
+#   5. git push       — push commit to origin/main; fetch the release tag
+#                        (gh creates it remotely; local syncs for next bump)
 #
 # Any failure stops the chain with a clear message (set -e). Requires: Anki
 # running with Anki-Connect, gh CLI authenticated (full mode only).
@@ -149,9 +150,11 @@ gh release create "$NEW_TAG" dist/anki-japanese-template.apkg \
   --notes "$NOTES" \
   --latest
 
-echo "==> [5/5] Pushing to origin/main (commit + ${NEW_TAG})"
+echo "==> [5/5] Pushing to origin/main"
 git push origin main
-git push origin "refs/tags/${NEW_TAG}"
+# The release tag was created on the REMOTE by gh above; fetch it so local
+# tag bookkeeping stays in sync for the next run's version bump.
+git fetch origin "refs/tags/*:refs/tags/*" --quiet
 
 echo ""
 echo "All done: synced, exported, committed, pushed, released as $NEW_TAG"
