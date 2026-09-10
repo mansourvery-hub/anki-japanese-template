@@ -220,6 +220,49 @@ def main():
           ".listening-view" not in css.split("5b. MATURE-CARD WORD MODE")[1].split("6. BACK CARD")[0]
           if "5b. MATURE-CARD WORD MODE" in css else False)
 
+    # --- 10. Empty-field collapse (QUALITY.md: no UI survives an empty field) ---
+    # 10a. Static proof over the raw templates (comments/scripts stripped):
+    # every rendered field lives inside an Anki conditional, except the
+    # documented allowlist (attribute / hidden probe / gated probe).
+    TOKEN = re.compile(r"\{\{\s*([#^/]?)\s*([^}]*?)\s*\}\}")
+    ALLOW_BARE = {
+        ("Front", "Type"),  # data-notetype attribute, not a UI element
+        ("Front", "cloze-prefix"), ("Front", "cloze-body"), ("Front", "cloze-suffix"),  # hidden probe
+        ("Front", "Expression"),  # front-word-display: display:none default, word-mode gate only (§8b)
+    }
+    bare = []
+    for name, src in (("Front", front), ("Back", back)):
+        clean = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+        clean = re.sub(r"<script.*?</script>", "", clean, flags=re.S)
+        stack = []
+        for m in TOKEN.finditer(clean):
+            sig, body = m.group(1), m.group(2).strip()
+            if sig in ("#", "^"):
+                stack.append(body)
+            elif sig == "/":
+                if stack:
+                    stack.pop()
+            elif body:
+                field = body.split(":")[-1].strip()
+                if not stack and (name, field) not in ALLOW_BARE:
+                    bare.append(f"{name}:{{{{{body}}}}}")
+    check("every rendered field is conditional (or allowlisted)" + (f" — bare: {bare}" if bare else ""),
+          not bare)
+
+    # 10b. Unconditional shells collapse when all conditional children absent.
+    check("CSS: empty .audio-row collapses (no button => gone)",
+          re.search(r"\.audio-row:not\(:has\(\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
+    check("CSS: empty .word-meta-row collapses (no badge/button => gone)",
+          re.search(r"\.word-display-row\s+\.word-meta-row:not\(:has\(\.frequency-badge,\s*\.pitch-accent-badge,\s*\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
+
+    # 10c. Degenerate content removes itself instead of leaving chrome behind.
+    check("Back: unparseable frequency removes its badge (no empty pill)",
+          "badge.remove()" in back)
+    check("Back: blank definition box is removed (no bordered void)",
+          "box.remove()" in back)
+    check("Front: blank sentence block is removed after cloze fixup",
+          "sd.remove()" in front)
+
     # --- 9. Sync tooling invariants ---
     sync = open(os.path.join(ROOT, "sync_to_anki.py"), encoding="utf-8").read()
     check("sync_to_anki.py: zero third-party imports (standard lib only)",

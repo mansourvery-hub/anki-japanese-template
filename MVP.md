@@ -29,6 +29,8 @@ compact informative back, and a one-command sync → export → release loop.
 - Styling: Tokyo Night + Aki Paper themes, fluid clamps, container-query
   2-column grid with media fallback, zero-reflow furigana, Fuji backdrop,
   reduced-motion support.
+- Empty-field collapse everywhere: no padding, border, or margin survives an
+  empty field.
 - Tooling: field bootstrap (`fetch_anki_fields.py`), snapshotted sync
   (`sync_to_anki.py`), apkg export (`release_apkg.py`), `verify` gate,
   `finish.sh` release loop, regression tests.

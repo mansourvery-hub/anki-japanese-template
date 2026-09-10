@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.4.1 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.4.2 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Optimized for dense, information-efficient review on Arch Linux Desktop
  * (Anki Desktop Qt6) and Samsung Galaxy A50 (Android / AnkiDroid):
@@ -451,6 +451,17 @@
   flex-wrap: wrap;
   gap: 10px;
   margin: 4px 0 6px 0;
+}
+
+/* Empty-shell guards (QUALITY.md "Empty-field collapse"): .audio-row and
+   .word-meta-row render unconditionally while their badges/buttons are
+   conditional — collapse the shells when every child is absent so no
+   margin/gap survives an empty field. */
+.audio-row:not(:has(.circular-audio-btn)) {
+  display: none;
+}
+.word-display-row .word-meta-row:not(:has(.frequency-badge, .pitch-accent-badge, .circular-audio-btn)) {
+  display: none;
 }
 
 .frequency-badge,

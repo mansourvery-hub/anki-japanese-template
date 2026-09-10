@@ -346,10 +346,13 @@
       badges.forEach(badge => {
         const raw = badge.getAttribute('data-freq') || '';
         const match = raw.replace(/,/g, '').match(/\d+(?:\.\d+)?/);
-        if (!match) return;
+        /* Empty-field collapse (QUALITY.md): a present-but-unparseable rank
+           must not leave an empty pill behind — remove it so :has() shell
+           guards treat the row as empty too. */
+        if (!match) { badge.remove(); return; }
 
         const val = parseFloat(match[0]);
-        if (isNaN(val) || val <= 0) return;
+        if (isNaN(val) || val <= 0) { badge.remove(); return; }
 
         // Japanese Frequency Tiers (Top 500 / 2.5k / 7k / 18k / Rare)
         let stars = 1;
@@ -422,6 +425,10 @@
     window.initDefinitionTruncation = function(root) {
       const scope = root || document;
       scope.querySelectorAll('.primary-definition').forEach(function(box) {
+        /* Empty-field collapse (QUALITY.md): a definition section that
+           survived its conditional with only whitespace leaves no bordered
+           void — remove it so :has() shell guards see the header as empty. */
+        if (!box.textContent || !box.textContent.trim()) { box.remove(); return; }
         box.classList.remove('is-expanded');
         box.setAttribute('aria-expanded', 'false');
         const overflows = box.scrollHeight > box.clientHeight + 2;

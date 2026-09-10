@@ -50,10 +50,16 @@ task/slice graph, not a todo list (`Build frontend` would not qualify).
                     ┌───────────────────┐
                     │ T10 methodology   │
                     │ refactor (this)   │
+                    └─────────┬─────────┘
+                              │
+                              ↓
+                    ┌───────────────────┐
+                    │ T11 empty-field   │
+                    │ collapse          │
                     └───────────────────┘
 ```
 
-Dependencies: `T1 → {T2, T3} → {T4, T5} → T6 → T7 → T8 → T9 → T10`.
+Dependencies: `T1 → {T2, T3} → {T4, T5} → T6 → T7 → T8 → T9 → T10 → T11`.
 T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
 
 ## Tasks
@@ -82,6 +88,11 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
 - **T10 — Methodology refactor.** Adopt PRODUCT/MVP/ARCHITECTURE/QUALITY/
   TEST_STRATEGY/PLAN + slim AGENTS.md + `verify`/CI without changing card
   behavior. Status: COMPLETE (`./verify` 129/129 green; released with this
+  commit).
+- **T11 — Empty-field collapse.** QUALITY rule + `:has()` shell guards +
+  degenerate-content self-removal + enclosure parser test (§10). Turns the
+  standing conditional coverage into a total, mechanically enforced
+  guarantee. Status: COMPLETE (`./verify` 135/135 green; released with this
   commit).
 
 ## Roadmap (evolution loop input, not committed scope)

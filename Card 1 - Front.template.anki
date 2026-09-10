@@ -240,6 +240,17 @@
       }
       /* --- CLOZE FALLBACK (END) --- */
 
+      /* Empty-field collapse (QUALITY.md): after the cloze rebuild, a
+         sentence block with no text at all (neither Sentence nor
+         Expression) leaves no padded void. Runs before the reveal. */
+      try {
+        container.querySelectorAll('.sentence-display').forEach((sd) => {
+          if (!sd.textContent || !sd.textContent.trim()) sd.remove();
+        });
+      } catch (blankErr) {
+        console.warn('[Blank Collapse]', blankErr);
+      }
+
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured
          healthy localhost latency (~25ms/call), so it only ever binds
          a wedged/busy Anki — and the fallback is always the safe

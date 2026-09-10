@@ -2165,3 +2165,11 @@ I can turn this revised structure into a clean one-page/printable workflow docum
 ok ready
 
 ---
+
+---
+
+add these features(and lets verify the new workflow): verify that for any ui elment if the field is empty don't show it( add as a rule/ as quality constraint ), this alredy true for my abe 90% of fields all over the code but make sure its always, this is to save space
+
+---
+
+go

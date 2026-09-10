@@ -55,7 +55,8 @@ bridge (`ankiGetCardInterval()`, constructor + direct shapes, stub guard,
 timeouts, 700 ms late-injection poll); desktop uses only AnkiConnect
 (`guiCurrentCard`→`cardsInfo`, `findCards` content-search fallback for the
 Browse previewer, 500 ms fetch timeout). Anti-flash gate
-(`visibility:hidden` → reveal, 1200 ms safety cap). See `docs/adr/001-*`.
+(`visibility:hidden` → reveal, 1200 ms safety cap); blank sentence blocks
+are removed after the cloze fixup. See `docs/adr/001-*`.
 
 ### Back (`Card 1 - Back.template.anki`)
 
@@ -73,8 +74,9 @@ card-container
 
 JS controllers (all idempotent under WebView DOM re-use): tags renderer,
 native-only circular audio (`playCircularAudio` → sibling replay link click,
-re-tap debounce, ring pulse), frequency visualizer (tier → bar + stars),
-definition truncator (measure → `.is-truncated` → one-way `.is-expanded`),
+re-tap debounce, ring pulse), frequency visualizer (tier → bar + stars;
+badge removed when the rank is unparseable), definition truncator (blank
+boxes removed, then measure → `.is-truncated` → one-way `.is-expanded`),
 lightbox (backdrop-click / `Escape` close, alt preserved).
 
 ### Style (`Card 1 - Style.css`)

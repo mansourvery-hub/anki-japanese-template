@@ -59,6 +59,19 @@ mechanically verified*. Code implements; tests enforce.
 - Word-mode swap rules exist and never touch `.listening-view`.
 - `:focus-visible` indicators and `prefers-reduced-motion` present.
 
+## Empty-field collapse (space discipline)
+
+- Every rendered field is enclosed in an Anki `{{#field}}` conditional —
+  except `Type` (element attribute, not UI), the hidden cloze-probe trio,
+  and the front word probe (`display:none` default, word-mode gate only).
+- Unconditionally rendered shells collapse when all conditional children are
+  absent: `.audio-row` / `.word-display-row .word-meta-row` via `:has()`
+  guards.
+- Degenerate content removes itself instead of leaving chrome behind:
+  unparseable Frequency removes its badge; blank definition/sentence blocks
+  are removed (front runs after the cloze fixup, before the reveal).
+- Net rule: no padding, border, or margin may survive an empty field.
+
 ## Tooling / process invariants
 
 - Python tooling stays stdlib-only; backups use microsecond timestamps;
