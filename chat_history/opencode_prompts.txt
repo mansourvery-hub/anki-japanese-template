@@ -597,3 +597,1571 @@ Repository: https://github.com/mansourvery-hub/anki-japanese-template
 ## Objective
 
 Improve the visual design of the Anki Japanese card template so that it uses significantly less wasted vertical space while preserving readability, hierarchy, responsiveness, furigana support, and existing functionality. The main goal is to make the cards feel dense, deliberate, and information-efficient. [full spec implemented: content-driven sizing, tightened spacing tokens, headword/sentence/definition/secondary typography hierarchy, 3-line definition cap, compact listening view, tighter accordion/source, mobile + desktop verified]
+
+---
+
+refactr using this template, do not break functionality
+Yes. Your criticism is correct. The previous version mixed **phases, artifacts, principles, and individual mechanisms** into one numbered list, which makes it impossible to see the actual operating loop.
+
+The biggest correction is to separate the system into:
+
+1. **Project initialization** — done once, establishes the durable repository context.
+2. **Development loop** — repeated for every task/feature.
+3. **Release loop** — turns accumulated work into a release.
+4. **Evolution loop** — used when adding features or changing architecture.
+5. **Failure/escalation rules** — rules that apply inside the development loop rather than being separate phases.
+
+And yes: **MVP needs a persistent artifact.** Otherwise the decision made during the conversation disappears.
+
+I would change your system substantially as follows.
+
+# The actual system
+
+```text
+                     PROJECT INITIALIZATION
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ↓                     ↓                     ↓
+   PRODUCT.md             MVP.md              ARCHITECTURE.md
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              ↓
+                    ENGINEERING BASELINE
+                              │
+             ┌────────────────┴────────────────┐
+             ↓                                 ↓
+       QUALITY / RULES                   IMPLEMENTATION
+       + verification                       GRAPH
+             │                                 │
+             └────────────────┬────────────────┘
+                              ↓
+                    ┌─────────────────┐
+                    │ DEVELOPMENT LOOP│
+                    └─────────────────┘
+                              │
+                    repeat until MVP
+                              │
+                              ↓
+                            RELEASE
+                              │
+                              ↓
+                    ┌─────────────────┐
+                    │ EVOLUTION LOOP  │
+                    └─────────────────┘
+                              │
+                         repeat forever
+```
+
+That's the structure I'd build the whole methodology around.
+
+---
+
+# PART I — Project initialization
+
+This starts when you have:
+
+> "I have an idea for an app."
+
+This phase happens once, although its artifacts can later be revised.
+
+---
+
+## 1. Product definition
+
+### WHAT
+
+You explore the product with a strong reasoning model.
+
+The result is the durable product specification.
+
+### WHO
+
+You + reasoning model.
+
+### ARTIFACT
+
+```text
+PRODUCT.md
+```
+
+It contains:
+
+```text
+Problem
+Target users
+Core user journeys
+Functional requirements
+UX requirements
+Constraints
+Non-goals
+Important assumptions
+Open questions
+```
+
+The important point is:
+
+**PRODUCT.md is the authoritative source for what the product is supposed to do.**
+
+Not the architecture documents.
+
+Not the implementation plan.
+
+Not the agent instructions.
+
+### WHAT YOU DECIDE
+
+You approve the product definition.
+
+### OUTPUT
+
+A durable product specification that survives the end of the conversation.
+
+---
+
+# 2. Define the MVP
+
+This should absolutely produce a persistent file.
+
+I would use:
+
+```text
+MVP.md
+```
+
+### WHY
+
+Because:
+
+```text
+PRODUCT.md
+```
+
+answers:
+
+> What is this product?
+
+while:
+
+```text
+MVP.md
+```
+
+answers:
+
+> What are we actually building **right now**?
+
+That distinction is extremely useful.
+
+### MVP.md contains
+
+```text
+MVP goal
+
+Core user journey(s)
+
+Included capabilities
+
+Excluded capabilities
+
+Acceptance criteria
+
+Known limitations
+
+Deferred features
+```
+
+For example:
+
+```text
+PRODUCT
+├── import configs
+├── edit configs
+├── validate configs
+├── export configs
+├── multiple providers
+├── cloud sync
+├── collaboration
+└── analytics
+
+MVP
+├── import configs
+├── edit configs
+├── validate configs
+└── export configs
+
+DEFERRED
+├── cloud sync
+├── collaboration
+└── analytics
+```
+
+### WHO
+
+You + reasoning model.
+
+### IMPORTANT
+
+You approve this.
+
+An agent should **not independently decide the MVP scope while coding**.
+
+### OUTPUT
+
+A persistent statement of:
+
+> This is the scope we are trying to make work first.
+
+---
+
+# 3. Technical architecture
+
+Now we move from:
+
+> What are we building?
+
+to:
+
+> How should the software be structured?
+
+Here I agree with your criticism.
+
+Do **not** force every project to contain:
+
+```text
+DATA_MODEL.md
+API_CONTRACTS.md
+TECHNICAL_DECISIONS.md
+...
+```
+
+That's too rigid.
+
+Instead:
+
+### Mandatory
+
+```text
+ARCHITECTURE.md
+```
+
+### Optional documents
+
+The architecture-designing model decides what additional artifacts are actually useful.
+
+For example:
+
+```text
+ARCHITECTURE.md
+DATA_MODEL.md
+API_CONTRACTS.md
+STATE_MODEL.md
+SECURITY.md
+PERFORMANCE.md
+INTEGRATION.md
+DOMAIN_X.md
+...
+```
+
+A tiny CLI may need almost nothing.
+
+A database-heavy backend may benefit greatly from `DATA_MODEL.md`.
+
+A stateful Flutter application may need a `STATE_MODEL.md`.
+
+An API-heavy application may need `API_CONTRACTS.md`.
+
+A browser extension integrating Yomitan may need integration-specific documentation.
+
+### This is the instruction to the architecture model
+
+Not:
+
+> Create these seven files.
+
+Instead:
+
+> Design the technical architecture for the MVP. Create `ARCHITECTURE.md` as the authoritative architectural document. Create additional technical documents only where they contain substantial information that would otherwise make `ARCHITECTURE.md` unwieldy or where a domain needs an independently maintained contract/specification.
+
+That gives the senior model freedom.
+
+---
+
+# 4. Diagrams
+
+Diagrams are **tools**, not mandatory deliverables.
+
+The architecture model should create diagrams when they clarify something that prose doesn't.
+
+Useful candidates:
+
+### Architecture/component diagram
+
+Useful almost always for anything beyond a tiny application.
+
+Shows:
+
+```text
+UI
+ ↓
+Application layer
+ ↓
+Domain
+ ↓
+Repositories
+ ↓
+Persistence
+```
+
+### Data/entity diagram
+
+Only when relationships between persistent entities matter.
+
+### Sequence diagram
+
+Useful for complicated interactions.
+
+For example:
+
+```text
+User
+ ↓
+Flutter
+ ↓
+API
+ ↓
+LLM provider
+ ↓
+stream
+ ↓
+UI
+```
+
+### State diagram
+
+Very useful when the application contains complicated state machines.
+
+### Dependency graph
+
+Extremely useful for **implementation planning**, not necessarily architecture.
+
+### Task graph
+
+This belongs to implementation planning.
+
+So don't turn diagrams into a checklist like:
+
+> Every project must have 6 diagrams.
+
+Instead:
+
+> Produce the minimum diagrams necessary to make important structure and behavior unambiguous.
+
+---
+
+# 5. Architectural decisions
+
+You also identified an important problem.
+
+`TECHNICAL_DECISIONS.md` shouldn't necessarily exist.
+
+For a simple project, decisions can simply live in:
+
+```text
+ARCHITECTURE.md
+```
+
+For projects with many meaningful decisions, use ADRs:
+
+```text
+docs/adr/
+    001-storage.md
+    002-state-management.md
+    003-provider-abstraction.md
+```
+
+An ADR is useful when a decision has:
+
+```text
+multiple plausible alternatives
++
+meaningful consequences
++
+long-term relevance
+```
+
+Not:
+
+> We decided to name this class `ConfigParser`.
+
+That's not an ADR.
+
+---
+
+# 6. Define engineering constraints
+
+Now comes the part the earlier workflow badly misplaced.
+
+Create:
+
+```text
+QUALITY.md
+```
+
+This answers:
+
+> What properties must remain true?
+
+For example:
+
+```text
+Architecture invariants
+- Presentation layer does not access persistence.
+
+Data invariants
+- Imported configurations are normalized before storage.
+
+Reliability requirements
+- Malformed external input must not crash the application.
+
+Performance requirements
+- Normal config import should complete within X.
+
+Security requirements
+- API keys must never enter logs.
+```
+
+But there's another document we need.
+
+---
+
+# 7. Define the testing/verification strategy
+
+Only **now** introduce:
+
+```text
+TEST_STRATEGY.md
+```
+
+You were absolutely right that I previously pulled this document out of nowhere.
+
+Its job is to answer:
+
+> How do we mechanically prove that the important properties in QUALITY.md remain true?
+
+For example:
+
+| Requirement                       | Enforcement               |
+| --------------------------------- | ------------------------- |
+| UI cannot access DB               | architecture test         |
+| Parser removes `<style>`          | unit test                 |
+| Config schema is valid            | schema/validation test    |
+| API response conforms to contract | integration/contract test |
+| Import handles 100k entries       | benchmark                 |
+| User can import → edit → export   | E2E test                  |
+
+This relationship is important:
+
+```text
+QUALITY.md
+     │
+     │ says WHAT must remain true
+     ↓
+TEST_STRATEGY.md
+     │
+     │ says HOW it is verified
+     ↓
+tests / linters / benchmarks / CI
+```
+
+That's the clean separation.
+
+---
+
+# 8. Build the implementation plan
+
+Now we're ready to ask:
+
+> What do we actually build first?
+
+And yes, **the graph should be first-class**, not just prose buried inside Markdown.
+
+I would therefore have:
+
+```text
+IMPLEMENTATION_PLAN.md
+IMPLEMENTATION_GRAPH.md
+```
+
+or simply a graph embedded in the implementation plan if you want fewer files.
+
+For your style, I'd probably use:
+
+```text
+IMPLEMENTATION_PLAN.md
+```
+
+containing:
+
+1. task definitions
+2. dependency graph
+3. execution status
+
+So the graph is not a substitute for the plan; it is one part of it.
+
+For example:
+
+```text
+                    ┌───────────────┐
+                    │ Project shell │
+                    └───────┬───────┘
+                            │
+                     ┌──────┴──────┐
+                     ↓             ↓
+              Data model       UI shell
+                     │             │
+                     ↓             ↓
+               Repository      Editor UI
+                     │             │
+                     └──────┬──────┘
+                            ↓
+                       Validation
+                            │
+                            ↓
+                     Import / Export
+                            │
+                            ↓
+                       E2E journey
+                            │
+                            ↓
+                          MVP
+```
+
+Each node is a task/slice.
+
+The graph tells us:
+
+```text
+what depends on what
+```
+
+The plan tells us:
+
+```text
+what each node actually means
+```
+
+---
+
+# 9. The plan is not a todo list
+
+This is an important distinction.
+
+Bad:
+
+```text
+[ ] Build frontend
+[ ] Build backend
+[ ] Add authentication
+[ ] Add settings
+```
+
+Good:
+
+```text
+T1 — Configuration domain model
+T2 — Configuration repository
+T3 — Config import parser
+T4 — Config editor
+T5 — Validation pipeline
+T6 — Export pipeline
+T7 — Import/edit/export E2E journey
+```
+
+With dependencies:
+
+```text
+T1 → T2 → T3
+          ↓
+         T5
+T1 → T4 → T5
+          ↓
+         T6
+          ↓
+         T7
+```
+
+Now an agent can reason about what is ready.
+
+---
+
+# 10. Repository agent context
+
+Now we create:
+
+```text
+AGENTS.md
+```
+
+But its role is much narrower than I previously made it.
+
+It should **not contain the entire engineering methodology**.
+
+It should be the agent's entry point:
+
+```text
+Read PRODUCT.md for product requirements.
+
+Read MVP.md for current scope.
+
+Read ARCHITECTURE.md for system architecture.
+
+Read QUALITY.md for invariants.
+
+Read TEST_STRATEGY.md for verification strategy.
+
+Read IMPLEMENTATION_PLAN.md for current work.
+
+Follow repository tooling and verification requirements.
+
+Do not modify architectural constraints without updating
+the authoritative architectural documentation.
+```
+
+That's enough.
+
+Then domain-specific agent guidance can live near the domain:
+
+```text
+src/yomitan/AGENTS.md
+src/parser/AGENTS.md
+```
+
+when actually necessary.
+
+---
+
+# PART II — The real development loop
+
+Everything above establishes the project.
+
+Now we enter the **repeating loop**.
+
+This is the core of the whole system.
+
+```text
+SELECT READY TASK
+        ↓
+UNDERSTAND TASK
+        ↓
+DEFINE SMALL CONTRACT
+        ↓
+WRITE TEST / CHECK
+        ↓
+IMPLEMENT
+        ↓
+LOCAL VERIFICATION
+        ↓
+DEBUG IF NECESSARY
+        ↓
+UPDATE STATE
+        ↓
+COMMIT
+        ↓
+CI
+        ↓
+MERGE
+        ↓
+NEXT READY TASK
+```
+
+This repeats dozens or hundreds of times.
+
+That is what was missing from the previous version.
+
+---
+
+# 11. Select the next task
+
+The agent does **not** receive:
+
+> "Build the MVP."
+
+It receives:
+
+> "Work on the next ready task."
+
+The agent reads:
+
+```text
+IMPLEMENTATION_PLAN.md
+```
+
+and finds a task whose dependencies are complete.
+
+For example:
+
+```text
+T3 — Config parser
+
+Status: READY
+
+Dependencies:
+T1 complete
+T2 complete
+```
+
+It becomes the current task.
+
+You don't need to paste the entire development methodology into the prompt every time because the repository itself contains it.
+
+---
+
+# 12. Define the small contract
+
+This is where the video's "small validated bricks" actually enters the workflow.
+
+The agent examines the task and identifies the smallest meaningful contract.
+
+Example:
+
+Task:
+
+> Implement Yomitan definition parser.
+
+Instead of immediately writing the full parser:
+
+```text
+HTML
+ ↓
+parser
+ ↓
+definition
+```
+
+the agent identifies contracts such as:
+
+```text
+C1: locate definition node
+C2: remove irrelevant nodes
+C3: preserve required markup
+C4: extract definition text
+C5: return normalized representation
+```
+
+Now we get:
+
+```text
+task
+ ↓
+small contracts
+ ↓
+tests
+ ↓
+implementation
+```
+
+That is the practical meaning of a "validated brick."
+
+---
+
+# 13. Write the test for the brick
+
+The agent creates the smallest appropriate test.
+
+Example:
+
+```text
+Input:
+<div>
+  definition
+  <style>huge CSS...</style>
+</div>
+
+Expected:
+definition
+```
+
+The test becomes the executable contract.
+
+The important point is:
+
+**this happens before or alongside implementation of the brick, not after the entire feature is completed.**
+
+---
+
+# 14. Implement the brick
+
+The agent now implements only enough code to satisfy the contract.
+
+Then:
+
+```text
+small test
+    ↓
+implementation
+    ↓
+small test passes
+```
+
+Then the next brick:
+
+```text
+C1
+ ↓
+C2
+ ↓
+C3
+ ↓
+C4
+```
+
+You are progressively constructing the feature from validated components.
+
+---
+
+# 15. What happens to `./verify`?
+
+Now its place is clear.
+
+There are **two levels of verification**.
+
+### Local/inner verification
+
+During implementation:
+
+```text
+targeted test
+```
+
+answers:
+
+> Does this brick work?
+
+Then increasingly broad checks:
+
+```text
+unit tests
+integration tests
+etc.
+```
+
+answer:
+
+> Did my change break related things?
+
+### `./verify`
+
+`./verify` means:
+
+> Run the repository's complete mandatory local quality gate.
+
+Example:
+
+```text
+./verify
+ ├── formatting
+ ├── lint
+ ├── static/type analysis
+ ├── unit tests
+ ├── integration tests
+ ├── architecture checks
+ └── other mandatory checks
+```
+
+An agent should normally run targeted checks while iterating and then `./verify` before declaring the task complete.
+
+That makes the hierarchy:
+
+```text
+tiny test
+    ↓
+targeted test suite
+    ↓
+./verify
+    ↓
+CI
+```
+
+---
+
+# 16. Where regression tests fit
+
+Now regression testing has a proper location.
+
+Suppose the parser bug escapes:
+
+```text
+<style> leaked into result
+```
+
+The agent fixes it.
+
+Then the development loop includes:
+
+```text
+BUG
+ ↓
+diagnose
+ ↓
+fix
+ ↓
+add regression test
+ ↓
+verify
+ ↓
+commit
+```
+
+The regression test becomes part of the permanent repository test suite.
+
+So regression tests are **not a separate phase**.
+
+They're a rule inside the debugging branch of the development loop:
+
+```text
+normal development
+       ↓
+bug discovered
+       ↓
+fix bug
+       ↓
+add regression test
+       ↓
+continue normal development
+```
+
+---
+
+# 17. Completion of a task
+
+Once implementation and verification are successful, the agent updates state.
+
+For example:
+
+```text
+IMPLEMENTATION_PLAN.md
+
+T3 — Config parser
+Status: COMPLETE
+```
+
+The agent may also update technical documentation **only if something actually changed**.
+
+For example:
+
+```text
+architecture changed
+→ update ARCHITECTURE.md
+
+new invariant introduced
+→ update QUALITY.md
+
+new contract introduced
+→ update relevant contract/spec
+
+bug fixed
+→ add regression test
+```
+
+No pointless documentation churn.
+
+---
+
+# 18. Git happens here
+
+Git is therefore not "step 13."
+
+It is part of the development loop.
+
+```text
+task
+ ↓
+implementation
+ ↓
+tests
+ ↓
+./verify
+ ↓
+commit
+ ↓
+push
+ ↓
+CI
+ ↓
+merge
+```
+
+For your solo workflow:
+
+```text
+main
+│
+├── feature/task-123
+│
+└── feature/task-124
+```
+
+Agents work on task branches.
+
+`main` is protected and should remain healthy.
+
+---
+
+# 19. What should agents do with Git?
+
+I'd give agents permission to:
+
+```text
+create branch
+commit
+push branch
+```
+
+but **not automatically merge to main**.
+
+The merge can be your lightweight human control point.
+
+For multiple agents, the rule becomes:
+
+```text
+Agent A → branch A
+Agent B → branch B
+Agent C → branch C
+```
+
+Never let five agents independently modify the same working tree.
+
+A shared branch/worktree is an unnecessary source of collisions.
+
+---
+
+# 20. CI
+
+After the agent pushes:
+
+```text
+GitHub
+ ↓
+CI
+ ↓
+./verify
+ ↓
+pass/fail
+```
+
+This is the second independent verification layer.
+
+Local verification answers:
+
+> Did the agent's environment pass?
+
+CI answers:
+
+> Does the repository pass in a clean environment?
+
+This catches things such as:
+
+```text
+forgotten file
+undeclared dependency
+platform mismatch
+environment-specific issue
+generated files missing
+```
+
+---
+
+# PART III — MVP completion
+
+Eventually the graph reaches:
+
+```text
+all MVP tasks complete
+```
+
+But you're not done merely because all checkboxes are green.
+
+Now run an MVP validation.
+
+---
+
+# 21. MVP validation
+
+This is a specific checkpoint.
+
+Ask:
+
+```text
+Can a real user complete the core journey defined in MVP.md?
+```
+
+This is where E2E testing becomes particularly valuable.
+
+For example:
+
+```text
+Launch
+ ↓
+Import config
+ ↓
+Edit config
+ ↓
+Validate
+ ↓
+Export
+ ↓
+Open exported config
+```
+
+The E2E test proves the **system**, not individual components.
+
+Now you have:
+
+```text
+unit/brick tests
++
+integration tests
++
+architecture checks
++
+E2E
++
+./verify
+```
+
+and the MVP acceptance criteria.
+
+---
+
+# 22. Release
+
+Now:
+
+```text
+MVP
+ ↓
+release candidate
+ ↓
+CI
+ ↓
+version/tag
+ ↓
+release
+```
+
+You might create:
+
+```text
+CHANGELOG.md
+```
+
+and release notes.
+
+For a personal app, don't turn this into enterprise release management.
+
+---
+
+# PART IV — After MVP
+
+This is where your earlier workflow jumped awkwardly.
+
+After the MVP, you enter an **evolution loop**.
+
+```text
+new feature idea
+       ↓
+product decision
+       ↓
+update PRODUCT.md if necessary
+       ↓
+update MVP/roadmap scope
+       ↓
+architecture impact?
+       ↓
+update architecture if necessary
+       ↓
+add implementation tasks
+       ↓
+development loop
+       ↓
+release
+```
+
+This repeats indefinitely.
+
+---
+
+# 23. Architecture is not frozen
+
+This is crucial.
+
+You don't do:
+
+```text
+architecture
+ ↓
+freeze forever
+```
+
+Instead:
+
+```text
+architecture
+ ↓
+implementation
+ ↓
+real-world knowledge
+ ↓
+new requirement
+ ↓
+architecture reassessment
+```
+
+When a new feature doesn't fit:
+
+### Small change
+
+Implement it normally.
+
+### Moderate architectural change
+
+Update `ARCHITECTURE.md`, possibly an ADR, then create tasks.
+
+### Major change
+
+Stop normal feature development and create an explicit architecture-change effort.
+
+For example:
+
+```text
+Flutter state architecture
+        ↓
+new requirement exposes limitations
+        ↓
+decision
+        ↓
+migration plan
+        ↓
+migration tasks
+        ↓
+normal development resumes
+```
+
+---
+
+# The complete repository
+
+I'd therefore simplify your proposed repository to:
+
+```text
+PRODUCT.md
+MVP.md
+ARCHITECTURE.md
+QUALITY.md
+TEST_STRATEGY.md
+IMPLEMENTATION_PLAN.md
+AGENTS.md
+
+src/
+tests/
+
+docs/
+    adr/              # only if useful
+    architecture/    # only if useful
+    domain/           # only if useful
+
+.github/
+    workflows/
+
+verify
+```
+
+And potentially:
+
+```text
+DATA_MODEL.md
+API_CONTRACTS.md
+STATE_MODEL.md
+PERFORMANCE.md
+SECURITY.md
+```
+
+**only when justified by the project.**
+
+That gives the senior architecture model freedom without turning documentation into chaos.
+
+---
+
+# The authority hierarchy
+
+This is something I would explicitly put into `AGENTS.md`.
+
+```text
+PRODUCT.md
+    ↓
+Defines product intent and requirements
+
+MVP.md
+    ↓
+Defines current scope
+
+ARCHITECTURE.md
+    ↓
+Defines technical structure
+
+Specialized technical docs
+    ↓
+Define detailed contracts/models for their domain
+
+QUALITY.md
+    ↓
+Defines properties/invariants that must remain true
+
+TEST_STRATEGY.md
+    ↓
+Defines how those properties are mechanically verified
+
+IMPLEMENTATION_PLAN.md
+    ↓
+Defines current implementation work and dependencies
+
+AGENTS.md
+    ↓
+Explains how an agent navigates and operates within all of this
+```
+
+And critically:
+
+```text
+CODE ≠ specification
+```
+
+Code implements the specifications.
+
+Tests enforce important properties of the specifications.
+
+---
+
+# The agent's actual operating loop
+
+This is what I think you were ultimately trying to get to.
+
+An agent receives essentially:
+
+> **Implement the next ready task.**
+
+That's it.
+
+The repository tells it the rest.
+
+The agent should then autonomously do:
+
+```text
+1. Read AGENTS.md
+2. Read relevant product/MVP requirements
+3. Read relevant architecture
+4. Read relevant quality rules
+5. Inspect existing code
+6. Select current task
+7. Identify its smallest contracts
+8. Add/update appropriate tests
+9. Implement
+10. Run targeted checks
+11. Run ./verify
+12. Fix failures
+13. Add regression tests when bugs were discovered
+14. Update implementation state
+15. Update technical docs only when necessary
+16. Commit
+17. Push
+18. CI verifies
+19. Task becomes complete
+20. Select next ready task
+```
+
+And **that** is the autonomous agentic development system.
+
+---
+
+# Failure handling lives inside this loop
+
+Don't create another numbered phase.
+
+The development loop branches:
+
+```text
+                  TASK
+                    │
+              implement
+                    │
+                verify
+                    │
+           ┌────────┴────────┐
+           │                 │
+         PASS              FAIL
+           │                 │
+        finish          diagnose
+                             │
+                 ┌───────────┼───────────┐
+                 ↓           ↓           ↓
+             code bug   missing test   bad design/spec
+                 │           │           │
+                 └───────────┴───────────┘
+                             ↓
+                         fix cause
+                             ↓
+                       verify again
+```
+
+After repeated failure, escalate.
+
+I'd use something like:
+
+```text
+Attempt 1–2:
+agent investigates and fixes
+
+Attempt 3:
+agent must stop blind retrying and diagnose root cause
+
+If unclear:
+stronger reasoning/debugging model
+
+If still unclear:
+human decision
+```
+
+And when the root cause is identified:
+
+```text
+missing specification
+→ improve specification
+
+missing invariant
+→ add QUALITY rule
+
+missing protection
+→ add test/linter/check
+
+architecture problem
+→ update architecture + migration/task plan
+
+tooling problem
+→ improve tooling
+```
+
+That's how the system gets stronger over time.
+
+---
+
+# What I would change from your current version
+
+The biggest conceptual changes are:
+
+### Replace this:
+
+```text
+Product
+↓
+Architecture
+↓
+Plan
+↓
+Build
+↓
+Testing
+↓
+Git
+↓
+Release
+```
+
+with:
+
+```text
+INITIALIZE PROJECT
+
+Product
+↓
+MVP
+↓
+Architecture
+↓
+Quality/invariants
+↓
+Verification strategy
+↓
+Implementation graph
+↓
+Agent context
+↓
+──────────────────────────
+      DEVELOPMENT LOOP
+──────────────────────────
+select task
+↓
+small contract
+↓
+test/check
+↓
+implement
+↓
+targeted verification
+↓
+./verify
+↓
+state/docs
+↓
+commit
+↓
+CI
+↓
+merge
+↓
+next task
+──────────────────────────
+
+MVP validation
+↓
+release
+
+then repeatedly:
+
+FEATURE / CHANGE
+↓
+product decision
+↓
+architecture reassessment
+↓
+implementation graph
+↓
+DEVELOPMENT LOOP
+↓
+release
+```
+
+That is the version I'd recommend you actually adopt.
+
+The **most important thing** is that the "agentic" part isn't a clever prompt. It's the repository becoming a **self-describing, mechanically enforced development environment** where:
+
+```text
+requirements
+→ architecture
+→ constraints
+→ tests
+→ implementation tasks
+→ automated verification
+→ git/CI
+```
+
+form one connected system.
+
+That also resolves your concern about "what do I tell the agent?" You don't want to repeatedly inject a giant methodology prompt. You want the agent to enter a repository whose structure already encodes the methodology.
+
+I can turn this revised structure into a clean one-page/printable workflow document next.
+
+---
+
+ok ready
+
+---

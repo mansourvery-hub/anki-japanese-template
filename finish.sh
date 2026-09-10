@@ -16,8 +16,8 @@
 #                    lands in the same commit.
 #
 #   It executes, in order:
-#   0. compactor tests — verify the Definition Compactor CSS selectors
-#                        (skipped silently when tests/ is absent)
+#   0. ./verify — local quality gate (compactor CSS + template invariants
+#                 + layout; skipped silently when tests/ is absent)
 #   1. version stamp  — compute the next release tag and rewrite the CSS
 #                        header Version: line (full runs only; the stamp is
 #                        what Anki receives in step 2, so it never lags)
@@ -68,13 +68,10 @@ if [ -n "$PROMPT_TEXT" ]; then
   echo "    (prompt archived to chat_history/opencode_prompts.txt)"
 fi
 
-# ---------- step 0: regression tests (compactor CSS + template invariants + layout) ----------
+# ---------- step 0: regression tests (delegates to ./verify, the local gate) ----------
 if [ -d tests ]; then
-  echo "==> [0/6] Running regression tests"
-  python3 tests/test_compactor.py
-  python3 tests/test_templates.py
-  # Headless-Chrome layout checks; skipped gracefully when Chrome is absent.
-  python3 tests/test_layout.py
+  echo "==> [0/6] Running regression tests (./verify)"
+  ./verify
 fi
 
 # ---------- step 1: version stamp (BEFORE the sync so Anki gets the new tag) ----------

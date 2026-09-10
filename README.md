@@ -84,7 +84,12 @@ python3 release_apkg.py    # exports sample deck to dist/*.apkg
 ├── fetch_anki_fields.py           # Read-only dump of live Anki fields (see above)
 ├── sync_to_anki.py                # Push templates/CSS to Anki (pre-sync backup)
 ├── release_apkg.py                # Export sample deck to dist/*.apkg
-├── finish.sh                      # One command: tests + sync + export + commit + push + release
+├── verify                         # Local quality gate (tests only, no side effects)
+├── finish.sh                      # One command: verify + sync + export + commit + push + release
+├── PRODUCT.md / MVP.md            # Product intent / current scope
+├── ARCHITECTURE.md + docs/adr/    # Technical structure / lasting decisions
+├── QUALITY.md / TEST_STRATEGY.md  # Invariants / how they are verified
+├── IMPLEMENTATION_PLAN.md         # Task graph + status
 ├── tests/                         # test_compactor.py + test_templates.py (run by finish.sh)
 ├── chat_history/                  # Archived agent prompts
 ├── dist/                          # Exported .apkg (gitignored, GitHub Release asset)

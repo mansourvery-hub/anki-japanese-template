@@ -1,75 +1,105 @@
-# 🤖 Agent Operational Guidelines & Architecture
+# AGENTS.md — agent entry point
 
-This document defines the strict operational rules, architectural guidelines, and synchronization workflows for any AI coding agent working in this repository.
+Modern, ultra-compact Japanese sentence-mining note type for Anki.
+Desktop: Arch Linux Qt6 WebEngine (widescreen, dense). Mobile: Galaxy A50
+AnkiDroid WebKit (ultra-compact). This file is the entry point — the
+methodology lives in the repository structure, not in this file.
 
----
+## Authority hierarchy
 
-## 🎯 Project Overview & Core Goals
-- **Goal:** Modern, refined, ultra-compact, ergonomic Japanese sentence-mining note type for Anki.
-- **Target Environments:**
-  - **Desktop:** Arch Linux (Anki Desktop Qt6 WebEngine, widescreen, content-driven dense layout).
-  - **Mobile:** Samsung Galaxy A50 (AnkiDroid / WebKit, small screen, ultra-compact zero-waste vertical spacing).
-- **Core Files:**
-  - `Card 1 - Front.template.anki` (Front card HTML & dynamic scaling script + Mature Word Mode: interval-gated word-only front, threshold const `LONG_INTERVAL_DAYS`, AnkiConnect `guiCurrentCard`/content-search + AnkiDroid JS API retrieval, graceful sentence fallback)
-  - `Card 1 - Back.template.anki` (Back card HTML, circular audio & lightbox script)
-  - `Card 1 - Style.css` (Tokyo Night & Aki Paper themes, responsive clamps)
-  - `fetch_anki_fields.py` (Read-only AnkiConnect dump of the live note-type field names into gitignored `.anki_fields.json`; stdlib only — see rule 0)
-  - `finish.sh` (⭐ THE post-change routine: tests + sync + export + commit + push + release in one command; flags: `--local`, `--minor`, `--prompt`)
-  - `sync_to_anki.py` (Pushes templates & styles to Anki via Anki-Connect; snapshots the live Anki state into gitignored `backups/<timestamp>/` before overwriting; step 1 of finish.sh)
-  - `release_apkg.py` (Exports sample deck to `dist/anki-japanese-template.apkg` via Anki-Connect `exportPackage`; step 2 of finish.sh)
-  - `tests/` (Regression tests for the Definition Compactor CSS; step 0 of finish.sh, auto-skipped while absent)
-  - `chat_history/` (Archived user prompts from Gemini CLI & Opencode)
+```text
+PRODUCT.md             → what the product must do
+MVP.md                 → current scope (agents never widen it unasked)
+ARCHITECTURE.md        → technical structure (+ docs/adr/ for lasting decisions)
+QUALITY.md             → properties that must remain true
+TEST_STRATEGY.md       → how those properties are verified
+IMPLEMENTATION_PLAN.md → task graph + status (work the next READY task)
+AGENTS.md (this file)  → how to navigate and operate within all of the above
+```
 
-## 📦 Sample Deck & Release Facts
-- Release automation exports the deck **"My Life Decks::Japanese::anki-japanese-template"** via the Anki-Connect `exportPackage` action (the only verified working export action).
-- The apkg is **gitignored** (`*.apkg`) — it is distributed exclusively as a **GitHub Release asset** named `anki-japanese-template.apkg`, never committed to the repo.
-- Releases are git tags (`v<major>.<minor>.<patch>`); `finish.sh` auto-bumps the patch segment (`--minor` bumps the minor segment instead, for multi-feature releases).
+`CODE ≠ specification.` Code implements the specs; tests enforce them.
 
----
+## Read order
 
-## 🔒 Mandatory Golden Rules for All Agents
+1. `PRODUCT.md` + `MVP.md` — what and what-now.
+2. `ARCHITECTURE.md` (+ relevant `docs/adr/`) — how it is structured.
+3. `QUALITY.md` + `TEST_STRATEGY.md` — invariants + enforcement.
+4. `IMPLEMENTATION_PLAN.md` — current work and dependencies.
+5. Session bootstrap below, then the existing code.
+
+## Development loop (the repeating unit)
+
+```text
+SELECT READY TASK → UNDERSTAND → SMALL CONTRACT → TEST/CHECK → IMPLEMENT
+  → TARGETED CHECKS → ./verify → UPDATE STATE/DOCS (only if changed)
+  → COMMIT → CI → NEXT READY TASK
+```
+
+- Work the next task whose dependencies are COMPLETE; never `Build the MVP`.
+- Split the task into the smallest meaningful contracts (validated bricks);
+  write the test/check before or alongside each brick, then implement only
+  enough to satisfy it.
+- Targeted suites while iterating, `./verify` before declaring done.
+- Bugs branch inside the loop: diagnose → fix → **add regression test** →
+  verify → continue. After ~3 blind retries, stop and diagnose root cause
+  (stronger model, then human); fix the cause class (spec, invariant, test,
+  architecture, tooling) so the system gets stronger.
+- MVP completion adds an end-to-end validation (real user journey in
+  `MVP.md`) before release; post-MVP changes go product decision →
+  architecture reassessment → tasks → loop → release.
+
+## Operating rules
 
 ### 0. Field-Name Bootstrap (fields live in Anki, never in the repo)
-- Note-type fields are managed **exclusively inside the Anki UI**. The repo keeps **no** static field list (the old `JapNoteType.json` snapshot was deleted for exactly this reason — it went stale).
-- At session start, **before** any template work, run `python3 fetch_anki_fields.py` and read the generated `.anki_fields.json` snapshot for exact field names and descriptions.
-- If Anki / Anki-Connect is unreachable, **stop and ask the user to start Anki** — never guess, invent, or reuse field names from memory or chat history.
 
-### 1. Local Files are the Single Source of Truth
-- **Never** instruct the user to edit HTML/CSS inside the Anki application UI.
-- All edits must happen directly in the local `.template.anki` and `.css` files.
+Note-type fields are managed **exclusively inside the Anki UI**. At session
+start, **before** any template work, run `python3 fetch_anki_fields.py` and
+read the gitignored `.anki_fields.json` for exact names/descriptions. If
+Anki/Anki-Connect is unreachable, **stop and ask the user to start Anki** —
+never guess, invent, or reuse field names from memory or chat history.
 
-### 2. THE Release Workflow (one command, not five)
-> **⚠ LLM failure-mode warning:** routine multi-step endings get forgotten late in a session (it already happened once). Never run the steps manually — that is how steps get dropped.
+### 1. Local files are the single source of truth
 
-After **every** modification to the note templates/CSS, finish with exactly one command:
+All edits happen in the local `.template.anki` / `.css` files. Never instruct
+edits inside the Anki UI. Tooling is stdlib-only Python.
+
+### 2. Release workflow (one command, not five)
+
+After **every** template/CSS modification, finish with exactly one command:
 
 ```bash
 ./finish.sh "<semantic commit message>"
+# --local: sync + export + commit only · --minor: bump v1.x.0
+# --prompt "text": archive prompt (rule 3) before anything runs
 ```
 
-It runs, in order, and stops on first failure:
-0. `tests/` — regression suites: `test_compactor.py` (Definition Compactor CSS) + `test_templates.py` (structural invariants: front-furigana ban, aria-labels, restart-only audio, lightbox close semantics, balanced conditionals, a11y CSS). Auto-skipped while `tests/` is absent.
-1. `sync_to_anki.py` — push Front/Back/CSS into the live Anki profile; snapshots the live Anki state into gitignored `backups/<timestamp>/` first
-2. `release_apkg.py` — export the sample deck to `dist/anki-japanese-template.apkg`
-3. `git add -A && git commit` — snapshot (includes the chat_history log)
-4. `git push origin main`
-5. `gh release create` — auto-bump patch tag and upload the apkg asset
+Chain (stops on first failure): `0.` `./verify` (side-effect-free gate) →
+`1.` version stamp → `2.` `sync_to_anki.py` (pre-sync snapshot to gitignored
+`backups/<timestamp>/`) → `3.` `release_apkg.py` (deck
+`My Life Decks::Japanese::anki-japanese-template` via `exportPackage` to
+gitignored `dist/*.apkg`) → `4.` commit → `5.` `gh release create`
+(auto-bump tag) → `6.` push. The apkg ships as a Release asset, never in the
+repo. Do not skip, reorder, or substitute steps.
 
-**Flags:**
-- `--local` — steps 0–3 only (sync + export + commit, no push/release). Use while iterating a multi-part change; finish the batch with a full run (no flag).
-- `--minor` — bump the minor version segment (v1.x.0) instead of patch, for multi-feature releases.
-- `--prompt "<user prompt>"` — archives the prompt to `chat_history/opencode_prompts.txt` before anything runs (AGENTS.md rule 3 encoded in the script).
+### 3. Prompt archiving
 
-Do not skip, reorder, or substitute steps. The user reviews cards inside Anki after this command.
+Archive every new user prompt to `chat_history/opencode_prompts.txt`
+(prompt text + `---` separator) before/with its commit — preferably via
+`./finish.sh --prompt "<user prompt>" "<message>"`.
 
-### 3. Prompt Archiving
-- Append every new user prompt to `chat_history/opencode_prompts.txt` **before** running `./finish.sh` (so the log is included in the same commit).
-- Format: prompt text, then `---` separator on its own line.
-- Preferred: let the script do it via `./finish.sh --prompt "<user prompt>" "<message>"` — zero chance of forgetting.
+### 4. Technical constraints (summaries; full rules in QUALITY.md)
 
-### 4. Technical Constraints
-- **Zero-Reflow Furigana:** Furigana must remain hidden by default and reveal on `:hover` (Desktop) / `:active` (Mobile) without shifting surrounding Japanese text by even a single pixel (uses absolute ruby positioning).
-- **Audio Buttons:** Uses custom standalone circular SVG progress buttons (`文` for sentence, `言葉` for word). Avoid default browser audio controls.
-- **Mature Word Mode (interval-gated front):** When the current card's SRS interval ≥ `LONG_INTERVAL_DAYS` (const in the Front template script, default 365), the front shows only the `Expression` instead of the sentence (anti-overlearning). Hard rules: no `{{Interval}}` marker exists — the interval must be fetched at render time (AnkiConnect `guiCurrentCard` during active review, `findCards` content search in the Browse previewer, AnkiDroid JS API `ankiGetCardInterval()` on mobile); NEVER fetch AnkiConnect (`127.0.0.1:8765`) from a mobile WebView (Android/iOS UA) — the refused connection surfaces natively as `Failed to load 'downloadfile.bin'`; any retrieval failure MUST degrade to the normal sentence front; no Python/addon/new-field solutions; listening-mode fronts stay untouched; keep the anti-flash `visibility:hidden` gate.
-- **Screen Real Estate:** Screen space is precious. Avoid adding useless debug badges or verbose header labels (`Sentence`, `Listening Card Active`, etc.).
-- **Minimal JS Footprint:** Avoid external libraries. All scripts must be vanilla, scoped, and resilient to Anki WebView DOM re-use.
+Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · native-only
+circular audio (`文`/`言葉`, sibling replay link, debounce) · Mature Word
+Mode (`LONG_INTERVAL_DAYS = 365`, platform-exclusive live interval read,
+sentence fallback, listening untouched, anti-flash gate) · no debug badges
+or verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
+
+## File map
+
+`Card 1 - Front.template.anki` (front modes + Mature Word Mode) ·
+`Card 1 - Back.template.anki` (grid, audio, lightbox) ·
+`Card 1 - Style.css` (themes, layout, compactor §6b, truncator §6c) ·
+`fetch_anki_fields.py` · `sync_to_anki.py` · `release_apkg.py` · `verify` ·
+`finish.sh` · `tests/` · `docs/adr/` · `chat_history/` · `dist/` + `backups/`
+(gitignored).

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# verify — repository's complete mandatory LOCAL quality gate.
+#
+# Side-effect free: runs checks only. Never touches Anki, never exports,
+# never commits, never releases. Run it before declaring any task complete:
+#
+#   ./verify
+#
+# finish.sh step 0 delegates to this script, and CI re-runs it on every
+# push — the three can never disagree. See TEST_STRATEGY.md for the
+# layering (tiny test → targeted suite → ./verify → CI).
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+if [ ! -d tests ]; then
+  echo "(no tests/ directory — nothing to verify)"
+  exit 0
+fi
+
+echo "==> verify: compactor regression tests"
+python3 tests/test_compactor.py
+echo "==> verify: template structural invariants"
+python3 tests/test_templates.py
+echo "==> verify: headless layout checks (skipped gracefully without Chrome)"
+python3 tests/test_layout.py
+echo "verify: OK"
