@@ -70,6 +70,13 @@ __CSS__
         <div data-sc-name="語義G">一つのことに注意を向ける。三番目の語義（隠れるはず）。</div>
         <div data-sc-name="補説G">supplementary (hidden)</div></li>
       </ol></div>
+      <!-- Font-independent overflow guarantee: CI runners have Chrome but
+           no CJK fonts, so the Japanese text above renders with fallback
+           tofu metrics and may fit within the 3-line cap. The fixed-height
+           spacer makes scrollHeight > clientHeight true in EVERY
+           environment, so the truncator checks never depend on font
+           availability. -->
+      <div style="height:140px"></div>
     </div>
     <div class="audio-row">
       <span class="audio-btn-wrapper">
