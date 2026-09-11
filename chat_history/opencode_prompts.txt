@@ -2173,3 +2173,77 @@ add these features(and lets verify the new workflow): verify that for any ui elm
 ---
 
 go
+
+---
+
+Handoff: definitive redesign of anki-japanese-template (minimal Japanese-learning interface)
+
+Goal: redesign the existing Anki Japanese card template into an EXTREMELY
+minimal Japanese-learning interface, preserving existing functionality and
+architecture wherever possible. Core philosophy: every visible element must
+justify its existence and its screen space. The card is not a dashboard,
+dictionary UI, or mini-SRS — Anki is the SRS. The result should feel like a
+carefully designed Japanese-reading environment.
+
+Key directives from the 34-section brief:
+- Learning goal only: recognize Japanese words independently (reading +
+  meaning). No English->Japanese production, no custom grading, no
+  confidence buttons, no learning-mode system beyond context/word/listening.
+- FRONT = extremely pure: ONLY the tested thing (sentence with target
+  highlighted; mature card = word only; listening = audio button). No
+  badges, labels, metadata, tags, controls, hints.
+- PRESERVE the existing two-tier maturity model (contextual retrieval
+  below threshold; mature word-only retrieval at interval >= 365d). Do not
+  alter the maturity logic.
+- BACK = clear hierarchy: (1) target, (2) reading, (3) primary meaning,
+  (4) core context (sentence + picture — picture is core information),
+  everything else secondary.
+- Secondary info (translation, extended definition, extra context, kanji
+  notes, notes) collapsed behind a quiet "More information v" — no giant
+  UI, no cards-within-cards.
+- Discreet retrieval-mode label on the back only (Context / Word),
+  hover-explanatory, never a large badge.
+- #listening tag = explicit behavioral signal for listening cards; tags are
+  behavioral metadata, hidden by default, never decorative pills.
+- Furigana: keep zero-reflow hover philosophy; F toggles full-card
+  furigana on the back. T reveals translation. R stays Anki-native.
+- Yomitan handling: conservative; one useful primary definition first,
+  additional senses behind "More definitions"; never assume Yomitan HTML is
+  clean; parsing failure must degrade gracefully (never dump CSS into the
+  definition, never delete it).
+- Mining invariant (document it): the front sentence must be independently
+  understandable; surrounding context is supplementary only.
+- Audit every element: remove / collapse / hover-only anything that does
+  not materially help learning. Don't fill empty front space with UI.
+- Responsive: hierarchy over columns; desktop can keep 2-col where useful;
+  mobile stacks naturally; no horizontal overflow from dictionary HTML.
+- Typography (not UI decoration) creates hierarchy: target > reading >
+  meaning > sentence > secondary. Japanese dominant; accent color only
+  for target highlight + subtle interactive states.
+- No custom grading UI, no excessive micro-interactions (no long-press,
+  no audio speed/loop controls, no shortcut legends, no gamification).
+- Preserve: maturity logic, Yomitan integration, glossary parsing,
+  fallbacks, audio handling, furigana, translation reveal, lightbox,
+  responsive behavior, listening machinery, Anki compatibility. Refactor
+  only where necessary.
+- Implementation in stages: understand first (feature -> implementation ->
+  files map), mark each element CORE/SECONDARY/REMOVE/HOVER, then layout,
+  then behavior, then documentation.
+- Testing: normal card, mature card, listening card, furigana, translation,
+  Yomitan (normal/multiple/styles/malformed/fallback), picture states,
+  secondary info states; visual QA with realistic cards (long sentence, no
+  image, huge definition, mature, listening) on desktop + narrow viewport;
+  BEFORE/AFTER screenshot comparison with the same representative card —
+  better hierarchy, less irrelevant UI, not visually empty.
+- Definition of done (excerpt): front contextual = essentially only the
+  sentence; front mature = essentially only the word; no grading system;
+  no production mode; back prioritizes target -> reading -> meaning ->
+  context; picture core; secondary collapsed; state discreetly
+  understandable; listening-tag supported without affecting normal cards;
+  F furigana works; T translation works; Yomitan compact when safely
+  parseable with graceful fallback; audio + Anki integration intact;
+  maturity logic unchanged; responsive; no new cosmetic subsystems;
+  invariant documented; existing verification/build/export workflow passes.
+- Operating rule: "improve the design" != "add features"; when uncertain
+  prefer removal, prefer collapsed/hover, prefer reuse. The final card
+  should feel like LESS software, not more.

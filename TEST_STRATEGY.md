@@ -25,10 +25,12 @@ run `./verify`; CI re-runs `./verify` after every push.
 | Cloze probe shape, trio gate, `<b>` rebuild, bold guard | `tests/test_templates.py` §2c |
 | Lightbox backdrop-only close, dialog semantics, alt | `tests/test_templates.py` §4 |
 | Balanced Anki conditionals | `tests/test_templates.py` §5 |
-| `:focus-visible`, reduced motion, content-driven sizing, grid fallback, word-header guard, clamp() authority, no JS font override, frequency tiers | `tests/test_templates.py` §§6–8 |
-| Mature Word Mode: const, platform-exclusive retrieval, stub/timeout/fallback rules, anti-flash gate, word-mode CSS | `tests/test_templates.py` §8b |
+| Minimal redesign: no tags bar / frequency badges; More collapse; state label; F/T shortcuts; listening resolver wiring | `tests/test_templates.py` §§6b–6c |
+| `:focus-visible`, reduced motion, content-driven sizing, context-grid fallback, clamp() authority, no JS font override | `tests/test_templates.py` §§6–7 |
+| Mature Word Mode: const, platform-exclusive retrieval, no `note:` clause, stub/timeout/fallback rules, anti-flash gate, word-mode CSS | `tests/test_templates.py` §8b |
 | Stdlib-only sync, microsecond backups, finish.sh no-op guard | `tests/test_templates.py` §9 |
-| Content-driven height, no h-overflow, furigana containment, type hierarchy, 3-line clamp + one-way expand, listening target size, 2-col vs stacked grid, footer containment | `tests/test_layout.py` — headless Chrome on the **real** stylesheet; skipped gracefully when Chrome is absent |
+| Content-driven height, no h-overflow, furigana containment, type hierarchy, 3-line clamp + one-way expand, listening target size, context grid, More collapsed by default, footer containment | `tests/test_layout.py` — headless Chrome on the **real** stylesheet; skipped gracefully when Chrome is absent |
+| Listening resolver behavior: classic audio-only fields and `#listening` tag activate the audio front; gloss/no-tag, no-audio, and Frequency-legacy shapes keep the sentence front | `tests/test_front_modes.py` — extracts the real resolver from the front template and runs 6 state harnesses in headless Chrome; skipped gracefully when Chrome is absent |
 | Clean-environment pass, no forgotten files/deps | CI (`.github/workflows/verify.yml`) runs `./verify` |
 | Every UI element collapses when its field is empty | `tests/test_templates.py` §10 — conditional-enclosure parser over Front/Back, `:has()` shell-guard checks, JS self-removal checks |
 
@@ -53,4 +55,5 @@ check; layout regressions → new `test_layout.py` probe assertion.
 
 - `test_compactor.py`: `beautifulsoup4` + `soupsieve` (test-only).
 - `test_templates.py`: stdlib only.
+- `test_front_modes.py`: headless Chrome if present, else skip (pass).
 - `test_layout.py`: headless Chrome if present, else skip (pass).

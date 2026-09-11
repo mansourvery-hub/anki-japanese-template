@@ -20,37 +20,83 @@ especially wasteful.
 - Installs via the released `.apkg` (GitHub Release asset), or syncs from
   source with Anki-Connect.
 
+## Core design philosophy
+
+> **Every visible element must justify its existence and its screen space.**
+
+The card is a **minimal Japanese-reading interface**, not a dashboard,
+dictionary UI, or mini-SRS. Anki is the SRS: it handles scheduling and
+grading. The template's only job is to present the Japanese item clearly,
+provide the necessary context for retrieval, and get out of the way.
+
+- The fundamental learning task is: **Japanese word → reading + meaning.**
+  No English→Japanese production, no custom grading or confidence buttons,
+  no additional learning-mode systems.
+- The front is a pure retrieval surface: it contains ONLY the thing being
+  tested (sentence with target, mature word, or listening audio button).
+- The back establishes hierarchy through typography — target → reading →
+  meaning → context — with everything secondary collapsed by default.
+- Removal beats addition: when uncertain between adding UI and removing
+  it, remove; between always-visible and collapsed/hover, prefer
+  collapsed.
+
+## Mining / card-quality invariant
+
+> **The mined sentence shown on the front must be independently
+> understandable enough to solve the card.** Additional surrounding
+> context (previous/next paragraph, dialogue) is supplementary reference
+  material and must never be required for the card to be intelligible.
+
+```
+Front sentence = self-contained learning unit
+Additional surrounding context = optional reference material
+```
+
+This is a mining invariant, not a UI preference: a card whose front needs
+off-screen context to be solvable is a bad mine and should be re-mined.
+
 ## Core user journeys
 
 1. **Mine → review sentence card.** Yomitan fills Expression / Sentence /
    Definition / audio / Frequency; the front tests sentence recognition, the
-   back shows word, badges, definition, sentence, translation, media, notes.
+   back shows the hierarchy: target+reading, compacted meaning, context.
 2. **Review mature card as word card.** Cards with interval ≥
    `LONG_INTERVAL_DAYS` show only the Expression on the front
-   (anti-overlearning), with silent fallback to the sentence front.
-3. **Review listening card.** Cards with audio but no definitions test
-   recognition via a single large audio button.
-4. **Expand media / definition / translation on demand.** Picture lightbox,
-   3-line definition truncation with one-way expand, click-to-reveal
-   translation, extended-definition accordion.
+   (anti-overlearning), with silent fallback to the sentence front. The
+   familiar sentence must never become the retrieval cue.
+3. **Review listening card.** Cards whose audio is the test (audio-only
+   fields, or the deliberate `#listening` tag) show a single large audio
+   button; normal cards are unaffected.
+4. **Expand information on demand.** Secondary info (translation,
+   extended definition, additional context, kanji/general notes) sits
+   behind one quiet `More ▾` toggle; `T` reveals the translation, `F`
+   toggles full-card furigana on the back, picture opens the lightbox.
 5. **Install / update.** Import the release `.apkg`, or push local
    templates/CSS to the live profile and re-export via `finish.sh`.
 
 ## Functional requirements
 
 - Front modes (in priority order): Definition/Extended-definition →
-  sentence; legacy Frequency-only → sentence; audio-only → listening button;
-  otherwise sentence/Expression fallback; cloze trio rebuild when Sentence
-  lacks `<b>`; mature interval-gated word-only front.
-- Back: word/furigana header, frequency + pitch badges, word + sentence
-  circular audio, compacted primary definition, sentence + translation +
-  context, picture / kanji / general notes, extended-definition accordion,
-  source footer, sticky tags bar.
+  sentence; legacy Frequency-only → sentence; listening (classic
+  audio-only fields **or** `#listening` tag) → listening button, hidden
+  by default and activated by a synchronous resolver; otherwise
+  sentence/Expression fallback; cloze trio rebuild when Sentence
+  lacks `<b>`; mature interval-gated word-only front. The sentence
+  front is the universal fallback for every failure path.
+- Back hierarchy: word/furigana target (largest), quiet pitch text,
+  compacted primary definition (§6b), context (sentence + picture as
+  core information), native circular audio (`文`/`言葉`), secondary
+  information collapsed behind `More ▾` (translation, context, kanji
+  notes, notes, full extended definition), source footer, discreet
+  retrieval-state label (Context/Word/Listening, hover-explained).
 - Mature Word Mode: live interval read at render time (desktop AnkiConnect
   `guiCurrentCard`→`cardsInfo` + `findCards` content-search fallback for the
   Browse previewer; mobile AnkiDroid JS API `ankiGetCardInterval()` only);
   never fetch AnkiConnect from a mobile WebView; any failure → sentence
   front; listening fronts untouched.
+- Tags are behavioral metadata, never decoration: hidden probes only;
+  `#listening` forces listening behavior; extensible for future
+  behavior-related tags without card redesign.
 - Tooling: `sync_to_anki.py` pushes Front/Back/CSS with a pre-sync snapshot
   to `backups/<timestamp>/`; `release_apkg.py` exports deck
   `My Life Decks::Japanese::anki-japanese-template` via `exportPackage`;
@@ -58,15 +104,22 @@ especially wasteful.
 
 ## UX requirements
 
-- Ultra-compact, content-driven height (no viewport fill, no dead space).
-- Fluid `clamp()` sizing phone → 4K; 2-column back grid on desktop,
-  1-column on phones (container queries + media-query fallback).
-- Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby).
+- Ultra-compact, content-driven height (no viewport fill, no dead space);
+  empty space on the front is acceptable — never filled with UI.
+- Fluid `clamp()` sizing phone → 4K; sentence+picture context grid on
+  desktop (container queries + media-query fallback), single column on
+  phones.
+- Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby); `F`
+  toggles full-card furigana on the back.
 - Native-only audio (delegate to Anki replay link, re-tap debounce, ring
-  pulse — never HTML5 `Audio`).
+  pulse — never HTML5 `Audio`); `R` (Anki native) remains the primary
+  audio path.
 - Dual themes (Tokyo Night dark / Aki Paper light, follows Anki Night Mode),
-  decorative Fuji backdrop (deletable block), `prefers-reduced-motion`
-  support, keyboard focus indicators, aria labels/roles.
+  accent color reserved for target highlighting and interactive states,
+  `prefers-reduced-motion` support, keyboard focus indicators, aria
+  labels/roles.
+- Japanese remains the dominant visual language: English typography never
+  competes with it.
 
 ## Constraints
 
@@ -86,6 +139,8 @@ especially wasteful.
 - Multi-note-type theming system or generic card framework.
 - Enterprise release management (solo `finish.sh` flow is enough).
 - Server/cloud sync, collaboration, analytics.
+- English→Japanese production mode, custom grading UI, confidence
+  buttons, learning-mode systems beyond context/word/listening.
 
 ## Important assumptions
 

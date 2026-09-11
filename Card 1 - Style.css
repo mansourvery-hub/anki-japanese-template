@@ -1,17 +1,20 @@
 /**
  * ==============================================================================
- * Japanese Note Type - Premium Ergonomic Design System
+ * Japanese Note Type — Minimal Japanese Reading Interface
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.4.2 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.5.0 — auto-bumped by finish.sh; matches the GitHub release tag
  *
- * Optimized for dense, information-efficient review on Arch Linux Desktop
- * (Anki Desktop Qt6) and Samsung Galaxy A50 (Android / AnkiDroid):
- * cards size to their content — no forced viewport fill, no dead space.
+ * Front = pure retrieval surface (sentence / word / audio only).
+ * Back = strong hierarchy: target → reading → meaning → context →
+ * secondary (collapsed behind "More ▾"). Anki is the SRS; this
+ * template is presentation only — every visible element must justify
+ * its screen space.
  *
- * Responsive strategy: fluid clamp() tokens scale continuously from phone to
- * 4K with no discrete jumps; container queries drive the 2-column layout.
+ * Optimized for Arch Linux Desktop (Anki Qt6) and Samsung Galaxy A50
+ * (AnkiDroid): cards size to their content; fluid clamp() tokens,
+ * container queries with media-query fallback.
  * ==============================================================================
  */
 
@@ -32,14 +35,7 @@
   --accent-soft: rgba(56, 189, 248, 0.22);
   --accent-glow: 0 0 16px rgba(56, 189, 248, 0.35);
 
-  --freq-very-common: #10b981;
-  --freq-common: #22c55e;
-  --freq-medium: #eab308;
-  --freq-uncommon: #f97316;
-  --freq-rare: #ef4444;
-
   --shadow-premium: 0 6px 20px -3px rgba(0, 0, 0, 0.4);
-  --bg-sticky: rgba(15, 20, 28, 0.92);
   --border-radius-lg: 12px;
   --border-radius-md: 8px;
   --border-radius-sm: 6px;
@@ -80,13 +76,6 @@
   --accent-soft: rgba(217, 119, 6, 0.16);
   --accent-glow: 0 0 16px rgba(217, 119, 6, 0.25);
 
-  --freq-very-common: #059669;
-  --freq-common: #16a34a;
-  --freq-medium: #ca8a04;
-  --freq-uncommon: #ea580c;
-  --freq-rare: #dc2626;
-
-  --bg-sticky: rgba(252, 250, 246, 0.95);
   --shadow-premium: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
@@ -143,123 +132,112 @@
 
 
 /* ==============================================================================
-   3. STICKY TAGS BAR
+   3. RETRIEVAL-STATE LABEL & SECONDARY-INFO TOGGLE (back only, quiet)
    ============================================================================== */
-.tags-container {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  width: 100%;
-  /* Stacked clearance (px-based so the sticky bar itself stays compact):
-     its own base padding + the word furigana headroom below it. */
-  padding: 3px 0;
-  background-color: var(--bg-sticky);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--card-border);
-  display: flex;
-  justify-content: center;
-}
-
-.tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  padding: 0 8px;
-}
-
-.tag-pill {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background-color: var(--accent-light);
-  border: 1px solid var(--card-border);
-  padding: 2px 10px;
-  border-radius: 12px;
+/* Discreet Context / Word / Listening caption. Set by the front script;
+   hover explains the two-tier maturity model. Never a big badge. */
+.retrieval-state {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  cursor: help;
   user-select: none;
+  padding: 2px 0 4px 0;
+}
+
+.retrieval-state .retrieval-state-label {
+  display: inline-block;
+}
+
+/* "More ▾" — the single quiet control for all secondary information. */
+.more-toggle {
+  font-family: var(--font-interface);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 6px 14px;
+  margin: 2px auto;
+  display: block;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: color 0.15s ease-out, background-color 0.15s ease-out;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.more-toggle:hover,
+.more-toggle:focus-visible {
+  color: var(--accent-color);
+  background-color: var(--accent-light);
+  outline: none;
+}
+
+.more-toggle:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.more-toggle .more-caret {
+  display: inline-block;
+  margin-left: 4px;
+  transition: transform 0.15s ease-out;
+}
+
+.more-toggle.is-open .more-caret {
+  transform: rotate(180deg);
+}
+
+.more-section {
+  margin-top: 4px;
 }
 
 
 /* ==============================================================================
-   4. DASHBOARD GRID & CARD BLOCKS
+   4. CONTEXT GRID (core info: sentence + picture)
    ============================================================================== */
-.back-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--gap-block);
-  /* Children (main, side) stretch to equal heights so short columns do
-     not leave their background floating mid-card. */
-  align-items: stretch;
-}
-
-.main-content,
-.side-content {
+/* Minimal layout: no side dashboard. The picture is CORE information
+   and sits beside the sentence when the viewport is wide and both
+   exist; otherwise everything stacks in one quiet column. */
+.context-grid {
   display: flex;
   flex-direction: column;
   gap: var(--gap-block);
+  align-items: center;
+}
+
+.context-main {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+}
+
+.context-picture {
+  width: 100%;
+  text-align: center;
 }
 
 @container anki-card (min-width: 768px) {
-  /* Side column shrink-wraps its content: it hugs the displayed picture
-     width (40vh-capped), so the right card-blocks are never wider than the
-     image. The main column (word/sentence) receives every remaining pixel.
-     No position:sticky anymore: the card is content-driven, so the side
-     column no longer floats over a scrolling viewport-filling card. */
-  .back-grid:has(.side-content > *) {
-    grid-template-columns: minmax(0, 1fr) min-content;
-    gap: var(--gap-block);
-  }
-
-  .main-content {
-    min-width: 0;
-  }
-
-  /* Keep the side picture from colliding with the min-content track:
-      100% (percentage of the column) is indefinite during track sizing and
-      forces a circular collapse, so pin it to viewport lengths instead.
-      The 40vw cap also makes the track RESIZE with the window: without it
-      the image (40vh-driven) ignores window width and the 1fr main column
-      absorbs all the shrinkage until the mobile breakpoint. */
-  .side-content .picture-container img {
-    max-width: 40vw;
-  }
-
-  /* Text-only side column (no Picture anywhere in the grid): pure
-     min-content collapses to the longest unbreakable unit — for CJK text
-     a single character, an unreadable sliver. Floor the track so notes
-     and the extended-definition accordion keep a readable width;
-     picture-bearing side columns keep the exact shrink-wrap rule above. */
-  .back-grid:has(.side-content > *):not(:has(.picture-container)) {
-    grid-template-columns: minmax(0, 1fr) minmax(clamp(180px, 16vw, 400px), min-content);
-  }
-
-  /* Word header: one visual row on wide screens — word left, meta
-     (frequency/pitch/audio) right, bottom-aligned to sit on the word's
-     baseline. Audio-only cards (no word) collapse to a centered row. */
-  .word-display-row {
+  /* Sentence left, picture right — only when a picture actually
+     exists. The picture hugs its own width; the sentence dominates. */
+  .context-grid:has(.context-picture) {
     flex-direction: row;
-    align-items: flex-end;
-    justify-content: center;
-    flex-wrap: wrap;
-    column-gap: 18px;
-    row-gap: 6px;
+    align-items: center;
+    gap: clamp(8px, 1.5vmin, 18px);
   }
 
-  .word-display-row .word-display {
-    /* headroom stays as top padding (base rule); bottom spacing is the
-       row's row-gap now that the base margin-bottom is gone */
-    text-align: left;
+  .context-main {
+    flex: 1 1 auto;
   }
 
-  .word-display-row:has(.word-display) {
-    justify-content: space-between;
-  }
-
-  .word-display-row .word-meta-row {
-    margin: 0 0 clamp(2px, 0.6vmin, 8px) 0;
+  .context-picture {
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 42vw;
   }
 
   /* Dense card, but the desktop is still a pointer+keyboard environment:
@@ -270,54 +248,23 @@
   }
 }
 
-/* Portability fallback: environments without container-query support
-   (older AnkiDroid WebViews) still get the desktop 2-column layout via a
-   conventional media query. Container rules above win where supported. */
+/* Portability fallback for WebViews without container-query support
+   (older AnkiDroid): same arrangement via a conventional media query. */
 @media (min-width: 768px) {
-  .back-grid:has(.side-content > *) {
-    grid-template-columns: minmax(0, 1fr) min-content;
-  }
-
-  /* No sticky here either — content-driven cards (see container block). */
-  .main-content {
-    min-width: 0;
-  }
-
-  .side-content .picture-container img {
-    max-width: 40vw;
-  }
-
-  /* Same text-only side-column floor as the container-query block above
-     (this block serves WebViews without container-query support). */
-  .back-grid:has(.side-content > *):not(:has(.picture-container)) {
-    grid-template-columns: minmax(0, 1fr) minmax(clamp(180px, 16vw, 400px), min-content);
-  }
-
-  /* Word header: one visual row on wide screens — word left, meta
-     (frequency/pitch/audio) right, bottom-aligned to sit on the word's
-     baseline. Empties (audio-only cards) collapse to a centered row. */
-  .word-display-row {
+  .context-grid:has(.context-picture) {
     flex-direction: row;
-    align-items: flex-end;
-    justify-content: center;
-    flex-wrap: wrap;
-    column-gap: 18px;
-    row-gap: 6px;
+    align-items: center;
+    gap: clamp(8px, 1.5vmin, 18px);
   }
 
-  .word-display-row .word-display {
-    /* keep furigana headroom as top padding (rule above), then hand the
-       bottom spacing duty to the row's row-gap */
-    margin: 0;
-    text-align: left;
+  .context-main {
+    flex: 1 1 auto;
   }
 
-  .word-display-row:has(.word-display) {
-    justify-content: space-between;
-  }
-
-  .word-display-row .word-meta-row {
-    margin: 0 0 clamp(2px, 0.6vmin, 8px) 0;
+  .context-picture {
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 42vw;
   }
 }
 
@@ -398,36 +345,11 @@
 
 
 /* ==============================================================================
-    6. BACK CARD WORD HEADER & META - Fluid Typography
+    6. BACK CARD HIERARCHY — target, reading, meaning (Fluid Typography)
     ============================================================================== */
-/* Empty-state guard: hide the whole header block on cards that have no
-   word, furigana, badges, audio buttons or definition (audio-only front
-   flows / picture-only cards) — otherwise it would render a padded void. */
-.word-header:not(:has(.word-display, .frequency-badge, .pitch-accent-badge, .circular-audio-btn, .definition-box)) {
-  display: none;
-}
-
-.word-header {
-  text-align: center;
-}
-
-/* --- 6a. WORD DISPLAY ROW ---
-   Wraps .word-display + .word-meta-row. Default (phones): stacked and
-   centered, exactly the old layout. Wide screens (overrides in the
-   container-query & media blocks of section 4): one visual row — word
-   left, frequency/pitch/audio right, bottom-aligned near the word
-   baseline — so the header stops burning two half-empty centered lines
-   of vertical space. */
-.word-display-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.word-display-row .word-meta-row {
-  margin: 0;
-}
+/* Target + reading form ONE conceptual unit, centered, the loudest
+   element on the card. Frequency/pitch badges are gone (visual noise
+   without retrieval value); pitch stays as quiet muted text below. */
 
 /* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.
    Fields that use {{furigana:...}} get exactly that clearance as top padding
@@ -435,121 +357,40 @@
    em-based => scales continuously with font size across all screen sizes. */
 .word-display {
   font-family: var(--font-japanese-serif);
-  /* Density-tuned: smaller slope + 5.75rem cap. The headword stays the
-     loudest element on the card, just no longer billboard-sized. */
+  /* The headword stays the loudest element on the card. */
   font-size: clamp(2.5rem, 5vw + 1rem, 5.75rem);
   font-weight: 400;
   line-height: 1.05;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
-  margin: 0;
+  margin: 0 auto;
+  text-align: center;
 }
 
-.word-meta-row {
+/* Pitch accent: quiet muted supplement to the reading, never a badge. */
+.pitch-quiet {
+  font-size: clamp(0.9rem, 0.8vw + 0.75rem, 1.15rem);
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* Audio row: the two quiet replay buttons under the meaning. */
+.audio-row {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 4px 0 6px 0;
+  margin: 6px 0 2px 0;
 }
 
-/* Empty-shell guards (QUALITY.md "Empty-field collapse"): .audio-row and
-   .word-meta-row render unconditionally while their badges/buttons are
-   conditional — collapse the shells when every child is absent so no
-   margin/gap survives an empty field. */
+/* Empty-shell guard (QUALITY.md "Empty-field collapse"): .audio-row
+   renders unconditionally while its buttons are conditional — collapse
+   the shell when every child is absent so no margin/gap survives an
+   empty field. */
 .audio-row:not(:has(.circular-audio-btn)) {
   display: none;
-}
-.word-display-row .word-meta-row:not(:has(.frequency-badge, .pitch-accent-badge, .circular-audio-btn)) {
-  display: none;
-}
-
-.frequency-badge,
-.pitch-accent-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--accent-color);
-  background-color: var(--accent-light);
-  border: 1px solid var(--accent-soft);
-  padding: 2px 10px;
-  border-radius: 16px;
-  line-height: 1;
-  cursor: default;
-  transition: all 0.2s ease;
-}
-
-.frequency-bar-track {
-  width: 34px;
-  height: 5px;
-  border-radius: 3px;
-  background-color: rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-}
-
-.card:not(.nightMode):not(.night_mode) .frequency-bar-track {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.frequency-bar-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.frequency-stars {
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  line-height: 1;
-}
-
-/* Frequency Tier Theming */
-.frequency-badge.freq-very-common {
-  color: var(--freq-very-common);
-  border-color: rgba(16, 185, 129, 0.3);
-  background-color: rgba(16, 185, 129, 0.1);
-}
-.frequency-badge.freq-very-common .frequency-bar-fill {
-  background-color: var(--freq-very-common);
-}
-
-.frequency-badge.freq-common {
-  color: var(--freq-common);
-  border-color: rgba(34, 197, 94, 0.3);
-  background-color: rgba(34, 197, 94, 0.1);
-}
-.frequency-badge.freq-common .frequency-bar-fill {
-  background-color: var(--freq-common);
-}
-
-.frequency-badge.freq-medium {
-  color: var(--freq-medium);
-  border-color: rgba(234, 179, 8, 0.3);
-  background-color: rgba(234, 179, 8, 0.1);
-}
-.frequency-badge.freq-medium .frequency-bar-fill {
-  background-color: var(--freq-medium);
-}
-
-.frequency-badge.freq-uncommon {
-  color: var(--freq-uncommon);
-  border-color: rgba(249, 115, 22, 0.3);
-  background-color: rgba(249, 115, 22, 0.1);
-}
-.frequency-badge.freq-uncommon .frequency-bar-fill {
-  background-color: var(--freq-uncommon);
-}
-
-.frequency-badge.freq-rare {
-  color: var(--freq-rare);
-  border-color: rgba(244, 63, 94, 0.3);
-  background-color: rgba(244, 63, 94, 0.1);
-}
-.frequency-badge.freq-rare .frequency-bar-fill {
-  background-color: var(--freq-rare);
 }
 
 .definition-box {
@@ -581,8 +422,8 @@
      - at most 2 numbered senses within it
      - no appendices (possible-forms / synonym / supplementary blocks)
    Dictionary-agnostic: matches structural attributes, never dictionary
-   names. Deliberately does NOT touch .extended-def-content (Extended
-   definition stays full) or any other field.
+    names. Deliberately does NOT touch .extended-full (the full Yomitan
+    definition inside the More section stays full) or any other field.
    ============================================================================== */
 
 /* --- Collapse all dictionary entries after the first --- */
@@ -654,11 +495,11 @@
 /* ==============================================================================
     6c. DEFINITION TRUNCATOR & EXPANDABLE UI
     ==============================================================================
-    Primary definition shows FOUR lines by default (line-height 1.6 =>
-    6.4em). Longer content clips and gets a progressive fade + one small
-    ▼ chevron (no text label). Click, tap, Enter or Space expands to the
-    full text and STAYS expanded (one-way: a second click never
-    re-collapses it).
+    Primary definition shows THREE lines by default (line-height computed
+    from --furigana-headroom + 1em + 0.05em). Longer content clips and
+    gets a progressive fade + one small ▼ chevron (no text label). Click,
+    tap, Enter or Space expands to the full text and STAYS expanded
+    (one-way: a second click never re-collapses it).
 
     Mechanics are deliberately boring so they hold for ANY nested Yomitan
     markup on every client (Qt6 WebEngine + AnkiDroid WebKit):
@@ -766,7 +607,6 @@
    :focus-visible restores a compact accent ring for keyboard navigation) */
 .circular-audio-btn:focus-visible,
 .translation-box:focus-visible,
-.modern-summary:focus-visible,
 .picture-container:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
@@ -847,6 +687,8 @@
 /* ==============================================================================
     8. SENTENCE & TRANSLATION - Fluid Typography
     ============================================================================== */
+/* Level 3 (context): the sentence supports the target; it reads as
+   context, not as the loudest element (that is the headword). */
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
   /* Hierarchy: second to the headword, dominant over the definition.
@@ -862,6 +704,15 @@
   margin-bottom: clamp(4px, 2vmin, 8px);
   color: var(--text-primary);
   text-align: center;
+}
+
+/* Secondary blocks inside the More section: quiet, no card-in-card. */
+.secondary-block {
+  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-align: left;
+  margin-top: 8px;
 }
 
 .translation-box {
@@ -881,9 +732,9 @@
 }
 
 .translation-hint {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--accent-color);
+  color: var(--text-muted);
   user-select: none;
 }
 
@@ -898,6 +749,14 @@
 
 .translation-box.revealed .translation-text { display: block; }
 .translation-box.revealed .translation-hint { display: none; }
+
+/* Orphan translation (no Sentence): rendered statically, same tier. */
+.revealed-static.translation-text {
+  display: block;
+  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
 
 .context-block {
   margin-top: 6px;
@@ -947,19 +806,22 @@ ruby:focus-within rt {
   opacity: 1;
 }
 
+/* 9b. FULL-CARD FURIGANA MODE (back only; F toggles).
+   Pins every rt visible at once — same absolute geometry, so nothing
+   reflows. .furigana-mode lives on the back card wrapper only; the
+   front is a retrieval surface and stays furigana-free. */
+.card-wrapper.furigana-mode ruby rt {
+  visibility: visible;
+  opacity: 1;
+}
+
 
 /* ==============================================================================
    10. MEDIA & LIGHTBOX MODAL
    ============================================================================== */
-.picture-block {
-  text-align: center;
-  padding: 4px;
-}
-
 .picture-container img {
   /* Block-level: kills the inline-baseline descender gap that left a few
-     loose pixels under the image inside its card-block. margin-inline:auto
-     takes over the centering duty from .picture-block's text-align. */
+     loose pixels under the image. margin-inline:auto handles centering. */
   display: block;
   margin-inline: auto;
   max-width: 100%;
@@ -1018,37 +880,10 @@ ruby:focus-within rt {
 
 
 /* ==============================================================================
-   11. ACCORDION & FOOTER
+   11. FOOTER
    ============================================================================== */
-.modern-details {
-  border: 1px solid var(--card-border);
-  border-radius: var(--border-radius-md);
-  background: rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.modern-summary {
-  padding: 7px 12px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: var(--text-secondary);
-  user-select: none;
-}
-
-.extended-def-content {
-  padding: 8px 12px;
-  /* Fluid like .html-content; same secondary tier */
-  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
-  line-height: 1.45;
-  border-top: 1px solid var(--card-border);
-  background-color: rgba(0, 0, 0, 0.04);
-}
+/* The full Yomitan definition (.extended-full inside the More section)
+   and secondary blocks are plain quiet text — no cards-within-cards. */
 
 .source-footer {
   text-align: center;
@@ -1064,16 +899,31 @@ ruby:focus-within rt {
 /* ==============================================================================
    12. LISTENING MODE FRONT
    ============================================================================== */
+/* The listening markup renders whenever Sentence Audio exists but is
+   INERT until the front resolver confirms the listening condition
+   (classic audio-only fields or #listening tag) and adds
+   .listening-mode to the wrapper. Any other card with sentence audio
+   never sees it; no-JS renders keep the sentence front. */
 .listening-view {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   /* Deliberate presence: enough height that the lone audio button reads
-     as THE card, not an accident — but a fraction of the old 32px-padded
-     slab. 28vh is the sweet spot for both the desktop reviewer and the
-     A50's tall screen. */
+      as THE card, not an accident — but a fraction of the old 32px-padded
+      slab. 28vh is the sweet spot for both the desktop reviewer and the
+      A50's tall screen. */
   min-height: 28vh;
   padding: 12px;
+}
+
+.card-wrapper.listening-mode .listening-view {
+  display: flex;
+}
+
+/* Listening mode is exclusive with the sentence/word fronts. */
+.card-wrapper.listening-mode .sentence-display,
+.card-wrapper.listening-mode .front-word-display {
+  display: none;
 }
 
 .audio-btn-wrapper {
@@ -1107,36 +957,14 @@ ruby:focus-within rt {
     narrow screen.
     ============================================================================== */
 @media (max-width: 600px) {
-  .tags-container {
-    padding: clamp(0px, 0.3vmin, 1px) 0;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
   .sentence-display,
   .front-word-display {
     font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);
     padding: 2px 4px;
   }
   .sentence-japanese {    font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);}
-  .word-meta-row {
-    gap: clamp(2px, 1.5vmin, 3px);
-    margin: clamp(0.5px, 0.3vmin, 1px) 0 clamp(1px, 0.5vmin, 2px) 0;
-  }
-
-  .frequency-badge {
-    padding: clamp(1px, 0.4vmin, 2px) clamp(5px, 1.2vmin, 8px);
-    font-size: clamp(0.7rem, 2vmin, 0.78rem);
-    gap: 4px;
-  }
-
-  .frequency-bar-track {
-    width: clamp(22px, 6vmin, 28px);
-    height: 4px;
-  }
-
-  .frequency-stars {
-    font-size: clamp(0.58rem, 1.8vmin, 0.65rem);
+  .word-display {
+    font-size: clamp(1.6rem, 2.8vmin + 1rem, 2.6rem);
   }
 
   .picture-container img {
@@ -1157,8 +985,9 @@ ruby:focus-within rt {
     font-size: clamp(0.6rem, 2vmin, 0.7rem);
   }
 
-  .tags-list {
-    padding: 0 clamp(4px, 1vmin, 8px);
+  .more-toggle {
+    font-size: 0.75rem;
+    padding: 5px 12px;
   }
 }
 

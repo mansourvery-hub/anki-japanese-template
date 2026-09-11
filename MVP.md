@@ -19,21 +19,29 @@ compact informative back, and a one-command sync → export → release loop.
 
 ## Included capabilities
 
-- Front: sentence / Expression fallback, listening-mode audio button,
-  Frequency-legacy sentence path, cloze-trio rebuild, Mature Word Mode
-  (interval-gated, platform-exclusive retrieval, sentence fallback).
-- Back: sticky tags, word + furigana header, frequency/pitch badges, native
-  circular audio, Definition Compactor (CSS §6b), 3-line truncator with
-  one-way expand (§6c), sentence + translation toggle, picture lightbox,
-  kanji/general notes, extended-definition accordion, source footer.
+- Front: pure retrieval surface — sentence / Expression fallback,
+  Frequency-legacy sentence path, cloze-trio rebuild, listening as a
+  hidden-by-default resolver (classic audio-only fields **or**
+  `#listening` tag; sentence front is the universal fallback), Mature
+  Word Mode (interval-gated, platform-exclusive retrieval, sentence
+  fallback).
+- Back: typography-driven hierarchy — word+furigana target, quiet pitch
+  text, Definition Compactor (CSS §6b), 3-line truncator with one-way
+  expand (§6c), context (sentence + picture as core information,
+  responsive grid), native circular audio, discreet retrieval-state
+  label (Context/Word/Listening, hover-explained), secondary
+  information collapsed behind `More ▾` (translation, context, kanji
+  notes, notes, full extended definition), source footer.
 - Styling: Tokyo Night + Aki Paper themes, fluid clamps, container-query
-  2-column grid with media fallback, zero-reflow furigana, Fuji backdrop,
-  reduced-motion support.
+  context grid with media fallback, zero-reflow furigana + `F`
+  full-card furigana mode (back only), Fuji backdrop, reduced-motion
+  support.
 - Empty-field collapse everywhere: no padding, border, or margin survives an
-  empty field.
+  empty field; the More section and its toggle self-remove when empty.
 - Tooling: field bootstrap (`fetch_anki_fields.py`), snapshotted sync
   (`sync_to_anki.py`), apkg export (`release_apkg.py`), `verify` gate,
-  `finish.sh` release loop, regression tests.
+  `finish.sh` release loop, regression tests (compactor + templates +
+  front-modes + layout).
 
 ## Excluded capabilities
 

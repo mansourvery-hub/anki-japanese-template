@@ -56,10 +56,16 @@ task/slice graph, not a todo list (`Build frontend` would not qualify).
                     ┌───────────────────┐
                     │ T11 empty-field   │
                     │ collapse          │
+                    └─────────┬─────────┘
+                              │
+                              ↓
+                    ┌───────────────────┐
+                    │ T12 minimal-       │
+                    │ interface redesign │
                     └───────────────────┘
 ```
 
-Dependencies: `T1 → {T2, T3} → {T4, T5} → T6 → T7 → T8 → T9 → T10 → T11`.
+Dependencies: `T1 → {T2, T3} → {T4, T5} → T6 → T7 → T8 → T9 → T10 → T11 → T12`.
 T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
 
 ## Tasks
@@ -94,6 +100,17 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   standing conditional coverage into a total, mechanically enforced
   guarantee. Status: COMPLETE (`./verify` 135/135 green; released with this
   commit).
+- **T12 — Minimal-interface redesign.** Front = pure retrieval surface
+  (hidden behavioral probes; listening as a hidden-by-default resolver:
+  classic audio-only fields OR `#listening` tag; sentence front as the
+  universal fallback). Back = typography hierarchy (word → pitch quiet →
+  compacted meaning → context grid sentence+picture → secondary collapsed
+  behind `More ▾`), discreet Context/Word/Listening state label,
+  `F` full-card furigana + `T` translation shortcuts, tags/frequency
+  badges removed (tags are behavioral metadata). Bug fixes: `{{Type}}`/
+  `note:` search clause removed (wrong value), mobile `.word-meta-row`
+  specificity, JS syntax gate added after an unbalanced-brace regression
+  was caught by visual QA. Status: COMPLETE (`./verify` 168/168 green).
 
 ## Roadmap (evolution loop input, not committed scope)
 

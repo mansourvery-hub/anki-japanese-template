@@ -30,16 +30,22 @@ Tooling (stdlib-only): fetch_anki_fields.py · sync_to_anki.py ·
 
 ### Front (`Card 1 - Front.template.anki`)
 
-HTML conditionals select the mode; JS finalizes it at render time:
+A pure retrieval surface: only the tested Japanese renders. HTML
+conditionals pick the branch; a synchronous JS resolver finalizes the
+listening decision; async JS finalizes Mature Word Mode:
 
 ```text
 Definition / Extended definition? ──yes──→ sentence-display
         │ no
 Frequency (legacy)? ──yes──→ sentence-display (never audio)
         │ no
-Sentence Audio? ──yes──→ listening-view (large 文 button)
-        │ no
-sentence-display fallback (Sentence → Expression)
+Sentence Audio? ──yes──→ sentence-display + hidden listening-view
+        │ no                      │
+sentence-display fallback          └─ synchronous LISTENING RESOLVER:
+                                    classic audio-only fields OR
+                                    #listening tag? → activate audio
+                                    front, drop the sentence;
+                                    else the markup stays inert
         │
 cloze fixup: Sentence has no <b> AND cloze trio complete?
         │ yes → prefix + <b>body</b> + suffix
@@ -50,44 +56,60 @@ Mature check (not listening, Expression non-empty,
         │ no  → sentence front (also the universal fallback)
 ```
 
-Interval retrieval is **platform-exclusive**: mobile uses only the AnkiDroid
-bridge (`ankiGetCardInterval()`, constructor + direct shapes, stub guard,
-timeouts, 700 ms late-injection poll); desktop uses only AnkiConnect
-(`guiCurrentCard`→`cardsInfo`, `findCards` content-search fallback for the
-Browse previewer, 500 ms fetch timeout). Anti-flash gate
-(`visibility:hidden` → reveal, 1200 ms safety cap); blank sentence blocks
-are removed after the cloze fixup. See `docs/adr/001-*`.
+Hidden behavioral probes never render visibly: the cloze trio, a
+`{{#Tags}}` probe carrying the `#listening` signal, and
+Definition/Extended/Frequency presence markers consumed by the resolver.
+The resolver writes `window.__ajtFrontState` for the back's discreet
+state label. Interval retrieval is **platform-exclusive**: mobile uses
+only the AnkiDroid bridge (`ankiGetCardInterval()`, constructor + direct
+shapes, stub guard, timeouts, 700 ms late-injection poll); desktop uses
+only AnkiConnect (`guiCurrentCard`→`cardsInfo`, `findCards`
+content-search fallback for the Browse previewer — no `note:` clause,
+`{{Type}}` is not the model name, 500 ms fetch timeout). Anti-flash gate
+(`visibility:hidden` → reveal, 1200 ms safety cap); blank sentence
+blocks are removed after the cloze fixup. See `docs/adr/001-*`.
 
 ### Back (`Card 1 - Back.template.anki`)
 
-Single grid, content-driven height:
+Single quiet column with typography-driven hierarchy:
 
 ```text
-tags-container (sticky)
 card-container
- └── back-grid (1 col mobile; 2 col desktop via container + media queries)
-      ├── main-content: word-header (word-display-row + definition-box)
-      │                 sentence-block (sentence-japanese + translation + context)
-      └── side-content: picture-block · kanji notes · notes · extended accordion
-      └── source-footer
+ ├── .retrieval-state (hidden unless front set it: Context/Word/Listening,
+ │                      hover-explained, never a big badge)
+ ├── word-display (target + furigana hover — largest element)
+ ├── .pitch-quiet (muted supplement to the reading)
+ ├── definition-box.primary-definition (compacted §6b, 3-line §6c)
+ ├── .audio-row (文/言葉 native-delegating buttons, :has() empty guard)
+ ├── .context-grid (sentence + picture; row on wide screens, stacked on phones)
+ ├── .more-section (hidden) + .more-toggle "More ▾"
+ │    └── translation (click/T) · context · kanji notes · notes · full
+ │        extended definition (.extended-full — compactor never touches it)
+ └── .source-footer
 ```
 
-JS controllers (all idempotent under WebView DOM re-use): tags renderer,
-native-only circular audio (`playCircularAudio` → sibling replay link click,
-re-tap debounce, ring pulse), frequency visualizer (tier → bar + stars;
-badge removed when the rank is unparseable), definition truncator (blank
-boxes removed, then measure → `.is-truncated` → one-way `.is-expanded`),
-lightbox (backdrop-click / `Escape` close, alt preserved).
+JS controllers (all idempotent under WebView DOM re-use): state-label
+renderer (reads `window.__ajtFrontState`), More toggle (one-way reveal;
+section+button self-remove when secondary content is absent),
+native-only circular audio (`playCircularAudio` → sibling replay link
+click, re-tap debounce, ring pulse), definition truncator (blank boxes
+removed, then measure → `.is-truncated` → one-way `.is-expanded`),
+lightbox (backdrop-click / `Escape` close, alt preserved), back-only
+keyboard shortcuts (`F` full-card furigana, `T` translation reveal).
 
 ### Style (`Card 1 - Style.css`)
 
-Numbered sections are the contract: §1 tokens/themes, §2 containers, §3
-tags, §4 grid + desktop overrides, §5 front type, §5b word-mode swap, §6
-header/meta/definition, **§6b Definition Compactor** (first dictionary, ≤2
-senses, no appendices, `.primary-definition`-scoped), §6c truncator (3-line
-cap + fade + chevron), §7 audio rings, §8 sentence/translation, §9
-zero-reflow ruby, §10 media/lightbox, §11 accordion/footer, §12 listening,
-§13 mobile, §14 deletable Fuji backdrop, §15 reduced motion.
+Numbered sections are the contract: §1 tokens/themes (no `--freq-*`:
+accent is reserved for the target and interactive states), §2 containers,
+§3 retrieval-state label + More toggle, §4 context grid + desktop
+overrides, §5 front type, §5b word-mode swap, §6 back hierarchy
+(word/pitch/audio), **§6b Definition Compactor** (first dictionary, ≤2
+senses, no appendices, `.primary-definition`-scoped), §6c truncator
+(3-line cap + fade + chevron), §7 audio rings, §8 sentence/translation +
+secondary blocks, §9 zero-reflow ruby + §9b full-card furigana mode,
+§10 media/lightbox, §11 footer, §12 listening (inert until
+`.listening-mode`), §13 mobile, §14 deletable Fuji backdrop, §15 reduced
+motion.
 
 ### Tooling
 
@@ -97,7 +119,8 @@ sync_to_anki.py      → snapshot backups/<ts>/, push Front/Back/CSS
 release_apkg.py      → exportPackage deck → dist/*.apkg (gitignored)
 verify               → local quality gate (tests only, no side effects)
 finish.sh            → verify → stamp → sync → export → commit → push → release
-tests/               → test_compactor.py + test_templates.py + test_layout.py
+tests/               → test_compactor.py + test_templates.py
+                        + test_front_modes.py + test_layout.py
 ```
 
 Fields are **not** a repo artifact: the Anki UI owns them; agents bootstrap

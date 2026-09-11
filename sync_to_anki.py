@@ -2,7 +2,6 @@ import urllib.request
 import json
 import os
 import sys
-import time
 from datetime import datetime
 
 # Configuration for the Japanese Note Type

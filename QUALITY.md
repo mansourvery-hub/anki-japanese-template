@@ -18,11 +18,23 @@ mechanically verified*. Code implements; tests enforce.
 
 - Front renders **no** furigana filter/field (`Sentence (furigana)` ban);
   raw `{{edit:Sentence}}` / `{{edit:Expression}}` only.
+- Front shows **no UI** beyond the tested Japanese: no tags, badges,
+  metadata, labels, or controls (hidden behavioral probes only:
+  cloze trio, `#listening` tag probe, field-presence markers).
 - Balanced `{{#field}}` / `{{^field}}` / `{{/field}}` conditionals.
+- The sentence front is the **universal fallback**: every listening /
+  mature failure path degrades to it, never to a blank or hung card.
+- Listening activation is a synchronous hidden-by-default resolver:
+  the listening markup renders only under `{{#Sentence Audio}}` and is
+  inert until the resolver confirms classic audio-only fields OR the
+  `#listening` tag; it then removes the sentence display. No JS =>
+  sentence front.
 - Listening cards never enter Mature Word Mode and skip all interval
   retrieval.
-- Interval has no `{{Interval}}` marker: desktop AnkiConnect only,
-  mobile AnkiDroid bridge only; mobile never fetches `127.0.0.1:8765`.
+- Interval has no `{{Interval}}` marker and no `note:` search clause
+  (`{{Type}}` is the scheduling type, not the model): desktop AnkiConnect
+  only, mobile AnkiDroid bridge only; mobile never fetches
+  `127.0.0.1:8765`.
 - Any retrieval failure degrades to the sentence front; anti-flash
   `visibility:hidden` gate with a bounded reveal cap.
 - Cloze rebuild fires only when Sentence lacks `<b>`/`<strong>` **and** the
@@ -33,6 +45,19 @@ mechanically verified*. Code implements; tests enforce.
 
 ## Back invariants
 
+- Back hierarchy is typography-driven: word-display (largest) → pitch
+  quiet text → definition → sentence context → secondary collapsed.
+  No sticky tags bar, no frequency/pitch badges, no oversized controls.
+- Secondary information (translation, context, kanji notes, notes,
+  full extended definition) lives inside `.more-section`, collapsed by
+  default behind one quiet `More ▾` toggle; the toggle and section
+  self-remove when no secondary content exists.
+- The retrieval-state label (`Context` / `Word` / `Listening`) is
+  hidden by default, appears only when `window.__ajtFrontState` is
+  set, is hover-explanatory, and never a large colored badge.
+- Keyboard shortcuts on the back: `F` toggles full-card furigana
+  (`.furigana-mode`), `T` reveals the translation (opening More first);
+  shortcuts never fire in inputs/contentEditable.
 - Every circular audio button has an `aria-label`; replay source is a
   **sibling** `.raw-audio-source` (never inside `<button>`, never
   `display:none`); playback delegates to the native replay link; re-tap is
@@ -42,34 +67,38 @@ mechanically verified*. Code implements; tests enforce.
   `Escape`; overlay carries dialog semantics; cloned image preserves `alt`.
 - Definition expand is one-way (never re-collapses); `.is-truncated` is set
   only on real overflow; no-JS still shows the full definition.
-- Frequency badge keeps `data-freq="{{text:Frequency}}"` and the tier
-  bar + stars renderer; all 5 tier theme variables exist.
 - No JS font-scaler overrides CSS (`.sentence-japanese` `clamp()` is the
   sizing authority).
 
 ## CSS invariants
 
 - Zero-reflow furigana: absolute `ruby rt`, hidden until
-  `:hover`/`:active`/`:focus`.
+  `:hover`/`:active`/`:focus`; `F` mode pins all rt visible with no
+  reflow (same geometry).
 - Content-driven card height (no `100vh`/`100dvh` fill); `container-type:
-  inline-size` present; 2-column grid has a media-query fallback;
-  empty `word-header` collapses via `:has()`.
-- Compactor hide rules all scoped to `.primary-definition`; extended
-  definition stays full.
-- Word-mode swap rules exist and never touch `.listening-view`.
+  inline-size` present; the context grid (sentence + picture) has a
+  media-query fallback.
+- Compactor hide rules all scoped to `.primary-definition`; the full
+  extended definition (`.extended-full` inside More) stays untouched.
+- Word-mode swap rules exist and never touch `.listening-view`; the
+  listening-view is inert until `.listening-mode` activates it.
 - `:focus-visible` indicators and `prefers-reduced-motion` present.
+- Accent color is reserved for target highlighting and interactive
+  states; no per-content-type semantic color palette (no `--freq-*`).
 
 ## Empty-field collapse (space discipline)
 
 - Every rendered field is enclosed in an Anki `{{#field}}` conditional —
-  except `Type` (element attribute, not UI), the hidden cloze-probe trio,
-  and the front word probe (`display:none` default, word-mode gate only).
+  except the hidden cloze-probe trio, the hidden behavioral probes
+  (`tags-probe`, field-presence markers), and the front word probe
+  (`display:none` default, word-mode gate only).
 - Unconditionally rendered shells collapse when all conditional children are
-  absent: `.audio-row` / `.word-display-row .word-meta-row` via `:has()`
-  guards.
+  absent: `.audio-row` via `:has()` guards; `.more-section` +
+  `.more-toggle` self-remove via JS cleanup.
 - Degenerate content removes itself instead of leaving chrome behind:
-  unparseable Frequency removes its badge; blank definition/sentence blocks
-  are removed (front runs after the cloze fixup, before the reveal).
+  blank definition/sentence blocks are removed (front runs after the cloze
+  fixup, before the reveal); empty secondary blocks inside More are
+  stripped.
 - Net rule: no padding, border, or margin may survive an empty field.
 
 ## Tooling / process invariants

@@ -13,22 +13,26 @@ A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for d
 ## ✨ Features
 
 - **🌙 Dual themes** — Tokyo Night dark (default) and Aki Paper light, following Anki's Night Mode.
-- **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoints jumps; 2-column dashboard on desktop, 1-column on phones; container queries with a media-query fallback for old WebViews. Cards size to their content (no forced viewport fill), so everything important is visible sooner with almost no dead space.
-- **🔤 Zero-reflow furigana** — hidden by default, revealed on hover (desktop) / tap (mobile) via absolute ruby positioning; surrounding text never shifts.
-- **🔊 Circular audio buttons** (`文` sentence, `言葉` word) — always delegate to Anki's native replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid.
-- **📊 Frequency & pitch badges** — frequency rank rendered as a tiered bar + 5-star scale (Top 500 → Rare); pitch accent pill.
+- **🔢 Minimal by design** — every visible element must justify its screen space. The front is a pure retrieval surface (just the Japanese); the back is a quiet reading interface: target → reading → meaning → context, with secondary info collapsed behind `More ▾`. Anki is the SRS — no badges, dashboards, or grading UI.
+- **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoint jumps; sentence + picture context grid on desktop, single column on phones; container queries with a media-query fallback for old WebViews. Cards size to their content (no forced viewport fill).
+- **🔤 Zero-reflow furigana** — hidden by default, revealed on hover (desktop) / tap (mobile); **`F`** pins full-card furigana on the back. Nothing ever shifts.
+- **🔊 Native audio** — `文` / `言葉` buttons and Anki's own **`R`** shortcut delegate to Anki's replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid.
+- **👁️ On-demand secondary info** — `T` reveals the translation; `More ▾` exposes the full Yomitan definition, extra context, kanji and general notes. Quiet by default.
 - **🖼️ Lightbox** — tap any image for a full-screen overlay; closes on backdrop click or <kbd>Escape</kbd>.
-- **👁️ Click-to-reveal translation**, sticky tags bar, decorative Fuji backdrop (CSS §14, delete the block to remove it), `prefers-reduced-motion` support.
+- **🏷️ Behavioral tags** — tags drive card behavior (e.g. `#listening` forces the listening front) and are never rendered as decoration.
 
 ---
 
 ## 🃏 Front Card Modes
+
+The front contains ONLY the thing being tested — the sentence itself is the retrieval prompt.
 
 | Situation | Front shows |
 | :--- | :--- |
 | Definition present | Sentence (or Expression if no Sentence) |
 | No definitions, but `Frequency` set (legacy cards) | Usual sentence — never the audio button |
 | No definitions, no Frequency, `Sentence Audio` set | Listening-mode audio button |
+| Card tagged `#listening` | Listening-mode audio button (deliberate listening exercise, even with glosses) |
 | Nothing available | Sentence / Expression fallback |
 | Sentence has no bold term + cloze trio complete | Rebuilt `prefix + `<b>`body`</b>` + suffix`, styled identically to a Yomitan sentence |
 | Review interval ≥ 365 days | Word only (Mature Word Mode, see below) |
@@ -37,13 +41,19 @@ A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for d
 
 **Mature Word Mode** (anti-overlearning): old cards stop testing the word and start testing sentence recognition, so at `interval ≥ LONG_INTERVAL_DAYS` (default `365`, one constant in `Card 1 - Front.template.anki`) the front shows only the `Expression`. The interval is read live at render time — AnkiConnect (`guiCurrentCard` → `cardsInfo`, with a `findCards` content-search fallback for the Browse previewer) on desktop, the AnkiDroid JS API on mobile. Any failure degrades to the normal sentence front; listening cards are never touched; an anti-flash gate keeps the card hidden until the decision is made (500 ms fetch timeout, 1200 ms reveal cap).
 
+**Listening semantics**: the audio button markup is gated on `Sentence Audio` and inert until a synchronous resolver confirms the listening condition — the classic audio-only field shape OR the `#listening` tag. Every other card (and every failure path, including no-JS) keeps the sentence front.
+
 ---
 
 ## 📖 Back Card
 
-- **Definition Compactor** (CSS §6b): the Yomitan glossary is trimmed to the first dictionary, max 2 senses, no appendices (possible forms, synonyms, supplementary notes, accent numbers). Extended-definition accordion stays full.
-- **Definition Truncator** (CSS §6c): 3-line cap with progressive fade + small `▼`; click expands and stays open. Short glosses never show the chevron.
-- Word header (furigana, badges, audio), sentence + translation toggle, picture / kanji / general notes, source footer.
+Typography does the work — no dashboard chrome:
+
+1. **Target + reading** — the headword with hover furigana, the largest element; pitch accent as quiet muted text.
+2. **Primary meaning** — **Definition Compactor** (CSS §6b) trims the Yomitan glossary to the first dictionary, max 2 senses, no appendices; **Definition Truncator** (§6c) caps it at 3 lines with a fade + `▼`, click expands and stays open.
+3. **Context** — the sentence (with hover furigana) plus the picture when present, side by side on wide screens.
+4. **Secondary info** — collapsed behind a quiet `More ▾`: translation (`T`), additional context, kanji notes, general notes, and the **full extended definition** (the compactor never touches it).
+5. A discreet **Context / Word / Listening** label explains the retrieval condition on hover; the source footer identifies the material.
 
 ---
 

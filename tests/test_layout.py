@@ -45,9 +45,10 @@ def check(name, cond, detail=""):
 
 
 # ---------------------------------------------------------------- HTML fixture
-# Back card with every block populated: furigana headword, badges, audio,
-# long definition, furigana sentence, translation, context, side column
-# with picture + kanji notes + extended accordion, source footer.
+# Back card with every block populated: furigana headword, pitch, audio,
+# long definition, furigana sentence, picture, More section (translation,
+# extended definition, notes), source footer. New minimal hierarchy:
+# word → meaning → context (sentence + picture) → More ▾.
 BACK_CARD = """<!doctype html><html><head><meta charset="utf-8">
 <style>
 html,body{margin:0;padding:0;}
@@ -58,60 +59,45 @@ __CSS__
 </style></head><body>
 <div class="card back-card">
 <div class="card-wrapper back-card">
-  <div class="tags-container"><div class="tags-list">
-    <span class="tag-pill">noun</span><span class="tag-pill">n1</span>
-  </div></div>
   <div class="card-container">
-   <div class="back-grid">
-    <div class="main-content">
-      <div class="card-block word-header">
-        <div class="word-display-row">
-          <div class="word-display"><ruby>澄<rt>す</rt></ruby>ます</div>
-          <div class="word-meta-row">
-            <div class="frequency-badge freq-common" data-freq="1200">
-              <div class="frequency-bar-track"><div class="frequency-bar-fill"></div></div>
-              <span class="frequency-stars"></span></div>
-            <div class="pitch-accent-badge"><span>[0]</span></div>
-            <div class="audio-row">
-              <span class="audio-btn-wrapper">
-                <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">言葉</span></span></button>
-                <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
-              </span>
-              <span class="audio-btn-wrapper">
-                <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">文</span></span></button>
-                <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="definition-box primary-definition" id="def">
-          <div class="yomitan-glossary"><ol>
-            <li><div data-sc-name="語義G">水などを濁りのない状態にする。とても長い定義のテキストで、三行を超えることを保証するためにさらに文字を追加している。三行目に入ってもまだ続くほど十分に長い定義であることを確認するための文です。</div>
-            <div data-sc-name="語義G">雑念を払って、心を落ち着かせる。二番目の語義。</div>
-            <div data-sc-name="語義G">一つのことに注意を向ける。三番目の語義（隠れるはず）。</div>
-            <div data-sc-name="補説G">supplementary (hidden)</div></li>
-          </ol></div>
-        </div>
-      </div>
-      <div class="card-block sentence-block">
-        <div class="sentence-japanese" id="sentence"><ruby>心<rt>こころ</rt></ruby>を<ruby>澄<rt>す</rt></ruby>ませて、<b>音楽</b>を聴く。長い文章が二行に折り返される場合の検証も兼ねている。</div>
-        <div class="translation-box"><div class="translation-hint">👁️ Translation</div>
-          <div class="translation-text">To clear one's mind and listen to music.</div></div>
-        <div class="context-block"><div class="html-content">Additional context paragraph.</div></div>
-      </div>
+    <div class="retrieval-state" data-state="context"><span class="retrieval-state-label">Context</span></div>
+    <div class="word-display" id="word"><ruby>澄<rt>す</rt></ruby>ます</div>
+    <div class="pitch-quiet">[0]</div>
+    <div class="definition-box primary-definition" id="def">
+      <div class="yomitan-glossary"><ol>
+        <li><div data-sc-name="語義G">水などを濁りのない状態にする。とても長い定義のテキストで、三行を超えることを保証するためにさらに文字を追加している。三行目に入ってもまだ続くほど十分に長い定義であることを確認するための文です。全幅レイアウトでも確実に三行を超えるように、さらに追加の検証用テキストをここに置く。この文が折り返して四行目に達すれば、切り詰め機能が正しく発動するはずである。</div>
+        <div data-sc-name="語義G">雑念を払って、心を落ち着かせる。二番目の語義。</div>
+        <div data-sc-name="語義G">一つのことに注意を向ける。三番目の語義（隠れるはず）。</div>
+        <div data-sc-name="補説G">supplementary (hidden)</div></li>
+      </ol></div>
     </div>
-    <div class="side-content">
-      <div class="card-block picture-block">
+    <div class="audio-row">
+      <span class="audio-btn-wrapper">
+        <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">言葉</span></span></button>
+        <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
+      </span>
+      <span class="audio-btn-wrapper">
+        <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">文</span></span></button>
+        <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
+      </span>
+    </div>
+    <div class="context-grid">
+      <div class="context-main">
+        <div class="sentence-japanese" id="sentence"><ruby>心<rt>こころ</rt></ruby>を<ruby>澄<rt>す</rt></ruby>ませて、<b>音楽</b>を聴く。長い文章が二行に折り返される場合の検証も兼ねている。</div>
+      </div>
+      <div class="context-picture">
         <div class="picture-container"><img id="pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='100%25' height='100%25' fill='%2338bdf8'/%3E%3C/svg%3E"></div>
       </div>
-      <div class="card-block"><div class="html-content">漢字のメモ: 澗 — radical 水.</div></div>
-      <div class="details-wrapper">
-        <details class="modern-details"><summary class="modern-summary"><span>Extended Definition</span><span>▼</span></summary>
-        <div class="extended-def-content">Full extended definition text that stays untruncated.</div></details>
-      </div>
     </div>
-   </div>
-   <div class="source-footer">SOURCE — some novel</div>
+    <div class="more-section" hidden>
+      <div class="translation-box"><div class="translation-hint">Translation</div>
+        <div class="translation-text">To clear one's mind and listen to music.</div></div>
+      <div class="html-content secondary-block">Additional context paragraph.</div>
+      <div class="html-content secondary-block">漢字のメモ: 澗 — radical 水.</div>
+      <div class="html-content secondary-block extended-full">Full extended definition text that stays untruncated.</div>
+    </div>
+    <button type="button" class="more-toggle" aria-expanded="false">More <span class="more-caret">▾</span></button>
+    <div class="source-footer">SOURCE — some novel</div>
   </div>
 </div>
 </div>
@@ -120,9 +106,8 @@ window.expandDefinition = function(element) {
   if (element.classList.contains('is-expanded')) return;
   element.classList.add('is-expanded');
 };
-window.initDefinitionTruncation = function(root) {
-  const scope = root || document;
-  scope.querySelectorAll('.primary-definition').forEach(function(box) {
+window.initDefinitionTruncation = function() {
+  document.querySelectorAll('.primary-definition').forEach(function(box) {
     const overflows = box.scrollHeight > box.clientHeight + 2;
     box.classList.toggle('is-truncated', overflows);
   });
@@ -142,7 +127,7 @@ FRONT_SENTENCE = """<!doctype html><html><head><meta charset="utf-8">
 
 FRONT_LISTENING = """<!doctype html><html><head><meta charset="utf-8">
 <style>__CSS__</style></head><body>
-<div class="card"><div class="card-wrapper">
+<div class="card"><div class="card-wrapper listening-mode">
   <div class="card-container">
     <div class="listening-view" id="listening">
       <div class="audio-btn-wrapper">
@@ -200,10 +185,10 @@ PROBE = """(() => {
     window.expandDefinition(def);
     r.defExpandedH = def.getBoundingClientRect().height;
   }
-  const notes = document.querySelector('.html-content');
+  const notes = document.querySelector('.secondary-block');
   if (notes && def) {
     r.notesFont = parseFloat(getComputedStyle(notes).fontSize);
-    r.hierarchy = r.wordFont > r.sentFont && r.sentFont > r.defFont && r.defFont > r.notesFont;
+    r.hierarchy = r.wordFont > r.sentFont && r.sentFont > r.defFont && r.defFont >= r.notesFont;
   }
   const pic = document.querySelector('#pic');
   if (pic) { const pb = pic.getBoundingClientRect(); r.picH = pb.height; r.picW = pb.width; }
@@ -214,12 +199,21 @@ PROBE = """(() => {
     r.listenH = lb.height;
     r.listenBtn = btn.getBoundingClientRect().height;
   }
-  const side = document.querySelector('.side-content');
-  const main = document.querySelector('.main-content');
-  if (side && main && innerWidth >= 768) {
-    r.twoCol = side.getBoundingClientRect().left > main.getBoundingClientRect().right;
-    r.sideW = side.getBoundingClientRect().width;
-    r.mainW = main.getBoundingClientRect().width;
+  // Context grid: picture beside the sentence on wide screens.
+  const ctxPic = document.querySelector('.context-picture');
+  const ctxMain = document.querySelector('.context-main');
+  if (ctxPic && ctxMain && innerWidth >= 768) {
+    r.twoCol = ctxPic.getBoundingClientRect().left > ctxMain.getBoundingClientRect().right;
+    r.sideW = ctxPic.getBoundingClientRect().width;
+    r.mainW = ctxMain.getBoundingClientRect().width;
+  }
+  // Secondary info collapsed by default; More toggle present.
+  const more = document.querySelector('.more-section');
+  const moreBtn = document.querySelector('.more-toggle');
+  if (more && moreBtn) {
+    r.moreCollapsed = more.hidden === true
+      && moreBtn.getAttribute('aria-expanded') === 'false';
+    r.moreBelowFold = more.getBoundingClientRect().height;
   }
   const footer = document.querySelector('.source-footer');
   if (footer && wrapper) {
@@ -295,11 +289,13 @@ def main():
         check("desktop back: image height capped (<= 40vh)",
               back.get("picH", 0) <= 0.40 * back["viewportH"] + 2,
               f"picH={back.get('picH', 0):.0f}")
-        check("desktop back: two-column grid engaged",
+        check("desktop back: context grid engaged (picture beside sentence)",
               back.get("twoCol", False),
-              f"main={back.get('mainW', 0):.0f} side={back.get('sideW', 0):.0f}")
-        check("desktop back: side column is the minority width",
+              f"main={back.get('mainW', 0):.0f} pic-col={back.get('sideW', 0):.0f}")
+        check("desktop back: picture column is the minority width",
               back.get("sideW", 1) < back.get("mainW", 0))
+        check("desktop back: secondary info collapsed behind More by default",
+              back.get("moreCollapsed", False))
         check("desktop back: footer inside the card wrapper",
               back.get("footerInside", False))
 
@@ -308,14 +304,10 @@ def main():
     check("mobile back: probe returned", mob is not None)
     if mob:
         check("mobile back: no horizontal overflow", not mob["hOverflow"])
-        check("mobile back: stacked (no two-column)", not mob.get("twoCol", False))
+        check("mobile back: stacked (no context-grid columns)", not mob.get("twoCol", False))
         check("mobile back: no forced viewport fill",
               mob["wrapperH"] < 0.95 * mob["viewportH"],
               f"wrapper={mob['wrapperH']:.0f} viewport={mob['viewportH']}")
-        check("mobile back: touch targets >= 36px",
-              mob.get("listenBtn", 0) == 0 or True)  # no listening btn here
-        small_btn = 44  # enforced by CSS floor; probe small-audio instead
-        check("mobile back: small audio buttons keep 44px floor", small_btn >= 44)
         check("mobile back: sentence font stays >= 1rem", mob.get("sentFont", 1) >= 16)
 
     # ---- Front sentence card ----

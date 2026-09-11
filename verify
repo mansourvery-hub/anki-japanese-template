@@ -22,6 +22,8 @@ echo "==> verify: compactor regression tests"
 python3 tests/test_compactor.py
 echo "==> verify: template structural invariants"
 python3 tests/test_templates.py
+echo "==> verify: front-mode resolver behavior (listening semantics)"
+python3 tests/test_front_modes.py
 echo "==> verify: headless layout checks (skipped gracefully without Chrome)"
 python3 tests/test_layout.py
 echo "verify: OK"

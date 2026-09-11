@@ -3,8 +3,11 @@
 
 Verifies the source files BEFORE they are pushed to Anki:
   - Front card never renders a furigana-bearing field (back-card-only rule)
-  - Audio buttons carry aria-labels
-  - Audio controller is restart-only (no pause/resume remnants)
+  - Front is a pure retrieval surface (no tags/badges/metadata UI)
+  - Listening is a hidden-by-default resolver: #listening tag or classic
+    audio-only fields activate it; the sentence front is the fallback
+  - Secondary back information is collapsed behind "More ▾"
+  - Audio buttons carry aria-labels; controller is restart-only
   - Lightbox closes only on backdrop clicks (not on the enlarged image)
   - Anki template conditionals are balanced
   - CSS contains the accessibility/portability rules
@@ -16,6 +19,8 @@ Pure standard library — no dependencies.
 """
 import os
 import re
+import shutil
+import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +56,32 @@ def main():
           not furigana_fields and "Sentence (furigana)" not in front)
     check("Front renders the raw Sentence/Expression fields",
           "{{edit:Sentence}}" in front and "{{edit:Expression}}" in front)
+
+    # --- 1b. Template scripts must be syntactically valid JavaScript ---
+    # A SyntaxError in a card script kills the WHOLE script block: no
+    # reveal, no mature mode, no listening resolver — the card hangs
+    # hidden. Structural string checks cannot catch an unbalanced brace,
+    # so parse every <script> body with node (skipped if node absent).
+    node = shutil.which("node")
+    if node:
+        import tempfile as _tempfile
+        for name, src in (("Front", front), ("Back", back)):
+            bodies = re.findall(r"<script>(.*?)</script>", src, re.S)
+            all_ok = True
+            for body in bodies:
+                with _tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as tf:
+                    tf.write(body)
+                    tmp_path = tf.name
+                try:
+                    rc = subprocess.run([node, "--check", tmp_path],
+                                        capture_output=True, timeout=30).returncode
+                    if rc != 0:
+                        all_ok = False
+                finally:
+                    os.unlink(tmp_path)
+            check(f"{name}: all {len(bodies)} script block(s) parse as valid JavaScript", all_ok)
+    else:
+        print("[SKIP] node not found — template script syntax check skipped")
 
     # --- 2. Audio buttons: aria-labels present ---
     # Front is sentence-audio-only (1) + Back has word + sentence (2) = 3 total.
@@ -125,10 +156,53 @@ def main():
     check("CSS: content-driven card sizing (no forced viewport fill)",
           "min-height: 100vh" not in css and "min-height: 100dvh" not in css
           and "container-type: inline-size" in css)
-    check("CSS: container-query media fallback for 2-column layout",
-          re.search(r"@media \(min-width: 768px\)[\s\S]{0,200}\.back-grid", css) is not None)
-    check("CSS: empty word-header guard (:has)",
-          ".word-header:not(:has(" in css)
+    check("CSS: container-query media fallback for the context grid",
+          re.search(r"@media \(min-width: 768px\)[\s\S]{0,200}\.context-grid", css) is not None)
+
+    # --- 6b. Minimal redesign: noise is gone, hierarchy is present ---
+    check("Back: no sticky tags bar (tags are behavioral metadata)",
+          "tags-container" not in back and "tags-list" not in back
+          and "tag-pill" not in back)
+    check("Back: no frequency badge machinery (noise without retrieval value)",
+          "frequency-badge" not in back and "renderFrequencyIndicator" not in back)
+    check("CSS: no frequency badge styling remains",
+          "frequency-badge" not in css and "--freq-" not in css)
+    check("Back: secondary info is collapsed behind More by default",
+          'class="more-section" hidden' in back
+          and "more-toggle" in back)
+    check("Back: More toggle has aria state + one-way reveal",
+          'aria-expanded="false"' in back
+          and "toggleMore" in back)
+    check("Back: retrieval-state label present but hidden by default",
+          'class="retrieval-state" data-state="context" hidden' in back)
+    check("Back: state label reads the front decision store",
+          "__ajtFrontState" in back)
+    check("Front: front-state store written for the back label",
+          "window.__ajtFrontState" in front)
+    check("Back: keyboard F toggles full-card furigana (back only)",
+          "furigana-mode" in back and "'f'" in back)
+    check("Back: keyboard T reveals the translation",
+          "'t'" in back and "translation-box" in back)
+    check("CSS: full-card furigana mode rule exists",
+          ".card-wrapper.furigana-mode ruby rt" in css)
+    check("Front: listening resolver driven by #listening tag probe",
+          'class="tags-probe"' in front and "hasListeningTag" in front)
+    check("Front: listening resolver also accepts classic audio-only fields",
+          "probe-def" in front and "probe-ext" in front and "probe-freq" in front)
+
+    # --- 6c. Listening mode invariants (hidden-by-default resolver) ---
+    check("Front: listening markup gated behind Sentence Audio only",
+          re.search(r"\{\{#Sentence Audio\}\}\s*<div class=\"listening-view\">", front) is not None)
+    check("Front: listening resolver runs synchronously before the reveal",
+          "LISTENING RESOLVER" in front)
+    check("Front: sentence front is the universal fallback (renders in the audio branch too)",
+          re.search(r"\{\{#Sentence Audio\}\}\s*<div class=\"sentence-display\">", front) is not None)
+    check("CSS: listening-view inert until .listening-mode activates it",
+          ".card-wrapper.listening-mode .listening-view" in css)
+    check("CSS: listening mode hides the sentence/word fronts",
+          ".card-wrapper.listening-mode .sentence-display" in css)
+    check("Front: active listening removes the sentence display",
+          "sd.remove()" in front)
 
     # --- 7. Font sizing source-of-truth ---
     check("Back: no JS font-scaler overriding CSS (inline fontSize ban)",
@@ -136,15 +210,7 @@ def main():
     check("CSS: .sentence-japanese clamp() is the sizing authority",
           re.search(r"\.sentence-japanese\s*\{[^}]*font-size:\s*clamp\(", css) is not None)
 
-    # --- 8. Frequency visualizer invariants ---
-    check("Back: frequency-badge with data-freq attribute present",
-          'class="frequency-badge" data-freq="{{text:Frequency}}"' in back)
-    check("Back: frequency visualizer JS function defined",
-          "window.renderFrequencyIndicator = function" in back)
-    check("CSS: all 5 frequency tier theme variables defined",
-          all(f"--freq-{t}:" in css for t in ("very-common", "common", "medium", "uncommon", "rare")))
-    check("CSS: frequency bar track & fill styled",
-          ".frequency-bar-track" in css and ".frequency-bar-fill" in css)
+    # --- 8. (removed) Frequency visualizer retired with the minimal redesign ---
 
     # --- 8b. Mature Word Mode invariants (interval-gated front) ---
     check("Front: LONG_INTERVAL_DAYS threshold constant defined",
@@ -219,6 +285,10 @@ def main():
     check("CSS: word mode leaves listening view untouched",
           ".listening-view" not in css.split("5b. MATURE-CARD WORD MODE")[1].split("6. BACK CARD")[0]
           if "5b. MATURE-CARD WORD MODE" in css else False)
+    check("Front: no \"note:\" search clause ({{Type}} is scheduling type, not model)",
+          "NOTE_TYPE" not in front
+          and re.search(r"findCards[^\n]*note:", front) is None
+          and 'escQuery(NOTE_TYPE)' not in front)
 
     # --- 10. Empty-field collapse (QUALITY.md: no UI survives an empty field) ---
     # 10a. Static proof over the raw templates (comments/scripts stripped):
@@ -226,7 +296,6 @@ def main():
     # documented allowlist (attribute / hidden probe / gated probe).
     TOKEN = re.compile(r"\{\{\s*([#^/]?)\s*([^}]*?)\s*\}\}")
     ALLOW_BARE = {
-        ("Front", "Type"),  # data-notetype attribute, not a UI element
         ("Front", "cloze-prefix"), ("Front", "cloze-body"), ("Front", "cloze-suffix"),  # hidden probe
         ("Front", "Expression"),  # front-word-display: display:none default, word-mode gate only (§8b)
     }
@@ -252,12 +321,10 @@ def main():
     # 10b. Unconditional shells collapse when all conditional children absent.
     check("CSS: empty .audio-row collapses (no button => gone)",
           re.search(r"\.audio-row:not\(:has\(\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
-    check("CSS: empty .word-meta-row collapses (no badge/button => gone)",
-          re.search(r"\.word-display-row\s+\.word-meta-row:not\(:has\(\.frequency-badge,\s*\.pitch-accent-badge,\s*\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
+    check("Back: More section + toggle self-remove when secondary content is absent",
+          "btn.remove()" in back and "section.remove()" in back)
 
     # 10c. Degenerate content removes itself instead of leaving chrome behind.
-    check("Back: unparseable frequency removes its badge (no empty pill)",
-          "badge.remove()" in back)
     check("Back: blank definition box is removed (no bordered void)",
           "box.remove()" in back)
     check("Front: blank sentence block is removed after cloze fixup",
