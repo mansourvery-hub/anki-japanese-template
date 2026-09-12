@@ -62,10 +62,16 @@ task/slice graph, not a todo list (`Build frontend` would not qualify).
                     ┌───────────────────┐
                     │ T12 minimal-       │
                     │ interface redesign │
+                    └─────────┬─────────┘
+                              │
+                              ↓
+                    ┌───────────────────┐
+                    │ T13 editorial     │
+                    │ redesign & polish │
                     └───────────────────┘
 ```
 
-Dependencies: `T1 → {T2, T3} → {T4, T5} → T6 → T7 → T8 → T9 → T10 → T11 → T12`.
+Dependencies: `T1 → {T2, T3} → {T4, T5} → T6 → T7 → T8 → T9 → T10 → T11 → T12 → T13`.
 T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
 
 ## Tasks
@@ -111,6 +117,16 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   `note:` search clause removed (wrong value), mobile `.word-meta-row`
   specificity, JS syntax gate added after an unbalanced-brace regression
   was caught by visual QA. Status: COMPLETE (`./verify` 168/168 green).
+- **T13 — Editorial redesign & aesthetic polish.** Visual transformation from
+  sterile dashboard to refined Japanese editorial reading interface. Removal of
+  retrieval-state UI (`.retrieval-state`, "Context"/"Word"/"Listening") in favor
+  of pure content hierarchy. Refined typography scale: restrained hero headword
+  `clamp()`, editorial definition with no harsh dividing lines or boxes,
+  quiet audio affordances (34px/30px buttons with subtle borders), and an
+  asymmetric context grid balancing the Japanese sentence against intentional
+  media proportions. Fixed empty-shell collapse bug for `.context-grid` and
+  `.context-main`. Verified across 10 visual regression scenarios.
+  Status: COMPLETE.
 
 ## Roadmap (evolution loop input, not committed scope)
 

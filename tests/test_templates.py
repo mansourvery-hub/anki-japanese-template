@@ -173,12 +173,12 @@ def main():
     check("Back: More toggle has aria state + one-way reveal",
           'aria-expanded="false"' in back
           and "toggleMore" in back)
-    check("Back: retrieval-state label present but hidden by default",
-          'class="retrieval-state" data-state="context" hidden' in back)
-    check("Back: state label reads the front decision store",
-          "__ajtFrontState" in back)
-    check("Front: front-state store written for the back label",
-          "window.__ajtFrontState" in front)
+    check("Back: no retrieval-state label UI (content hierarchy replaces captions)",
+          "retrieval-state" not in back and "__ajtFrontState" not in back)
+    check("Front: no front-state store written",
+          "__ajtFrontState" not in front)
+    check("CSS: no retrieval-state styling remains",
+          "retrieval-state" not in css)
     check("Back: keyboard F toggles full-card furigana (back only)",
           "furigana-mode" in back and "'f'" in back)
     check("Back: keyboard T reveals the translation",
@@ -321,6 +321,10 @@ def main():
     # 10b. Unconditional shells collapse when all conditional children absent.
     check("CSS: empty .audio-row collapses (no button => gone)",
           re.search(r"\.audio-row:not\(:has\(\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
+    check("CSS: empty .context-grid collapses (no sentence/context/picture => gone)",
+          re.search(r"\.context-grid:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
+    check("CSS: empty .context-main collapses (no sentence/context => gone)",
+          re.search(r"\.context-main:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
     check("Back: More section + toggle self-remove when secondary content is absent",
           "btn.remove()" in back and "section.remove()" in back)
 

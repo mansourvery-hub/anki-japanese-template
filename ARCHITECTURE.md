@@ -59,8 +59,7 @@ Mature check (not listening, Expression non-empty,
 Hidden behavioral probes never render visibly: the cloze trio, a
 `{{#Tags}}` probe carrying the `#listening` signal, and
 Definition/Extended/Frequency presence markers consumed by the resolver.
-The resolver writes `window.__ajtFrontState` for the back's discreet
-state label. Interval retrieval is **platform-exclusive**: mobile uses
+Interval retrieval is **platform-exclusive**: mobile uses
 only the AnkiDroid bridge (`ankiGetCardInterval()`, constructor + direct
 shapes, stub guard, timeouts, 700 ms late-injection poll); desktop uses
 only AnkiConnect (`guiCurrentCard`→`cardsInfo`, `findCards`
@@ -75,9 +74,7 @@ Single quiet column with typography-driven hierarchy:
 
 ```text
 card-container
- ├── .retrieval-state (hidden unless front set it: Context/Word/Listening,
- │                      hover-explained, never a big badge)
- ├── word-display (target + furigana hover — largest element)
+ ├── word-display (target + furigana hover — hero element)
  ├── .pitch-quiet (muted supplement to the reading)
  ├── definition-box.primary-definition (compacted §6b, 3-line §6c)
  ├── .audio-row (文/言葉 native-delegating buttons, :has() empty guard)
@@ -88,8 +85,7 @@ card-container
  └── .source-footer
 ```
 
-JS controllers (all idempotent under WebView DOM re-use): state-label
-renderer (reads `window.__ajtFrontState`), More toggle (one-way reveal;
+JS controllers (all idempotent under WebView DOM re-use): More toggle (one-way reveal;
 section+button self-remove when secondary content is absent),
 native-only circular audio (`playCircularAudio` → sibling replay link
 click, re-tap debounce, ring pulse), definition truncator (blank boxes
@@ -101,15 +97,14 @@ keyboard shortcuts (`F` full-card furigana, `T` translation reveal).
 
 Numbered sections are the contract: §1 tokens/themes (no `--freq-*`:
 accent is reserved for the target and interactive states), §2 containers,
-§3 retrieval-state label + More toggle, §4 context grid + desktop
-overrides, §5 front type, §5b word-mode swap, §6 back hierarchy
-(word/pitch/audio), **§6b Definition Compactor** (first dictionary, ≤2
-senses, no appendices, `.primary-definition`-scoped), §6c truncator
-(3-line cap + fade + chevron), §7 audio rings, §8 sentence/translation +
-secondary blocks, §9 zero-reflow ruby + §9b full-card furigana mode,
-§10 media/lightbox, §11 footer, §12 listening (inert until
-`.listening-mode`), §13 mobile, §14 deletable Fuji backdrop, §15 reduced
-motion.
+§3 More toggle, §4 context grid + desktop overrides, §5 front type,
+§5b word-mode swap, §6 back hierarchy (word/pitch/audio), **§6b Definition Compactor**
+(first dictionary, ≤2 senses, no appendices, `.primary-definition`-scoped),
+§6c truncator (3-line cap + fade + chevron), §7 audio rings,
+§8 sentence/translation + secondary blocks, §9 zero-reflow ruby +
+§9b full-card furigana mode, §10 media/lightbox, §11 footer,
+§12 listening (inert until `.listening-mode`), §13 mobile,
+§14 deletable Fuji backdrop, §15 reduced motion.
 
 ### Tooling
 

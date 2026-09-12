@@ -217,12 +217,6 @@
     const wrapper = document.querySelector('.card-wrapper');
 
     if (container && wrapper) {
-      /* Front-state store: cleared at script start (before any async
-         work) so a card whose front script crashes mid-way can never
-         inherit the previous card's state; the back label then stays
-         hidden (state unknown) instead of showing stale data. */
-      try { window.__ajtFrontState = undefined; } catch (_) {}
-
       let wordMode = false;
       let interval = null;
       let source = 'unavailable';
@@ -642,17 +636,6 @@
 
         // Explicitly reset the class as well as enabling it.
         wrapper.classList.toggle('word-mode', wordMode);
-
-        /* Front-state store: the back card reads this to render its
-           discreet retrieval-condition label (Context / Word /
-           Listening). Same WebView document in the reviewer; when the
-           back renders without the front state (lone back preview),
-           the label simply stays hidden. */
-        try {
-          window.__ajtFrontState = {
-            mode: wordMode ? 'word' : (isListening ? 'listening' : 'context')
-          };
-        } catch (_) { /* preview-only environments */ }
 
         if (DEBUG_MATURE_MODE) {
           let diagnostic = wrapper.querySelector('.mwm-debug');

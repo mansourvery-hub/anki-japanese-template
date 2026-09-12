@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.5.0 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.6.0 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -22,36 +22,34 @@
    1. COLOR SYSTEM & CSS VARIABLES
    ============================================================================== */
 :root {
-  /* --- TOKYO NIGHT DARK (Default) --- */
-  --bg-color: #0f141c;
-  --card-bg: #182030;
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f0f6fc;
+  /* --- TOKYO NIGHT DARK (Default: Japanese Midnight Sumi) --- */
+  --bg-color: #0e131d;
+  --card-bg: #151b26;
+  --card-border: rgba(255, 255, 255, 0.07);
+  --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
   
-   --accent-color: #38bdf8;
+  --accent-color: #38bdf8;
   --accent-light: rgba(56, 189, 248, 0.12);
   --accent-soft: rgba(56, 189, 248, 0.22);
   --accent-glow: 0 0 16px rgba(56, 189, 248, 0.35);
 
-  --shadow-premium: 0 6px 20px -3px rgba(0, 0, 0, 0.4);
+  --shadow-premium: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
   --border-radius-lg: 12px;
   --border-radius-md: 8px;
   --border-radius-sm: 6px;
 
-  /* Spacing Tokens - Fluid viewport-based (single values, usable via padding: X Y).
-     Tightened for density: the card should read as one compact hierarchy,
-     not a stack of padded boxes. */
-  --gap-block: clamp(2px, 0.8vmin, 6px);
+  /* Spacing Tokens - Fluid viewport-based */
+  --gap-section: clamp(14px, 2.2vh, 24px);
+  --gap-block: clamp(6px, 1.2vmin, 12px);
   --block-pad-y: clamp(0px, 0.2vmin, 2px);
   --block-pad-x: clamp(6px, 1.4vmin, 14px);
-  --container-pad-y: clamp(0px, 0.25vmin, 2px);
-  --container-pad-x: clamp(2px, 0.7vmin, 8px);
+  --container-pad-y: clamp(14px, 2.8vh, 32px);
+  --container-pad-x: clamp(12px, 2.5vw, 32px);
 
   /* Furigana clearance: rt height (0.55em of parent font) + 2px hover gap.
-     em-based so it scales with font size (which scales with viewport) —
-     never a fixed pixel value. Consumed by furigana-bearing fields. */
+     em-based so it scales with font size across viewports. */
   --furigana-headroom: calc(0.55em + 2px);
   
   /* Fonts */
@@ -59,33 +57,32 @@
   --font-japanese-sans: "Inter", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
   --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  --max-content-width: 100%;
+  --max-content-width: 960px;
 }
 
-/* --- AKI PAPER LIGHT THEME --- */
+/* --- AKI PAPER LIGHT THEME (Warm Washi) --- */
 .card:not(.nightMode):not(.night_mode) {
-  --bg-color: #fcfaf6;
+  --bg-color: #fcfbf9;
   --card-bg: #ffffff;
-  --card-border: #e4e2dd;
-  --text-primary: #1a1b1e;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --text-primary: #18191c;
+  --text-secondary: #475569;
+  --text-muted: #8a909d;
   
   --accent-color: #d97706;
   --accent-light: rgba(217, 119, 6, 0.08);
   --accent-soft: rgba(217, 119, 6, 0.16);
   --accent-glow: 0 0 16px rgba(217, 119, 6, 0.25);
 
-  --shadow-premium: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-premium: 0 4px 18px rgba(0, 0, 0, 0.06);
 }
 
 .card.nightMode,
 .card.night_mode {
-  /* These are redundant as they are identical to :root, but kept for specificity */
-  --bg-color: #0f141c;
-  --card-bg: #182030;
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f0f6fc;
+  --bg-color: #0e131d;
+  --card-bg: #151b26;
+  --card-border: rgba(255, 255, 255, 0.07);
+  --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
   --accent-color: #38bdf8;
@@ -105,17 +102,15 @@
   padding: 0;
   text-align: center;
   -webkit-font-smoothing: antialiased;
-  line-height: 1.45;
+  line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
 }
 
 .card-wrapper {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
-  /* Content-driven sizing: the card is exactly as tall as its content.
-     No viewport fill — spare screen space stays BELOW the card, where
-     it is harmless, instead of being distributed between sections. */
   margin: 0;
   padding: 0;
   container-type: inline-size;
@@ -123,8 +118,8 @@
 }
 
 .card-container {
-  width: 98%;
-  max-width: 100%;
+  width: 100%;
+  max-width: min(94vw, var(--max-content-width, 920px));
   margin: 0 auto;
   padding: var(--container-pad-y) var(--container-pad-x);
   box-sizing: border-box;
@@ -132,49 +127,39 @@
 
 
 /* ==============================================================================
-   3. RETRIEVAL-STATE LABEL & SECONDARY-INFO TOGGLE (back only, quiet)
+   3. SECONDARY-INFO TOGGLE ("More ▾")
    ============================================================================== */
-/* Discreet Context / Word / Listening caption. Set by the front script;
-   hover explains the two-tier maturity model. Never a big badge. */
-.retrieval-state {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  cursor: help;
-  user-select: none;
-  padding: 2px 0 4px 0;
-}
-
-.retrieval-state .retrieval-state-label {
-  display: inline-block;
-}
-
-/* "More ▾" — the single quiet control for all secondary information. */
+/* "More ▾" — a quiet, elegant editorial disclosure */
 .more-toggle {
   font-family: var(--font-interface);
   font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
   background: none;
   border: none;
   padding: 6px 14px;
-  margin: 2px auto;
-  display: block;
+  margin: clamp(12px, 1.8vh, 20px) auto 2px auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
-  border-radius: 12px;
-  transition: color 0.15s ease-out, background-color 0.15s ease-out;
+  border-radius: 9999px;
+  transition: color 0.15s ease, background-color 0.15s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .more-toggle:hover,
 .more-toggle:focus-visible {
-  color: var(--accent-color);
-  background-color: var(--accent-light);
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.05);
   outline: none;
+}
+
+.card:not(.nightMode):not(.night_mode) .more-toggle:hover,
+.card:not(.nightMode):not(.night_mode) .more-toggle:focus-visible {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .more-toggle:focus-visible {
@@ -184,8 +169,9 @@
 
 .more-toggle .more-caret {
   display: inline-block;
-  margin-left: 4px;
-  transition: transform 0.15s ease-out;
+  font-size: 0.7rem;
+  margin-left: 2px;
+  transition: transform 0.18s ease-out;
 }
 
 .more-toggle.is-open .more-caret {
@@ -193,21 +179,26 @@
 }
 
 .more-section {
-  margin-top: 4px;
+  margin-top: 6px;
+  width: 100%;
 }
 
 
 /* ==============================================================================
    4. CONTEXT GRID (core info: sentence + picture)
    ============================================================================== */
-/* Minimal layout: no side dashboard. The picture is CORE information
-   and sits beside the sentence when the viewport is wide and both
-   exist; otherwise everything stacks in one quiet column. */
 .context-grid {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-block);
+  gap: clamp(12px, 1.8vh, 20px);
   align-items: center;
+  width: 100%;
+  margin-top: var(--gap-section);
+}
+
+/* Empty-shell guard (QUALITY.md): collapse when neither sentence nor picture exists */
+.context-grid:not(:has(.sentence-japanese, .context-only, .context-picture)) {
+  display: none;
 }
 
 .context-main {
@@ -216,55 +207,67 @@
   text-align: center;
 }
 
+.context-main:not(:has(.sentence-japanese, .context-only)) {
+  display: none;
+}
+
 .context-picture {
   width: 100%;
   text-align: center;
 }
 
 @container anki-card (min-width: 768px) {
-  /* Sentence left, picture right — only when a picture actually
-     exists. The picture hugs its own width; the sentence dominates. */
+  /* Editorial balance: sentence left, picture right */
   .context-grid:has(.context-picture) {
     flex-direction: row;
     align-items: center;
-    gap: clamp(8px, 1.5vmin, 18px);
+    justify-content: center;
+    gap: clamp(20px, 3.5vw, 40px);
   }
 
-  .context-main {
+  .context-grid:has(.context-picture) .context-main {
     flex: 1 1 auto;
+    text-align: left;
+  }
+
+  .context-grid:has(.context-picture) .sentence-japanese {
+    text-align: left;
   }
 
   .context-picture {
     flex: 0 1 auto;
     width: auto;
-    max-width: 42vw;
+    max-width: min(34vw, 360px);
   }
 
-  /* Dense card, but the desktop is still a pointer+keyboard environment:
-     keep the small audio buttons at their a11y-friendly 44px floor. */
   .small-audio-btn {
-    width: 44px;
-    height: 44px;
+    width: 34px;
+    height: 34px;
   }
 }
 
-/* Portability fallback for WebViews without container-query support
-   (older AnkiDroid): same arrangement via a conventional media query. */
+/* Portability fallback for WebViews without container-query support */
 @media (min-width: 768px) {
   .context-grid:has(.context-picture) {
     flex-direction: row;
     align-items: center;
-    gap: clamp(8px, 1.5vmin, 18px);
+    justify-content: center;
+    gap: clamp(20px, 3.5vw, 40px);
   }
 
-  .context-main {
+  .context-grid:has(.context-picture) .context-main {
     flex: 1 1 auto;
+    text-align: left;
+  }
+
+  .context-grid:has(.context-picture) .sentence-japanese {
+    text-align: left;
   }
 
   .context-picture {
     flex: 0 1 auto;
     width: auto;
-    max-width: 42vw;
+    max-width: min(34vw, 360px);
   }
 }
 
@@ -286,11 +289,10 @@
 .sentence-display,
 .front-word-display {
   font-family: var(--font-japanese-serif);
-  /* Density-tuned cap: 5.25rem keeps the sentence dominant without
-     flooding a widescreen front with a single line of huge text. */
-  font-size: clamp(1.8rem, 5vmin + 0.75rem, 5.25rem);
-  line-height: 1.3;
-  padding: 4px 6px;
+  /* Refined, authoritative scale: dominant without visual shouting */
+  font-size: clamp(1.8rem, 4.2vmin + 0.75rem, 4.2rem);
+  line-height: 1.4;
+  padding: 8px 12px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
@@ -308,8 +310,9 @@
 .front-word-display strong {
   color: var(--accent-color);
   font-weight: 400;
-  background: linear-gradient(transparent 75%, var(--accent-light) 75%);
+  background: linear-gradient(transparent 78%, var(--accent-light) 78%);
   padding: 0 4px;
+  border-radius: 2px;
 }
 
 /* Back sentence target matches surrounding weight — color + underline mark it. */
@@ -317,8 +320,9 @@
 .sentence-japanese strong {
   color: var(--accent-color);
   font-weight: 400;
-  background: linear-gradient(transparent 75%, var(--accent-light) 75%);
+  background: linear-gradient(transparent 78%, var(--accent-light) 78%);
   padding: 0 4px;
+  border-radius: 2px;
 }
 
 /* Back headword: never bold, even if Yomitan injects <b>/<strong>. */
@@ -347,9 +351,8 @@
 /* ==============================================================================
     6. BACK CARD HIERARCHY — target, reading, meaning (Fluid Typography)
     ============================================================================== */
-/* Target + reading form ONE conceptual unit, centered, the loudest
-   element on the card. Frequency/pitch badges are gone (visual noise
-   without retrieval value); pitch stays as quiet muted text below. */
+/* Target + reading form ONE conceptual unit, centered, the hero element.
+   Pitch stays as quiet muted text below. */
 
 /* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.
    Fields that use {{furigana:...}} get exactly that clearance as top padding
@@ -357,10 +360,10 @@
    em-based => scales continuously with font size across all screen sizes. */
 .word-display {
   font-family: var(--font-japanese-serif);
-  /* The headword stays the loudest element on the card. */
-  font-size: clamp(2.5rem, 5vw + 1rem, 5.75rem);
+  /* Restrained, elegant scale: the target is the hero without overpowering the card */
+  font-size: clamp(2.2rem, 3.8vw + 0.8rem, 3.8rem);
   font-weight: 400;
-  line-height: 1.05;
+  line-height: 1.15;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
   margin: 0 auto;
   text-align: center;
@@ -368,21 +371,29 @@
 
 /* Pitch accent: quiet muted supplement to the reading, never a badge. */
 .pitch-quiet {
-  font-size: clamp(0.9rem, 0.8vw + 0.75rem, 1.15rem);
+  font-size: clamp(0.85rem, 0.6vw + 0.7rem, 1.05rem);
   color: var(--text-muted);
   line-height: 1.4;
-  margin-top: 2px;
+  margin-top: 4px;
+  margin-bottom: 2px;
   text-align: center;
 }
 
-/* Audio row: the two quiet replay buttons under the meaning. */
+.pitch-quiet svg {
+  max-height: 2.2em;
+  width: auto;
+  vertical-align: middle;
+  filter: opacity(0.85);
+}
+
+/* Audio row: quiet affordances under the target & meaning. */
 .audio-row {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 6px 0 2px 0;
+  gap: 8px;
+  margin: 10px auto 4px auto;
 }
 
 /* Empty-shell guard (QUALITY.md "Empty-field collapse"): .audio-row
@@ -394,21 +405,16 @@
 }
 
 .definition-box {
-  /* Medium emphasis: clearly smaller than the sentence, one step above
-     notes/translation. Fluid so wide main columns stay filled. */
-  font-size: clamp(1.05rem, 0.45vw + 0.85rem, 1.55rem);
-  /* Furigana-safe density: the Definition field is furigana-bearing
-     ({{furigana:...}}), and hover rt renders in the inter-line gap, so
-     line-height must stay >= headroom + 1em. 1.5 satisfies that with a
-     little slack; the old 1.6 was roomier than rt ever needs. */
-  line-height: calc(var(--furigana-headroom) + 1em + 0.05em);
+  /* Editorial typography: no harsh dividing lines, optimal reading measure */
+  font-family: var(--font-interface);
+  font-size: clamp(1.02rem, 0.4vw + 0.82rem, 1.35rem);
+  line-height: calc(var(--furigana-headroom) + 1em + 0.15em);
   color: var(--text-primary);
-  border-top: 1px solid var(--card-border);
-  /* Furigana headroom: rt renders 0.55em + 2px above the text — reserve
-     exactly that (em-based, scales with fluid font size). */
+  max-width: 62ch;
+  margin: clamp(10px, 1.6vh, 18px) auto 0 auto;
   padding-top: var(--furigana-headroom);
-  margin-top: 5px;
   width: 100%;
+  text-align: center;
 }
 
 
@@ -542,10 +548,10 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 1.1em;
+  height: 1.2em;
   background: linear-gradient(to bottom,
     transparent 0%,
-    var(--card-bg) 100%
+    var(--bg-color) 100%
   );
   pointer-events: none;
 }
@@ -558,7 +564,7 @@
   left: 50%;
   transform: translateX(-50%);
   color: var(--text-muted);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   line-height: 1;
   pointer-events: none;
 }
@@ -574,7 +580,7 @@
 .audio-row {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .circular-audio-btn {
@@ -582,16 +588,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--card-bg);
+  background-color: transparent;
   border: 1px solid var(--card-border);
   border-radius: 50%;
   cursor: pointer;
   padding: 0;
   margin: 0;
   outline: none;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.2s ease,
               border-color 0.2s ease,
               background-color 0.2s ease;
   user-select: none;
@@ -599,8 +603,8 @@
 }
 
 .small-audio-btn {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
 }
 
 /* Keyboard focus indicator (outline: none above only affects mouse clicks;
@@ -615,13 +619,15 @@
 .large-audio-btn {
   width: 80px;
   height: 80px;
+  background-color: var(--card-bg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .circular-audio-btn:hover,
 .circular-audio-btn:active {
-  transform: scale(1.08);
+  transform: scale(1.06);
   border-color: var(--accent-color);
-  box-shadow: var(--accent-glow);
+  background-color: var(--accent-light);
 }
 
 .circular-audio-btn.is-playing {
@@ -643,13 +649,13 @@
 .audio-progress-ring .ring-bg {
   fill: none;
   stroke: var(--accent-light);
-  stroke-width: 3px;
+  stroke-width: 2px;
 }
 
 .audio-progress-ring .ring-fill {
   fill: none;
   stroke: var(--accent-color);
-  stroke-width: 3px;
+  stroke-width: 2px;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.08s linear;
 }
@@ -663,11 +669,16 @@
 
 .small-audio-btn .audio-btn-label {
   font-family: var(--font-japanese-serif);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
   line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.small-audio-btn:hover .audio-btn-label {
+  color: var(--accent-color);
 }
 
 .large-audio-btn .audio-btn-label {
@@ -691,60 +702,71 @@
    context, not as the loudest element (that is the headword). */
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
-  /* Hierarchy: second to the headword, dominant over the definition.
-     Cap 3.5rem: with headroom-based line-height, every wrapped line costs
-     ~1.65em, so a 4.5rem sentence was the single largest vertical expense
-     on the card. 3.5rem keeps the example sentence loud but affordable. */
-  font-size: clamp(1.8rem, 3.5vw + 0.9rem, 3.5rem);
+  /* Hierarchy: second to the headword, dominant over the definition. */
+  font-size: clamp(1.4rem, 2vw + 0.65rem, 2.4rem);
   /* Multi-line clearance: each wrapped line needs room for hover furigana
      above it (rt height + gap), delivered via line-height. Final line is
      covered by --furigana-headroom on top padding below. */
-  line-height: calc(var(--furigana-headroom) + 1em);
+  line-height: calc(var(--furigana-headroom) + 1.25em);
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
-  margin-bottom: clamp(4px, 2vmin, 8px);
+  margin-bottom: clamp(6px, 1.5vmin, 12px);
   color: var(--text-primary);
   text-align: center;
 }
 
 /* Secondary blocks inside the More section: quiet, no card-in-card. */
 .secondary-block {
-  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
-  line-height: 1.5;
+  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
+  line-height: 1.55;
   color: var(--text-secondary);
   text-align: left;
   margin-top: 8px;
 }
 
 .translation-box {
-  background-color: rgba(0, 0, 0, 0.15);
-  border-left: 3px solid var(--accent-color);
-  padding: 6px 10px;
-  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-md);
+  padding: 8px 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   width: 100%;
+  max-width: 68ch;
+  margin: 6px auto;
   box-sizing: border-box;
-  margin-top: 5px;
+}
+
+.translation-box:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .card:not(.nightMode):not(.night_mode) .translation-box {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.card:not(.nightMode):not(.night_mode) .translation-box:hover {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .translation-hint {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
   user-select: none;
+  text-align: center;
 }
 
 .translation-text {
   display: none;
-  /* Lower emphasis tier: floor sits below the definition's 1.05rem floor
+  /* Lower emphasis tier: floor sits below the definition's floor
      so revealed translations read as secondary. */
-  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
+  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
   color: var(--text-secondary);
-  line-height: 1.45;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .translation-box.revealed .translation-text { display: block; }
@@ -753,9 +775,10 @@
 /* Orphan translation (no Sentence): rendered statically, same tier. */
 .revealed-static.translation-text {
   display: block;
-  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
+  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
   color: var(--text-secondary);
-  line-height: 1.45;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .context-block {
@@ -765,8 +788,8 @@
 .html-content {
   /* Lower emphasis tier: notes/context are support material, quieter
      than the definition (and floor-below it, unlike before). */
-  font-size: clamp(1rem, 0.4vw + 0.8rem, 1.35rem);
-  line-height: 1.5;
+  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
+  line-height: 1.55;
 }
 
 
@@ -820,18 +843,23 @@ ruby:focus-within rt {
    10. MEDIA & LIGHTBOX MODAL
    ============================================================================== */
 .picture-container img {
-  /* Block-level: kills the inline-baseline descender gap that left a few
-     loose pixels under the image. margin-inline:auto handles centering. */
+  /* Block-level: kills the inline-baseline descender gap that left loose pixels */
   display: block;
   margin-inline: auto;
   max-width: 100%;
-  max-height: 40vh;
+  max-height: 38vh;
   height: auto;
   object-fit: contain;
   border-radius: var(--border-radius-md);
-  border: 1px solid var(--card-border);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   cursor: zoom-in;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:not(.nightMode):not(.night_mode) .picture-container img {
+  border-color: rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .picture-container img:hover {
@@ -959,30 +987,32 @@ ruby:focus-within rt {
 @media (max-width: 600px) {
   .sentence-display,
   .front-word-display {
-    font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);
+    font-size: clamp(1.1rem, 3.8vmin + 0.5rem, 1.85rem);
     padding: 2px 4px;
   }
-  .sentence-japanese {    font-size: clamp(1rem, 3vmin + 0.75rem, 2rem);}
+  .sentence-japanese {
+    font-size: clamp(1.1rem, 3.5vmin + 0.5rem, 1.85rem);
+  }
   .word-display {
-    font-size: clamp(1.6rem, 2.8vmin + 1rem, 2.6rem);
+    font-size: clamp(1.8rem, 4vmin + 1rem, 2.5rem);
   }
 
   .picture-container img {
-    max-height: clamp(20vh, 15vmin, 25vh);
-    border-radius: clamp(3px, 1vmin, 4px);
+    max-height: clamp(20vh, 18vmin, 26vh);
+    border-radius: var(--border-radius-sm);
   }
 
   .audio-row {
-    gap: clamp(3px, 1vmin, 4px);
+    gap: 6px;
   }
 
   .small-audio-btn {
-    width: clamp(36px, 10vmin, 40px);
-    height: clamp(36px, 10vmin, 40px);
+    width: 30px;
+    height: 30px;
   }
 
   .small-audio-btn .audio-btn-label {
-    font-size: clamp(0.6rem, 2vmin, 0.7rem);
+    font-size: 0.68rem;
   }
 
   .more-toggle {

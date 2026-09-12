@@ -21,14 +21,6 @@
 <div class="card-wrapper back-card">
   <div class="card-container">
 
-    <!-- Discreet retrieval-condition label: Context / Word / Listening.
-         Set by the front script's window.__ajtFrontState; stays hidden
-         when the state is unknown (lone back preview). Hover explains
-         the two-tier maturity model. Never a large colored badge. -->
-    <div class="retrieval-state" data-state="context" hidden>
-      <span class="retrieval-state-label"></span>
-    </div>
-
     <!-- LEVEL 1: TARGET + READING (one conceptual unit) -->
     {{#furigana}}
       <div class="word-display">{{edit:furigana:furigana}}</div>
@@ -189,32 +181,6 @@
        The stylesheet's .sentence-japanese clamp() is the single source of
        truth. A previous JS length-tier scaler overrode it with an inline
        font-size, which silently defeated any manual CSS edits. */
-
-    /* --- RETRIEVAL-STATE LABEL (discreet Context / Word / Listening) ---
-       Reads the front script's decision. Unknown state (lone back
-       preview, no JS) => label stays hidden — no clutter. */
-    try {
-      var stateEl = document.querySelector('.retrieval-state');
-      var state = window.__ajtFrontState && window.__ajtFrontState.mode;
-      if (stateEl && (state === 'context' || state === 'word' || state === 'listening')) {
-        stateEl.hidden = false;
-        stateEl.dataset.state = state;
-        var labelEl = stateEl.querySelector('.retrieval-state-label');
-        var labels = {
-          context: 'Context',
-          word: 'Word',
-          listening: 'Listening'
-        };
-        var titles = {
-          context: 'This card currently uses the sentence as a retrieval cue. After long-term consolidation, the sentence is removed so the word must be recognized independently.',
-          word: 'This mature card intentionally removes its original context. Retrieve the reading and meaning from the word itself.',
-          listening: 'This card tests listening recognition: play the audio and retrieve the reading and meaning.'
-        };
-        if (labelEl) labelEl.textContent = labels[state];
-        stateEl.setAttribute('title', titles[state]);
-        stateEl.setAttribute('aria-label', 'Retrieval condition: ' + labels[state]);
-      }
-    } catch (e) { /* label stays hidden */ }
 
     /* --- SECONDARY SECTION ("More ▾") ---
        Hidden by default; one-way reveal (a second click never

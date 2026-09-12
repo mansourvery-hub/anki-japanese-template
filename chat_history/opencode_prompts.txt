@@ -2247,3 +2247,7 @@ Key directives from the 34-section brief:
 - Operating rule: "improve the design" != "add features"; when uncertain
   prefer removal, prefer collapsed/hover, prefer reuse. The final card
   should feel like LESS software, not more.
+
+---
+
+Editorial redesign: calm Japanese reading interface, delete retrieval-state UI, elegant typography hierarchy, quiet audio affordances, empty-shell collapse fix

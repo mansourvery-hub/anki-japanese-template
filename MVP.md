@@ -28,10 +28,10 @@ compact informative back, and a one-command sync → export → release loop.
 - Back: typography-driven hierarchy — word+furigana target, quiet pitch
   text, Definition Compactor (CSS §6b), 3-line truncator with one-way
   expand (§6c), context (sentence + picture as core information,
-  responsive grid), native circular audio, discreet retrieval-state
-  label (Context/Word/Listening, hover-explained), secondary
+  responsive grid), native circular audio, secondary
   information collapsed behind `More ▾` (translation, context, kanji
-  notes, notes, full extended definition), source footer.
+  notes, notes, full extended definition), source footer. Content
+  hierarchy communicates card mode directly.
 - Styling: Tokyo Night + Aki Paper themes, fluid clamps, container-query
   context grid with media fallback, zero-reflow furigana + `F`
   full-card furigana mode (back only), Fuji backdrop, reduced-motion

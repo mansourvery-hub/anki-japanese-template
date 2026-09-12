@@ -20,6 +20,7 @@ Requires: google-chrome-stable on PATH. Skipped gracefully if absent
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -60,7 +61,6 @@ __CSS__
 <div class="card back-card">
 <div class="card-wrapper back-card">
   <div class="card-container">
-    <div class="retrieval-state" data-state="context"><span class="retrieval-state-label">Context</span></div>
     <div class="word-display" id="word"><ruby>澄<rt>す</rt></ruby>ます</div>
     <div class="pitch-quiet">[0]</div>
     <div class="definition-box primary-definition" id="def">
@@ -305,6 +305,14 @@ def main():
               back.get("moreCollapsed", False))
         check("desktop back: footer inside the card wrapper",
               back.get("footerInside", False))
+
+    # ---- Back card without picture (single column) ----
+    nopic_html = re.sub(r'<div class="context-picture">[\s\S]*?</div>\s*</div>', '</div>', BACK_CARD)
+    nopic = render(nopic_html.replace("__CSS__", css), 1440, 900)
+    check("desktop back (no picture): probe returned", nopic is not None)
+    if nopic:
+        check("desktop back (no picture): single column (no twoCol)", not nopic.get("twoCol", False))
+        check("desktop back (no picture): no horizontal overflow", not nopic["hOverflow"])
 
     # ---- Mobile back card (A50-ish 412x892) ----
     mob = render(BACK_CARD.replace("__CSS__", css), 412, 892)

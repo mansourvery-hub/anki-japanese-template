@@ -87,8 +87,8 @@ off-screen context to be solvable is a bad mine and should be re-mined.
   compacted primary definition (§6b), context (sentence + picture as
   core information), native circular audio (`文`/`言葉`), secondary
   information collapsed behind `More ▾` (translation, context, kanji
-  notes, notes, full extended definition), source footer, discreet
-  retrieval-state label (Context/Word/Listening, hover-explained).
+  notes, notes, full extended definition), source footer. Content
+  hierarchy communicates the card mode directly without label captions.
 - Mature Word Mode: live interval read at render time (desktop AnkiConnect
   `guiCurrentCard`→`cardsInfo` + `findCards` content-search fallback for the
   Browse previewer; mobile AnkiDroid JS API `ankiGetCardInterval()` only);

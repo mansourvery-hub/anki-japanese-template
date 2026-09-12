@@ -52,9 +52,8 @@ mechanically verified*. Code implements; tests enforce.
   full extended definition) lives inside `.more-section`, collapsed by
   default behind one quiet `More ▾` toggle; the toggle and section
   self-remove when no secondary content exists.
-- The retrieval-state label (`Context` / `Word` / `Listening`) is
-  hidden by default, appears only when `window.__ajtFrontState` is
-  set, is hover-explanatory, and never a large colored badge.
+- Content hierarchy communicates card mode directly: no retrieval-state
+  badges, captions, or dashboard metadata.
 - Keyboard shortcuts on the back: `F` toggles full-card furigana
   (`.furigana-mode`), `T` reveals the translation (opening More first);
   shortcuts never fire in inputs/contentEditable.
@@ -93,8 +92,8 @@ mechanically verified*. Code implements; tests enforce.
   (`tags-probe`, field-presence markers), and the front word probe
   (`display:none` default, word-mode gate only).
 - Unconditionally rendered shells collapse when all conditional children are
-  absent: `.audio-row` via `:has()` guards; `.more-section` +
-  `.more-toggle` self-remove via JS cleanup.
+  absent: `.audio-row`, `.context-grid`, and `.context-main` via `:has()` guards;
+  `.more-section` + `.more-toggle` self-remove via JS cleanup.
 - Degenerate content removes itself instead of leaving chrome behind:
   blank definition/sentence blocks are removed (front runs after the cloze
   fixup, before the reveal); empty secondary blocks inside More are

@@ -49,11 +49,11 @@ The front contains ONLY the thing being tested — the sentence itself is the re
 
 Typography does the work — no dashboard chrome:
 
-1. **Target + reading** — the headword with hover furigana, the largest element; pitch accent as quiet muted text.
+1. **Target + reading** — the headword with hover furigana, the hero element; pitch accent as quiet muted text.
 2. **Primary meaning** — **Definition Compactor** (CSS §6b) trims the Yomitan glossary to the first dictionary, max 2 senses, no appendices; **Definition Truncator** (§6c) caps it at 3 lines with a fade + `▼`, click expands and stays open.
 3. **Context** — the sentence (with hover furigana) plus the picture when present, side by side on wide screens.
 4. **Secondary info** — collapsed behind a quiet `More ▾`: translation (`T`), additional context, kanji notes, general notes, and the **full extended definition** (the compactor never touches it).
-5. A discreet **Context / Word / Listening** label explains the retrieval condition on hover; the source footer identifies the material.
+5. **Source footer** — quietly identifies the material. Content hierarchy communicates the card mode directly without labels.
 
 ---
 
