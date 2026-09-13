@@ -39,45 +39,9 @@
       <span class="cloze-suf">{{cloze-suffix}}</span>
     </div>
 
-    <!-- Behavioral tag probe: #listening marks a deliberate listening
-         exercise and forces the audio-button front. Tags are behavioral
-         metadata, never rendered as decoration. -->
+    <!-- Behavioral tag probe: tags are behavioral metadata, never rendered as decoration. -->
     {{#Tags}}
       <div class="tags-probe" hidden>{{Tags}}</div>
-      {{#Sentence Audio}}
-        <div class="listening-view tag-listening-view" style="display: none;">
-          <div class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                <circle class="ring-bg" cx="40" cy="40" r="36" />
-                <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-              </svg>
-              <span class="audio-btn-content">
-                <span class="audio-btn-label">文</span>
-              </span>
-            </button>
-            <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-          </div>
-        </div>
-      {{/Sentence Audio}}
-      {{^Sentence Audio}}
-        {{#Word Audio}}
-          <div class="listening-view tag-listening-view" style="display: none;">
-            <div class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
-                <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                  <circle class="ring-bg" cx="40" cy="40" r="36" />
-                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                </svg>
-                <span class="audio-btn-content">
-                  <span class="audio-btn-label">言葉</span>
-                </span>
-              </button>
-              <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-            </div>
-          </div>
-        {{/Word Audio}}
-      {{/Sentence Audio}}
     {{/Tags}}
 
     <!-- Standard Study View -->
@@ -294,31 +258,16 @@
       }
 
       /* --- LISTENING RESOLVER ---
-         A card is a listening card if:
-         1. It carries the #listening tag and has Sentence Audio (deliberate exercise), OR
-         2. Classic audio-only card: Definition, Extended definition, and Frequency are absent
-            and Sentence Audio is present.
-         Normal study cards without #listening tag never show audio on front. */
-      const tagsProbe = container.querySelector('.tags-probe');
-      const tagText = tagsProbe ? (tagsProbe.textContent || '') : '';
-      const hasListeningTag = /(^|[\s:#])listening([\s:#]|$)/i.test(tagText);
-      const tagListeningView = container.querySelector('.tag-listening-view');
+         A card is a listening card if the listening-view markup was rendered
+         by Anki template conditionals (which ONLY happens when Definition,
+         Extended definition, and Frequency are all empty, and audio is present).
+         Normal study cards NEVER render the listening view or audio on the front.
+         Listening cards skip mature word mode. */
       const listeningView = container.querySelector('.listening-view');
-      const classicListeningView = listeningView && !listeningView.classList.contains('tag-listening-view') ? listeningView : null;
-
-      let isListening = false;
-      if (hasListeningTag && tagListeningView) {
-        isListening = true;
-        tagListeningView.style.display = '';
+      const isListening = !!listeningView;
+      if (isListening) {
         wrapper.classList.add('listening-mode');
         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
-      } else if (classicListeningView) {
-        isListening = true;
-        wrapper.classList.add('listening-mode');
-        container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
-      }
-      if (!isListening && tagListeningView) {
-        tagListeningView.remove();
       }
 
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured

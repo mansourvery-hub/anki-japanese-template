@@ -413,11 +413,18 @@
           wrapper.classList.toggle('furigana-mode');
         } else if (key === 't') {
           var box = wrapper.querySelector('.translation-box');
-          if (box && !box.classList.contains('revealed')) {
-            var moreBtn = wrapper.querySelector('.more-toggle');
-            if (moreBtn && moreBtn.getAttribute('aria-expanded') !== 'true') window.toggleMore(moreBtn);
+          var moreBtn = wrapper.querySelector('.more-toggle');
+          if (!box) return;
+          var isMoreOpen = moreBtn && moreBtn.getAttribute('aria-expanded') === 'true';
+          var isRevealed = box.classList.contains('revealed');
+
+          if (!isMoreOpen || !isRevealed) {
+            if (moreBtn && !isMoreOpen) window.toggleMore(moreBtn);
             box.classList.add('revealed');
             box.setAttribute('aria-expanded', 'true');
+          } else {
+            box.classList.remove('revealed');
+            box.setAttribute('aria-expanded', 'false');
           }
         } else if (key === 'e') {
           /* E toggles expansion of all secondary info and definitions */
@@ -435,6 +442,10 @@
             });
           } else {
             if (moreBtn) window.toggleMore(moreBtn);
+            wrapper.querySelectorAll('.translation-box').forEach(function(t) {
+              t.classList.remove('revealed');
+              t.setAttribute('aria-expanded', 'false');
+            });
           }
         }
       });

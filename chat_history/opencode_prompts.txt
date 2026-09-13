@@ -2267,3 +2267,7 @@ The screen is still mostly empty, still looks like  shit, bare bones(comapre it 
 ---
 
 re read looks a bit better but still some issue; space does nothing (also it should be another key not space to expand everthing); sentence in the abck text is not centered; placement of entities around expression improved; remove all english from back; 印 referencing; tag handling listening not working; design aesthetic
+
+---
+
+still audio in front in none listening cards; t works out of box but E Eand then T does not work; still screen uderutilized in desktop res; no japanese ispiration; no moden design; Expression big and present; definition one short sentence; back card expression furigana shown by default; picture is small; container width almost all the way

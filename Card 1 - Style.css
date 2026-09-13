@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.7.3 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.7.4 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -67,11 +67,11 @@
   --furigana-headroom: calc(0.55em + 2px);
   
   /* Fonts */
-  --font-japanese-serif: "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", "Noto Serif JP", serif;
+  --font-japanese-serif: "Yu Mincho", "Hiragino Mincho ProN", "YuMincho", "Noto Serif JP", "MS Mincho", serif;
   --font-japanese-sans: "Inter", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
   --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  --max-content-width: 1060px;
+  --max-content-width: 1360px;
 
   /* Decorative: separator motif (seigaiha-inspired wave) */
   --separator-color: rgba(255, 255, 255, 0.05);
@@ -158,16 +158,16 @@
 
 .card-container {
   width: 100%;
-  max-width: min(96vw, var(--max-content-width, 1060px));
+  max-width: min(96vw, var(--max-content-width, 1360px));
   margin: 0 auto;
   padding: var(--container-pad-y) var(--container-pad-x);
   box-sizing: border-box;
 }
 
 .back-card .card-container {
-  background: rgba(21, 27, 40, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(19, 24, 34, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-premium);
@@ -277,12 +277,12 @@
 }
 
 @container anki-card (min-width: 768px) {
-  /* Editorial balance: sentence left, picture right */
+  /* Editorial balance: sentence left/center, picture right */
   .context-grid:has(.context-picture) {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(24px, 4vw, 48px);
+    gap: clamp(24px, 4vw, 56px);
   }
 
   .context-grid:has(.context-picture) .context-main {
@@ -297,7 +297,7 @@
   .context-picture {
     flex: 0 1 auto;
     width: auto;
-    max-width: min(34vw, 360px);
+    max-width: min(42vw, 480px);
   }
 
   .small-audio-btn {
@@ -312,7 +312,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(24px, 4vw, 48px);
+    gap: clamp(24px, 4vw, 56px);
   }
 
   .context-grid:has(.context-picture) .context-main {
@@ -327,7 +327,7 @@
   .context-picture {
     flex: 0 1 auto;
     width: auto;
-    max-width: min(34vw, 360px);
+    max-width: min(42vw, 480px);
   }
 }
 
@@ -424,15 +424,21 @@
    em-based => scales continuously with font size across all screen sizes. */
 .word-display {
   font-family: var(--font-japanese-serif);
-  /* Larger, more confident hero: the target word commands attention */
-  font-size: clamp(2.6rem, 4.5vw + 1rem, 4.6rem);
+  /* Hero target: unmistakably dominant, commanding, and present */
+  font-size: clamp(3.0rem, 5.2vw + 1.2rem, 5.2rem);
   font-weight: 400;
   line-height: 1.15;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
   padding-bottom: clamp(2px, 0.5vh, 6px);
   margin: 0;
   text-align: center;
+}
+
+/* Furigana on Back Card: shown by default on the hero expression */
+.word-display ruby rt {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* Metadata Bar: Frequency Star Visualizer + Pitch Accent + Audio Buttons */
@@ -937,12 +943,12 @@
    context, not as the loudest element (that is the headword). */
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
-  /* Hierarchy: second to the headword, dominant over the definition. */
-  font-size: clamp(1.45rem, 2.2vw + 0.65rem, 2.5rem);
+  /* Supporting context: distinctly smaller than the hero headword */
+  font-size: clamp(1.2rem, 1.5vw + 0.6rem, 1.85rem);
   /* Multi-line clearance: each wrapped line needs room for hover furigana
      above it (rt height + gap), delivered via line-height. Final line is
      covered by --furigana-headroom on top padding below. */
-  line-height: calc(var(--furigana-headroom) + 1.25em);
+  line-height: calc(var(--furigana-headroom) + 1.3em);
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
   margin-bottom: clamp(8px, 1.5vmin, 14px);
   color: var(--text-primary);
