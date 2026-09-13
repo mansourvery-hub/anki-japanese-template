@@ -60,16 +60,26 @@ def load_resolver():
     return m.group(0)
 
 
-# (name, has_audio_card, tags_text, tag_audio)
+# (name, has_audio_card, tags_text)
 CASES = [
-    ("listening card (audio-only, listening-view present)", True),
-    ("normal card (glosses present, no listening-view in DOM)", False),
-    ("word card (no audio on front)", False),
+    ("listening card (audio-only, listening-view present)", True, ""),
+    ("normal card (glosses present, no listening-view in DOM)", False, ""),
+    ("word card (no audio on front)", False, ""),
+    ("deliberate listening (#listening tag with glosses)", False, "listening"),
+    ("non-listening tag (vocab tag with glosses)", False, "vocab n3"),
 ]
 
 
-def build_html(resolver, is_listening_card):
+def build_html(resolver, is_listening_card, tags_text=""):
     sent_html = '<div class="sentence-display">世の中って<b>不公平</b>よね</div>'
+    tags_html = (
+        f'<div class="tags-probe" hidden>{tags_text}</div>'
+        '<div class="listening-view tag-listening-view" style="display: none;">'
+        '<div class="audio-btn-wrapper">'
+        '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
+        '<span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0"></a></span>'
+        '</div></div>'
+    ) if tags_text else ""
     classic_audio = (
         '<div class="listening-view">'
         '<div class="audio-btn-wrapper">'
@@ -82,7 +92,7 @@ def build_html(resolver, is_listening_card):
 <style>.front-word-display{{display:none}}</style></head><body>
 <div class="card"><div class="card-wrapper"><div class="card-container">
 <div class="front-word-display">不公平</div>
-{sent_html}{classic_audio}
+{tags_html}{sent_html}{classic_audio}
 </div></div></div>
 <script>
 var report = {{}};
@@ -132,8 +142,8 @@ def main():
         return 0
     resolver = load_resolver()
 
-    for name, is_listening in CASES:
-        r = render(build_html(resolver, is_listening))
+    for name, is_listening, tags_text in CASES:
+        r = render(build_html(resolver, is_listening, tags_text))
         check(f"{name}: probe returned", r is not None)
         if not r:
             continue
@@ -142,7 +152,8 @@ def main():
             continue
         check(f"{name}: resolver ran without errors", True)
 
-        if is_listening:
+        expected_listening = is_listening or ("listening" in tags_text)
+        if expected_listening:
             check(f"{name}: listening front active (view visible, sentence removed)",
                   r["listening"] is True and r["viewVisible"] and r["sentences"] == 0,
                   json.dumps(r))

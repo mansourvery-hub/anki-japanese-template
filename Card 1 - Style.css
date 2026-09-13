@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.7.4 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.7.5 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -55,12 +55,12 @@
   --border-radius-sm: 6px;
 
   /* Spacing Tokens - Fluid viewport-based */
-  --gap-section: clamp(16px, 2.6vh, 28px);
-  --gap-block: clamp(8px, 1.4vmin, 14px);
+  --gap-section: clamp(12px, 1.8vh, 20px);
+  --gap-block: clamp(6px, 1.2vmin, 12px);
   --block-pad-y: clamp(2px, 0.4vmin, 6px);
   --block-pad-x: clamp(10px, 1.8vmin, 18px);
-  --container-pad-y: clamp(18px, 3.2vh, 40px);
-  --container-pad-x: clamp(16px, 3vw, 40px);
+  --container-pad-y: clamp(12px, 2vh, 24px);
+  --container-pad-x: clamp(16px, 2.5vw, 36px);
 
   /* Furigana clearance: rt height (0.55em of parent font) + 2px hover gap.
      em-based so it scales with font size across viewports. */
@@ -171,8 +171,8 @@
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-premium);
-  margin-top: clamp(6px, 1.2vh, 16px);
-  margin-bottom: clamp(6px, 1.2vh, 16px);
+  margin-top: clamp(4px, 0.8vh, 10px);
+  margin-bottom: clamp(4px, 0.8vh, 10px);
 }
 
 .card:not(.nightMode):not(.night_mode) .back-card .card-container {
@@ -195,8 +195,8 @@
   color: var(--text-muted);
   background: var(--accent-light);
   border: 1px solid var(--card-border);
-  padding: 7px 18px;
-  margin: clamp(14px, 2vh, 24px) auto 4px auto;
+  padding: 6px 16px;
+  margin: clamp(8px, 1.4vh, 16px) auto 4px auto;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -282,11 +282,12 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(24px, 4vw, 56px);
+    gap: clamp(24px, 3.5vw, 48px);
   }
 
   .context-grid:has(.context-picture) .context-main {
-    flex: 1 1 auto;
+    flex: 1 1 54%;
+    min-width: 0;
     text-align: center;
   }
 
@@ -295,9 +296,9 @@
   }
 
   .context-picture {
-    flex: 0 1 auto;
+    flex: 0 1 46%;
     width: auto;
-    max-width: min(42vw, 480px);
+    max-width: min(45vw, 560px);
   }
 
   .small-audio-btn {
@@ -312,11 +313,12 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(24px, 4vw, 56px);
+    gap: clamp(24px, 3.5vw, 48px);
   }
 
   .context-grid:has(.context-picture) .context-main {
-    flex: 1 1 auto;
+    flex: 1 1 54%;
+    min-width: 0;
     text-align: center;
   }
 
@@ -325,9 +327,9 @@
   }
 
   .context-picture {
-    flex: 0 1 auto;
+    flex: 0 1 46%;
     width: auto;
-    max-width: min(42vw, 480px);
+    max-width: min(45vw, 560px);
   }
 }
 
@@ -572,7 +574,7 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  margin: clamp(10px, 1.5vh, 18px) auto;
+  margin: clamp(6px, 1vh, 12px) auto;
   width: 100%;
   max-width: 280px;
   height: 12px;
@@ -1102,7 +1104,7 @@ ruby:focus-within rt {
   display: block;
   margin-inline: auto;
   max-width: 100%;
-  max-height: 38vh;
+  max-height: 39vh;
   height: auto;
   object-fit: contain;
   border-radius: var(--border-radius-md);
@@ -1189,7 +1191,7 @@ ruby:focus-within rt {
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin: clamp(14px, 2vh, 24px) auto 4px auto;
+  margin: clamp(8px, 1.2vh, 16px) auto 4px auto;
   padding: 6px 12px;
   opacity: 0.65;
   transition: opacity 0.2s ease;
@@ -1337,7 +1339,7 @@ ruby:focus-within rt {
   }
 
   .picture-container img {
-    max-height: clamp(20vh, 18vmin, 26vh);
+    max-height: clamp(24vh, 22vmin, 32vh);
     border-radius: var(--border-radius-sm);
   }
 

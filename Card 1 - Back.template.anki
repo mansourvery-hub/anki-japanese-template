@@ -188,10 +188,10 @@
 
     <!-- SHORTCUT / FEATURE DISCOVERABILITY BAR -->
     <div class="shortcut-hints" aria-label="ショートカット">
-      <span class="shortcut-item"><kbd>F</kbd> 振仮名</span>
-      <span class="shortcut-item"><kbd>T</kbd> 訳</span>
+      <span class="shortcut-item"><kbd>Z</kbd> 振仮名</span>
+      <span class="shortcut-item"><kbd>X</kbd> 訳</span>
+      <span class="shortcut-item"><kbd>C</kbd> 展開</span>
       <span class="shortcut-item"><kbd>R</kbd> 音声</span>
-      <span class="shortcut-item"><kbd>E</kbd> 展開</span>
     </div>
 
     <!-- Source footer (secondary; stays outside More as a one-line
@@ -409,9 +409,13 @@
         var tag = (e.target && e.target.tagName) || '';
         if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) return;
         var key = (e.key || '').toLowerCase();
-        if (key === 'f') {
+        if (key === 'z' || key === 'f') {
+          e.preventDefault();
+          e.stopPropagation();
           wrapper.classList.toggle('furigana-mode');
-        } else if (key === 't') {
+        } else if (key === 'x' || key === 't') {
+          e.preventDefault();
+          e.stopPropagation();
           var box = wrapper.querySelector('.translation-box');
           var moreBtn = wrapper.querySelector('.more-toggle');
           if (!box) return;
@@ -426,8 +430,10 @@
             box.classList.remove('revealed');
             box.setAttribute('aria-expanded', 'false');
           }
-        } else if (key === 'e') {
-          /* E toggles expansion of all secondary info and definitions */
+        } else if (key === 'c') {
+          e.preventDefault();
+          e.stopPropagation();
+          /* C toggles expansion of all secondary info and definitions */
           var moreBtn = wrapper.querySelector('.more-toggle');
           var isCurrentlyOpen = moreBtn && moreBtn.getAttribute('aria-expanded') === 'true';
 
