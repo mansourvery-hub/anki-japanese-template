@@ -159,18 +159,18 @@ def main():
     check("CSS: container-query media fallback for the context grid",
           re.search(r"@media \(min-width: 768px\)[\s\S]{0,200}\.context-grid", css) is not None)
 
-    # --- 6b. Minimal redesign: noise is gone, hierarchy is present ---
+    # --- 6b. Redesign: hierarchy with frequency visualizer ---
     check("Back: no sticky tags bar (tags are behavioral metadata)",
           "tags-container" not in back and "tags-list" not in back
           and "tag-pill" not in back)
-    check("Back: no frequency badge machinery (noise without retrieval value)",
-          "frequency-badge" not in back and "renderFrequencyIndicator" not in back)
-    check("CSS: no frequency badge styling remains",
-          "frequency-badge" not in css and "--freq-" not in css)
+    check("Back: frequency visualizer present",
+          "frequency-badge" in back and "renderFrequencyIndicator" in back)
+    check("CSS: frequency badge styling present",
+          "frequency-badge" in css and "--freq-" in css)
     check("Back: secondary info is collapsed behind More by default",
           'class="more-section" hidden' in back
           and "more-toggle" in back)
-    check("Back: More toggle has aria state + one-way reveal",
+    check("Back: More toggle has aria state + toggle behavior",
           'aria-expanded="false"' in back
           and "toggleMore" in back)
     check("Back: no retrieval-state label UI (content hierarchy replaces captions)",

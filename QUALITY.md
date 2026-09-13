@@ -44,13 +44,11 @@ mechanically verified*. Code implements; tests enforce.
 
 ## Back invariants
 
-- Back hierarchy is typography-driven: word-display (largest) → pitch
-  quiet text → definition → sentence context → secondary collapsed.
-  No sticky tags bar, no frequency/pitch badges, no oversized controls.
+- Back hierarchy is typography-driven: word-display (largest, with Japanese seal) → metadata bar (5-star frequency visualizer & pitch accent & audio) → primary meaning → context → secondary collapsed behind More. Features discoverable via shortcut hints.
 - Secondary information (translation, context, kanji notes, notes,
-  full extended definition) lives inside `.more-section`, collapsed by
-  default behind one quiet `More ▾` toggle; the toggle and section
-  self-remove when no secondary content exists.
+  full extended definition) lives inside `.more-section`, toggleable via
+  `More ▾` / `Less ▴`; the toggle and section self-remove when no secondary
+  content exists.
 - Content hierarchy communicates card mode directly: no retrieval-state
   badges, captions, or dashboard metadata.
 - Keyboard shortcuts on the back: `F` toggles full-card furigana
@@ -82,7 +80,7 @@ mechanically verified*. Code implements; tests enforce.
   listening-view is inert until `.listening-mode` activates it.
 - `:focus-visible` indicators and `prefers-reduced-motion` present.
 - Accent color is reserved for target highlighting and interactive
-  states; no per-content-type semantic color palette (no `--freq-*`).
+  states; frequency indicator uses semantic tier colors (--freq-*).
 
 ## Empty-field collapse (space discipline)
 

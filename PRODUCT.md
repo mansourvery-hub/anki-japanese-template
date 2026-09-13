@@ -83,12 +83,12 @@ off-screen context to be solvable is a bad mine and should be re-mined.
   cloze trio rebuild when Sentence lacks `<b>`; mature interval-gated word-only
   front. Normal cards NEVER render or play audio on the front. The sentence
   front is the universal fallback for every failure path.
-- Back hierarchy: word/furigana target (largest), quiet pitch text,
-  compacted primary definition (§6b), context (sentence + picture as
-  core information), native circular audio (`文`/`言葉`), secondary
-  information collapsed behind `More ▾` (translation, context, kanji
-  notes, notes, full extended definition), source footer. Content
-  hierarchy communicates the card mode directly without label captions.
+- Back hierarchy: word/furigana target with Japanese seal, 5-star frequency
+  visualizer and pitch accent, compacted primary definition (§6b), context
+  (sentence + picture as core information), native circular audio (`文`/`言葉`),
+  secondary information toggleable behind `More ▾` / `Less ▴` (translation,
+  context, kanji notes, notes, full extended definition), keyboard shortcuts
+  hints, source footer. Content hierarchy communicates card structure directly.
 - Mature Word Mode: live interval read at render time (desktop AnkiConnect
   `guiCurrentCard`→`cardsInfo` + `findCards` content-search fallback for the
   Browse previewer; mobile AnkiDroid JS API `ankiGetCardInterval()` only);

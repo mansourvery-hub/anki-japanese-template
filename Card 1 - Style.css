@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.7.0 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.7.1 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -36,6 +36,13 @@
   --accent-soft: rgba(94, 174, 247, 0.18);
   --accent-glow: 0 0 20px rgba(94, 174, 247, 0.25);
 
+  /* Frequency Tier Colors */
+  --freq-very-common: #10b981;
+  --freq-common: #22c55e;
+  --freq-medium: #eab308;
+  --freq-uncommon: #f97316;
+  --freq-rare: #ef4444;
+
   /* Warm accent: subtle seasonal warmth for decorative elements */
   --warm-accent: rgba(255, 183, 120, 0.06);
   --warm-accent-border: rgba(255, 183, 120, 0.08);
@@ -64,7 +71,7 @@
   --font-japanese-sans: "Inter", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
   --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  --max-content-width: 960px;
+  --max-content-width: 1060px;
 
   /* Decorative: separator motif (seigaiha-inspired wave) */
   --separator-color: rgba(255, 255, 255, 0.05);
@@ -85,6 +92,12 @@
   --accent-light: rgba(194, 113, 10, 0.07);
   --accent-soft: rgba(194, 113, 10, 0.14);
   --accent-glow: 0 0 20px rgba(194, 113, 10, 0.18);
+
+  --freq-very-common: #059669;
+  --freq-common: #16a34a;
+  --freq-medium: #ca8a04;
+  --freq-uncommon: #ea580c;
+  --freq-rare: #dc2626;
 
   --warm-accent: rgba(194, 113, 10, 0.04);
   --warm-accent-border: rgba(194, 113, 10, 0.08);
@@ -145,10 +158,27 @@
 
 .card-container {
   width: 100%;
-  max-width: min(94vw, var(--max-content-width, 920px));
+  max-width: min(96vw, var(--max-content-width, 1060px));
   margin: 0 auto;
   padding: var(--container-pad-y) var(--container-pad-x);
   box-sizing: border-box;
+}
+
+.back-card .card-container {
+  background: rgba(21, 27, 40, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-premium);
+  margin-top: clamp(6px, 1.2vh, 16px);
+  margin-bottom: clamp(6px, 1.2vh, 16px);
+}
+
+.card:not(.nightMode):not(.night_mode) .back-card .card-container {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
 }
 
 
@@ -385,7 +415,35 @@
     ============================================================================== */
 /* Target + reading form ONE conceptual unit, centered, the hero element.
    The word display now occupies more visual space with generous sizing
-   and a subtle warm glow backdrop. Pitch stays as quiet muted text below. */
+   and a subtle warm glow backdrop. */
+
+.hero-word-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+}
+
+.hanko-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid #d14343;
+  border-radius: 4px;
+  color: #d14343;
+  font-family: var(--font-japanese-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  opacity: 0.85;
+  transform: rotate(-6deg);
+  box-shadow: inset 0 0 4px rgba(209, 67, 67, 0.25), 0 2px 8px rgba(209, 67, 67, 0.2);
+  user-select: none;
+  flex-shrink: 0;
+}
 
 /* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.
    Fields that use {{furigana:...}} get exactly that clearance as top padding
@@ -400,17 +458,119 @@
   letter-spacing: 0.03em;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
   padding-bottom: clamp(4px, 0.8vh, 10px);
-  margin: 0 auto;
+  margin: 0;
   text-align: center;
 }
 
-/* Pitch accent: quiet muted supplement to the reading, never a badge. */
+/* Metadata Bar: Frequency Star Visualizer + Pitch Accent + Audio Buttons */
+.word-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 4px auto 8px auto;
+}
+
+.word-meta-bar:not(:has(.frequency-badge, .pitch-quiet, .circular-audio-btn)) {
+  display: none;
+}
+
+/* Frequency badge: 5-star scale & progress track */
+.frequency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  background-color: var(--accent-light);
+  border: 1px solid var(--accent-soft);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  line-height: 1;
+  cursor: default;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.frequency-bar-track {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.card:not(.nightMode):not(.night_mode) .frequency-bar-track {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.frequency-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.frequency-stars {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* Frequency Tier Theming */
+.frequency-badge.freq-very-common {
+  color: var(--freq-very-common);
+  border-color: rgba(16, 185, 129, 0.3);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+.frequency-badge.freq-very-common .frequency-bar-fill {
+  background-color: var(--freq-very-common);
+}
+
+.frequency-badge.freq-common {
+  color: var(--freq-common);
+  border-color: rgba(34, 197, 94, 0.3);
+  background-color: rgba(34, 197, 94, 0.1);
+}
+.frequency-badge.freq-common .frequency-bar-fill {
+  background-color: var(--freq-common);
+}
+
+.frequency-badge.freq-medium {
+  color: var(--freq-medium);
+  border-color: rgba(234, 179, 8, 0.3);
+  background-color: rgba(234, 179, 8, 0.1);
+}
+.frequency-badge.freq-medium .frequency-bar-fill {
+  background-color: var(--freq-medium);
+}
+
+.frequency-badge.freq-uncommon {
+  color: var(--freq-uncommon);
+  border-color: rgba(249, 115, 22, 0.3);
+  background-color: rgba(249, 115, 22, 0.1);
+}
+.frequency-badge.freq-uncommon .frequency-bar-fill {
+  background-color: var(--freq-uncommon);
+}
+
+.frequency-badge.freq-rare {
+  color: var(--freq-rare);
+  border-color: rgba(239, 68, 68, 0.3);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+.frequency-badge.freq-rare .frequency-bar-fill {
+  background-color: var(--freq-rare);
+}
+
+/* Pitch accent: quiet muted supplement to the reading */
 .pitch-quiet {
   font-size: clamp(0.88rem, 0.6vw + 0.72rem, 1.08rem);
   color: var(--text-muted);
   line-height: 1.4;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin: 0;
   text-align: center;
 }
 
@@ -500,14 +660,46 @@
   display: none;
 }
 
+.meaning-section {
+  width: 100%;
+  max-width: 68ch;
+  margin: 0 auto;
+}
+
+.meaning-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: clamp(8px, 1.4vh, 16px);
+  margin-bottom: -6px;
+}
+
+.jp-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--accent-light);
+  color: var(--accent-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-japanese-serif);
+  line-height: 1.3;
+}
+
 .definition-box {
   /* Editorial typography: no harsh dividing lines, optimal reading measure */
   font-family: var(--font-interface);
   font-size: clamp(1.04rem, 0.45vw + 0.84rem, 1.38rem);
   line-height: calc(var(--furigana-headroom) + 1em + 0.15em);
   color: var(--text-primary);
-  max-width: 62ch;
-  margin: clamp(12px, 1.8vh, 22px) auto 0 auto;
+  max-width: 68ch;
+  margin: clamp(10px, 1.5vh, 18px) auto 0 auto;
   padding-top: var(--furigana-headroom);
   width: 100%;
   text-align: center;
@@ -1017,10 +1209,70 @@ ruby:focus-within rt {
 
 
 /* ==============================================================================
-   11. FOOTER
+   11. FOOTER & SHORTCUT HINTS
    ============================================================================== */
-/* The full Yomitan definition (.extended-full inside the More section)
-   and secondary blocks are plain quiet text — no cards-within-cards. */
+.extended-def-wrapper {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--card-border);
+}
+
+.extended-def-header {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.shortcut-hints {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: clamp(14px, 2vh, 24px) auto 4px auto;
+  padding: 6px 12px;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+  user-select: none;
+}
+
+.shortcut-hints:hover {
+  opacity: 0.95;
+}
+
+.shortcut-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.shortcut-item kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-family: var(--font-interface);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+  background-color: var(--card-bg-elevated);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.card:not(.nightMode):not(.night_mode) .shortcut-item kbd {
+  background-color: #f0ede6;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
 
 .source-footer {
   text-align: center;
@@ -1090,6 +1342,12 @@ ruby:focus-within rt {
     narrow screen.
     ============================================================================== */
 @media (max-width: 600px) {
+  .back-card .card-container {
+    margin: 0 auto;
+    padding: 8px 6px;
+    border-radius: var(--border-radius-md);
+  }
+
   .sentence-display,
   .front-word-display {
     font-size: clamp(1.1rem, 3.8vmin + 0.5rem, 1.85rem);
@@ -1100,6 +1358,32 @@ ruby:focus-within rt {
   }
   .word-display {
     font-size: clamp(1.9rem, 4.5vmin + 1rem, 2.7rem);
+  }
+
+  .hanko-seal {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .word-meta-bar {
+    gap: 8px;
+    margin-top: 2px;
+    margin-bottom: 4px;
+  }
+
+  .frequency-badge {
+    padding: 2px 7px;
+    font-size: 0.74rem;
+    gap: 4px;
+  }
+
+  .frequency-bar-track {
+    width: 24px;
+  }
+
+  .frequency-stars {
+    font-size: 0.62rem;
   }
 
   .picture-container img {
@@ -1120,17 +1404,34 @@ ruby:focus-within rt {
     font-size: 0.66rem;
   }
 
+  .meaning-header {
+    margin-top: 4px;
+    margin-bottom: -4px;
+  }
+
   .more-toggle {
     font-size: 0.72rem;
-    padding: 6px 14px;
+    padding: 5px 12px;
+    margin-top: 8px;
   }
 
   .card-separator {
-    max-width: 200px;
+    max-width: 180px;
+    margin: 6px auto;
   }
 
   .secondary-block {
     padding: 6px 10px;
+  }
+
+  .shortcut-hints {
+    gap: 6px;
+    margin: 6px auto 2px auto;
+    padding: 2px 6px;
+  }
+
+  .shortcut-item {
+    font-size: 0.65rem;
   }
 }
 

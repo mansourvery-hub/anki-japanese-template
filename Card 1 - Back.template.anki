@@ -21,69 +21,82 @@
 <div class="card-wrapper back-card">
   <div class="card-container">
 
-    <!-- LEVEL 1: TARGET + READING (one conceptual unit) -->
-    {{#furigana}}
-      <div class="word-display">{{edit:furigana:furigana}}</div>
-    {{/furigana}}
-    {{^furigana}}
-      {{#Expression}}
-        <div class="word-display">{{edit:furigana:Expression}}</div>
-      {{/Expression}}
-    {{/furigana}}
+    <!-- LEVEL 1: TARGET + READING (Hero with Japanese Seal) -->
+    <div class="hero-word-wrap">
+      <div class="hanko-seal" title="Target Word" aria-hidden="true">印</div>
+      {{#furigana}}
+        <div class="word-display">{{edit:furigana:furigana}}</div>
+      {{/furigana}}
+      {{^furigana}}
+        {{#Expression}}
+          <div class="word-display">{{edit:furigana:Expression}}</div>
+        {{/Expression}}
+      {{/furigana}}
+    </div>
 
-    <!-- Reading detail: pitch accent as quiet muted text (never a
-         colored badge — it supplements the reading, it is not UI). -->
-    {{#Pitch Accent}}
-      <div class="pitch-quiet">{{edit:Pitch Accent}}</div>
-    {{/Pitch Accent}}
+    <!-- METADATA BAR: Frequency 5-Star Visualizer + Pitch Accent + Audio Affordances -->
+    <div class="word-meta-bar">
+      {{#Frequency}}
+        <div class="frequency-badge" data-freq="{{text:Frequency}}">
+          <div class="frequency-bar-track">
+            <div class="frequency-bar-fill"></div>
+          </div>
+          <span class="frequency-stars"></span>
+        </div>
+      {{/Frequency}}
+
+      {{#Pitch Accent}}
+        <div class="pitch-quiet">{{edit:Pitch Accent}}</div>
+      {{/Pitch Accent}}
+
+      <div class="audio-row">
+        {{#Word Audio}}
+          <span class="audio-btn-wrapper">
+            <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
+              <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                <circle class="ring-bg" cx="22" cy="22" r="19" />
+                <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+              </svg>
+              <span class="audio-btn-content">
+                <span class="audio-btn-label">言葉</span>
+              </span>
+            </button>
+            <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
+          </span>
+        {{/Word Audio}}
+
+        {{#Sentence Audio}}
+          <span class="audio-btn-wrapper">
+            <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
+              <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                <circle class="ring-bg" cx="22" cy="22" r="19" />
+                <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+              </svg>
+              <span class="audio-btn-content">
+                <span class="audio-btn-label">文</span>
+              </span>
+            </button>
+            <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
+          </span>
+        {{/Sentence Audio}}
+      </div>
+    </div>
 
     <!-- LEVEL 2: PRIMARY MEANING (compact: see Definition Compactor §6b) -->
-    {{#Definition}}
-      <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="expandDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
-        {{edit:furigana:Definition}}
-      </div>
-    {{/Definition}}
-    {{^Definition}}
-      {{#Extended definition}}
+    <div class="meaning-section">
+      <div class="meaning-header" aria-hidden="true"><span class="jp-tag">意味</span> Primary Meaning</div>
+      {{#Definition}}
         <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="expandDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
-          {{Extended definition}}
+          {{edit:furigana:Definition}}
         </div>
-      {{/Extended definition}}
-    {{/Definition}}
-
-    <!-- Native-delegating replay buttons (preserved subsystem): 文/言葉
-         click Anki's own replay link — never HTML5 audio. Kept small
-         and quiet; Anki's R shortcut remains the primary path. -->
-    <div class="audio-row">
-      {{#Word Audio}}
-        <span class="audio-btn-wrapper">
-          <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
-            <svg class="audio-progress-ring" viewBox="0 0 44 44">
-              <circle class="ring-bg" cx="22" cy="22" r="19" />
-              <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-            </svg>
-            <span class="audio-btn-content">
-              <span class="audio-btn-label">言葉</span>
-            </span>
-          </button>
-          <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-        </span>
-      {{/Word Audio}}
-
-      {{#Sentence Audio}}
-        <span class="audio-btn-wrapper">
-          <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
-            <svg class="audio-progress-ring" viewBox="0 0 44 44">
-              <circle class="ring-bg" cx="22" cy="22" r="19" />
-              <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-            </svg>
-            <span class="audio-btn-content">
-              <span class="audio-btn-label">文</span>
-            </span>
-          </button>
-          <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-        </span>
-      {{/Sentence Audio}}
+      {{/Definition}}
+      {{^Definition}}
+        {{#Extended definition}}
+          <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="expandDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
+            {{Extended definition}}
+          </div>
+        {{/Extended definition}}
+      {{/Definition}}
     </div>
 
     <!-- Decorative separator: seigaiha-inspired arc motif between
@@ -132,7 +145,7 @@
                aria-expanded="false"
                 onclick="if(event.target.closest('.translation-text')) return; this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
-            <div class="translation-hint">Translation</div>
+            <div class="translation-hint"><span class="jp-tag">訳</span> Translation</div>
             <div class="translation-text">{{edit:Translation}}</div>
           </div>
         {{/Translation}}
@@ -159,16 +172,26 @@
       <!-- Full Yomitan definition (only when the compact one exists too) -->
       {{#Definition}}
         {{#Extended definition}}
-          <div class="html-content secondary-block extended-full">{{Extended definition}}</div>
+          <div class="extended-def-wrapper">
+            <div class="extended-def-header"><span class="jp-tag">詳細</span> Extended Dictionaries</div>
+            <div class="html-content secondary-block extended-full">{{Extended definition}}</div>
+          </div>
         {{/Extended definition}}
       {{/Definition}}
     </div>
 
-    <!-- The quiet "More ▾" toggle: rendered only when secondary content
-         exists (JS removes it otherwise, so no dead chrome). -->
+    <!-- Two-way "More ▾" / "Less ▴" toggle -->
     <button type="button" class="more-toggle" aria-expanded="false" onclick="toggleMore(this)">
-      More <span class="more-caret">▾</span>
+      <span class="more-text">More</span> <span class="more-caret">▾</span>
     </button>
+
+    <!-- SHORTCUT / FEATURE DISCOVERABILITY BAR -->
+    <div class="shortcut-hints" aria-label="Card Shortcuts">
+      <span class="shortcut-item"><kbd>F</kbd> Furigana</span>
+      <span class="shortcut-item"><kbd>T</kbd> Translation</span>
+      <span class="shortcut-item"><kbd>R</kbd> Audio</span>
+      <span class="shortcut-item"><kbd>Space</kbd> Expand</span>
+    </div>
 
     <!-- Source footer (secondary; stays outside More as a one-line
          quiet caption — it identifies the material, not a UI panel) -->
@@ -179,27 +202,79 @@
   </div> <!-- End card-container -->
 </div>
 
-<!-- Lightbox, Audio & Secondary-Section Scripts -->
+<!-- Lightbox, Audio, Frequency & Secondary-Section Scripts -->
 <script>
   (function() {
-    /* NOTE: sentence font sizing is pure CSS.
-       The stylesheet's .sentence-japanese clamp() is the single source of
-       truth. A previous JS length-tier scaler overrode it with an inline
-       font-size, which silently defeated any manual CSS edits. */
-
-    /* --- SECONDARY SECTION ("More ▾") ---
-       Hidden by default; one-way reveal (a second click never
-       re-collapses — same philosophy as the definition truncator).
-       toggleMore also runs the state cleanup: if no secondary content
-       exists, remove the button so no dead chrome survives. */
+    /* --- SECONDARY SECTION ("More ▾" / "Less ▴" Two-way Toggle) --- */
     window.toggleMore = function(btn) {
       var section = document.querySelector('.more-section');
-      if (!section || btn.getAttribute('aria-expanded') === 'true') return;
-      section.hidden = false;
-      btn.setAttribute('aria-expanded', 'true');
-      btn.classList.add('is-open');
-      var caret = btn.querySelector('.more-caret');
-      if (caret) caret.textContent = '▾';
+      if (!section) return;
+      var isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      section.hidden = isExpanded;
+      btn.setAttribute('aria-expanded', String(!isExpanded));
+      btn.classList.toggle('is-open', !isExpanded);
+      var textSpan = btn.querySelector('.more-text');
+      if (textSpan) {
+        textSpan.textContent = !isExpanded ? 'Less' : 'More';
+      }
+    };
+
+    /* --- FREQUENCY VISUALIZER (5-Star Scale + Tier Theming) --- */
+    window.renderFrequencyIndicator = function() {
+      const badges = document.querySelectorAll('.frequency-badge[data-freq]');
+      badges.forEach(badge => {
+        const raw = badge.getAttribute('data-freq') || '';
+        const match = raw.replace(/,/g, '').match(/\d+(?:\.\d+)?/);
+        if (!match) return;
+
+        const val = parseFloat(match[0]);
+        if (isNaN(val) || val <= 0) return;
+
+        // Japanese Frequency Tiers (Top 500 / 2.5k / 7k / 18k / Rare)
+        let stars = 1;
+        let tierClass = 'freq-rare';
+        let tierLabel = 'Rare';
+        let fillPercent = 15;
+
+        if (val <= 500) {
+          stars = 5;
+          tierClass = 'freq-very-common';
+          tierLabel = 'Very Common (Top 500)';
+          fillPercent = 95;
+        } else if (val <= 2500) {
+          stars = 4;
+          tierClass = 'freq-common';
+          tierLabel = 'Common (Top 2.5k)';
+          fillPercent = 75;
+        } else if (val <= 7000) {
+          stars = 3;
+          tierClass = 'freq-medium';
+          tierLabel = 'Intermediate (Top 7k)';
+          fillPercent = 55;
+        } else if (val <= 18000) {
+          stars = 2;
+          tierClass = 'freq-uncommon';
+          tierLabel = 'Advanced (Top 18k)';
+          fillPercent = 35;
+        } else {
+          stars = 1;
+          tierClass = 'freq-rare';
+          tierLabel = 'Rare (18k+)';
+          fillPercent = 15;
+        }
+
+        badge.classList.add(tierClass);
+        badge.setAttribute('title', 'Frequency: ' + raw.trim() + ' • ' + tierLabel);
+        badge.setAttribute('aria-label', 'Frequency: ' + tierLabel);
+
+        const fill = badge.querySelector('.frequency-bar-fill');
+        if (fill) fill.style.width = fillPercent + '%';
+
+        const starContainer = badge.querySelector('.frequency-stars');
+        if (starContainer) {
+          starContainer.textContent = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+        }
+      });
     };
 
     /* --- LIGHTBOX CONTROLLER (click to expand / click outside to close) --- */
@@ -231,21 +306,13 @@
         if (e.key === 'Escape') closeOverlay();
       };
 
-      /* Only a click on the backdrop itself (outside the image) closes —
-         clicks on the enlarged image stop here and never bubble up. */
       overlay.onclick = (e) => {
         if (e.target === overlay) closeOverlay();
       };
       document.addEventListener('keydown', handleKey);
     };
 
-    /* --- CIRCULAR AUDIO CONTROLLER (native-only) ---
-       Always delegates to Anki's own replay link (desktop `replay-button`,
-       AnkiDroid `replaybutton`). Never constructs an HTML5 audio element:
-       on AnkiDroid the rendered link carries no usable filename. The ring
-       is a decorative play-pulse, not true progress. Retained for the
-       front listening view and any future audio surfaces; the back card
-       itself relies on Anki's native replay (R). */
+    /* --- CIRCULAR AUDIO CONTROLLER (native-only) --- */
     window.currentActiveBtn = window.currentActiveBtn || null;
     window.currentActiveTimer = window.currentActiveTimer || null;
 
@@ -267,16 +334,10 @@
     };
 
     window.playCircularAudio = function(btn) {
-        /* Debounce: native playback can't be stopped programmatically, so
-           ignore rapid re-taps on the already-playing button (prevents
-           overlapping audio on AnkiDroid). */
         if (window.currentActiveBtn === btn) return;
         window.resetAudioState();
         const ringFill = btn.querySelector('.ring-fill');
 
-        /* The replay link lives in the sibling .raw-audio-source (kept OUT
-           of the <button>: <a> inside <button> is invalid HTML that Android
-           WebView mishandles). */
         const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
         const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
           || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
@@ -296,11 +357,7 @@
         }
     };
 
-    /* --- DEFINITION TRUNCATOR (3-line cap + click to expand, stays open) ---
-       .is-truncated is set only when content truly overflows the 3-line
-       cap, so short glosses never show a misleading fade/chevron. Expand
-       is one-way: once open it never re-collapses (a second click is a
-       no-op). Idempotent: safe under Anki WebView DOM re-use. */
+    /* --- DEFINITION TRUNCATOR (3-line cap + click to expand, stays open) --- */
     window.expandDefinition = function(element) {
       if (element.classList.contains('is-expanded')) return;
       element.classList.add('is-expanded');
@@ -317,9 +374,6 @@
     window.initDefinitionTruncation = function(root) {
       const scope = root || document;
       scope.querySelectorAll('.primary-definition').forEach(function(box) {
-        /* Empty-field collapse (QUALITY.md): a definition section that
-           survived its conditional with only whitespace leaves no bordered
-           void — remove it. */
         if (!box.textContent || !box.textContent.trim()) { box.remove(); return; }
         box.classList.remove('is-expanded');
         box.setAttribute('aria-expanded', 'false');
@@ -328,12 +382,7 @@
       });
     };
 
-    /* --- SECONDARY SECTION CLEANUP + KEYBOARD SHORTCUTS ---
-       Empty-field collapse: remove the More toggle when no secondary
-       content exists; strip empty secondary blocks themselves.
-       Keyboard (back only): F toggles full-card furigana, T reveals
-       the translation (opening More first when needed). Shortcuts are
-       scoped to this card wrapper and never intercept typing fields. */
+    /* --- SECONDARY SECTION CLEANUP + KEYBOARD SHORTCUTS --- */
     window.initSecondarySection = function() {
       try {
         var section = document.querySelector('.more-section');
@@ -373,16 +422,23 @@
       });
     };
 
+    window.renderFrequencyIndicator();
     window.initDefinitionTruncation();
     window.initSecondarySection();
     window.initCardShortcuts();
-    /* Late fonts can reflow line breaks: re-check once loading settles. */
+
     try {
       if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(function() { window.initDefinitionTruncation(); });
+        document.fonts.ready.then(function() {
+          window.renderFrequencyIndicator();
+          window.initDefinitionTruncation();
+        });
       } else {
-        window.addEventListener('load', function() { window.initDefinitionTruncation(); });
+        window.addEventListener('load', function() {
+          window.renderFrequencyIndicator();
+          window.initDefinitionTruncation();
+        });
       }
-    } catch (e) { /* measure-once fallback above already ran */ }
+    } catch (e) { /* measure-once fallback */ }
   })();
 </script>
