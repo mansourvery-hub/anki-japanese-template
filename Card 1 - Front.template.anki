@@ -53,7 +53,7 @@
               <span class="audio-btn-label">文</span>
             </span>
           </button>
-          <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0"></a></span>
+          <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="#" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0')}return false"></a></span>
         </div>
       </div>
     {{/Tags}}
@@ -105,7 +105,7 @@
         {{^Frequency}}
         <!-- Sentence Audio available: only rendered on pure listening cards (no glosses, no frequency) -->
         {{#Sentence Audio}}
-          <div class="listening-view">
+          <div class="listening-view classic-listening-view">
             <div class="audio-btn-wrapper">
               <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
                 <svg class="audio-progress-ring" viewBox="0 0 80 80">
@@ -119,6 +119,25 @@
               <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
             </div>
           </div>
+        {{/Sentence Audio}}
+
+        {{^Sentence Audio}}
+        {{#Word Audio}}
+          <div class="listening-view classic-listening-view">
+            <div class="audio-btn-wrapper">
+              <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
+                <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                  <circle class="ring-bg" cx="40" cy="40" r="36" />
+                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+                </svg>
+                <span class="audio-btn-content">
+                  <span class="audio-btn-label">言葉</span>
+                </span>
+              </button>
+              <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
+            </div>
+          </div>
+        {{/Word Audio}}
         {{/Sentence Audio}}
 
         <!-- Bulletproof Fallback: No Sentence audio -->
@@ -183,8 +202,14 @@
         const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
         const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
           || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
+        let played = false;
         if (nativeReplay) {
-            try { nativeReplay.click(); } catch (e) { return; }
+            try { nativeReplay.click(); played = true; } catch (e) {}
+        }
+        if (!played && typeof pycmd !== 'undefined') {
+            try { pycmd('play:a:0'); played = true; } catch (e) {}
+        }
+        if (played || nativeReplay) {
             btn.classList.add('is-playing');
             if (ringFill) {
                 ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
@@ -274,32 +299,32 @@
       /* --- LISTENING RESOLVER ---
          A card is a listening card if:
          1. It carries the #listening tag (deliberate exercise, triggered via tag-listening-view), OR
-         2. Classic audio-only card: Definition, Extended definition, and Frequency are absent
-            and audio is present.
+         2. Classic audio-only / pathological legacy card: Definition, Extended definition, and Frequency are absent
+            and audio is present (classic-listening-view).
          Normal study cards without #listening tag never show audio on front. */
       const tagsProbe = container.querySelector('.tags-probe');
       const tagText = tagsProbe ? (tagsProbe.textContent || '') : '';
       const hasListeningTag = /(^|[\s:#])listening([\s:#]|$)/i.test(tagText);
-      const tagListeningView = container.querySelector('.tag-listening-view');
-      const listeningView = container.querySelector('.listening-view');
+      const tagView = container.querySelector('.tag-listening-view');
+      const classicView = container.querySelector('.classic-listening-view');
 
       let isListening = false;
-      if (hasListeningTag && tagListeningView) {
+      if (hasListeningTag && tagView) {
         isListening = true;
-        tagListeningView.style.display = '';
+        tagView.style.display = '';
         wrapper.classList.add('listening-mode');
         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
         setTimeout(function() {
-          const btn = tagListeningView.querySelector('.circular-audio-btn');
+          const btn = tagView.querySelector('.circular-audio-btn');
           if (btn && window.playCircularAudio) window.playCircularAudio(btn);
         }, 120);
-      } else if (listeningView && !listeningView.classList.contains('tag-listening-view')) {
+      } else if (classicView) {
         isListening = true;
         wrapper.classList.add('listening-mode');
         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
       }
-      if (!isListening && tagListeningView) {
-        tagListeningView.remove();
+      if (!isListening && tagView) {
+        tagView.remove();
       }
 
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured

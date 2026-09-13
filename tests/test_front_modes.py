@@ -81,7 +81,7 @@ def build_html(resolver, is_listening_card, tags_text=""):
         '</div></div>'
     ) if tags_text else ""
     classic_audio = (
-        '<div class="listening-view">'
+        '<div class="listening-view classic-listening-view">'
         '<div class="audio-btn-wrapper">'
         '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
         '<span class="raw-audio-source" aria-hidden="true">[sound:test.mp3]</span>'

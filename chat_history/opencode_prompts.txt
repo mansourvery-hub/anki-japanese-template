@@ -2275,3 +2275,7 @@ still audio in front in none listening cards; t works out of box but E Eand then
 ---
 
 E is a badshort cut(opens anki edit page); same with F and T; picturestill too small and tpalced too low in cards with long senteneces; listening tag not working
+
+---
+
+soundbuggedin listening cards: it make anki block it for security reasons; picturestill psuhed down in cards with long snetnces; some patholigcallegacy cards should be listening cards but are not tagged correclty with listening tag: for ex 駿ってさ… card: it has no word aduio, no word defintion and not even frequency or picth accent, it is a legacy listeing card.

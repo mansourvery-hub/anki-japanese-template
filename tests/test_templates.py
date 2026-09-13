@@ -187,9 +187,9 @@ def main():
           ".card-wrapper.furigana-mode ruby rt" in css)
     # --- 6c. Listening mode invariants ---
     check("Front: listening markup gated behind Definition/Extended/Frequency absence",
-          re.search(r"\{\{\^Frequency\}\}[\s\S]*?\{\{#Sentence Audio\}\}\s*<div class=\"listening-view\">", front) is not None)
+          re.search(r"\{\{\^Frequency\}\}[\s\S]*?\{\{#Sentence Audio\}\}\s*<div class=\"listening-view", front) is not None)
     check("Front: listening resolver checks for rendered listening view",
-          "LISTENING RESOLVER" in front and "querySelector('.listening-view')" in front)
+          "LISTENING RESOLVER" in front and ("querySelector('.listening-view')" in front or "querySelector('.classic-listening-view')" in front))
     check("Front: sentence front is the universal fallback",
           re.search(r"\{\{#Definition\}\}\s*<div class=\"sentence-display\">", front) is not None)
     check("CSS: listening-view flex styled",

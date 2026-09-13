@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.7.5 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.7.6 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -276,13 +276,13 @@
   text-align: center;
 }
 
-@container anki-card (min-width: 768px) {
+@container anki-card (min-width: 580px) {
   /* Editorial balance: sentence left/center, picture right */
   .context-grid:has(.context-picture) {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(24px, 3.5vw, 48px);
+    gap: clamp(20px, 3.5vw, 48px);
   }
 
   .context-grid:has(.context-picture) .context-main {
@@ -308,12 +308,12 @@
 }
 
 /* Portability fallback for WebViews without container-query support */
-@media (min-width: 768px) {
+@media (min-width: 580px) {
   .context-grid:has(.context-picture) {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(24px, 3.5vw, 48px);
+    gap: clamp(20px, 3.5vw, 48px);
   }
 
   .context-grid:has(.context-picture) .context-main {
@@ -330,6 +330,12 @@
     flex: 0 1 46%;
     width: auto;
     max-width: min(45vw, 560px);
+  }
+}
+
+@media (min-width: 768px) {
+  .context-grid:has(.context-picture) {
+    gap: clamp(24px, 3.5vw, 48px);
   }
 }
 
@@ -1336,6 +1342,15 @@ ruby:focus-within rt {
 
   .frequency-stars {
     font-size: 0.62rem;
+  }
+
+  .context-grid:has(.context-picture) {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .context-grid:has(.context-picture) .context-picture {
+    order: -1;
   }
 
   .picture-container img {
