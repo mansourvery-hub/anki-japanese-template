@@ -66,6 +66,7 @@ CASES = [
     ("normal card (glosses present, no listening-view in DOM)", False, "", False),
     ("word card (no audio on front)", False, "", False),
     ("deliberate listening (#listening tag with audio)", False, "listening", True),
+    ("deliberate listening (hierarchical tag study::listening with audio)", False, "study::listening", True),
     ("non-listening tag (vocab tag with audio)", False, "vocab n3", True),
 ]
 

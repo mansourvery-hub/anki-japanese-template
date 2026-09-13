@@ -51,7 +51,7 @@
       <div class="audio-row">
         {{#Word Audio}}
           <span class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn small-audio-btn" title="Play Word Audio" aria-label="Play word audio" onclick="playCircularAudio(this)">
+            <button type="button" class="circular-audio-btn small-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
               <svg class="audio-progress-ring" viewBox="0 0 44 44">
                 <circle class="ring-bg" cx="22" cy="22" r="19" />
                 <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
@@ -66,7 +66,7 @@
 
         {{#Sentence Audio}}
           <span class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn small-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
+            <button type="button" class="circular-audio-btn small-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
               <svg class="audio-progress-ring" viewBox="0 0 44 44">
                 <circle class="ring-bg" cx="22" cy="22" r="19" />
                 <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
@@ -124,7 +124,7 @@
 
       {{#Picture}}
         <div class="context-picture">
-          <div class="picture-container" onclick="openLightbox(this)" role="button" tabindex="0" aria-label="Expand image" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click()}">
+          <div class="picture-container" onclick="openLightbox(this)" role="button" tabindex="0" aria-label="画像を拡大" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.click()}">
             {{Picture}}
           </div>
         </div>
@@ -140,7 +140,7 @@
                tabindex="0"
                aria-expanded="false"
                 onclick="if(event.target.closest('.translation-text')) return; this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
-                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                onkeydown="if(event.key==='Enter'){event.preventDefault();this.click()}">
             <div class="translation-hint">訳 ▾</div>
             <div class="translation-text">{{edit:Translation}}</div>
           </div>
@@ -234,39 +234,39 @@
         // Japanese Frequency Tiers (Top 500 / 2.5k / 7k / 18k / Rare)
         let stars = 1;
         let tierClass = 'freq-rare';
-        let tierLabel = 'Rare';
+        let tierLabel = '稀少 (1.8万超)';
         let fillPercent = 15;
 
         if (val <= 500) {
           stars = 5;
           tierClass = 'freq-very-common';
-          tierLabel = 'Very Common (Top 500)';
+          tierLabel = '最頻出 (上位500)';
           fillPercent = 95;
         } else if (val <= 2500) {
           stars = 4;
           tierClass = 'freq-common';
-          tierLabel = 'Common (Top 2.5k)';
+          tierLabel = '頻出 (上位2,500)';
           fillPercent = 75;
         } else if (val <= 7000) {
           stars = 3;
           tierClass = 'freq-medium';
-          tierLabel = 'Intermediate (Top 7k)';
+          tierLabel = '常用 (上位7,000)';
           fillPercent = 55;
         } else if (val <= 18000) {
           stars = 2;
           tierClass = 'freq-uncommon';
-          tierLabel = 'Advanced (Top 18k)';
+          tierLabel = '上級 (上位1.8万)';
           fillPercent = 35;
         } else {
           stars = 1;
           tierClass = 'freq-rare';
-          tierLabel = 'Rare (18k+)';
+          tierLabel = '稀少 (1.8万超)';
           fillPercent = 15;
         }
 
         badge.classList.add(tierClass);
-        badge.setAttribute('title', 'Frequency: ' + raw.trim() + ' • ' + tierLabel);
-        badge.setAttribute('aria-label', 'Frequency: ' + tierLabel);
+        badge.setAttribute('title', '語彙頻度: ' + raw.trim() + ' • ' + tierLabel);
+        badge.setAttribute('aria-label', '語彙頻度: ' + tierLabel);
 
         const fill = badge.querySelector('.frequency-bar-fill');
         if (fill) fill.style.width = fillPercent + '%';
@@ -366,7 +366,7 @@
     };
 
     window.handleDefinitionKey = function(evt, element) {
-      if (evt.key === 'Enter' || evt.key === ' ') {
+      if (evt.key === 'Enter') {
         evt.preventDefault();
         window.expandDefinition(element);
       }
@@ -422,13 +422,19 @@
         } else if (key === 'e') {
           /* E toggles expansion of all secondary info and definitions */
           var moreBtn = wrapper.querySelector('.more-toggle');
-          if (moreBtn) window.toggleMore(moreBtn);
-          var defBox = wrapper.querySelector('.primary-definition');
-          if (defBox) window.expandDefinition(defBox);
-          var transBox = wrapper.querySelector('.translation-box');
-          if (transBox) {
-            transBox.classList.add('revealed');
-            transBox.setAttribute('aria-expanded', 'true');
+          var isCurrentlyOpen = moreBtn && moreBtn.getAttribute('aria-expanded') === 'true';
+
+          if (!isCurrentlyOpen) {
+            if (moreBtn) window.toggleMore(moreBtn);
+            wrapper.querySelectorAll('.primary-definition').forEach(function(d) {
+              window.expandDefinition(d);
+            });
+            wrapper.querySelectorAll('.translation-box').forEach(function(t) {
+              t.classList.add('revealed');
+              t.setAttribute('aria-expanded', 'true');
+            });
+          } else {
+            if (moreBtn) window.toggleMore(moreBtn);
           }
         }
       });

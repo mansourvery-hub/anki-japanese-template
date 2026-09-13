@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.7.2 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.7.3 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -331,14 +331,7 @@
   }
 }
 
-.card-block {
-  background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--border-radius-lg);
-  padding: var(--block-pad-y) var(--block-pad-x);
-  box-shadow: var(--shadow-premium);
-  text-align: left;
-}
+
 
 
 /* ==============================================================================
@@ -435,9 +428,9 @@
   font-size: clamp(2.6rem, 4.5vw + 1rem, 4.6rem);
   font-weight: 400;
   line-height: 1.15;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
-  padding-bottom: clamp(4px, 0.8vh, 10px);
+  padding-bottom: clamp(2px, 0.5vh, 6px);
   margin: 0;
   text-align: center;
 }
@@ -449,7 +442,11 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 4px auto 8px auto;
+  margin: 2px auto 6px auto;
+}
+
+.word-meta-bar .audio-row {
+  margin: 0;
 }
 
 .word-meta-bar:not(:has(.frequency-badge, .pitch-quiet, .circular-audio-btn)) {
@@ -647,7 +644,7 @@
   line-height: calc(var(--furigana-headroom) + 1em + 0.15em);
   color: var(--text-primary);
   max-width: 68ch;
-  margin: clamp(10px, 1.5vh, 18px) auto 0 auto;
+  margin: clamp(6px, 1.2vh, 14px) auto 0 auto;
   padding-top: var(--furigana-headroom);
   width: 100%;
   text-align: center;
@@ -950,7 +947,12 @@
   margin-bottom: clamp(8px, 1.5vmin, 14px);
   color: var(--text-primary);
   text-align: center;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.03em;
+}
+
+.sentence-japanese,
+.sentence-japanese * {
+  text-align: center;
 }
 
 /* Secondary blocks inside the More section: quiet, no card-in-card. */
@@ -1506,27 +1508,6 @@ ruby:focus-within rt {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-/* --- Japanese Easter egg: Hanko-inspired accent dot ---
-   A tiny vermillion circle near the word display that evokes a personal
-   seal (hanko/inkan). Appears only on the back card, only on desktop,
-   and only when the word display is present. Purely decorative. */
-.back-card .word-display {
-  position: relative;
-}
-
-.back-card .word-display::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  right: clamp(12px, 8%, 60px);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  opacity: 0.25;
-  pointer-events: none;
 }
 
 /* --- Selection styling: accent-tinted highlights --- */
