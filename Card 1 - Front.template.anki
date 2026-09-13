@@ -2,8 +2,8 @@
      Premium Ergonomic Japanese Front Card
 
        Behavior:
-       - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
-       - Listening: Shows circular interactive audio player ONLY when #listening tag is present.
+       - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists. Zero audio on front.
+       - Listening: Shows circular interactive audio player ONLY when definitions and Frequency are absent AND Sentence Audio exists (pure audio-only card).
        - Cloze Fallback: Sentence without a bold term (jidoushio mobile
          exports) is rebuilt in JS from cloze-prefix + <b>cloze-body</b>
          + cloze-suffix when all three are non-empty; otherwise the
@@ -22,9 +22,7 @@
           override in the stylesheet's mobile block). No JS involved.
 
         Minimalism (PRODUCT.md): the front shows NO other UI — no tags,
-        no badges, no metadata, no labels. Hidden probes carry only
-        behavioral signals (#listening tag) for the JS front-mode resolver;
-        they never render visibly.
+        no badges, no metadata, no labels, NO AUDIO on normal cards.
 -->
 
 <div class="card-wrapper">
@@ -93,18 +91,21 @@
         {{/Frequency}}
 
         {{^Frequency}}
-        <!-- Classic listening fields (Sentence Audio present, nothing
-             else): the sentence still renders as the safe fallback; the
-             JS resolver below swaps it for the audio button. No JS /
-             resolver failure => sentence front. -->
+        <!-- Sentence Audio available: only rendered on pure listening cards (no glosses, no frequency) -->
         {{#Sentence Audio}}
-          <div class="sentence-display">
-            {{#Sentence}}
-              {{edit:Sentence}}
-            {{/Sentence}}
-            {{^Sentence}}
-              {{edit:Expression}}
-            {{/Sentence}}
+          <div class="listening-view">
+            <div class="audio-btn-wrapper">
+              <button type="button" class="circular-audio-btn large-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
+                <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                  <circle class="ring-bg" cx="40" cy="40" r="36" />
+                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+                </svg>
+                <span class="audio-btn-content">
+                  <span class="audio-btn-label">文</span>
+                </span>
+              </button>
+              <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
+            </div>
           </div>
         {{/Sentence Audio}}
 
@@ -122,25 +123,6 @@
         {{/Frequency}}
       {{/Extended definition}}
     {{/Definition}}
-
-     <!-- Listening view: renders HIDDEN and only activated when the resolver
-          determines this is a listening card (triggered by #listening tag).
-          The markup is present but hidden; when activated, it becomes visible
-          and the sentence is removed from the front. -->
-    <div class="listening-view" hidden>
-      <div class="audio-btn-wrapper">
-        <button type="button" class="circular-audio-btn large-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
-          <svg class="audio-progress-ring" viewBox="0 0 80 80">
-            <circle class="ring-bg" cx="40" cy="40" r="36" />
-            <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-          </svg>
-          <span class="audio-btn-content">
-            <span class="audio-btn-label">文</span>
-          </span>
-        </button>
-        <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-      </div>
-    </div>
 
   </div>
 </div>
@@ -277,31 +259,17 @@
         console.warn('[Blank Collapse]', blankErr);
       }
 
-      /* --- LISTENING RESOLVER (#listening tag only) ---
-          The listening markup renders hidden. It becomes the active front
-          ONLY when the card carries the #listening tag AND has a Sentence
-          Audio field (deliberate listening exercise). Any other card
-          (sentence, word, or other modes) shows no audio on the front.
-          Runs synchronously before the reveal, so there is no flash;
-          any failure leaves the sentence front in place. */
-      let isListening = false;
-      try {
-        const tagsProbe = container.querySelector('.tags-probe');
-        const tagText = tagsProbe ? (tagsProbe.textContent || '') : '';
-        const hasListeningTag = /(^|\s)listening(\s|$)/.test(tagText);
-
-        // Activate listening ONLY when #listening tag is present AND
-        // Sentence Audio field exists (no audio field = no card to listen to)
-        if (hasListeningTag && container.querySelector('.raw-audio-source')) {
-          isListening = true;
-          const listeningView = container.querySelector('.listening-view');
-          if (listeningView) {
-            wrapper.classList.add('listening-mode');
-            container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
-          }
-        }
-      } catch (listenErr) {
-        console.warn('[Listening Resolver]', listenErr);
+      /* --- LISTENING RESOLVER ---
+         A card is a listening card if the listening-view markup was rendered
+         by Anki template conditionals (which ONLY happens when Definition,
+         Extended definition, and Frequency are all empty, and Sentence Audio
+         is present). Normal study cards NEVER render the listening view or
+         audio on the front. Listening cards skip mature word mode. */
+      const listeningView = container.querySelector('.listening-view');
+      const isListening = !!listeningView;
+      if (isListening) {
+        wrapper.classList.add('listening-mode');
+        container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
       }
 
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured

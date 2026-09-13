@@ -20,11 +20,10 @@ compact informative back, and a one-command sync → export → release loop.
 ## Included capabilities
 
 - Front: pure retrieval surface — sentence / Expression fallback,
-  Frequency-legacy sentence path, cloze-trio rebuild, listening as a
-  hidden-by-default resolver (classic audio-only fields **or**
-  `#listening` tag; sentence front is the universal fallback), Mature
-  Word Mode (interval-gated, platform-exclusive retrieval, sentence
-  fallback).
+  Frequency-legacy sentence path, cloze-trio rebuild, pure audio-only listening
+  cards (Sentence Audio present when all definitions and frequency absent;
+  normal cards have zero audio on front), Mature Word Mode (interval-gated,
+  platform-exclusive retrieval, sentence fallback).
 - Back: typography-driven hierarchy — word+furigana target, quiet pitch
   text, Definition Compactor (CSS §6b), 3-line truncator with one-way
   expand (§6c), context (sentence + picture as core information,

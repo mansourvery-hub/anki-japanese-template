@@ -185,24 +185,17 @@ def main():
           "'t'" in back and "translation-box" in back)
     check("CSS: full-card furigana mode rule exists",
           ".card-wrapper.furigana-mode ruby rt" in css)
-    check("Front: listening resolver driven by #listening tag probe",
-          'class="tags-probe"' in front and "hasListeningTag" in front)
-    check("Front: no field-presence probes for classic audio-only check",
-          "probe-def" not in front and "probe-ext" not in front and "probe-freq" not in front)
-
-    # --- 6c. Listening mode invariants (triggered only by #listening tag) ---
-    check("Front: listening markup present (hidden by default, activated by resolver)",
-          '<div class="listening-view" hidden>' in front or 'listening-view" hidden' in front)
-    check("Front: listening resolver runs synchronously before the reveal",
-          "LISTENING RESOLVER" in front)
-    check("Front: sentence front is the universal fallback (renders unless listening active)",
-          re.search(r"sd.remove\(\)", front) is not None)
-    check("CSS: listening-view inert until .listening-mode activates it",
-          ".card-wrapper.listening-mode .listening-view" in css)
+    # --- 6c. Listening mode invariants ---
+    check("Front: listening markup gated behind Definition/Extended/Frequency absence",
+          re.search(r"\{\{\^Frequency\}\}[\s\S]*?\{\{#Sentence Audio\}\}\s*<div class=\"listening-view\">", front) is not None)
+    check("Front: listening resolver checks for rendered listening view",
+          "LISTENING RESOLVER" in front and "querySelector('.listening-view')" in front)
+    check("Front: sentence front is the universal fallback",
+          re.search(r"\{\{#Definition\}\}\s*<div class=\"sentence-display\">", front) is not None)
+    check("CSS: listening-view flex styled",
+          ".listening-view" in css and re.search(r"\.listening-view\s*\{[^}]*display:\s*flex", css) is not None)
     check("CSS: listening mode hides the sentence/word fronts",
           ".card-wrapper.listening-mode .sentence-display" in css)
-    check("Front: active listening removes the sentence display",
-          "sd.remove()" in front)
 
     # --- 7. Font sizing source-of-truth ---
     check("Back: no JS font-scaler overriding CSS (inline fontSize ban)",
@@ -298,7 +291,6 @@ def main():
     ALLOW_BARE = {
         ("Front", "cloze-prefix"), ("Front", "cloze-body"), ("Front", "cloze-suffix"),  # hidden probe
         ("Front", "Expression"),  # front-word-display: display:none default, word-mode gate only (§8b)
-        ("Front", "Sentence Audio"),  # listening-view: hidden by default, rendered when #listening tag active
     }
     bare = []
     for name, src in (("Front", front), ("Back", back)):

@@ -19,16 +19,15 @@ mechanically verified*. Code implements; tests enforce.
 - Front renders **no** furigana filter/field (`Sentence (furigana)` ban);
   raw `{{edit:Sentence}}` / `{{edit:Expression}}` only.
 - Front shows **no UI** beyond the tested Japanese: no tags, badges,
-  metadata, labels, or controls (hidden behavioral probes only:
-  cloze trio, `#listening` tag probe, field-presence markers).
+  metadata, labels, or controls (hidden behavioral probes only: cloze trio).
+  Normal cards NEVER render or play audio on the front.
 - Balanced `{{#field}}` / `{{^field}}` / `{{/field}}` conditionals.
-- The sentence front is the **universal fallback**: every listening /
+- The sentence front is the **universal fallback**: every pathological /
   mature failure path degrades to it, never to a blank or hung card.
-- Listening activation is a synchronous hidden-by-default resolver:
-  the listening markup renders only under `{{#Sentence Audio}}` and is
-  inert until the resolver confirms classic audio-only fields OR the
-  `#listening` tag; it then removes the sentence display. No JS =>
-  sentence front.
+- Pure listening cards: `listening-view` renders only under
+  `{{^Definition}}{{^Extended definition}}{{^Frequency}}{{#Sentence Audio}}`.
+  Normal study cards never include `{{Sentence Audio}}` on front, guaranteeing
+  zero audio autoplay on front.
 - Listening cards never enter Mature Word Mode and skip all interval
   retrieval.
 - Interval has no `{{Interval}}` marker and no `note:` search clause

@@ -35,17 +35,13 @@ conditionals pick the branch; a synchronous JS resolver finalizes the
 listening decision; async JS finalizes Mature Word Mode:
 
 ```text
-Definition / Extended definition? ──yes──→ sentence-display
+Definition / Extended definition? ──yes──→ sentence-display (zero audio)
         │ no
-Frequency (legacy)? ──yes──→ sentence-display (never audio)
+Frequency (legacy)? ──yes──→ sentence-display (zero audio)
         │ no
-Sentence Audio? ──yes──→ sentence-display + hidden listening-view
-        │ no                      │
-sentence-display fallback          └─ synchronous LISTENING RESOLVER:
-                                    classic audio-only fields OR
-                                    #listening tag? → activate audio
-                                    front, drop the sentence;
-                                    else the markup stays inert
+Sentence Audio? ──yes──→ listening-view (audio-only card)
+        │ no
+sentence-display fallback
         │
 cloze fixup: Sentence has no <b> AND cloze trio complete?
         │ yes → prefix + <b>body</b> + suffix
@@ -56,9 +52,9 @@ Mature check (not listening, Expression non-empty,
         │ no  → sentence front (also the universal fallback)
 ```
 
-Hidden behavioral probes never render visibly: the cloze trio, a
-`{{#Tags}}` probe carrying the `#listening` signal, and
-Definition/Extended/Frequency presence markers consumed by the resolver.
+Hidden behavioral probes never render visibly: the cloze trio and the
+tags probe. Normal cards never evaluate `{{Sentence Audio}}` on the front,
+guaranteeing zero audio autoplay and zero audio controls on normal cards.
 Interval retrieval is **platform-exclusive**: mobile uses
 only the AnkiDroid bridge (`ankiGetCardInterval()`, constructor + direct
 shapes, stub guard, timeouts, 700 ms late-injection poll); desktop uses

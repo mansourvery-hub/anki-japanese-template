@@ -53,42 +53,38 @@ def load_resolver():
         front = f.read()
     m = re.search(
         r"/\* --- LISTENING RESOLVER.*?"
-        r"console\.warn\('\[Listening Resolver\]', listenErr\);\s*\}\n",
+        r"container\.querySelectorAll\('\.sentence-display'\)\.forEach\(\(sd\) => sd\.remove\(\)\);\s*\}\n",
         front, re.S)
     if not m:
         raise RuntimeError("listening resolver block not found in front template")
     return m.group(0)
 
 
-# (name, tags-probe text or None, probe classes, has sentence, has audio)
+# (name, has_audio_card)
+# On a listening card, the template renders the listening-view markup.
+# On normal cards (definitions present), the template does NOT render listening-view at all.
 CASES = [
-    ("no definition, no tag", "", [], True, True),
-    ("#listening tag with glosses", "je listening", ["def"], True, True),
-    ("audio with glosses, no tag", "je", ["def"], True, True),
-    ("no audio", "", [], True, False),
-    ("frequency legacy", "", ["freq"], True, True),
-    ("tag but no audio field", "listening", ["def"], True, False),
+    ("listening card (audio-only, listening-view present)", True),
+    ("normal card (glosses present, no listening-view in DOM)", False),
+    ("word card (no audio on front)", False),
 ]
 
 
-def build_html(resolver, tags, probes, sentence, audio):
-    tags_html = f'<div class="tags-probe" hidden>{tags}</div>' if tags is not None else ""
-    probe_html = "".join(f'<span class="probe-{p}" hidden></span>' for p in probes)
-    sent_html = f'<div class="sentence-display">{sentence}</div>' if sentence else ""
+def build_html(resolver, is_listening_card):
+    sent_html = '<div class="sentence-display">世の中って<b>不公平</b>よね</div>'
     audio_html = (
         '<div class="listening-view">'
+        '<div class="audio-btn-wrapper">'
         '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
-        '<span class="raw-audio-source" aria-hidden="true"></span>'
-        "</div>"
-    ) if audio else ""
-    # Minimal stand-ins for the probes' surrounding context. The real
-    # template defines container/wrapper before the resolver runs.
+        '<span class="raw-audio-source" aria-hidden="true">[sound:test.mp3]</span>'
+        '</div>'
+        '</div>'
+    ) if is_listening_card else ""
     return f"""<!doctype html><html><head><meta charset="utf-8">
-<script>/* prevent Anki-style fetches from mattering */</script>
 <style>.front-word-display{{display:none}}</style></head><body>
 <div class="card"><div class="card-wrapper"><div class="card-container">
 <div class="front-word-display">不公平</div>
-{tags_html}{probe_html}{sent_html}{audio_html}
+{sent_html}{audio_html}
 </div></div></div>
 <script>
 var report = {{}};
@@ -137,9 +133,8 @@ def main():
         return 0
     resolver = load_resolver()
 
-    for name, tags, probes, sentence, audio in CASES:
-        r = render(build_html(resolver, tags, probes,
-                               "世の中って<b>不公平</b>よね", audio))
+    for name, is_listening in CASES:
+        r = render(build_html(resolver, is_listening))
         check(f"{name}: probe returned", r is not None)
         if not r:
             continue
@@ -148,24 +143,13 @@ def main():
             continue
         check(f"{name}: resolver ran without errors", True)
 
-        # Determine expected behavior based on inputs
-        has_listening_tag = "listening" in tags
-        has_audio_field = audio  # test fixture simulates audio field presence
-
-        if has_listening_tag and has_audio_field:
-            # #listening tag forces listening front WITH audio (view visible, sentence gone)
-            check(f"{name}: listening front active (view visible, sentence gone)",
+        if is_listening:
+            check(f"{name}: listening front active (view visible, sentence removed)",
                   r["listening"] is True and r["viewVisible"] and r["sentences"] == 0,
                   json.dumps(r))
-        elif has_listening_tag:
-            # #listening tag but no audio field → listening view not rendered, sentence stays
-            check(f"{name}: sentence front (listening view not rendered)",
-                  r["listening"] is False and r["sentences"] >= 1,
-                  json.dumps(r))
         else:
-            # no #listening tag → sentence front, listening inert
-            check(f"{name}: sentence front (listening inert)",
-                  r["listening"] is False and r["sentences"] >= 1,
+            check(f"{name}: sentence front active (listening false, sentence intact)",
+                  r["listening"] is False and not r["viewVisible"] and r["sentences"] == 1,
                   json.dumps(r))
 
     print()
