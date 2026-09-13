@@ -21,9 +21,8 @@
 <div class="card-wrapper back-card">
   <div class="card-container">
 
-    <!-- LEVEL 1: TARGET + READING (Hero with Japanese Seal) -->
+    <!-- LEVEL 1: TARGET + READING -->
     <div class="hero-word-wrap">
-      <div class="hanko-seal" title="Target Word" aria-hidden="true">印</div>
       {{#furigana}}
         <div class="word-display">{{edit:furigana:furigana}}</div>
       {{/furigana}}
@@ -83,21 +82,18 @@
     </div>
 
     <!-- LEVEL 2: PRIMARY MEANING (compact: see Definition Compactor §6b) -->
-    <div class="meaning-section">
-      <div class="meaning-header" aria-hidden="true"><span class="jp-tag">意味</span> Primary Meaning</div>
-      {{#Definition}}
+    {{#Definition}}
+      <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="expandDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
+        {{edit:furigana:Definition}}
+      </div>
+    {{/Definition}}
+    {{^Definition}}
+      {{#Extended definition}}
         <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="expandDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
-          {{edit:furigana:Definition}}
+          {{Extended definition}}
         </div>
-      {{/Definition}}
-      {{^Definition}}
-        {{#Extended definition}}
-          <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="expandDefinition(this)" onkeydown="handleDefinitionKey(event, this)">
-            {{Extended definition}}
-          </div>
-        {{/Extended definition}}
-      {{/Definition}}
-    </div>
+      {{/Extended definition}}
+    {{/Definition}}
 
     <!-- Decorative separator: seigaiha-inspired arc motif between
          hero section (word/definition/audio) and context area.
@@ -135,7 +131,7 @@
       {{/Picture}}
     </div>
 
-    <!-- LEVEL 4: SECONDARY INFORMATION — collapsed behind "More ▾" -->
+    <!-- LEVEL 4: SECONDARY INFORMATION — collapsed behind "詳細 ▾" -->
     <div class="more-section" hidden>
       {{#Sentence}}
         {{#Translation}}
@@ -145,7 +141,7 @@
                aria-expanded="false"
                 onclick="if(event.target.closest('.translation-text')) return; this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
-            <div class="translation-hint"><span class="jp-tag">訳</span> Translation</div>
+            <div class="translation-hint">訳 ▾</div>
             <div class="translation-text">{{edit:Translation}}</div>
           </div>
         {{/Translation}}
@@ -173,24 +169,29 @@
       {{#Definition}}
         {{#Extended definition}}
           <div class="extended-def-wrapper">
-            <div class="extended-def-header"><span class="jp-tag">詳細</span> Extended Dictionaries</div>
+            <div class="extended-def-header">詳細辞書</div>
             <div class="html-content secondary-block extended-full">{{Extended definition}}</div>
           </div>
         {{/Extended definition}}
       {{/Definition}}
+
+      <!-- Tags display inside More section -->
+      {{#Tags}}
+        <div class="tags-block secondary-block">{{Tags}}</div>
+      {{/Tags}}
     </div>
 
-    <!-- Two-way "More ▾" / "Less ▴" toggle -->
+    <!-- Two-way "詳細 ▾" / "閉じる ▴" toggle -->
     <button type="button" class="more-toggle" aria-expanded="false" onclick="toggleMore(this)">
-      <span class="more-text">More</span> <span class="more-caret">▾</span>
+      <span class="more-text">詳細</span> <span class="more-caret">▾</span>
     </button>
 
     <!-- SHORTCUT / FEATURE DISCOVERABILITY BAR -->
-    <div class="shortcut-hints" aria-label="Card Shortcuts">
-      <span class="shortcut-item"><kbd>F</kbd> Furigana</span>
-      <span class="shortcut-item"><kbd>T</kbd> Translation</span>
-      <span class="shortcut-item"><kbd>R</kbd> Audio</span>
-      <span class="shortcut-item"><kbd>Space</kbd> Expand</span>
+    <div class="shortcut-hints" aria-label="ショートカット">
+      <span class="shortcut-item"><kbd>F</kbd> 振仮名</span>
+      <span class="shortcut-item"><kbd>T</kbd> 訳</span>
+      <span class="shortcut-item"><kbd>R</kbd> 音声</span>
+      <span class="shortcut-item"><kbd>E</kbd> 展開</span>
     </div>
 
     <!-- Source footer (secondary; stays outside More as a one-line
@@ -205,7 +206,7 @@
 <!-- Lightbox, Audio, Frequency & Secondary-Section Scripts -->
 <script>
   (function() {
-    /* --- SECONDARY SECTION ("More ▾" / "Less ▴" Two-way Toggle) --- */
+    /* --- SECONDARY SECTION ("詳細 ▾" / "閉じる ▴" Two-way Toggle) --- */
     window.toggleMore = function(btn) {
       var section = document.querySelector('.more-section');
       if (!section) return;
@@ -215,7 +216,7 @@
       btn.classList.toggle('is-open', !isExpanded);
       var textSpan = btn.querySelector('.more-text');
       if (textSpan) {
-        textSpan.textContent = !isExpanded ? 'Less' : 'More';
+        textSpan.textContent = !isExpanded ? '閉じる' : '詳細';
       }
     };
 
@@ -417,6 +418,17 @@
             if (moreBtn && moreBtn.getAttribute('aria-expanded') !== 'true') window.toggleMore(moreBtn);
             box.classList.add('revealed');
             box.setAttribute('aria-expanded', 'true');
+          }
+        } else if (key === 'e') {
+          /* E toggles expansion of all secondary info and definitions */
+          var moreBtn = wrapper.querySelector('.more-toggle');
+          if (moreBtn) window.toggleMore(moreBtn);
+          var defBox = wrapper.querySelector('.primary-definition');
+          if (defBox) window.expandDefinition(defBox);
+          var transBox = wrapper.querySelector('.translation-box');
+          if (transBox) {
+            transBox.classList.add('revealed');
+            transBox.setAttribute('aria-expanded', 'true');
           }
         }
       });

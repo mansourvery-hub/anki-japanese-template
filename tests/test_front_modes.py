@@ -60,19 +60,20 @@ def load_resolver():
     return m.group(0)
 
 
-# (name, has_audio_card)
-# On a listening card, the template renders the listening-view markup.
-# On normal cards (definitions present), the template does NOT render listening-view at all.
+# (name, has_audio_card, tags_text, tag_audio)
 CASES = [
-    ("listening card (audio-only, listening-view present)", True),
-    ("normal card (glosses present, no listening-view in DOM)", False),
-    ("word card (no audio on front)", False),
+    ("listening card (audio-only, listening-view present)", True, "", False),
+    ("normal card (glosses present, no listening-view in DOM)", False, "", False),
+    ("word card (no audio on front)", False, "", False),
+    ("deliberate listening (#listening tag with audio)", False, "listening", True),
+    ("non-listening tag (vocab tag with audio)", False, "vocab n3", True),
 ]
 
 
-def build_html(resolver, is_listening_card):
+def build_html(resolver, is_listening_card, tags_text="", tag_audio=False):
     sent_html = '<div class="sentence-display">世の中って<b>不公平</b>よね</div>'
-    audio_html = (
+    tags_html = f'<div class="tags-probe" hidden>{tags_text}</div>' if tags_text else ""
+    classic_audio = (
         '<div class="listening-view">'
         '<div class="audio-btn-wrapper">'
         '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
@@ -80,11 +81,19 @@ def build_html(resolver, is_listening_card):
         '</div>'
         '</div>'
     ) if is_listening_card else ""
+    tag_audio_html = (
+        '<div class="listening-view tag-listening-view" style="display: none;">'
+        '<div class="audio-btn-wrapper">'
+        '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
+        '<span class="raw-audio-source" aria-hidden="true">[sound:test.mp3]</span>'
+        '</div>'
+        '</div>'
+    ) if tag_audio else ""
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <style>.front-word-display{{display:none}}</style></head><body>
 <div class="card"><div class="card-wrapper"><div class="card-container">
 <div class="front-word-display">不公平</div>
-{sent_html}{audio_html}
+{tags_html}{sent_html}{classic_audio}{tag_audio_html}
 </div></div></div>
 <script>
 var report = {{}};
@@ -133,8 +142,8 @@ def main():
         return 0
     resolver = load_resolver()
 
-    for name, is_listening in CASES:
-        r = render(build_html(resolver, is_listening))
+    for name, is_listening, tags_text, tag_audio in CASES:
+        r = render(build_html(resolver, is_listening, tags_text, tag_audio))
         check(f"{name}: probe returned", r is not None)
         if not r:
             continue
@@ -143,7 +152,8 @@ def main():
             continue
         check(f"{name}: resolver ran without errors", True)
 
-        if is_listening:
+        expected_listening = is_listening or (bool(tags_text and "listening" in tags_text) and tag_audio)
+        if expected_listening:
             check(f"{name}: listening front active (view visible, sentence removed)",
                   r["listening"] is True and r["viewVisible"] and r["sentences"] == 0,
                   json.dumps(r))
