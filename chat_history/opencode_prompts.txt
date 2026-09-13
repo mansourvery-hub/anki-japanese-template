@@ -2251,3 +2251,7 @@ Key directives from the 34-section brief:
 ---
 
 Editorial redesign: calm Japanese reading interface, delete retrieval-state UI, elegant typography hierarchy, quiet audio affordances, empty-shell collapse fix
+
+---
+
+The template is functional now, but visually it needs a complete redesign: first of all, the space (especially for the back card) is heavily underutilized. I'm not talking about showing hidden fields but about making the shown fields take more presence. Also the card is complete bare bones, with 0 design/style to it, and feels dead and generic. Make it more alive, more elegant, and more beautiful, with Japanese-themed/easter eggs but not too many; it should not distract from learning but complement it and make it more pleasant.

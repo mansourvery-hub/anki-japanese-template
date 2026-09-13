@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.6.3 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.7.0 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -23,30 +23,37 @@
    ============================================================================== */
 :root {
   /* --- TOKYO NIGHT DARK (Default: Japanese Midnight Sumi) --- */
-  --bg-color: #0e131d;
-  --card-bg: #151b26;
-  --card-border: rgba(255, 255, 255, 0.07);
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --bg-color: #0d1117;
+  --card-bg: #151b28;
+  --card-bg-elevated: #1a2233;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --text-primary: #e8edf5;
+  --text-secondary: #8b99b0;
+  --text-muted: #5a687d;
   
-  --accent-color: #38bdf8;
-  --accent-light: rgba(56, 189, 248, 0.12);
-  --accent-soft: rgba(56, 189, 248, 0.22);
-  --accent-glow: 0 0 16px rgba(56, 189, 248, 0.35);
+  --accent-color: #5eaef7;
+  --accent-light: rgba(94, 174, 247, 0.10);
+  --accent-soft: rgba(94, 174, 247, 0.18);
+  --accent-glow: 0 0 20px rgba(94, 174, 247, 0.25);
 
-  --shadow-premium: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
-  --border-radius-lg: 12px;
-  --border-radius-md: 8px;
+  /* Warm accent: subtle seasonal warmth for decorative elements */
+  --warm-accent: rgba(255, 183, 120, 0.06);
+  --warm-accent-border: rgba(255, 183, 120, 0.08);
+
+  --shadow-premium: 0 8px 32px -6px rgba(0, 0, 0, 0.5),
+                    0 2px 8px -2px rgba(0, 0, 0, 0.25);
+  --shadow-soft: 0 2px 12px -4px rgba(0, 0, 0, 0.3);
+  --border-radius-lg: 16px;
+  --border-radius-md: 10px;
   --border-radius-sm: 6px;
 
   /* Spacing Tokens - Fluid viewport-based */
-  --gap-section: clamp(14px, 2.2vh, 24px);
-  --gap-block: clamp(6px, 1.2vmin, 12px);
-  --block-pad-y: clamp(0px, 0.2vmin, 2px);
-  --block-pad-x: clamp(6px, 1.4vmin, 14px);
-  --container-pad-y: clamp(14px, 2.8vh, 32px);
-  --container-pad-x: clamp(12px, 2.5vw, 32px);
+  --gap-section: clamp(16px, 2.6vh, 28px);
+  --gap-block: clamp(8px, 1.4vmin, 14px);
+  --block-pad-y: clamp(2px, 0.4vmin, 6px);
+  --block-pad-x: clamp(10px, 1.8vmin, 18px);
+  --container-pad-y: clamp(18px, 3.2vh, 40px);
+  --container-pad-x: clamp(16px, 3vw, 40px);
 
   /* Furigana clearance: rt height (0.55em of parent font) + 2px hover gap.
      em-based so it scales with font size across viewports. */
@@ -58,36 +65,54 @@
   --font-interface: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
   --max-content-width: 960px;
+
+  /* Decorative: separator motif (seigaiha-inspired wave) */
+  --separator-color: rgba(255, 255, 255, 0.05);
+  --separator-accent: rgba(94, 174, 247, 0.12);
 }
 
 /* --- AKI PAPER LIGHT THEME (Warm Washi) --- */
 .card:not(.nightMode):not(.night_mode) {
-  --bg-color: #fcfbf9;
+  --bg-color: #faf8f5;
   --card-bg: #ffffff;
-  --card-border: rgba(0, 0, 0, 0.08);
-  --text-primary: #18191c;
-  --text-secondary: #475569;
+  --card-bg-elevated: #fefefe;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --text-primary: #1a1c20;
+  --text-secondary: #515a6b;
   --text-muted: #8a909d;
   
-  --accent-color: #d97706;
-  --accent-light: rgba(217, 119, 6, 0.08);
-  --accent-soft: rgba(217, 119, 6, 0.16);
-  --accent-glow: 0 0 16px rgba(217, 119, 6, 0.25);
+  --accent-color: #c2710a;
+  --accent-light: rgba(194, 113, 10, 0.07);
+  --accent-soft: rgba(194, 113, 10, 0.14);
+  --accent-glow: 0 0 20px rgba(194, 113, 10, 0.18);
 
-  --shadow-premium: 0 4px 18px rgba(0, 0, 0, 0.06);
+  --warm-accent: rgba(194, 113, 10, 0.04);
+  --warm-accent-border: rgba(194, 113, 10, 0.08);
+
+  --shadow-premium: 0 4px 20px rgba(0, 0, 0, 0.06),
+                    0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  --separator-color: rgba(0, 0, 0, 0.04);
+  --separator-accent: rgba(194, 113, 10, 0.10);
 }
 
 .card.nightMode,
 .card.night_mode {
-  --bg-color: #0e131d;
-  --card-bg: #151b26;
-  --card-border: rgba(255, 255, 255, 0.07);
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-color: #38bdf8;
-  --accent-light: rgba(56, 189, 248, 0.12);
-  --accent-soft: rgba(56, 189, 248, 0.22);
+  --bg-color: #0d1117;
+  --card-bg: #151b28;
+  --card-bg-elevated: #1a2233;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --text-primary: #e8edf5;
+  --text-secondary: #8b99b0;
+  --text-muted: #5a687d;
+  --accent-color: #5eaef7;
+  --accent-light: rgba(94, 174, 247, 0.10);
+  --accent-soft: rgba(94, 174, 247, 0.18);
+  --warm-accent: rgba(255, 183, 120, 0.06);
+  --warm-accent-border: rgba(255, 183, 120, 0.08);
+  --separator-color: rgba(255, 255, 255, 0.05);
+  --separator-accent: rgba(94, 174, 247, 0.12);
 }
 
 
@@ -102,6 +127,7 @@
   padding: 0;
   text-align: center;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
 }
@@ -132,34 +158,38 @@
 /* "More ▾" — a quiet, elegant editorial disclosure */
 .more-toggle {
   font-family: var(--font-interface);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-muted);
-  background: none;
-  border: none;
-  padding: 6px 14px;
-  margin: clamp(12px, 1.8vh, 20px) auto 2px auto;
+  background: var(--accent-light);
+  border: 1px solid var(--card-border);
+  padding: 7px 18px;
+  margin: clamp(14px, 2vh, 24px) auto 4px auto;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
   border-radius: 9999px;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.2s ease, background-color 0.2s ease,
+              border-color 0.2s ease, transform 0.15s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .more-toggle:hover,
 .more-toggle:focus-visible {
-  color: var(--text-primary);
-  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--accent-color);
+  background-color: var(--accent-soft);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
   outline: none;
 }
 
 .card:not(.nightMode):not(.night_mode) .more-toggle:hover,
 .card:not(.nightMode):not(.night_mode) .more-toggle:focus-visible {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--accent-soft);
 }
 
 .more-toggle:focus-visible {
@@ -171,7 +201,7 @@
   display: inline-block;
   font-size: 0.7rem;
   margin-left: 2px;
-  transition: transform 0.18s ease-out;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .more-toggle.is-open .more-caret {
@@ -179,7 +209,7 @@
 }
 
 .more-section {
-  margin-top: 6px;
+  margin-top: 8px;
   width: 100%;
 }
 
@@ -190,7 +220,7 @@
 .context-grid {
   display: flex;
   flex-direction: column;
-  gap: clamp(12px, 1.8vh, 20px);
+  gap: clamp(14px, 2vh, 24px);
   align-items: center;
   width: 100%;
   margin-top: var(--gap-section);
@@ -222,7 +252,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(20px, 3.5vw, 40px);
+    gap: clamp(24px, 4vw, 48px);
   }
 
   .context-grid:has(.context-picture) .context-main {
@@ -241,8 +271,8 @@
   }
 
   .small-audio-btn {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
   }
 }
 
@@ -252,7 +282,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: clamp(20px, 3.5vw, 40px);
+    gap: clamp(24px, 4vw, 48px);
   }
 
   .context-grid:has(.context-picture) .context-main {
@@ -292,13 +322,14 @@
   /* Refined, authoritative scale: dominant without visual shouting */
   font-size: clamp(1.8rem, 4.2vmin + 0.75rem, 4.2rem);
   line-height: 1.4;
-  padding: 8px 12px;
+  padding: 12px 16px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
   font-weight: 400;
   overflow-wrap: anywhere;
+  letter-spacing: 0.02em;
 }
 
 /* Front: Yomitan wraps the target word in <b> even for word-only fronts
@@ -310,9 +341,10 @@
 .front-word-display strong {
   color: var(--accent-color);
   font-weight: 400;
-  background: linear-gradient(transparent 78%, var(--accent-light) 78%);
-  padding: 0 4px;
-  border-radius: 2px;
+  /* Brushstroke-inspired underline: a warm gradient that tapers like ink */
+  background: linear-gradient(transparent 76%, var(--accent-soft) 76%, var(--accent-light) 94%);
+  padding: 0 5px;
+  border-radius: 3px;
 }
 
 /* Back sentence target matches surrounding weight — color + underline mark it. */
@@ -320,9 +352,9 @@
 .sentence-japanese strong {
   color: var(--accent-color);
   font-weight: 400;
-  background: linear-gradient(transparent 78%, var(--accent-light) 78%);
-  padding: 0 4px;
-  border-radius: 2px;
+  background: linear-gradient(transparent 76%, var(--accent-soft) 76%, var(--accent-light) 94%);
+  padding: 0 5px;
+  border-radius: 3px;
 }
 
 /* Back headword: never bold, even if Yomitan injects <b>/<strong>. */
@@ -352,7 +384,8 @@
     6. BACK CARD HIERARCHY — target, reading, meaning (Fluid Typography)
     ============================================================================== */
 /* Target + reading form ONE conceptual unit, centered, the hero element.
-   Pitch stays as quiet muted text below. */
+   The word display now occupies more visual space with generous sizing
+   and a subtle warm glow backdrop. Pitch stays as quiet muted text below. */
 
 /* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.
    Fields that use {{furigana:...}} get exactly that clearance as top padding
@@ -360,22 +393,24 @@
    em-based => scales continuously with font size across all screen sizes. */
 .word-display {
   font-family: var(--font-japanese-serif);
-  /* Restrained, elegant scale: the target is the hero without overpowering the card */
-  font-size: clamp(2.2rem, 3.8vw + 0.8rem, 3.8rem);
+  /* Larger, more confident hero: the target word commands attention */
+  font-size: clamp(2.6rem, 4.5vw + 1rem, 4.6rem);
   font-weight: 400;
   line-height: 1.15;
+  letter-spacing: 0.03em;
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
+  padding-bottom: clamp(4px, 0.8vh, 10px);
   margin: 0 auto;
   text-align: center;
 }
 
 /* Pitch accent: quiet muted supplement to the reading, never a badge. */
 .pitch-quiet {
-  font-size: clamp(0.85rem, 0.6vw + 0.7rem, 1.05rem);
+  font-size: clamp(0.88rem, 0.6vw + 0.72rem, 1.08rem);
   color: var(--text-muted);
   line-height: 1.4;
   margin-top: 4px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   text-align: center;
 }
 
@@ -386,14 +421,75 @@
   filter: opacity(0.85);
 }
 
+/* --- Decorative separator: seigaiha-inspired arc motif ---
+   A tiny wave pattern between the hero word/meaning and the context area.
+   Pure CSS, no images. Adds visual rhythm without distraction. */
+.card-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: clamp(10px, 1.5vh, 18px) auto;
+  width: 100%;
+  max-width: 280px;
+  height: 12px;
+  opacity: 0.7;
+}
+
+.card-separator::before,
+.card-separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to var(--sep-dir, right),
+    transparent, var(--separator-color) 40%, var(--separator-accent) 100%);
+}
+
+.card-separator::after {
+  --sep-dir: left;
+}
+
+.card-separator .sep-motif {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--separator-accent);
+  margin: 0 10px;
+  position: relative;
+}
+
+/* Small decorative arcs flanking the dot — evoke seigaiha wave crests */
+.card-separator .sep-motif::before,
+.card-separator .sep-motif::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--separator-color);
+  transform: translateY(-50%);
+}
+
+.card-separator .sep-motif::before {
+  right: 100%;
+  margin-right: 4px;
+}
+
+.card-separator .sep-motif::after {
+  left: 100%;
+  margin-left: 4px;
+}
+
 /* Audio row: quiet affordances under the target & meaning. */
 .audio-row {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 10px auto 4px auto;
+  gap: 10px;
+  margin: clamp(10px, 1.6vh, 18px) auto 6px auto;
 }
 
 /* Empty-shell guard (QUALITY.md "Empty-field collapse"): .audio-row
@@ -407,11 +503,11 @@
 .definition-box {
   /* Editorial typography: no harsh dividing lines, optimal reading measure */
   font-family: var(--font-interface);
-  font-size: clamp(1.02rem, 0.4vw + 0.82rem, 1.35rem);
+  font-size: clamp(1.04rem, 0.45vw + 0.84rem, 1.38rem);
   line-height: calc(var(--furigana-headroom) + 1em + 0.15em);
   color: var(--text-primary);
   max-width: 62ch;
-  margin: clamp(10px, 1.6vh, 18px) auto 0 auto;
+  margin: clamp(12px, 1.8vh, 22px) auto 0 auto;
   padding-top: var(--furigana-headroom);
   width: 100%;
   text-align: center;
@@ -580,7 +676,7 @@
 .audio-row {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .circular-audio-btn {
@@ -588,23 +684,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: transparent;
+  background-color: var(--accent-light);
   border: 1px solid var(--card-border);
   border-radius: 50%;
   cursor: pointer;
   padding: 0;
   margin: 0;
   outline: none;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
               border-color 0.2s ease,
-              background-color 0.2s ease;
+              background-color 0.2s ease,
+              box-shadow 0.2s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .small-audio-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 }
 
 /* Keyboard focus indicator (outline: none above only affects mouse clicks;
@@ -617,23 +714,24 @@
 }
 
 .large-audio-btn {
-  width: 80px;
-  height: 80px;
-  background-color: var(--card-bg);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  width: 84px;
+  height: 84px;
+  background-color: var(--card-bg-elevated);
+  box-shadow: var(--shadow-premium);
 }
 
 .circular-audio-btn:hover,
 .circular-audio-btn:active {
-  transform: scale(1.06);
+  transform: scale(1.08);
   border-color: var(--accent-color);
-  background-color: var(--accent-light);
+  background-color: var(--accent-soft);
+  box-shadow: var(--accent-glow);
 }
 
 .circular-audio-btn.is-playing {
   border-color: var(--accent-color);
   box-shadow: var(--accent-glow);
-  background-color: var(--accent-light);
+  background-color: var(--accent-soft);
 }
 
 .audio-progress-ring {
@@ -703,57 +801,66 @@
 .sentence-japanese {
   font-family: var(--font-japanese-serif);
   /* Hierarchy: second to the headword, dominant over the definition. */
-  font-size: clamp(1.4rem, 2vw + 0.65rem, 2.4rem);
+  font-size: clamp(1.45rem, 2.2vw + 0.65rem, 2.5rem);
   /* Multi-line clearance: each wrapped line needs room for hover furigana
      above it (rt height + gap), delivered via line-height. Final line is
      covered by --furigana-headroom on top padding below. */
   line-height: calc(var(--furigana-headroom) + 1.25em);
   padding-top: calc(var(--block-pad-y, 0px) + var(--furigana-headroom));
-  margin-bottom: clamp(6px, 1.5vmin, 12px);
+  margin-bottom: clamp(8px, 1.5vmin, 14px);
   color: var(--text-primary);
   text-align: center;
+  letter-spacing: 0.01em;
 }
 
 /* Secondary blocks inside the More section: quiet, no card-in-card. */
 .secondary-block {
-  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
-  line-height: 1.55;
+  font-size: clamp(0.98rem, 0.35vw + 0.78rem, 1.28rem);
+  line-height: 1.6;
   color: var(--text-secondary);
   text-align: left;
-  margin-top: 8px;
+  margin-top: 10px;
+  padding: clamp(6px, 1vh, 12px) var(--block-pad-x);
+  background: var(--warm-accent);
+  border-radius: var(--border-radius-sm);
+  border-left: 2px solid var(--separator-accent);
 }
 
 .translation-box {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: var(--accent-light);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-md);
-  padding: 8px 14px;
+  padding: 10px 16px;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+              transform 0.15s ease;
   width: 100%;
   max-width: 68ch;
-  margin: 6px auto;
+  margin: 8px auto;
   box-sizing: border-box;
 }
 
 .translation-box:hover {
-  background-color: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.14);
+  background-color: var(--accent-soft);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
 }
 
 .card:not(.nightMode):not(.night_mode) .translation-box {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: var(--accent-light);
   border-color: rgba(0, 0, 0, 0.06);
 }
 
 .card:not(.nightMode):not(.night_mode) .translation-box:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--accent-soft);
+  border-color: var(--accent-color);
 }
 
 .translation-hint {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--text-muted);
   user-select: none;
   text-align: center;
@@ -763,9 +870,9 @@
   display: none;
   /* Lower emphasis tier: floor sits below the definition's floor
      so revealed translations read as secondary. */
-  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
+  font-size: clamp(0.98rem, 0.35vw + 0.78rem, 1.28rem);
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
   text-align: center;
 }
 
@@ -775,21 +882,21 @@
 /* Orphan translation (no Sentence): rendered statically, same tier. */
 .revealed-static.translation-text {
   display: block;
-  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
+  font-size: clamp(0.98rem, 0.35vw + 0.78rem, 1.28rem);
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
   text-align: center;
 }
 
 .context-block {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .html-content {
   /* Lower emphasis tier: notes/context are support material, quieter
      than the definition (and floor-below it, unlike before). */
-  font-size: clamp(0.95rem, 0.35vw + 0.75rem, 1.25rem);
-  line-height: 1.55;
+  font-size: clamp(0.98rem, 0.35vw + 0.78rem, 1.28rem);
+  line-height: 1.6;
 }
 
 
@@ -851,19 +958,21 @@ ruby:focus-within rt {
   height: auto;
   object-fit: contain;
   border-radius: var(--border-radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-premium);
   cursor: zoom-in;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
 }
 
 .card:not(.nightMode):not(.night_mode) .picture-container img {
   border-color: rgba(0, 0, 0, 0.07);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-soft);
 }
 
 .picture-container img:hover {
-  transform: scale(1.015);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-premium), var(--accent-glow);
 }
 
 .lightbox-overlay {
@@ -872,10 +981,10 @@ ruby:focus-within rt {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.78);
   z-index: 2000;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px) saturate(0.8);
+  -webkit-backdrop-filter: blur(14px) saturate(0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -915,18 +1024,19 @@ ruby:focus-within rt {
 
 .source-footer {
   text-align: center;
-  padding: 4px 0;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 8px 0 4px;
+  font-size: 0.72rem;
+  font-weight: 500;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  opacity: 0.7;
 }
 
 
 /* ==============================================================================
-   12. LISTENING MODE FRONT
-   ============================================================================== */
+    12. LISTENING MODE FRONT
+    ============================================================================== */
 /* Listening cards (audio-only: no definitions, no frequency, has Sentence Audio).
    The template only renders .listening-view on pure listening cards. */
 .listening-view {
@@ -934,11 +1044,9 @@ ruby:focus-within rt {
   align-items: center;
   justify-content: center;
   /* Deliberate presence: enough height that the lone audio button reads
-      as THE card, not an accident — but a fraction of the old 32px-padded
-      slab. 28vh is the sweet spot for both the desktop reviewer and the
-      A50's tall screen. */
-  min-height: 28vh;
-  padding: 12px;
+      as THE card, not an accident */
+  min-height: 30vh;
+  padding: 16px;
 }
 
 .card-wrapper.listening-mode .listening-view {
@@ -985,13 +1093,13 @@ ruby:focus-within rt {
   .sentence-display,
   .front-word-display {
     font-size: clamp(1.1rem, 3.8vmin + 0.5rem, 1.85rem);
-    padding: 2px 4px;
+    padding: 4px 6px;
   }
   .sentence-japanese {
     font-size: clamp(1.1rem, 3.5vmin + 0.5rem, 1.85rem);
   }
   .word-display {
-    font-size: clamp(1.8rem, 4vmin + 1rem, 2.5rem);
+    font-size: clamp(1.9rem, 4.5vmin + 1rem, 2.7rem);
   }
 
   .picture-container img {
@@ -1000,21 +1108,29 @@ ruby:focus-within rt {
   }
 
   .audio-row {
-    gap: 6px;
+    gap: 8px;
   }
 
   .small-audio-btn {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
   }
 
   .small-audio-btn .audio-btn-label {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
   }
 
   .more-toggle {
-    font-size: 0.75rem;
-    padding: 5px 12px;
+    font-size: 0.72rem;
+    padding: 6px 14px;
+  }
+
+  .card-separator {
+    max-width: 200px;
+  }
+
+  .secondary-block {
+    padding: 6px 10px;
   }
 }
 
@@ -1040,7 +1156,7 @@ ruby:focus-within rt {
       art-agnostic plumbing:
 
       Block contents, in order:
-        1. strength dial: --backdrop-opacity (currently 0.5)
+        1. strength dial: --backdrop-opacity (currently 0.45)
         2. generic placement: fixed full-viewport, bottom-anchored, cover
         3. dark-theme scene: --backdrop-image (paper-cut Fuji)
         4. light-theme scene: --backdrop-image (washi-tone variant)
@@ -1052,7 +1168,7 @@ ruby:focus-within rt {
 */
 
 .card.back-card {
-  --backdrop-opacity: 0.5;
+  --backdrop-opacity: 0.45;
 }
 
 .card.back-card::before {
@@ -1068,7 +1184,7 @@ ruby:focus-within rt {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: bottom center;
-  opacity: var(--backdrop-opacity, 0.5);
+  opacity: var(--backdrop-opacity, 0.45);
 }
 
 .back-card::before {
@@ -1099,4 +1215,89 @@ ruby:focus-within rt {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+
+/* ==============================================================================
+    16. CARD ENTRANCE & VISUAL POLISH
+    ==============================================================================
+    Subtle entrance animation gives the card a sense of being alive.
+    The word display fades in with a gentle rise. Back card elements
+    stagger slightly for visual flow. All animations respect
+    prefers-reduced-motion (section 15 kills durations). */
+
+/* Back card entrance: the hero word and definition arrive gently */
+.back-card .word-display {
+  animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.back-card .definition-box {
+  animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
+}
+
+.back-card .audio-row {
+  animation: fadeInUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.back-card .context-grid {
+  animation: fadeInUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+}
+
+.back-card .card-separator {
+  animation: fadeInUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Front card: single gentle entrance */
+.card-container .sentence-display,
+.card-container .front-word-display,
+.card-container .listening-view {
+  animation: fadeIn 0.3s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* --- Japanese Easter egg: Hanko-inspired accent dot ---
+   A tiny vermillion circle near the word display that evokes a personal
+   seal (hanko/inkan). Appears only on the back card, only on desktop,
+   and only when the word display is present. Purely decorative. */
+.back-card .word-display {
+  position: relative;
+}
+
+.back-card .word-display::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  right: clamp(12px, 8%, 60px);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* --- Selection styling: accent-tinted highlights --- */
+::selection {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+::-moz-selection {
+  background: var(--accent-soft);
+  color: var(--text-primary);
 }

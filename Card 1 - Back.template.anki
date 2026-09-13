@@ -86,6 +86,11 @@
       {{/Sentence Audio}}
     </div>
 
+    <!-- Decorative separator: seigaiha-inspired arc motif between
+         hero section (word/definition/audio) and context area.
+         Pure decorative — CSS collapses it to nothing if absent. -->
+    <div class="card-separator" aria-hidden="true"><span class="sep-motif"></span></div>
+
     <!-- LEVEL 3: CONTEXT (sentence + picture; core information) -->
     <div class="context-grid">
       <div class="context-main">
