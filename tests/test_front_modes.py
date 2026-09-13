@@ -62,12 +62,12 @@ def load_resolver():
 
 # (name, tags-probe text or None, probe classes, has sentence, has audio)
 CASES = [
-    ("classic audio-only", "", [], True, True),
+    ("no definition, no tag", "", [], True, True),
     ("#listening tag with glosses", "je listening", ["def"], True, True),
     ("audio with glosses, no tag", "je", ["def"], True, True),
     ("no audio", "", [], True, False),
     ("frequency legacy", "", ["freq"], True, True),
-    ("tag but no sentence audio", "listening", ["def"], True, False),
+    ("tag but no audio field", "listening", ["def"], True, False),
 ]
 
 
@@ -78,6 +78,7 @@ def build_html(resolver, tags, probes, sentence, audio):
     audio_html = (
         '<div class="listening-view">'
         '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
+        '<span class="raw-audio-source" aria-hidden="true"></span>'
         "</div>"
     ) if audio else ""
     # Minimal stand-ins for the probes' surrounding context. The real
@@ -146,18 +147,23 @@ def main():
             check(f"{name}: resolver ran without errors", False, r["err"])
             continue
         check(f"{name}: resolver ran without errors", True)
-        if audio and "listening" in tags:
-            # deliberate exercise -> listening front
+
+        # Determine expected behavior based on inputs
+        has_listening_tag = "listening" in tags
+        has_audio_field = audio  # test fixture simulates audio field presence
+
+        if has_listening_tag and has_audio_field:
+            # #listening tag forces listening front WITH audio (view visible, sentence gone)
             check(f"{name}: listening front active (view visible, sentence gone)",
                   r["listening"] is True and r["viewVisible"] and r["sentences"] == 0,
                   json.dumps(r))
-        elif audio and not probes:
-            # classic audio-only -> listening front
-            check(f"{name}: listening front active (view visible, sentence gone)",
-                  r["listening"] is True and r["viewVisible"] and r["sentences"] == 0,
+        elif has_listening_tag:
+            # #listening tag but no audio field → listening view not rendered, sentence stays
+            check(f"{name}: sentence front (listening view not rendered)",
+                  r["listening"] is False and r["sentences"] >= 1,
                   json.dumps(r))
         else:
-            # every other shape -> sentence front, listening inert
+            # no #listening tag → sentence front, listening inert
             check(f"{name}: sentence front (listening inert)",
                   r["listening"] is False and r["sentences"] >= 1,
                   json.dumps(r))

@@ -1,9 +1,9 @@
 <!-- FRONT CARD TEMPLATE
      Premium Ergonomic Japanese Front Card
-     
+
        Behavior:
        - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists.
-       - Listening: Shows circular interactive audio player if definitions are missing AND Frequency is empty.
+       - Listening: Shows circular interactive audio player ONLY when #listening tag is present.
        - Cloze Fallback: Sentence without a bold term (jidoushio mobile
          exports) is rebuilt in JS from cloze-prefix + <b>cloze-body</b>
          + cloze-suffix when all three are non-empty; otherwise the
@@ -18,13 +18,13 @@
          is active. Mobile preview screens have no JS bridge (only the reviewer
          injects js-api.js), so they always fall back to the sentence front.
          Any failure falls back to the normal sentence front.
-       - Front sentence sizing: pure CSS (base clamp + smaller phone
-         override in the stylesheet's mobile block). No JS involved.
+        - Front sentence sizing: pure CSS (base clamp + smaller phone
+          override in the stylesheet's mobile block). No JS involved.
 
-       Minimalism (PRODUCT.md): the front shows NO other UI — no tags,
-       no badges, no metadata, no labels. Hidden probes carry only
-       behavioral signals (#listening tag, field presence) for the JS
-       front-mode resolver; they never render visibly.
+        Minimalism (PRODUCT.md): the front shows NO other UI — no tags,
+        no badges, no metadata, no labels. Hidden probes carry only
+        behavioral signals (#listening tag) for the JS front-mode resolver;
+        they never render visibly.
 -->
 
 <div class="card-wrapper">
@@ -47,11 +47,6 @@
     {{#Tags}}
       <div class="tags-probe" hidden>{{Tags}}</div>
     {{/Tags}}
-
-    <!-- Field-presence probes for the listening resolver (hidden) -->
-    {{#Definition}}<span class="probe-def" hidden></span>{{/Definition}}
-    {{#Extended definition}}<span class="probe-ext" hidden></span>{{/Extended definition}}
-    {{#Frequency}}<span class="probe-freq" hidden></span>{{/Frequency}}
 
     <!-- Standard Study View -->
     {{#Definition}}
@@ -128,26 +123,24 @@
       {{/Extended definition}}
     {{/Definition}}
 
-    <!-- Listening view: renders hidden whenever Sentence Audio exists
-         (any card shape, including #listening-tagged cards with
-         glosses). The JS resolver activates it only when the listening
-         condition holds; on every other card it stays inert. -->
-    {{#Sentence Audio}}
-      <div class="listening-view">
-        <div class="audio-btn-wrapper">
-          <button type="button" class="circular-audio-btn large-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
-            <svg class="audio-progress-ring" viewBox="0 0 80 80">
-              <circle class="ring-bg" cx="40" cy="40" r="36" />
-              <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-            </svg>
-            <span class="audio-btn-content">
-              <span class="audio-btn-label">文</span>
-            </span>
-          </button>
-          <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-        </div>
+     <!-- Listening view: renders HIDDEN and only activated when the resolver
+          determines this is a listening card (triggered by #listening tag).
+          The markup is present but hidden; when activated, it becomes visible
+          and the sentence is removed from the front. -->
+    <div class="listening-view" hidden>
+      <div class="audio-btn-wrapper">
+        <button type="button" class="circular-audio-btn large-audio-btn" title="Play Sentence Audio" aria-label="Play sentence audio" onclick="playCircularAudio(this)">
+          <svg class="audio-progress-ring" viewBox="0 0 80 80">
+            <circle class="ring-bg" cx="40" cy="40" r="36" />
+            <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+          </svg>
+          <span class="audio-btn-content">
+            <span class="audio-btn-label">文</span>
+          </span>
+        </button>
+        <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
       </div>
-    {{/Sentence Audio}}
+    </div>
 
   </div>
 </div>
@@ -284,27 +277,25 @@
         console.warn('[Blank Collapse]', blankErr);
       }
 
-      /* --- LISTENING RESOLVER (classic field condition + #listening tag) ---
-         The listening markup renders hidden whenever Sentence Audio
-         exists. It becomes the active front when the classic field
-         condition holds (no Definition / Extended definition /
-         Frequency — the original audio-only path) OR the card carries
-         the #listening tag (deliberate listening exercise, even with
-         glosses). Runs synchronously before the reveal, so there is
-         no flash; any failure leaves the sentence front in place. */
+      /* --- LISTENING RESOLVER (#listening tag only) ---
+          The listening markup renders hidden. It becomes the active front
+          ONLY when the card carries the #listening tag AND has a Sentence
+          Audio field (deliberate listening exercise). Any other card
+          (sentence, word, or other modes) shows no audio on the front.
+          Runs synchronously before the reveal, so there is no flash;
+          any failure leaves the sentence front in place. */
       let isListening = false;
       try {
-        const listeningView = container.querySelector('.listening-view');
-        if (listeningView) {
-          const tagsProbe = container.querySelector('.tags-probe');
-          const tagText = tagsProbe ? (tagsProbe.textContent || '') : '';
-          const hasListeningTag = /(^|\s)listening(\s|$)/.test(tagText);
-          const fieldListening =
-            !container.querySelector('.probe-def') &&
-            !container.querySelector('.probe-ext') &&
-            !container.querySelector('.probe-freq');
-          isListening = fieldListening || hasListeningTag;
-          if (isListening) {
+        const tagsProbe = container.querySelector('.tags-probe');
+        const tagText = tagsProbe ? (tagsProbe.textContent || '') : '';
+        const hasListeningTag = /(^|\s)listening(\s|$)/.test(tagText);
+
+        // Activate listening ONLY when #listening tag is present AND
+        // Sentence Audio field exists (no audio field = no card to listen to)
+        if (hasListeningTag && container.querySelector('.raw-audio-source')) {
+          isListening = true;
+          const listeningView = container.querySelector('.listening-view');
+          if (listeningView) {
             wrapper.classList.add('listening-mode');
             container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
           }

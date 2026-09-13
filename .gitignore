@@ -1,4 +1,6 @@
 __pycache__/
 *.apkg
 backups/
+dist/
 .anki_fields.json
+conversations/

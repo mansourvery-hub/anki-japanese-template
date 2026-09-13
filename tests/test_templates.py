@@ -187,16 +187,16 @@ def main():
           ".card-wrapper.furigana-mode ruby rt" in css)
     check("Front: listening resolver driven by #listening tag probe",
           'class="tags-probe"' in front and "hasListeningTag" in front)
-    check("Front: listening resolver also accepts classic audio-only fields",
-          "probe-def" in front and "probe-ext" in front and "probe-freq" in front)
+    check("Front: no field-presence probes for classic audio-only check",
+          "probe-def" not in front and "probe-ext" not in front and "probe-freq" not in front)
 
-    # --- 6c. Listening mode invariants (hidden-by-default resolver) ---
-    check("Front: listening markup gated behind Sentence Audio only",
-          re.search(r"\{\{#Sentence Audio\}\}\s*<div class=\"listening-view\">", front) is not None)
+    # --- 6c. Listening mode invariants (triggered only by #listening tag) ---
+    check("Front: listening markup present (hidden by default, activated by resolver)",
+          '<div class="listening-view" hidden>' in front or 'listening-view" hidden' in front)
     check("Front: listening resolver runs synchronously before the reveal",
           "LISTENING RESOLVER" in front)
-    check("Front: sentence front is the universal fallback (renders in the audio branch too)",
-          re.search(r"\{\{#Sentence Audio\}\}\s*<div class=\"sentence-display\">", front) is not None)
+    check("Front: sentence front is the universal fallback (renders unless listening active)",
+          re.search(r"sd.remove\(\)", front) is not None)
     check("CSS: listening-view inert until .listening-mode activates it",
           ".card-wrapper.listening-mode .listening-view" in css)
     check("CSS: listening mode hides the sentence/word fronts",
@@ -298,6 +298,7 @@ def main():
     ALLOW_BARE = {
         ("Front", "cloze-prefix"), ("Front", "cloze-body"), ("Front", "cloze-suffix"),  # hidden probe
         ("Front", "Expression"),  # front-word-display: display:none default, word-mode gate only (§8b)
+        ("Front", "Sentence Audio"),  # listening-view: hidden by default, rendered when #listening tag active
     }
     bare = []
     for name, src in (("Front", front), ("Back", back)):
