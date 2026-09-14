@@ -47,8 +47,11 @@ mechanically verified*. Code implements; tests enforce.
   discriminators) is only a best-effort preview/browser fallback and never
   the primary review route. Ambiguous duplicates fail safely to the sentence
   front — candidate 0 is never arbitrarily chosen.
-- Any retrieval failure degrades to the sentence front; anti-flash
-  `visibility:hidden` gate with a bounded reveal cap.
+- Any retrieval failure degrades to the sentence front; the front is revealed
+  **synchronously** on script start (never blank), with the `visibility:hidden`
+  markup and a bounded safety reveal cap kept as redundant guards. A mature card
+  may briefly show the sentence before word-mode applies — a blank/hung front is
+  never possible.
 - Cloze rebuild fires only when Sentence lacks `<b>`/`<strong>` **and** the
   full prefix/body/suffix trio is non-empty; rebuild uses `<b>`.
 - AnkiDroid stub bridges (`signal:jsapi`) are never invoked;

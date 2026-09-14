@@ -251,6 +251,14 @@
     const wrapper = document.querySelector('.card-wrapper');
 
     if (container && wrapper) {
+      /* Deterministic reveal: make the front visible IMMEDIATELY (synchronously,
+         before paint). The async mature-mode retrieval below must never be able
+         to leave the card blank — even if AnkiConnect stalls during review or a
+         reveal timer is throttled. Tradeoff: a mature card may briefly show the
+         sentence before word-mode applies (~tens of ms), which is far preferable
+         to a permanently hidden (blank) front. */
+      container.style.visibility = 'visible';
+
       let wordMode = false;
       let interval = null;
       let source = 'unavailable';
