@@ -57,50 +57,61 @@
 
     <!-- Behavioral tag probe: tags are behavioral metadata, never rendered as decoration.
          #listening Policy B: the tag-listening-view is only usable when actual
-         audio is present — it binds to {{Sentence Audio}} (label 文), falling
-         back to {{Word Audio}} (label 言葉) only when Sentence Audio is absent.
-         #listening + no usable audio must fall back to the normal sentence front,
-         so the resolver checks for a rendered .tag-listening-view with a real
-         .raw-audio-source before activating it. The hardcoded play:a:0 path
-         (which plays the FIRST audio field = Word Audio on listening cards) is
-         gone: the button now plays the field it is labelled with. -->
+         audio is present. It MUST be gated behind the same Definition / Extended
+         definition / Frequency absence as the classic-listening-view, so that
+         audio fields (Sentence Audio / Word Audio) NEVER appear on the front of
+         normal study cards (Anki auto-plays any audio field on the front,
+         regardless of CSS display:none). The tag-listening-view binds to
+         Sentence Audio (label 文), falling back to Word Audio (label 言葉)
+         only when Sentence Audio is absent. #listening + no usable audio falls
+         back to the normal sentence front. The hardcoded play:a:0 path (which
+         plays the FIRST audio field = Word Audio on listening cards) is gone:
+         the button now plays the field it is labelled with. -->
     {{#Tags}}
       <div class="tags-probe" hidden>{{Tags}}</div>
-      {{#Sentence Audio}}
-        <div class="listening-view tag-listening-view" style="display: none;">
-          <div class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                <circle class="ring-bg" cx="40" cy="40" r="36" />
-                <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-              </svg>
-              <span class="audio-btn-content">
-                <span class="audio-btn-label">文</span>
-              </span>
-            </button>
-            <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-          </div>
-        </div>
-      {{/Sentence Audio}}
-      {{^Sentence Audio}}
-      {{#Word Audio}}
-        <div class="listening-view tag-listening-view" style="display: none;">
-          <div class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn large-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                <circle class="ring-bg" cx="40" cy="40" r="36" />
-                <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-              </svg>
-              <span class="audio-btn-content">
-                <span class="audio-btn-label">言葉</span>
-              </span>
-            </button>
-            <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-          </div>
-        </div>
-      {{/Word Audio}}
-      {{/Sentence Audio}}
     {{/Tags}}
+    {{^Definition}}
+      {{^Extended definition}}
+        {{^Frequency}}
+          {{#Tags}}
+            {{#Sentence Audio}}
+              <div class="listening-view tag-listening-view" style="display: none;">
+                <div class="audio-btn-wrapper">
+                  <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
+                    <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                      <circle class="ring-bg" cx="40" cy="40" r="36" />
+                      <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+                    </svg>
+                    <span class="audio-btn-content">
+                      <span class="audio-btn-label">文</span>
+                    </span>
+                  </button>
+                  <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
+                </div>
+              </div>
+            {{/Sentence Audio}}
+            {{^Sentence Audio}}
+            {{#Word Audio}}
+              <div class="listening-view tag-listening-view" style="display: none;">
+                <div class="audio-btn-wrapper">
+                  <button type="button" class="circular-audio-btn large-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
+                    <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                      <circle class="ring-bg" cx="40" cy="40" r="36" />
+                      <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+                    </svg>
+                    <span class="audio-btn-content">
+                      <span class="audio-btn-label">言葉</span>
+                    </span>
+                  </button>
+                  <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
+                </div>
+              </div>
+            {{/Word Audio}}
+            {{/Sentence Audio}}
+          {{/Tags}}
+        {{/Frequency}}
+      {{/Extended definition}}
+    {{/Definition}}
 
     <!-- Standard Study View -->
     {{#Definition}}

@@ -202,7 +202,7 @@ def main():
     # (not the hardcoded play:a:0 which plays the first audio field = Word
     # Audio on listening cards). Word Audio is the fallback. The label must
     # match what plays (文 for sentence, 言葉 for word).
-    tag_block = re.search(r'<!-- Behavioral tag probe.*?\{\{/Tags\}\}', front, re.S)
+    tag_block = re.search(r'<!-- Behavioral tag probe.*?\{\{/Tags\}\}\s*\{\{/Frequency\}\}\s*\{\{/Extended definition\}\}\s*\{\{/Definition\}\}', front, re.S)
     check("Front: tag-listening-view block present",
           tag_block is not None)
     if tag_block:
@@ -216,6 +216,13 @@ def main():
               and "onclick=\"if(typeof pycmd" not in tag_src)
         check("Front: tag-listening-view falls back to {{Word Audio}} with 言葉 label",
               "{{Word Audio}}" in tag_src and "言葉" in tag_src)
+        # CRITICAL: the tag-listening-view (and its audio fields) MUST be
+        # gated behind Definition/Extended/Frequency absence — otherwise
+        # Anki auto-plays the audio on every tagged normal card.
+        check("Front: tag-listening-view gated behind Definition/Extended/Frequency absence (no audio leak on normal cards)",
+              "{{^Definition}}" in tag_src
+              and "{{^Extended definition}}" in tag_src
+              and "{{^Frequency}}" in tag_src)
     check("Front: Policy B — #listening without usable audio falls back to sentence front",
           "hasUsableAudio" in front and "Never leave a dead/empty listening UI" in front)
     check("Front: exactly-one-listening-button cleanup removes dead/duplicate views",
