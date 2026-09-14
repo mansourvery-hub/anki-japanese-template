@@ -198,33 +198,37 @@ def main():
           ".card-wrapper.listening-mode .sentence-display" in css)
 
     # --- 6d. Listening audio source + Policy B (Features 2, 3) ---
-    # The tag-listening-view must bind to the actual {{Sentence Audio}} field
-    # (not the hardcoded play:a:0 which plays the first audio field = Word
-    # Audio on listening cards). Word Audio is the fallback. The label must
-    # match what plays (文 for sentence, 言葉 for word).
-    tag_block = re.search(r'<!-- Behavioral tag probe.*?\{\{/Tags\}\}\s*\{\{/Frequency\}\}\s*\{\{/Extended definition\}\}\s*\{\{/Definition\}\}', front, re.S)
+    # The tag-listening-view delegates to Anki's answer-side audio (play:a:N /
+    # playsound:a:N) to avoid Anki's C++/Python reviewer auto-playing audio on
+    # every tagged normal card on load (which happens whenever [sound:...] is
+    # in the front HTML regardless of CSS display:none).
+    # On the back card, Word Audio is first (a:0) and Sentence Audio is second (a:1):
+    # - Both exist: Sentence Audio is a:1 (label 文)
+    # - Only Sentence Audio exists: Sentence Audio is a:0 (label 文)
+    # - Only Word Audio exists: Word Audio is a:0 (label 言葉)
+    tag_block = re.search(r'<!-- Behavioral tag probe.*?\{\{/Tags\}\}', front, re.S)
     check("Front: tag-listening-view block present",
           tag_block is not None)
     if tag_block:
         tag_src = tag_block.group(0)
-        # The comment documents that play:a:0 is gone; the actual markup must
-        # not contain the hardcoded pycmd onclick (only {{Sentence Audio}}/
-        # {{Word Audio}} fields as the raw-audio-source).
-        check("Front: tag-listening-view binds to {{Sentence Audio}} (not play:a:0)",
-              "{{Sentence Audio}}" in tag_src
-              and "pycmd('play:a:0')" not in tag_src
-              and "onclick=\"if(typeof pycmd" not in tag_src)
-        check("Front: tag-listening-view falls back to {{Word Audio}} with 言葉 label",
-              "{{Word Audio}}" in tag_src and "言葉" in tag_src)
-        # CRITICAL: the tag-listening-view (and its audio fields) MUST be
-        # gated behind Definition/Extended/Frequency absence — otherwise
-        # Anki auto-plays the audio on every tagged normal card.
-        check("Front: tag-listening-view gated behind Definition/Extended/Frequency absence (no audio leak on normal cards)",
-              "{{^Definition}}" in tag_src
-              and "{{^Extended definition}}" in tag_src
-              and "{{^Frequency}}" in tag_src)
+        # Binds to Sentence Audio: plays a:1 when Word Audio is also present,
+        # and a:0 when Word Audio is absent. Never plays Word Audio (a:0) when
+        # Sentence Audio is present and labelled 文.
+        check("Front: tag-listening-view plays Sentence Audio (a:1 when Word Audio also present)",
+              "pycmd('play:a:1')" in tag_src
+              and "playsound:a:1" in tag_src
+              and "文" in tag_src)
+        check("Front: tag-listening-view plays Sentence Audio (a:0 when Word Audio absent)",
+              re.search(r'\{\{\^Word Audio\}\}[\s\S]*?文[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
+        check("Front: tag-listening-view falls back to Word Audio (a:0) with 言葉 label",
+              re.search(r'\{\{\^Sentence Audio\}\}[\s\S]*?\{\{#Word Audio\}\}[\s\S]*?言葉[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
+        # CRITICAL: raw {{Sentence Audio}} must NOT appear inside {{#Tags}} on
+        # front — otherwise Anki auto-plays audio on every tagged normal card.
+        check("Front: no raw audio fields inside {{#Tags}} (prevents auto-play on normal cards)",
+              re.search(r'\{\{#Tags\}\}[\s\S]*?\{\{Sentence Audio\}\}[\s\S]*?\{\{/Tags\}\}', front) is None
+              and re.search(r'\{\{#Tags\}\}[\s\S]*?\{\{Word Audio\}\}[\s\S]*?\{\{/Tags\}\}', front) is None)
     check("Front: Policy B — #listening without usable audio falls back to sentence front",
-          "hasUsableAudio" in front and "Never leave a dead/empty listening UI" in front)
+          "hasUsableAudio" in front and "Policy B" in front)
     check("Front: exactly-one-listening-button cleanup removes dead/duplicate views",
           "Dead/duplicate view cleanup" in front
           and "container.querySelectorAll('.listening-view').forEach" in front)

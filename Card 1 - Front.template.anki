@@ -56,62 +56,80 @@
     </div>
 
     <!-- Behavioral tag probe: tags are behavioral metadata, never rendered as decoration.
-         #listening Policy B: the tag-listening-view is only usable when actual
-         audio is present. It MUST be gated behind the same Definition / Extended
-         definition / Frequency absence as the classic-listening-view, so that
-         audio fields (Sentence Audio / Word Audio) NEVER appear on the front of
-         normal study cards (Anki auto-plays any audio field on the front,
-         regardless of CSS display:none). The tag-listening-view binds to
-         Sentence Audio (label 文), falling back to Word Audio (label 言葉)
-         only when Sentence Audio is absent. #listening + no usable audio falls
-         back to the normal sentence front. The hardcoded play:a:0 path (which
-         plays the FIRST audio field = Word Audio on listening cards) is gone:
-         the button now plays the field it is labelled with. -->
+         #listening Policy B: the tag-listening-view activates only when usable
+         audio exists. To avoid Anki's C++/Python reviewer auto-playing audio on
+         EVERY tagged card on card load (which happens whenever [sound:...] is
+         in the front HTML regardless of CSS display:none), the tag-listening-view
+         does NOT embed raw {{Sentence Audio}} / {{Word Audio}} fields.
+         Instead, it delegates to Anki's Answer-side (Back) audio via replay links
+         (play:a:N on desktop, playsound:a:N on AnkiDroid).
+         On the back card, Word Audio is first and Sentence Audio is second:
+         - Both exist → Sentence Audio is a:1 (label 文)
+         - Only Sentence Audio exists → Sentence Audio is a:0 (label 文)
+         - Only Word Audio exists (fallback) → Word Audio is a:0 (label 言葉)
+         - Neither exists → tag-listening-view is not rendered (Policy B: falls
+           back to the normal sentence front).
+         This guarantees:
+         1. ZERO audio autoplay on normal cards (no [sound:...] on front)
+         2. #listening cards WITH definitions can still activate
+         3. Button plays Sentence Audio (a:1 when both exist, matching 文 label)
+         4. Desktop uses pycmd('play:a:N') with return false (no security block)
+         5. AnkiDroid uses href="playsound:a:N" -->
     {{#Tags}}
       <div class="tags-probe" hidden>{{Tags}}</div>
+      {{#Sentence Audio}}
+        {{#Word Audio}}
+          <div class="listening-view tag-listening-view" style="display: none;">
+            <div class="audio-btn-wrapper">
+              <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
+                <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                  <circle class="ring-bg" cx="40" cy="40" r="36" />
+                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+                </svg>
+                <span class="audio-btn-content">
+                  <span class="audio-btn-label">文</span>
+                </span>
+              </button>
+              <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:1" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:1');return false;}"></a></span>
+            </div>
+          </div>
+        {{/Word Audio}}
+        {{^Word Audio}}
+          <div class="listening-view tag-listening-view" style="display: none;">
+            <div class="audio-btn-wrapper">
+              <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
+                <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                  <circle class="ring-bg" cx="40" cy="40" r="36" />
+                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+                </svg>
+                <span class="audio-btn-content">
+                  <span class="audio-btn-label">文</span>
+                </span>
+              </button>
+              <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}"></a></span>
+            </div>
+          </div>
+        {{/Word Audio}}
+      {{/Sentence Audio}}
+      {{^Sentence Audio}}
+      {{#Word Audio}}
+        <div class="listening-view tag-listening-view" style="display: none;">
+          <div class="audio-btn-wrapper">
+            <button type="button" class="circular-audio-btn large-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
+              <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                <circle class="ring-bg" cx="40" cy="40" r="36" />
+                <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+              </svg>
+              <span class="audio-btn-content">
+                <span class="audio-btn-label">言葉</span>
+              </span>
+            </button>
+            <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}"></a></span>
+          </div>
+        </div>
+      {{/Word Audio}}
+      {{/Sentence Audio}}
     {{/Tags}}
-    {{^Definition}}
-      {{^Extended definition}}
-        {{^Frequency}}
-          {{#Tags}}
-            {{#Sentence Audio}}
-              <div class="listening-view tag-listening-view" style="display: none;">
-                <div class="audio-btn-wrapper">
-                  <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-                    <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                      <circle class="ring-bg" cx="40" cy="40" r="36" />
-                      <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                    </svg>
-                    <span class="audio-btn-content">
-                      <span class="audio-btn-label">文</span>
-                    </span>
-                  </button>
-                  <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-                </div>
-              </div>
-            {{/Sentence Audio}}
-            {{^Sentence Audio}}
-            {{#Word Audio}}
-              <div class="listening-view tag-listening-view" style="display: none;">
-                <div class="audio-btn-wrapper">
-                  <button type="button" class="circular-audio-btn large-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
-                    <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                      <circle class="ring-bg" cx="40" cy="40" r="36" />
-                      <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                    </svg>
-                    <span class="audio-btn-content">
-                      <span class="audio-btn-label">言葉</span>
-                    </span>
-                  </button>
-                  <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-                </div>
-              </div>
-            {{/Word Audio}}
-            {{/Sentence Audio}}
-          {{/Tags}}
-        {{/Frequency}}
-      {{/Extended definition}}
-    {{/Definition}}
 
     <!-- Standard Study View -->
     {{#Definition}}
@@ -382,8 +400,9 @@
         if (!view) return false;
         const src = view.querySelector('.raw-audio-source');
         if (!src) return false;
-        const txt = (src.textContent || '').replace(/\s+/g, ' ').trim();
-        return !!txt;
+        const hasLink = !!src.querySelector('a, .replaybutton, .replay-button, .soundLink');
+        const hasText = !!(src.textContent || '').replace(/\s+/g, ' ').trim();
+        return hasLink || hasText;
       };
 
       let isListening = false;
