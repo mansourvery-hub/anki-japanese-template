@@ -127,6 +127,25 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   media proportions. Fixed empty-shell collapse bug for `.context-grid` and
   `.context-main`. Verified across 10 visual regression scenarios.
   Status: COMPLETE.
+- **T14 — Review stabilization (deterministic release + edge-case correctness).**
+  `finish.sh` release ordering fixed (verify → stamp → sync → export → commit →
+  push main → release/tag on pushed commit → fetch tag) so the tag always points
+  at the released commit; no-op protection preserved. Listening mode → Policy B
+  (activates ONLY with usable audio; `#listening` + no audio falls back safely to
+  the sentence front; legacy audio-only cards still activate). A pure `#listening`
+  audio card renders both tag and classic listening views in markup — the resolver
+  now keeps exactly one active view and removes every duplicate/dead listening view,
+  so a flex-default sound button can never linger when audio/sentence is missing.
+  Mature Word Mode:
+  exact current-card interval retrieval (`resolveMatureExactCard`) is authoritative;
+  heuristic content fallback (`resolveMatureByContent`) disambiguates by Expression →
+  Sentence → cloze-body and fails safely to sentence on ambiguity (never candidate 0).
+  Audio terminology renamed ring → playback indicator; native delegation preserved.
+  R removed from custom shortcut UI (Z/X/C only; R is Anki-owned).
+  Tests: `tests/test_mature_content.py` (Node, duplicate-card + exact-identity
+  regression), `tests/test_front_modes.py` expanded to 9 real-template harnesses,
+  `test_templates.py` shortcut/ordering/`no R` checks. Docs audited to match.
+  Status: COMPLETE (`./verify` green; behavioral suites 27 + 20).
 
 ## Roadmap (evolution loop input, not committed scope)
 

@@ -47,53 +47,174 @@ def check(name, cond, detail=""):
         FAIL += 1
 
 
-def load_resolver():
-    """Extract the resolver block verbatim from the real front template."""
+def load_template_and_resolver():
+    """Extract the template HTML and the listening resolver from the real front template."""
     with open(FRONT, encoding="utf-8") as f:
         front = f.read()
-    m = re.search(
+    m_script = re.search(r"<script>(.*?)</script>", front, re.S)
+    if not m_script:
+        raise RuntimeError("script not found in front template")
+    script = m_script.group(1)
+
+    m_res = re.search(
         r"/\* --- LISTENING RESOLVER.*?"
-        r"container\.querySelectorAll\('\.sentence-display'\)\.forEach\(\(sd\) => sd\.remove\(\)\);\s*\}\n",
-        front, re.S)
-    if not m:
+        r"container\.querySelectorAll\('\.listening-view'\)\.forEach\(\(lv\) => lv\.remove\(\)\);\s*\}\n",
+        script, re.S)
+    if not m_res:
         raise RuntimeError("listening resolver block not found in front template")
-    return m.group(0)
+    resolver = m_res.group(0)
+    html_markup = front[:m_script.start()].strip()
+    return html_markup, resolver
 
 
-# (name, has_audio_card, tags_text)
+def expand_anki_template(template_text, fields):
+    """Simulate Anki's template conditional and field expansion."""
+    pattern = re.compile(r"\{\{([#^])([^}]+)\}\}(.*?)\{\{/\2\}\}", re.S)
+    text = template_text
+    while True:
+        m = pattern.search(text)
+        if not m:
+            break
+        sig, field_name, inner = m.group(1), m.group(2).strip(), m.group(3)
+        val = fields.get(field_name, "")
+        is_truthy = bool(val and str(val).strip())
+        if sig == "#":
+            replacement = inner if is_truthy else ""
+        else:
+            replacement = "" if is_truthy else inner
+        text = text[:m.start()] + replacement + text[m.end():]
+
+    def replace_field(m):
+        raw = m.group(1).strip()
+        field_name = raw.split(":")[-1].strip()
+        val = fields.get(field_name, "")
+        if field_name in ("Sentence Audio", "Word Audio") and val:
+            return f'<a class="replay-button soundLink" href="playsound:0">{val}</a>'
+        return val
+
+    text = re.sub(r"\{\{([^#/][^}]*)\}\}", replace_field, text)
+    return text
+
+
+# Test cases covering Policy B and all listening edge cases:
+# (name, fields, expected_listening, expected_audio_label)
 CASES = [
-    ("listening card (audio-only, listening-view present)", True, ""),
-    ("normal card (glosses present, no listening-view in DOM)", False, ""),
-    ("word card (no audio on front)", False, ""),
-    ("deliberate listening (#listening tag with glosses)", False, "listening"),
-    ("non-listening tag (vocab tag with glosses)", False, "vocab n3"),
+    (
+        "#listening + usable Sentence Audio -> listening mode",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Definition": "unfair",
+            "Tags": "listening",
+            "Sentence Audio": "[sound:sentence.mp3]",
+        },
+        True,
+        "文",
+    ),
+    (
+        "#listening + usable Word Audio (no sentence audio) -> listening mode",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Definition": "unfair",
+            "Tags": "listening",
+            "Word Audio": "[sound:word.mp3]",
+        },
+        True,
+        "言葉",
+    ),
+    (
+        "#listening + no usable audio -> safe fallback to sentence front",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Definition": "unfair",
+            "Tags": "listening",
+        },
+        False,
+        None,
+    ),
+    (
+        "#listening + audio, no glosses (tag+classic views coexist) -> exactly ONE sound button",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Tags": "listening",
+            "Sentence Audio": "[sound:sentence.mp3]",
+        },
+        True,
+        "文",
+    ),
+    (
+        "no #listening + normal definitions + sentence audio -> normal sentence front",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Definition": "unfair",
+            "Sentence Audio": "[sound:sentence.mp3]",
+        },
+        False,
+        None,
+    ),
+    (
+        "no #listening + normal definitions + no audio -> normal sentence front",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Definition": "unfair",
+        },
+        False,
+        None,
+    ),
+    (
+        "no #listening + unrelated tag + definitions -> normal sentence front",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Definition": "unfair",
+            "Tags": "vocab::jlpt_n3",
+            "Sentence Audio": "[sound:sentence.mp3]",
+        },
+        False,
+        None,
+    ),
+    (
+        "no #listening + legacy audio-only card (Sentence Audio) -> listening mode",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Sentence Audio": "[sound:sentence.mp3]",
+        },
+        True,
+        "文",
+    ),
+    (
+        "no #listening + legacy audio-only card (Word Audio) -> listening mode",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+            "Word Audio": "[sound:word.mp3]",
+        },
+        True,
+        "言葉",
+    ),
+    (
+        "no #listening + legacy card without audio -> fallback sentence front",
+        {
+            "Expression": "不公平",
+            "Sentence": "世の中って<b>不公平</b>よね",
+        },
+        False,
+        None,
+    ),
 ]
 
 
-def build_html(resolver, is_listening_card, tags_text=""):
-    sent_html = '<div class="sentence-display">世の中って<b>不公平</b>よね</div>'
-    tags_html = (
-        f'<div class="tags-probe" hidden>{tags_text}</div>'
-        '<div class="listening-view tag-listening-view" style="display: none;">'
-        '<div class="audio-btn-wrapper">'
-        '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
-        '<span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0"></a></span>'
-        '</div></div>'
-    ) if tags_text else ""
-    classic_audio = (
-        '<div class="listening-view classic-listening-view">'
-        '<div class="audio-btn-wrapper">'
-        '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
-        '<span class="raw-audio-source" aria-hidden="true">[sound:test.mp3]</span>'
-        '</div>'
-        '</div>'
-    ) if is_listening_card else ""
+def build_html(html_markup, resolver, fields):
+    expanded = expand_anki_template(html_markup, fields)
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <style>.front-word-display{{display:none}}</style></head><body>
-<div class="card"><div class="card-wrapper"><div class="card-container">
-<div class="front-word-display">不公平</div>
-{tags_html}{sent_html}{classic_audio}
-</div></div></div>
+{expanded}
 <script>
 var report = {{}};
 try {{
@@ -103,8 +224,15 @@ try {{
 report.listening = isListening;
 report.cls = wrapper.className;
 report.sentences = container.querySelectorAll('.sentence-display').length;
-var lv = container.querySelector('.listening-view');
-report.viewVisible = !!lv && getComputedStyle(lv).display !== 'none';
+var lvs = container.querySelectorAll('.listening-view');
+report.viewVisible = !!lvs.length;
+report.audioButtons = 0;
+for (var vi = 0; vi < lvs.length; vi++) {{
+  if (getComputedStyle(lvs[vi]).display !== 'none') report.audioButtons++;
+}}
+var firstLv = lvs[0];
+var labelEl = firstLv ? firstLv.querySelector('.audio-btn-label') : null;
+report.visibleLabel = (labelEl ? labelEl.textContent.trim() : null);
 }} catch(e) {{ report.err = String(e && e.stack || e); }}
 document.title = JSON.stringify(report);
 </script>
@@ -140,10 +268,10 @@ def main():
     if not CHROME:
         print("[SKIP] no headless Chrome found — front-mode checks skipped")
         return 0
-    resolver = load_resolver()
+    html_markup, resolver = load_template_and_resolver()
 
-    for name, is_listening, tags_text in CASES:
-        r = render(build_html(resolver, is_listening, tags_text))
+    for name, fields, expected_listening, expected_audio_label in CASES:
+        r = render(build_html(html_markup, resolver, fields))
         check(f"{name}: probe returned", r is not None)
         if not r:
             continue
@@ -152,15 +280,29 @@ def main():
             continue
         check(f"{name}: resolver ran without errors", True)
 
-        expected_listening = is_listening or ("listening" in tags_text)
         if expected_listening:
-            check(f"{name}: listening front active (view visible, sentence removed)",
-                  r["listening"] is True and r["viewVisible"] and r["sentences"] == 0,
-                  json.dumps(r))
+            label_ok = (expected_audio_label is None) or (r.get("visibleLabel") == expected_audio_label)
+            check(
+                f"{name}: listening front active (view visible, sentence removed, label={expected_audio_label})",
+                r["listening"] is True and r["viewVisible"] and r["sentences"] == 0 and label_ok,
+                json.dumps(r),
+            )
+            check(
+                f"{name}: exactly one visible sound button (no duplicate/dead view)",
+                r.get("audioButtons") == 1,
+                json.dumps(r),
+            )
         else:
-            check(f"{name}: sentence front active (listening false, sentence intact)",
-                  r["listening"] is False and not r["viewVisible"] and r["sentences"] == 1,
-                  json.dumps(r))
+            check(
+                f"{name}: sentence front active (listening false, sentence intact)",
+                r["listening"] is False and not r["viewVisible"] and r["sentences"] >= 1,
+                json.dumps(r),
+            )
+            check(
+                f"{name}: no sound button rendered when audio is missing",
+                r.get("audioButtons") == 0,
+                json.dumps(r),
+            )
 
     print()
     print(f"{PASS} passed, {FAIL} failed")

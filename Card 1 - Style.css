@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.7.6 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.0 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -822,7 +822,7 @@
 }
 
 /* ==============================================================================
-    7. CIRCULAR AUDIO BUTTON WITH SVG PROGRESS RING
+    7. CIRCULAR AUDIO BUTTON WITH SVG PLAYBACK INDICATOR
     ============================================================================== */
 .audio-row {
   display: inline-flex;
@@ -885,6 +885,8 @@
   background-color: var(--accent-soft);
 }
 
+/* Decorative playback indicator (formerly progress ring) */
+.audio-playback-indicator,
 .audio-progress-ring {
   position: absolute;
   top: 0;
@@ -895,12 +897,14 @@
   pointer-events: none;
 }
 
+.audio-playback-indicator .ring-bg,
 .audio-progress-ring .ring-bg {
   fill: none;
   stroke: var(--accent-light);
   stroke-width: 2px;
 }
 
+.audio-playback-indicator .ring-fill,
 .audio-progress-ring .ring-fill {
   fill: none;
   stroke: var(--accent-color);

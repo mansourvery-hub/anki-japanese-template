@@ -183,6 +183,14 @@ def main():
           "furigana-mode" in back and "'f'" in back)
     check("Back: keyboard T reveals the translation",
           "'t'" in back and "translation-box" in back)
+    check("Back: R is NOT advertised as a template shortcut (Anki owns replay)",
+          'shortcut-item"><kbd>R</kbd>' not in back
+          and "R</kbd>" not in back)
+    check("Back: custom shortcut hints are Z/X/C only (no R)",
+          re.search(r"<kbd>Z</kbd>", back) is not None
+          and re.search(r"<kbd>X</kbd>", back) is not None
+          and re.search(r"<kbd>C</kbd>", back) is not None
+          and not re.search(r"<kbd>R</kbd>", back))
     check("CSS: full-card furigana mode rule exists",
           ".card-wrapper.furigana-mode ruby rt" in css)
     # --- 6c. Listening mode invariants ---
@@ -336,6 +344,13 @@ def main():
     finish = open(os.path.join(ROOT, "finish.sh"), encoding="utf-8").read()
     check("finish.sh: no-op run cannot publish a release",
           "Nothing to push or release" in finish)
+    # Release ordering: push main BEFORE creating the tag/release, so the tag
+    # always points at the pushed release commit (deterministic).
+    check("finish.sh: git push main precedes release creation (tag points at pushed commit)",
+          finish.index("git push origin main") < finish.index("gh release create")
+          and "--target main" in finish)
+    check("finish.sh: fetch tag happens after release creation",
+          finish.index("gh release create") < finish.rindex("git fetch origin"))
 
     print()
     print(f"{PASS} passed, {FAIL} failed")

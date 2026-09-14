@@ -40,8 +40,12 @@ Definition / Extended definition? ──yes──→ sentence-display (zero audi
 Frequency (legacy)? ──yes──→ sentence-display (zero audio)
         │ no
 Sentence Audio? ──yes──→ listening-view (audio-only card)
-        │ no
+        │ no  (Word Audio fallback when Sentence Audio absent)
 sentence-display fallback
+        │
+Listening resolver (Policy B): listening mode ONLY when usable audio exists;
+        #listening tag + no usable audio → safe sentence fallback (never a
+        dead/empty listening UI).
         │
 cloze fixup: Sentence has no <b> AND cloze trio complete?
         │ yes → prefix + <b>body</b> + suffix
@@ -52,15 +56,28 @@ Mature check (not listening, Expression non-empty,
         │ no  → sentence front (also the universal fallback)
 ```
 
+### Mature interval: exact current-card vs best-effort fallback
+
+Two distinct paths, never conflated:
+
+- **Exact current-card retrieval (authoritative, review path):** desktop uses
+  `guiCurrentCard` → `cardsInfo`; mobile uses the AnkiDroid bridge
+  `ankiGetCardInterval()`. The review path never depends on heuristic content
+  matching when exact identity is available.
+- **Best-effort preview fallback:** only used when no active review exists
+  (browser/preview). Content matching discriminates by Expression → Sentence
+  → cloze-body. If ambiguity remains after all discriminators, it fails safely
+  to the sentence front — candidate 0 is never arbitrarily selected.
+
 Hidden behavioral probes never render visibly: the cloze trio and the
 tags probe. Normal cards never evaluate `{{Sentence Audio}}` on the front,
 guaranteeing zero audio autoplay and zero audio controls on normal cards.
 Interval retrieval is **platform-exclusive**: mobile uses
 only the AnkiDroid bridge (`ankiGetCardInterval()`, constructor + direct
 shapes, stub guard, timeouts, 700 ms late-injection poll); desktop uses
-only AnkiConnect (`guiCurrentCard`→`cardsInfo`, `findCards`
-content-search fallback for the Browse previewer — no `note:` clause,
-`{{Type}}` is not the model name, 500 ms fetch timeout). Anti-flash gate
+only AnkiConnect (`guiCurrentCard`→`cardsInfo` exact current-card read,
+`findCards` content-search fallback for the Browse previewer — no `note:`
+clause, `{{Type}}` is not the model name, 500 ms fetch timeout). Anti-flash gate
 (`visibility:hidden` → reveal, 1200 ms safety cap); blank sentence
 blocks are removed after the cloze fixup. See `docs/adr/001-*`.
 
@@ -84,10 +101,12 @@ card-container
 JS controllers (all idempotent under WebView DOM re-use): More toggle (one-way reveal;
 section+button self-remove when secondary content is absent),
 native-only circular audio (`playCircularAudio` → sibling replay link
-click, re-tap debounce, ring pulse), definition truncator (blank boxes
+click, re-tap debounce, playback-indicator pulse), definition truncator (blank boxes
 removed, then measure → `.is-truncated` → one-way `.is-expanded`),
 lightbox (backdrop-click / `Escape` close, alt preserved), back-only
-keyboard shortcuts (`F` full-card furigana, `T` translation reveal).
+keyboard shortcuts (`Z` full-card furigana / `F` alias, `X` translation
+reveal / `T` alias, `C` expanded-information toggle; `R` is Anki-owned for
+native audio replay, never a template shortcut).
 
 ### Style (`Card 1 - Style.css`)
 
@@ -96,7 +115,8 @@ accent is reserved for the target and interactive states), §2 containers,
 §3 More toggle, §4 context grid + desktop overrides, §5 front type,
 §5b word-mode swap, §6 back hierarchy (word/pitch/audio), **§6b Definition Compactor**
 (first dictionary, ≤2 senses, no appendices, `.primary-definition`-scoped),
-§6c truncator (3-line cap + fade + chevron), §7 audio rings,
+§6c truncator (3-line cap + fade + chevron), §7 audio playback indicators
+(decorative play-pulse, not true progress),
 §8 sentence/translation + secondary blocks, §9 zero-reflow ruby +
 §9b full-card furigana mode, §10 media/lightbox, §11 footer,
 §12 listening (inert until `.listening-mode`), §13 mobile,

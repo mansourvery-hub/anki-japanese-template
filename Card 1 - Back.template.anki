@@ -14,8 +14,9 @@
       noise without retrieval value), the two-column side dashboard.
 
       Preserved subsystems: Definition Compactor (§6b), truncator (§6c),
-      native-delegating audio buttons (文/言葉 — Anki's R shortcut also
-      remains fully functional), lightbox, empty-field collapse.
+      native-delegating audio buttons (文/言葉 — Anki's own R shortcut handles
+      replay and is NOT a template shortcut), lightbox, empty-field collapse.
+      Custom shortcuts are Z/X/C (furigana / translation / expanded info).
 -->
 
 <div class="card-wrapper back-card">
@@ -52,7 +53,7 @@
         {{#Word Audio}}
           <span class="audio-btn-wrapper">
             <button type="button" class="circular-audio-btn small-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 44 44">
+              <svg class="audio-progress-ring audio-playback-indicator" viewBox="0 0 44 44">
                 <circle class="ring-bg" cx="22" cy="22" r="19" />
                 <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
               </svg>
@@ -67,7 +68,7 @@
         {{#Sentence Audio}}
           <span class="audio-btn-wrapper">
             <button type="button" class="circular-audio-btn small-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 44 44">
+              <svg class="audio-progress-ring audio-playback-indicator" viewBox="0 0 44 44">
                 <circle class="ring-bg" cx="22" cy="22" r="19" />
                 <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
               </svg>
@@ -187,11 +188,11 @@
     </button>
 
     <!-- SHORTCUT / FEATURE DISCOVERABILITY BAR -->
+    <!-- Keyboard shortcut hints (Z/X/C). R is owned by Anki for native audio replay. -->
     <div class="shortcut-hints" aria-label="ショートカット">
       <span class="shortcut-item"><kbd>Z</kbd> 振仮名</span>
       <span class="shortcut-item"><kbd>X</kbd> 訳</span>
       <span class="shortcut-item"><kbd>C</kbd> 展開</span>
-      <span class="shortcut-item"><kbd>R</kbd> 音声</span>
     </div>
 
     <!-- Source footer (secondary; stays outside More as a one-line
@@ -313,7 +314,9 @@
       document.addEventListener('keydown', handleKey);
     };
 
-    /* --- CIRCULAR AUDIO CONTROLLER (native-only) --- */
+    /* --- CIRCULAR AUDIO CONTROLLER (native-only) ---
+       Delegates to Anki's native replay link. The ring is a decorative
+       playback indicator pulse, not true progress. */
     window.currentActiveBtn = window.currentActiveBtn || null;
     window.currentActiveTimer = window.currentActiveTimer || null;
 
@@ -342,8 +345,11 @@
         const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
         const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
           || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
+        let played = false;
         if (nativeReplay) {
-            try { nativeReplay.click(); } catch (e) { return; }
+            try { nativeReplay.click(); played = true; } catch (e) { played = false; }
+        }
+        if (played) {
             btn.classList.add('is-playing');
             if (ringFill) {
                 ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';

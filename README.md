@@ -15,9 +15,9 @@ A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for d
 - **🌙 Dual themes** — Tokyo Night dark (default) and Aki Paper light, following Anki's Night Mode.
 - **🔢 Minimal by design** — every visible element must justify its screen space. The front is a pure retrieval surface (just the Japanese); the back is a quiet reading interface: target → reading → meaning → context, with secondary info collapsed behind `More ▾`. Anki is the SRS — no badges, dashboards, or grading UI.
 - **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoint jumps; sentence + picture context grid on desktop, single column on phones; container queries with a media-query fallback for old WebViews. Cards size to their content (no forced viewport fill).
-- **🔤 Zero-reflow furigana** — hidden by default, revealed on hover (desktop) / tap (mobile); **`F`** pins full-card furigana on the back. Nothing ever shifts.
-- **🔊 Native audio** — `文` / `言葉` buttons and Anki's own **`R`** shortcut delegate to Anki's replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid.
-- **👁️ On-demand secondary info** — `T` reveals the translation; `More ▾` exposes the full Yomitan definition, extra context, kanji and general notes. Quiet by default.
+- **🔤 Zero-reflow furigana** — hidden by default, revealed on hover (desktop) / tap (mobile); **`Z`** pins full-card furigana on the back. Nothing ever shifts.
+- **🔊 Native audio** — `文` / `言葉` buttons and Anki's own **`R`** shortcut delegate to Anki's replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid. `R` is Anki-owned (not a template shortcut).
+- **👁️ On-demand secondary info** — `X` reveals the translation; `C` toggles expanded info; `More ▾` exposes the full Yomitan definition, extra context, kanji and general notes. Quiet by default.
 - **🖼️ Lightbox** — tap any image for a full-screen overlay; closes on backdrop click or <kbd>Escape</kbd>.
 - **🏷️ Behavioral tags** — tags drive card behavior (e.g. `#listening` forces the listening front) and are never rendered as decoration.
 
@@ -31,17 +31,18 @@ The front contains ONLY the thing being tested — the sentence itself is the re
 | :--- | :--- |
 | Definition present | Sentence (or Expression if no Sentence) |
 | No definitions, but `Frequency` set (legacy cards) | Usual sentence — never the audio button |
-| No definitions, no Frequency, `Sentence Audio` set | Listening-mode audio button |
-| Card tagged `#listening` | Listening-mode audio button (deliberate listening exercise, even with glosses) |
+| No definitions, no Frequency, `Sentence Audio` set | Listening-mode audio button (Word Audio fallback) |
+| Card tagged `#listening` **with** usable audio | Listening-mode audio button (deliberate listening exercise, even with glosses) |
+| Card tagged `#listening` **without** usable audio | Normal sentence front (safe fallback — never a dead listening UI) |
 | Nothing available | Sentence / Expression fallback |
 | Sentence has no bold term + cloze trio complete | Rebuilt `prefix + `<b>`body`</b>` + suffix`, styled identically to a Yomitan sentence |
 | Review interval ≥ 365 days | Word only (Mature Word Mode, see below) |
 
 **Cloze fallback** (jidoushio mobile exports): when `Sentence` lacks its `<b>` target word, JS rebuilds it from `cloze-prefix` / `cloze-body` / `cloze-suffix` — but only if all three are non-empty, otherwise the sentence is kept as-is.
 
-**Mature Word Mode** (anti-overlearning): old cards stop testing the word and start testing sentence recognition, so at `interval ≥ LONG_INTERVAL_DAYS` (default `365`, one constant in `Card 1 - Front.template.anki`) the front shows only the `Expression`. The interval is read live at render time — AnkiConnect (`guiCurrentCard` → `cardsInfo`, with a `findCards` content-search fallback for the Browse previewer) on desktop, the AnkiDroid JS API on mobile. Any failure degrades to the normal sentence front; listening cards are never touched; an anti-flash gate keeps the card hidden until the decision is made (500 ms fetch timeout, 1200 ms reveal cap).
+**Mature Word Mode** (anti-overlearning): old cards stop testing the word and start testing sentence recognition, so at `interval ≥ LONG_INTERVAL_DAYS` (default `365`, one constant in `Card 1 - Front.template.anki`) the front shows only the `Expression`. The interval is read live at render time — the **exact current card's interval** via AnkiConnect `guiCurrentCard` → `cardsInfo` on desktop and the AnkiDroid JS API on mobile. A `findCards` content-search fallback (Expression → Sentence → cloze-body) exists only for the Browse previewer, where no active review is available; if duplicates remain ambiguous after all discriminators it fails safely to the sentence front rather than guessing. Any failure degrades to the normal sentence front; listening cards are never touched; an anti-flash gate keeps the card hidden until the decision is made (500 ms fetch timeout, 1200 ms reveal cap).
 
-**Listening semantics**: the audio button markup is gated on `Sentence Audio` and inert until a synchronous resolver confirms the listening condition — the classic audio-only field shape OR the `#listening` tag. Every other card (and every failure path, including no-JS) keeps the sentence front.
+**Listening semantics**: the audio button markup is gated on `Sentence Audio` (with a `Word Audio` fallback) and only becomes a listening card when **usable audio actually exists** — the classic audio-only field shape OR the `#listening` tag alongside audio. `#listening` without usable audio, every ordinary card, and every failure path (including no-JS) keep the sentence front.
 
 ---
 

@@ -25,8 +25,15 @@ mechanically verified*. Code implements; tests enforce.
 - The sentence front is the **universal fallback**: every pathological /
   mature failure path degrades to it, never to a blank or hung card.
 - Pure listening cards: `listening-view` renders only under
-  `{{^Definition}}{{^Extended definition}}{{^Frequency}}{{#Sentence Audio}}`.
-  Normal study cards never include `{{Sentence Audio}}` on front, guaranteeing
+  `{{^Definition}}{{^Extended definition}}{{^Frequency}}{{#Sentence Audio}}`
+  (with a `{{Word Audio}}` fallback when Sentence Audio is absent). Listening
+  mode activates ONLY when usable audio exists: `#listening` tag + no audio
+  falls back safely to the normal sentence front; a dead/empty listening UI
+  is never shown. Exactly ONE listening view is ever visible: a pure
+  `#listening` audio card renders both the tag and classic views in markup,
+  and the resolver removes every non-active view so no duplicate/dead sound
+  button lingers when audio or sentence is missing.
+- Normal study cards never include `{{Sentence Audio}}` on front, guaranteeing
   zero audio autoplay on front.
 - Listening cards never enter Mature Word Mode and skip all interval
   retrieval.
@@ -34,6 +41,12 @@ mechanically verified*. Code implements; tests enforce.
   (`{{Type}}` is the scheduling type, not the model): desktop AnkiConnect
   only, mobile AnkiDroid bridge only; mobile never fetches
   `127.0.0.1:8765`.
+- Mature Word Mode reads the interval of the **exact current card** during
+  active review (`guiCurrentCard` → `cardsInfo` on desktop, AnkiDroid bridge
+  on mobile); heuristic content matching (Expression → Sentence → cloze-body
+  discriminators) is only a best-effort preview/browser fallback and never
+  the primary review route. Ambiguous duplicates fail safely to the sentence
+  front — candidate 0 is never arbitrarily chosen.
 - Any retrieval failure degrades to the sentence front; anti-flash
   `visibility:hidden` gate with a bounded reveal cap.
 - Cloze rebuild fires only when Sentence lacks `<b>`/`<strong>` **and** the
@@ -51,14 +64,18 @@ mechanically verified*. Code implements; tests enforce.
   content exists.
 - Content hierarchy communicates card mode directly: no retrieval-state
   badges, captions, or dashboard metadata.
-- Keyboard shortcuts on the back: `F` toggles full-card furigana
-  (`.furigana-mode`), `T` reveals the translation (opening More first);
-  shortcuts never fire in inputs/contentEditable.
+- Keyboard shortcuts on the back: `Z` toggles full-card furigana
+  (`.furigana-mode`, `F` alias), `X` reveals the translation (`T` alias,
+  opening More first), `C` toggles expanded information. `R` is **not** a
+  template shortcut — Anki owns it for native audio replay. Custom shortcuts
+  never fire in inputs/contentEditable.
 - Every circular audio button has an `aria-label`; replay source is a
   **sibling** `.raw-audio-source` (never inside `<button>`, never
   `display:none`); playback delegates to the native replay link; re-tap is
   debounced; `playCircularAudio` starts with `resetAudioState`; no `new
-  Audio()`, no `is-paused` remnants, no `div`-inside-`button`.
+  Audio()`, no `is-paused` remnants, no `div`-inside-`button`. The ring is a
+  **playback indicator** (decorative play-pulse), not actual audio progress —
+  native delegation is preserved and no HTML5 `Audio()` is used for progress.
 - Lightbox closes only on backdrop click (`e.target === overlay`) or
   `Escape`; overlay carries dialog semantics; cloned image preserves `alt`.
 - Definition expand is one-way (never re-collapses); `.is-truncated` is set
@@ -74,6 +91,9 @@ mechanically verified*. Code implements; tests enforce.
 - Content-driven card height (no `100vh`/`100dvh` fill); `container-type:
   inline-size` present; the context grid (sentence + picture) has a
   media-query fallback.
+- `:has()` is intentionally accepted architecture for this project (empty
+  collapse guards, responsive context grid) and is not removed or redesigned
+  purely for theoretical portability.
 - Compactor hide rules all scoped to `.primary-definition`; the full
   extended definition (`.extended-full` inside More) stays untouched.
 - Word-mode swap rules exist and never touch `.listening-view`; the
@@ -81,6 +101,8 @@ mechanically verified*. Code implements; tests enforce.
 - `:focus-visible` indicators and `prefers-reduced-motion` present.
 - Accent color is reserved for target highlighting and interactive
   states; frequency indicator uses semantic tier colors (--freq-*).
+- Front template size is not treated as a defect; correctness and
+  reliability take precedence over reducing line count.
 
 ## Empty-field collapse (space discipline)
 

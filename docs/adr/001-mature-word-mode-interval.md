@@ -18,15 +18,32 @@ exists, and new fields / add-ons / review-time Python are all rejected.
 
 ## Decision
 
-Desktop reads AnkiConnect only (`guiCurrentCard`→`cardsInfo`, `findCards`
-content-search fallback for the Browse previewer). Mobile reads the AnkiDroid
-JS bridge only (`ankiGetCardInterval()`, both constructor and direct shapes,
-stub guard, timeouts, short late-injection poll). Listening fronts skip all
-retrieval. Any failure degrades to the sentence front behind an anti-flash
-gate.
+Desktop reads AnkiConnect only (`guiCurrentCard`→`cardsInfo` reads the
+**exact current card's** interval; `findCards` content-search fallback exists
+only for the Browse previewer where no active review is available). Mobile
+reads the AnkiDroid JS bridge only (`ankiGetCardInterval()`, both constructor
+and direct shapes, stub guard, timeouts, short late-injection poll). Listening
+fronts skip all retrieval. Any failure degrades to the sentence front behind
+an anti-flash gate.
+
+### Exact current-card vs best-effort preview fallback
+
+These two paths are deliberately distinct and never conflated:
+
+- **Exact current-card retrieval (authoritative, review path):** desktop
+  `guiCurrentCard` → `cardsInfo`; mobile `ankiGetCardInterval()`. The review
+  path never depends on heuristic content matching when exact identity is
+  available. A guard confirms the returned card's Expression matches the DOM
+  before trusting its interval, so a review-flow race cannot leak another
+  duplicate card's interval.
+- **Best-effort preview fallback:** only when no active review exists
+  (browser/preview). Content matching discriminates by Expression → Sentence →
+  cloze-body. If ambiguity remains after all discriminators, it fails safely
+  to the sentence front — candidate 0 is never arbitrarily selected.
 
 ## Consequences
 
 Preview screens without a bridge correctly show the sentence front. Two
-platform paths must both be covered by `test_templates.py` §8b on every
+platform paths must both be covered by `test_templates.py` §8b and the
+duplicate-card fallback behavior by `tests/test_mature_content.py` on every
 change.

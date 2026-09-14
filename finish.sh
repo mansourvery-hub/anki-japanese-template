@@ -25,9 +25,9 @@
 #                        (also snapshots live Anki state into backups/)
 #   3. release_apkg.py — export sample deck to dist/*.apkg via Anki-Connect
 #   4. git commit     — stage everything (incl. chat_history log) & commit
-#   5. GitHub release — auto-bump tag (v1.x.y) + apkg
-#   6. git push       — push commit to origin/main; fetch the release tag
-#                        (gh creates it remotely; local syncs for next bump)
+#   5. git push       — push commit to origin/main
+#   6. GitHub release — create tag & release on the pushed commit + upload apkg
+#   7. git fetch      — fetch the release tag so local syncs for next bump
 #
 # Any failure stops the chain with a clear message (set -e). Requires: Anki
 # running with Anki-Connect, gh CLI authenticated (full mode only).
@@ -140,17 +140,19 @@ if [ "$CHANGED" -eq 0 ]; then
   exit 0
 fi
 
-echo "==> [4/6] Creating GitHub release"
+echo "==> [4/6] Pushing to origin/main"
+git push origin main
+
+echo "==> [5/6] Creating GitHub release ($NEW_TAG)"
 NOTES="Automated release from commit: $COMMIT_MSG
 
 Install: import the .apkg in Anki, then delete the sample cards — the note type is retained."
 gh release create "$NEW_TAG" dist/anki-japanese-template.apkg \
+  --target main \
   --title "$NEW_TAG" \
   --notes "$NOTES" \
   --latest
 
-echo "==> [5/6] Pushing to origin/main"
-git push origin main
 # The release tag was created on the REMOTE by gh above; fetch it so local
 # tag bookkeeping stays in sync for the next run's version bump.
 git fetch origin "refs/tags/*:refs/tags/*" --quiet

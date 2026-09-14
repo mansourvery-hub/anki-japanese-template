@@ -90,8 +90,11 @@ Archive every new user prompt to `chat_history/opencode_prompts.txt`
 ### 4. Technical constraints (summaries; full rules in QUALITY.md)
 
 Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · native-only
-circular audio (`文`/`言葉`, sibling replay link, debounce) · Mature Word
-Mode (`LONG_INTERVAL_DAYS = 365`, platform-exclusive live interval read,
+circular audio (`文`/`言葉`, sibling replay link, debounce, playback indicator;
+`R` is Anki-owned, not a template shortcut) · listening activates ONLY with
+usable audio (`#listening` + no audio → safe sentence fallback) · Mature Word
+Mode (`LONG_INTERVAL_DAYS = 365`, exact current-card interval read first,
+content fallback only for preview and never candidate-0 on ambiguity,
 sentence fallback, listening untouched, anti-flash gate) · no debug badges
 or verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
 

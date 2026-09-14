@@ -78,29 +78,38 @@ off-screen context to be solvable is a bad mine and should be re-mined.
 
 - Front modes (in priority order): Definition/Extended-definition →
   sentence; legacy Frequency-only → sentence; pure listening cards (no
-  Definition, no Extended-definition, no Frequency, Sentence Audio present)
-  → large circular audio button; otherwise sentence/Expression fallback;
+  Definition, no Extended-definition, no Frequency, Sentence Audio present,
+  with a Word Audio fallback) → large circular audio button; otherwise
+  sentence/Expression fallback;
   cloze trio rebuild when Sentence lacks `<b>`; mature interval-gated word-only
-  front. Normal cards NEVER render or play audio on the front. The sentence
-  front is the universal fallback for every failure path.
+  front. Listening mode activates **only when usable audio exists**; `#listening`
+  tag + no usable audio falls back safely to the sentence front (never a dead/
+  empty listening UI). Normal cards NEVER render or play audio on the front.
+  The sentence front is the universal fallback for every failure path.
 - Back hierarchy: word/furigana target with Japanese seal, 5-star frequency
   visualizer and pitch accent, compacted primary definition (§6b), context
   (sentence + picture as core information), native circular audio (`文`/`言葉`),
   secondary information toggleable behind `More ▾` / `Less ▴` (translation,
   context, kanji notes, notes, full extended definition), keyboard shortcuts
-  hints, source footer. Content hierarchy communicates card structure directly.
-- Mature Word Mode: live interval read at render time (desktop AnkiConnect
-  `guiCurrentCard`→`cardsInfo` + `findCards` content-search fallback for the
-  Browse previewer; mobile AnkiDroid JS API `ankiGetCardInterval()` only);
-  never fetch AnkiConnect from a mobile WebView; any failure → sentence
+  hints (Z/X/C; R is Anki-owned), source footer. Content hierarchy communicates
+  card structure directly.
+- Mature Word Mode: live interval read at render time. The **exact current
+  card's interval** is read during active review (desktop AnkiConnect
+  `guiCurrentCard`→`cardsInfo`; mobile AnkiDroid JS API `ankiGetCardInterval()`
+  only). Heuristic content matching (`findCards` by Expression → Sentence →
+  cloze-body) is only a best-effort Browse-previewer fallback and never the
+  primary route; ambiguous duplicates fail safely to the sentence front.
+  Never fetch AnkiConnect from a mobile WebView; any failure → sentence
   front; listening fronts untouched.
 - Tags are behavioral metadata, never decoration: hidden probes only;
-  `#listening` forces listening behavior; extensible for future
+  `#listening` forces listening behavior (only when usable audio is present);
+  extensible for future
   behavior-related tags without card redesign.
 - Tooling: `sync_to_anki.py` pushes Front/Back/CSS with a pre-sync snapshot
   to `backups/<timestamp>/`; `release_apkg.py` exports deck
   `My Life Decks::Japanese::anki-japanese-template` via `exportPackage`;
-  `finish.sh` runs tests → sync → export → commit → push → release.
+  `finish.sh` runs tests → sync → export → commit → **push → release**, so the
+  tag always points at the pushed release commit.
 
 ## UX requirements
 
@@ -109,11 +118,11 @@ off-screen context to be solvable is a bad mine and should be re-mined.
 - Fluid `clamp()` sizing phone → 4K; sentence+picture context grid on
   desktop (container queries + media-query fallback), single column on
   phones.
-- Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby); `F`
+- Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby); `Z`
   toggles full-card furigana on the back.
-- Native-only audio (delegate to Anki replay link, re-tap debounce, ring
-  pulse — never HTML5 `Audio`); `R` (Anki native) remains the primary
-  audio path.
+- Native-only audio (delegate to Anki replay link, re-tap debounce, playback
+  indicator pulse — never HTML5 `Audio`); `R` (Anki native) remains the
+  primary audio path and is **not** a template shortcut.
 - Dual themes (Tokyo Night dark / Aki Paper light, follows Anki Night Mode),
   accent color reserved for target highlighting and interactive states,
   `prefers-reduced-motion` support, keyboard focus indicators, aria
