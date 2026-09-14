@@ -19,8 +19,8 @@ AnkiDroid without overlapping playback.
 The `.raw-audio-source` span lives **outside** the button, visually hidden
 but kept in layout (never `display:none`, which breaks programmatic
 `.click()`). Every play path resets state first; re-taps on the playing
-button are ignored (native audio can't be stopped); the ring is a decorative
-pulse.
+button are ignored (native audio can't be stopped); the ring is a playback
+indicator (a decorative play-pulse), not true progress.
 
 ## Consequences
 

@@ -4,13 +4,18 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.7.6 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.3 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
  * secondary (collapsed behind "More ▾"). Anki is the SRS; this
  * template is presentation only — every visible element must justify
  * its screen space.
+ *
+ * Audio: the circular ring is a playback indicator (a decorative
+ * play-pulse), not true progress — native Anki/AnkiDroid audio
+ * delegation is the authority (ADR 003). R shortcut is Anki-owned.
+ * :has() is intentional architecture for empty-shell collapse.
  *
  * Optimized for Arch Linux Desktop (Anki Qt6) and Samsung Galaxy A50
  * (AnkiDroid): cards size to their content; fluid clamp() tokens,
@@ -886,6 +891,9 @@
 }
 
 .audio-progress-ring {
+  /* Playback indicator: a decorative play-pulse, not true progress.
+     Native audio is the authority (ADR 003); this ring only signals that
+     a play was triggered and re-tap debounce is active. */
   position: absolute;
   top: 0;
   left: 0;

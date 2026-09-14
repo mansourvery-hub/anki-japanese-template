@@ -18,15 +18,19 @@ exists, and new fields / add-ons / review-time Python are all rejected.
 
 ## Decision
 
-Desktop reads AnkiConnect only (`guiCurrentCard`→`cardsInfo`, `findCards`
-content-search fallback for the Browse previewer). Mobile reads the AnkiDroid
-JS bridge only (`ankiGetCardInterval()`, both constructor and direct shapes,
-stub guard, timeouts, short late-injection poll). Listening fronts skip all
-retrieval. Any failure degrades to the sentence front behind an anti-flash
-gate.
+Desktop reads AnkiConnect only (`guiCurrentCard`→`cardsInfo` — the **exact
+current review card**; `findCards` content-search is a best-effort
+**heuristic fallback** for the Browse previewer only, using Sentence then
+cloze-body as discriminators, never picking candidate 0 blindly, failing
+safely on ambiguity). Mobile reads the AnkiDroid JS bridge only
+(`ankiGetCardInterval()`, both constructor and direct shapes, stub guard,
+timeouts, short late-injection poll). Listening fronts skip all retrieval.
+Any failure degrades to the sentence front behind an anti-flash gate.
 
 ## Consequences
 
 Preview screens without a bridge correctly show the sentence front. Two
-platform paths must both be covered by `test_templates.py` §8b on every
-change.
+platform paths must both be covered by `test_templates.py` §8b and
+`test_mature_content.py` on every change. The content-search fallback is
+heuristic, not authoritative — it distinguishes exact-card retrieval (the
+primary path) from best-effort preview fallback.

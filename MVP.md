@@ -21,15 +21,18 @@ compact informative back, and a one-command sync → export → release loop.
 
 - Front: pure retrieval surface — sentence / Expression fallback,
   Frequency-legacy sentence path, cloze-trio rebuild, pure audio-only listening
-  cards (Sentence Audio present when all definitions and frequency absent;
-  normal cards have zero audio on front), Mature Word Mode (interval-gated,
-  platform-exclusive retrieval, sentence fallback).
+  cards (usable audio required; `#listening` without audio falls back to
+  sentence), Mature Word Mode (interval-gated, platform-exclusive
+  retrieval — exact current card on desktop/mobile, content-search fallback
+  for the Browse previewer only, never picks candidate 0, sentence fallback).
 - Back: typography-driven hierarchy — word+furigana target, quiet pitch
   text, Definition Compactor (CSS §6b), 3-line truncator with one-way
   expand (§6c), context (sentence + picture as core information,
-  responsive grid), native circular audio, secondary
-  information collapsed behind `More ▾` (translation, context, kanji
-  notes, notes, full extended definition), source footer. Content
+  responsive grid), native circular audio (playback indicator, not true
+  progress), secondary information collapsed behind `More ▾` (translation,
+  context, kanji notes, notes, full extended definition), source footer.
+  Custom shortcuts: `Z` furigana, `X`/`T` translation, `C` expanded-info;
+  `R` is Anki-owned (never in the template's shortcut UI). Content
   hierarchy communicates card mode directly.
 - Styling: Tokyo Night + Aki Paper themes, fluid clamps, container-query
   context grid with media fallback, zero-reflow furigana + `F`

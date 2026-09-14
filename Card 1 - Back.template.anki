@@ -6,7 +6,7 @@
        Level 2  Primary meaning (compacted definition)    — §6b CSS
        Level 3  Context (sentence + picture when present) — core info
        Level 4  Secondary info — collapsed behind "More ▾":
-                translation (click/T), extended definition,
+                translation (click/T/X), extended definition,
                 additional context, kanji notes, notes, source.
 
       Removed vs the old layout: sticky tags bar (tags are behavioral
@@ -14,8 +14,10 @@
       noise without retrieval value), the two-column side dashboard.
 
       Preserved subsystems: Definition Compactor (§6b), truncator (§6c),
-      native-delegating audio buttons (文/言葉 — Anki's R shortcut also
-      remains fully functional), lightbox, empty-field collapse.
+      native-delegating audio buttons (文/言葉 — playback indicator, not
+      true progress). R is Anki's own shortcut (native replay); the
+      template's custom shortcuts are Z/X/C only — R is never added or
+      listed. Lightbox, empty-field collapse.
 -->
 
 <div class="card-wrapper back-card">
@@ -186,12 +188,14 @@
       <span class="more-text">詳細</span> <span class="more-caret">▾</span>
     </button>
 
-    <!-- SHORTCUT / FEATURE DISCOVERABILITY BAR -->
+    <!-- SHORTCUT / FEATURE DISCOVERABILITY BAR
+         R is Anki-owned (native replay) — never listed here as a template
+         shortcut. Custom template shortcuts only: Z (furigana), X
+         (translation), C (expanded-info toggle). -->
     <div class="shortcut-hints" aria-label="ショートカット">
       <span class="shortcut-item"><kbd>Z</kbd> 振仮名</span>
       <span class="shortcut-item"><kbd>X</kbd> 訳</span>
       <span class="shortcut-item"><kbd>C</kbd> 展開</span>
-      <span class="shortcut-item"><kbd>R</kbd> 音声</span>
     </div>
 
     <!-- Source footer (secondary; stays outside More as a one-line

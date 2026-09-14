@@ -21,6 +21,9 @@ mechanically verified*. Code implements; tests enforce.
 - Front shows **no UI** beyond the tested Japanese: no tags, badges,
   metadata, labels, or controls (hidden behavioral probes only: cloze trio).
   Normal cards NEVER render or play audio on the front.
+- `R` shortcut is **Anki-owned** (native replay); the template never adds
+  or modifies an `R` shortcut. Custom template shortcuts are `Z`
+  (furigana), `X` (translation), `C` (expanded-info) — never `R`.
 - Balanced `{{#field}}` / `{{^field}}` / `{{/field}}` conditionals.
 - The sentence front is the **universal fallback**: every pathological /
   mature failure path degrades to it, never to a blank or hung card.
@@ -28,19 +31,42 @@ mechanically verified*. Code implements; tests enforce.
   `{{^Definition}}{{^Extended definition}}{{^Frequency}}{{#Sentence Audio}}`.
   Normal study cards never include `{{Sentence Audio}}` on front, guaranteeing
   zero audio autoplay on front.
+- **Listening Policy B**: `#listening` activates the listening front **only
+  when usable audio exists** (the tag-listening-view must have a real
+  `.raw-audio-source` — `{{Sentence Audio}}`, or `{{Word Audio}}` as
+  fallback). `#listening` + no usable audio falls back safely to the normal
+  sentence front. The resolver removes every dead/duplicate listening view
+  so exactly one listening sound button is ever visible.
+- **Listening audio source**: the tag-listening-view binds to the actual
+  `{{Sentence Audio}}` field (not the hardcoded `play:a:0` which plays the
+  first audio field = Word Audio on listening cards). Word Audio is the
+  fallback when Sentence Audio is absent. The label matches what plays
+  (文 for sentence audio, 言葉 for word audio).
 - Listening cards never enter Mature Word Mode and skip all interval
   retrieval.
 - Interval has no `{{Interval}}` marker and no `note:` search clause
   (`{{Type}}` is the scheduling type, not the model): desktop AnkiConnect
   only, mobile AnkiDroid bridge only; mobile never fetches
   `127.0.0.1:8765`.
+- **Mature mode interval retrieval** distinguishes exact-card retrieval
+  (desktop `guiCurrentCard` → `cardsInfo`; mobile AnkiDroid
+  `ankiGetCardInterval()`) from heuristic content-search fallback (Browse
+  previewer only). The content fallback uses Sentence then cloze-body as
+  discriminators; if ambiguity remains, it fails safely to the sentence
+  front. It never picks candidate 0 blindly.
 - Any retrieval failure degrades to the sentence front; anti-flash
-  `visibility:hidden` gate with a bounded reveal cap.
+  `visibility:hidden` gate with a bounded reveal cap. The gate is
+  deterministic and safe: it must never depend on a single async path or
+  timer that can be throttled, and it must never leave a blank/hung card.
 - Cloze rebuild fires only when Sentence lacks `<b>`/`<strong>` **and** the
   full prefix/body/suffix trio is non-empty; rebuild uses `<b>`.
 - AnkiDroid stub bridges (`signal:jsapi`) are never invoked;
   `{success:false}` never becomes an interval; numeric strings and
   JSON-encoded responses parse; bridge calls time out.
+- `:has()` is intentional architecture for empty-shell collapse; it is not
+  removed for theoretical portability.
+- Front template size is not a defect; correctness is prioritized over line
+  count. The front is not aggressively split/refactored.
 
 ## Back invariants
 
@@ -52,13 +78,17 @@ mechanically verified*. Code implements; tests enforce.
 - Content hierarchy communicates card mode directly: no retrieval-state
   badges, captions, or dashboard metadata.
 - Keyboard shortcuts on the back: `F` toggles full-card furigana
-  (`.furigana-mode`), `T` reveals the translation (opening More first);
-  shortcuts never fire in inputs/contentEditable.
+  (`.furigana-mode`), `T` reveals the translation (opening More first),
+  `X` toggles translation (alias for `T`), `C` toggles expanded-info;
+  shortcuts never fire in inputs/contentEditable. **`R` is Anki-owned**
+  (native replay) and never appears in the template's shortcut UI.
 - Every circular audio button has an `aria-label`; replay source is a
   **sibling** `.raw-audio-source` (never inside `<button>`, never
   `display:none`); playback delegates to the native replay link; re-tap is
   debounced; `playCircularAudio` starts with `resetAudioState`; no `new
-  Audio()`, no `is-paused` remnants, no `div`-inside-`button`.
+  Audio()`, no `is-paused` remnants, no `div`-inside-`button`. The ring is
+  a **playback indicator** (a decorative play-pulse), not true progress —
+  native audio remains the authority (ADR 003).
 - Lightbox closes only on backdrop click (`e.target === overlay`) or
   `Escape`; overlay carries dialog semantics; cloned image preserves `alt`.
 - Definition expand is one-way (never re-collapses); `.is-truncated` is set

@@ -2279,3 +2279,16 @@ E is a badshort cut(opens anki edit page); same with F and T; picturestill too s
 ---
 
 soundbuggedin listening cards: it make anki block it for security reasons; picturestill psuhed down in cards with long snetnces; some patholigcallegacy cards should be listening cards but are not tagged correclty with listening tag: for ex 駿ってさ… card: it has no word aduio, no word defintion and not even frequency or picth accent, it is a legacy listeing card.
+
+---
+
+Build on reverted baseline 59ac56f (v1.8.2):
+1. R shortcut is Anki-owned (removed from back shortcut UI)
+2. Listening Policy B (#listening requires usable audio, else sentence fallback)
+3. Fix tag-listening-view audio source (bind to {{Sentence Audio}}, not play:a:0)
+4. Audio terminology: progress ring → playback indicator
+5. Mature mode: exact current card, never pick candidate 0, Sentence+cloze-body discriminators
+6. :has() is accepted architecture
+7. finish.sh deterministic ordering (push main before gh release --target main)
+8. Tests: test_mature_content.py (6 cases), extended test_front_modes.py (8 cases), 18 new structural invariants
+9. Docs audit across all methodology files

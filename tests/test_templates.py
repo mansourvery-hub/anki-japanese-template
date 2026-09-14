@@ -197,6 +197,45 @@ def main():
     check("CSS: listening mode hides the sentence/word fronts",
           ".card-wrapper.listening-mode .sentence-display" in css)
 
+    # --- 6d. Listening audio source + Policy B (Features 2, 3) ---
+    # The tag-listening-view must bind to the actual {{Sentence Audio}} field
+    # (not the hardcoded play:a:0 which plays the first audio field = Word
+    # Audio on listening cards). Word Audio is the fallback. The label must
+    # match what plays (文 for sentence, 言葉 for word).
+    tag_block = re.search(r'<!-- Behavioral tag probe.*?\{\{/Tags\}\}', front, re.S)
+    check("Front: tag-listening-view block present",
+          tag_block is not None)
+    if tag_block:
+        tag_src = tag_block.group(0)
+        # The comment documents that play:a:0 is gone; the actual markup must
+        # not contain the hardcoded pycmd onclick (only {{Sentence Audio}}/
+        # {{Word Audio}} fields as the raw-audio-source).
+        check("Front: tag-listening-view binds to {{Sentence Audio}} (not play:a:0)",
+              "{{Sentence Audio}}" in tag_src
+              and "pycmd('play:a:0')" not in tag_src
+              and "onclick=\"if(typeof pycmd" not in tag_src)
+        check("Front: tag-listening-view falls back to {{Word Audio}} with 言葉 label",
+              "{{Word Audio}}" in tag_src and "言葉" in tag_src)
+    check("Front: Policy B — #listening without usable audio falls back to sentence front",
+          "hasUsableAudio" in front and "Never leave a dead/empty listening UI" in front)
+    check("Front: exactly-one-listening-button cleanup removes dead/duplicate views",
+          "Dead/duplicate view cleanup" in front
+          and "container.querySelectorAll('.listening-view').forEach" in front)
+    check("Front: last-resort pycmd fallback is documented (not the primary path)",
+          "Last-resort fallback" in front)
+
+    # --- 6e. R shortcut is Anki-owned, never template-owned (Feature 1) ---
+    check("Back: R shortcut hint removed from shortcut UI (Anki-owned)",
+          '<kbd>R</kbd>' not in back)
+    check("Back: custom template shortcuts are Z, X, C only",
+          all(k in back for k in ['<kbd>Z</kbd>', '<kbd>X</kbd>', '<kbd>C</kbd>']))
+
+    # --- 6f. Audio terminology: playback indicator, not progress ring (Feature 4) ---
+    check("Front: ring described as playback indicator (not true progress)",
+          "playback indicator" in front.lower())
+    check("CSS: ring described as playback indicator",
+          "playback indicator" in css.lower())
+
     # --- 7. Font sizing source-of-truth ---
     check("Back: no JS font-scaler overriding CSS (inline fontSize ban)",
           "el.style.fontSize" not in back and "autoScaleBackSentence" not in back)
@@ -283,6 +322,25 @@ def main():
           and re.search(r"findCards[^\n]*note:", front) is None
           and 'escQuery(NOTE_TYPE)' not in front)
 
+    # --- 8c. Mature content-search fallback invariants (Feature 6) ---
+    # Exact current card is the primary path (guiCurrentCard → cardsInfo).
+    # Content search is a best-effort preview fallback only. It must:
+    # - NEVER pick candidate 0 blindly (matches[0] is banned)
+    # - Use Sentence then cloze-body as discriminators
+    # - Fail safely to sentence mode when ambiguity remains
+    check("Front: content search never picks candidate 0 (matches[0] banned)",
+          "matches[0]" not in front
+          and re.search(r"candidates\[0\]", front) is not None)  # only after discriminators narrow to 1
+    check("Front: content search uses Sentence discriminator",
+          "Discriminator 1: Sentence" in front)
+    check("Front: content search uses cloze-body discriminator",
+          "Discriminator 2: cloze-body" in front)
+    check("Front: content search fails safely on ambiguity (sentence fallback)",
+          "content-search-ambiguous" in front
+          and "sentence fallback" in front)
+    check("Front: content search uses exact-card resolution (length === 1)",
+          "candidates.length === 1" in front)
+
     # --- 10. Empty-field collapse (QUALITY.md: no UI survives an empty field) ---
     # 10a. Static proof over the raw templates (comments/scripts stripped):
     # every rendered field lives inside an Anki conditional, except the
@@ -336,6 +394,20 @@ def main():
     finish = open(os.path.join(ROOT, "finish.sh"), encoding="utf-8").read()
     check("finish.sh: no-op run cannot publish a release",
           "Nothing to push or release" in finish)
+    # Deterministic release ordering: push main BEFORE gh release create so
+    # the tag points at the exact pushed commit (--target main).
+    # Strip comments to check actual command order.
+    finish_code = re.sub(r"^\s*#[^\n]*\n", "", finish, flags=re.M)
+    finish_code = re.sub(r"^\s*#[^\n]*$", "", finish_code, flags=re.M)
+    check("finish.sh: push main before gh release create (--target main)",
+          "git push origin main" in finish_code
+          and "gh release create" in finish_code
+          and finish_code.index("git push origin main") < finish_code.index("gh release create")
+          and "--target main" in finish_code)
+    check("finish.sh: fetches the remote tag after release creation",
+          finish_code.index("gh release create") < finish_code.rindex("git fetch origin \"refs/tags/*:refs/tags/*\""))
+    check("finish.sh: verify runs before version stamp (step 0 before step 1)",
+          finish.index("./verify") < finish.index("NEW_TAG="))
 
     print()
     print(f"{PASS} passed, {FAIL} failed")

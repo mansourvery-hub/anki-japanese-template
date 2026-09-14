@@ -127,6 +127,22 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   media proportions. Fixed empty-shell collapse bug for `.context-grid` and
   `.context-main`. Verified across 10 visual regression scenarios.
   Status: COMPLETE.
+- **T14 — Listening Policy B + audio source fix + mature exact-card.**
+  Listening Policy B: `#listening` activates the listening front only when
+  usable audio exists (`hasUsableAudio` on `.raw-audio-source`); `#listening`
+  + no audio falls back to the normal sentence front. Dead/duplicate views
+  removed so exactly one listening button is ever visible. Listening audio
+  source fix: the tag-listening-view binds to the actual `{{Sentence Audio}}`
+  field (label 文), falling back to `{{Word Audio}}` (label 言葉) — never the
+  hardcoded `play:a:0` (which plays the first audio field = Word Audio on
+  listening cards). Mature exact-card: content-search fallback uses Sentence
+  then cloze-body discriminators, never picks candidate 0, fails safely on
+  ambiguity. R shortcut is Anki-owned (removed from the back's shortcut UI).
+  Audio terminology: "progress ring" → "playback indicator". finish.sh
+  ordering: push main before `gh release create --target main`. Tests:
+  `test_front_modes.py` (8 cases), `test_mature_content.py` (6 cases),
+  structural invariants in `test_templates.py` (§§6d–6f, 8c, 9). Docs audit
+  across all methodology files. Status: COMPLETE.
 
 ## Roadmap (evolution loop input, not committed scope)
 

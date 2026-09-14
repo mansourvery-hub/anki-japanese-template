@@ -77,9 +77,10 @@ Chain (stops on first failure): `0.` `./verify` (side-effect-free gate) →
 `1.` version stamp → `2.` `sync_to_anki.py` (pre-sync snapshot to gitignored
 `backups/<timestamp>/`) → `3.` `release_apkg.py` (deck
 `My Life Decks::Japanese::anki-japanese-template` via `exportPackage` to
-gitignored `dist/*.apkg`) → `4.` commit → `5.` `gh release create`
-(auto-bump tag) → `6.` push. The apkg ships as a Release asset, never in the
-repo. Do not skip, reorder, or substitute steps.
+gitignored `dist/*.apkg`) → `4.` commit → `5.` push main → `6.`
+`gh release create --target main` (tag points at the pushed commit) →
+fetch the remote tag. The apkg ships as a Release asset, never in the repo.
+Do not skip, reorder, or substitute steps.
 
 ### 3. Prompt archiving
 
@@ -90,10 +91,15 @@ Archive every new user prompt to `chat_history/opencode_prompts.txt`
 ### 4. Technical constraints (summaries; full rules in QUALITY.md)
 
 Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · native-only
-circular audio (`文`/`言葉`, sibling replay link, debounce) · Mature Word
-Mode (`LONG_INTERVAL_DAYS = 365`, platform-exclusive live interval read,
-sentence fallback, listening untouched, anti-flash gate) · no debug badges
-or verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
+circular audio (`文`/`言葉`, sibling replay link, debounce, playback
+indicator — not true progress) · `R` is Anki-owned (never a template
+shortcut) · Mature Word Mode (`LONG_INTERVAL_DAYS = 365`,
+platform-exclusive live interval read — exact current card on
+desktop/mobile, content-search fallback for the Browse previewer only,
+never picks candidate 0, sentence fallback, listening untouched, anti-flash
+gate) · `#listening` requires usable audio (Policy B: falls back to sentence
+without it) · `:has()` is intentional architecture · no debug badges or
+verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
 
 ## File map
 
@@ -101,5 +107,6 @@ or verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
 `Card 1 - Back.template.anki` (grid, audio, lightbox) ·
 `Card 1 - Style.css` (themes, layout, compactor §6b, truncator §6c) ·
 `fetch_anki_fields.py` · `sync_to_anki.py` · `release_apkg.py` · `verify` ·
-`finish.sh` · `tests/` · `docs/adr/` · `chat_history/` · `dist/` + `backups/`
-(gitignored).
+`finish.sh` · `tests/` (compactor + templates + front_modes +
+mature_content + layout) · `docs/adr/` · `chat_history/` · `dist/` +
+`backups/` (gitignored).

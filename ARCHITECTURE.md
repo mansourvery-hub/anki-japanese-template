@@ -32,7 +32,8 @@ Tooling (stdlib-only): fetch_anki_fields.py · sync_to_anki.py ·
 
 A pure retrieval surface: only the tested Japanese renders. HTML
 conditionals pick the branch; a synchronous JS resolver finalizes the
-listening decision; async JS finalizes Mature Word Mode:
+listening decision (Policy B: usable audio required); async JS finalizes
+Mature Word Mode:
 
 ```text
 Definition / Extended definition? ──yes──→ sentence-display (zero audio)
@@ -55,14 +56,31 @@ Mature check (not listening, Expression non-empty,
 Hidden behavioral probes never render visibly: the cloze trio and the
 tags probe. Normal cards never evaluate `{{Sentence Audio}}` on the front,
 guaranteeing zero audio autoplay and zero audio controls on normal cards.
-Interval retrieval is **platform-exclusive**: mobile uses
-only the AnkiDroid bridge (`ankiGetCardInterval()`, constructor + direct
-shapes, stub guard, timeouts, 700 ms late-injection poll); desktop uses
-only AnkiConnect (`guiCurrentCard`→`cardsInfo`, `findCards`
-content-search fallback for the Browse previewer — no `note:` clause,
-`{{Type}}` is not the model name, 500 ms fetch timeout). Anti-flash gate
-(`visibility:hidden` → reveal, 1200 ms safety cap); blank sentence
-blocks are removed after the cloze fixup. See `docs/adr/001-*`.
+**Listening Policy B**: `#listening` (or the legacy audio-only shape)
+activates the listening front **only when usable audio exists**
+(`hasUsableAudio` check on the `.raw-audio-source`). The tag-listening-view
+binds to `{{Sentence Audio}}` (label 文), falling back to `{{Word Audio}}`
+(label 言葉) — never the hardcoded `play:a:0`. `#listening` + no usable
+audio falls back to the normal sentence front; dead/duplicate views are
+removed so exactly one listening button is ever visible.
+Interval retrieval is **platform-exclusive** and distinguishes
+**exact-current-card** retrieval from **heuristic content-search fallback**:
+- Exact card (primary): mobile uses only the AnkiDroid bridge
+  (`ankiGetCardInterval()`, constructor + direct shapes, stub guard,
+  timeouts, 700 ms late-injection poll); desktop uses only AnkiConnect
+  (`guiCurrentCard`→`cardsInfo` — the exact current review card).
+- Content-search fallback (Browse previewer only, when guiCurrentCard
+  fails): `findCards` by Expression, then Sentence and cloze-body
+  discriminators narrow to exactly one candidate. **Never picks candidate
+  0**; if ambiguity remains, fails safely to the sentence front.
+Anti-flash gate (`visibility:hidden` → reveal, 1200 ms safety cap); blank
+sentence blocks are removed after the cloze fixup. The gate is
+deterministic and safe: it never depends on a single async path or timer
+that can be throttled. See `docs/adr/001-*`.
+
+`:has()` is intentional architecture for empty-shell collapse (§6b, §10);
+it is not removed for theoretical portability. Front template size is not
+a defect — correctness is prioritized over line count.
 
 ### Back (`Card 1 - Back.template.anki`)
 
@@ -84,10 +102,11 @@ card-container
 JS controllers (all idempotent under WebView DOM re-use): More toggle (one-way reveal;
 section+button self-remove when secondary content is absent),
 native-only circular audio (`playCircularAudio` → sibling replay link
-click, re-tap debounce, ring pulse), definition truncator (blank boxes
+click, re-tap debounce, playback indicator pulse), definition truncator (blank boxes
 removed, then measure → `.is-truncated` → one-way `.is-expanded`),
 lightbox (backdrop-click / `Escape` close, alt preserved), back-only
-keyboard shortcuts (`F` full-card furigana, `T` translation reveal).
+keyboard shortcuts (`F` full-card furigana, `T`/`X` translation reveal,
+`C` expanded-info toggle; `R` is Anki-owned, never listed).
 
 ### Style (`Card 1 - Style.css`)
 
@@ -96,7 +115,7 @@ accent is reserved for the target and interactive states), §2 containers,
 §3 More toggle, §4 context grid + desktop overrides, §5 front type,
 §5b word-mode swap, §6 back hierarchy (word/pitch/audio), **§6b Definition Compactor**
 (first dictionary, ≤2 senses, no appendices, `.primary-definition`-scoped),
-§6c truncator (3-line cap + fade + chevron), §7 audio rings,
+§6c truncator (3-line cap + fade + chevron), §7 audio rings (playback indicator, not true progress),
 §8 sentence/translation + secondary blocks, §9 zero-reflow ruby +
 §9b full-card furigana mode, §10 media/lightbox, §11 footer,
 §12 listening (inert until `.listening-mode`), §13 mobile,
@@ -109,9 +128,10 @@ fetch_anki_fields.py → .anki_fields.json (gitignored, read-only dump)
 sync_to_anki.py      → snapshot backups/<ts>/, push Front/Back/CSS
 release_apkg.py      → exportPackage deck → dist/*.apkg (gitignored)
 verify               → local quality gate (tests only, no side effects)
-finish.sh            → verify → stamp → sync → export → commit → push → release
+finish.sh            → verify → stamp → sync → export → commit → push main → release (--target main) → fetch tag
 tests/               → test_compactor.py + test_templates.py
-                        + test_front_modes.py + test_layout.py
+                         + test_front_modes.py + test_mature_content.py
+                         + test_layout.py
 ```
 
 Fields are **not** a repo artifact: the Anki UI owns them; agents bootstrap

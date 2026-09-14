@@ -66,7 +66,10 @@ off-screen context to be solvable is a bad mine and should be re-mined.
    familiar sentence must never become the retrieval cue.
 3. **Review listening card.** Cards whose audio is the test (pure audio-only
    fields: no definitions, no frequency) show a single large audio
-   button; normal cards are completely unaffected and have zero audio on front.
+   button; `#listening` activates the listening front **only when usable
+   audio exists** (Sentence Audio, or Word Audio fallback) — without
+   usable audio it falls back to the normal sentence front. Normal cards
+   are completely unaffected and have zero audio on front.
 4. **Expand information on demand.** Secondary info (translation,
    extended definition, additional context, kanji/general notes) sits
    behind one quiet `More ▾` toggle; `T` reveals the translation, `F`
@@ -78,25 +81,28 @@ off-screen context to be solvable is a bad mine and should be re-mined.
 
 - Front modes (in priority order): Definition/Extended-definition →
   sentence; legacy Frequency-only → sentence; pure listening cards (no
-  Definition, no Extended-definition, no Frequency, Sentence Audio present)
-  → large circular audio button; otherwise sentence/Expression fallback;
-  cloze trio rebuild when Sentence lacks `<b>`; mature interval-gated word-only
-  front. Normal cards NEVER render or play audio on the front. The sentence
-  front is the universal fallback for every failure path.
+  Definition, no Extended-definition, no Frequency, usable audio present)
+  → large circular audio button; `#listening` + no usable audio falls
+  back to sentence; cloze trio rebuild when Sentence lacks `<b>`; mature
+  interval-gated word-only front. Normal cards NEVER render or play audio
+  on the front. The sentence front is the universal fallback for every
+  failure path.
 - Back hierarchy: word/furigana target with Japanese seal, 5-star frequency
   visualizer and pitch accent, compacted primary definition (§6b), context
   (sentence + picture as core information), native circular audio (`文`/`言葉`),
   secondary information toggleable behind `More ▾` / `Less ▴` (translation,
   context, kanji notes, notes, full extended definition), keyboard shortcuts
   hints, source footer. Content hierarchy communicates card structure directly.
-- Mature Word Mode: live interval read at render time (desktop AnkiConnect
-  `guiCurrentCard`→`cardsInfo` + `findCards` content-search fallback for the
-  Browse previewer; mobile AnkiDroid JS API `ankiGetCardInterval()` only);
-  never fetch AnkiConnect from a mobile WebView; any failure → sentence
-  front; listening fronts untouched.
+- Mature Word Mode: live interval read at render time — **exact current
+  card** on desktop (AnkiConnect `guiCurrentCard`→`cardsInfo`) and mobile
+  (AnkiDroid JS API `ankiGetCardInterval()`); content search
+  (Expression → Sentence → cloze-body) is only a best-effort preview/browser
+  fallback when exact identity is unavailable, and never picks candidate 0
+  blindly; any failure → sentence front; listening fronts untouched.
 - Tags are behavioral metadata, never decoration: hidden probes only;
-  `#listening` forces listening behavior; extensible for future
-  behavior-related tags without card redesign.
+  `#listening` forces listening behavior (requires usable audio, else
+  falls back to sentence); extensible for future behavior-related tags
+  without card redesign.
 - Tooling: `sync_to_anki.py` pushes Front/Back/CSS with a pre-sync snapshot
   to `backups/<timestamp>/`; `release_apkg.py` exports deck
   `My Life Decks::Japanese::anki-japanese-template` via `exportPackage`;
@@ -111,9 +117,10 @@ off-screen context to be solvable is a bad mine and should be re-mined.
   phones.
 - Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby); `F`
   toggles full-card furigana on the back.
-- Native-only audio (delegate to Anki replay link, re-tap debounce, ring
-  pulse — never HTML5 `Audio`); `R` (Anki native) remains the primary
-  audio path.
+- Native-only audio (delegate to Anki replay link, re-tap debounce,
+  playback indicator pulse — never HTML5 `Audio`); `R` is Anki-owned
+  (native replay), never a template shortcut. `:has()` is intentional
+  architecture for empty-shell collapse.
 - Dual themes (Tokyo Night dark / Aki Paper light, follows Anki Night Mode),
   accent color reserved for target highlighting and interactive states,
   `prefers-reduced-motion` support, keyboard focus indicators, aria

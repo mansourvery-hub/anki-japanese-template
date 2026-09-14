@@ -3,26 +3,42 @@
 
        Behavior:
        - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists. Zero audio on front.
-       - Listening: Shows circular interactive audio player ONLY when definitions and Frequency are absent AND Sentence Audio exists (pure audio-only card).
+       - Listening (Policy B): #listening (or the legacy audio-only shape)
+         activates the listening front ONLY when usable audio exists.
+         The tag-listening-view binds to {{Sentence Audio}} (label 文),
+         falling back to {{Word Audio}} (label 言葉) — never the hardcoded
+         play:a:0 (which plays the first audio field = Word Audio on
+         listening cards). #listening + no usable audio falls back to the
+         normal sentence front. The resolver removes every dead/duplicate
+         view so exactly one listening button is ever visible.
        - Cloze Fallback: Sentence without a bold term (jidoushio mobile
          exports) is rebuilt in JS from cloze-prefix + <b>cloze-body</b>
          + cloze-suffix when all three are non-empty; otherwise the
          usual sentence is kept untouched.
        - Frequency legacy: No definitions but Frequency present (old cards with deleted glosses) → usual sentence, never the audio button.
        - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
-      - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
-        the front shows only the Expression instead of the sentence (anti-overlearning).
-         Interval is read at review time: AnkiDroid JS API (ankiGetCardInterval) on mobile,
-         AnkiConnect on desktop — guiCurrentCard during active review, with a content
-         search fallback (Expression field) for the Browse previewer where no review
-         is active. Mobile preview screens have no JS bridge (only the reviewer
-         injects js-api.js), so they always fall back to the sentence front.
-         Any failure falls back to the normal sentence front.
-        - Front sentence sizing: pure CSS (base clamp + smaller phone
-          override in the stylesheet's mobile block). No JS involved.
+       - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
+         the front shows only the Expression instead of the sentence (anti-overlearning).
+          Interval is the EXACT current card's interval: AnkiDroid JS API
+          (ankiGetCardInterval) on mobile, AnkiConnect guiCurrentCard →
+          cardsInfo on desktop during active review. Content search
+          (Expression → Sentence → cloze-body) is only a best-effort
+          preview/browser fallback when exact identity is unavailable;
+          it never picks candidate 0 blindly and fails safely to the
+          sentence front on ambiguity. Mobile preview screens have no JS
+          bridge (only the reviewer injects js-api.js), so they always
+          fall back to the sentence front. Any failure falls back to the
+          normal sentence front.
+         - Front sentence sizing: pure CSS (base clamp + smaller phone
+           override in the stylesheet's mobile block). No JS involved.
+         - Front reveal is deterministic and safe: the anti-flash
+           visibility gate never depends on a single async path or timer
+           that can be throttled into a blank front. R shortcut is
+           Anki-owned; the template's custom shortcuts are Z/X/C only.
 
-        Minimalism (PRODUCT.md): the front shows NO other UI — no tags,
-        no badges, no metadata, no labels, NO AUDIO on normal cards.
+         Minimalism (PRODUCT.md): the front shows NO other UI — no tags,
+         no badges, no metadata, no labels, NO AUDIO on normal cards.
+         Front template size is not a defect; correctness > line count.
 -->
 
 <div class="card-wrapper">
@@ -39,23 +55,51 @@
       <span class="cloze-suf">{{cloze-suffix}}</span>
     </div>
 
-    <!-- Behavioral tag probe: tags are behavioral metadata, never rendered as decoration. -->
+    <!-- Behavioral tag probe: tags are behavioral metadata, never rendered as decoration.
+         #listening Policy B: the tag-listening-view is only usable when actual
+         audio is present — it binds to {{Sentence Audio}} (label 文), falling
+         back to {{Word Audio}} (label 言葉) only when Sentence Audio is absent.
+         #listening + no usable audio must fall back to the normal sentence front,
+         so the resolver checks for a rendered .tag-listening-view with a real
+         .raw-audio-source before activating it. The hardcoded play:a:0 path
+         (which plays the FIRST audio field = Word Audio on listening cards) is
+         gone: the button now plays the field it is labelled with. -->
     {{#Tags}}
       <div class="tags-probe" hidden>{{Tags}}</div>
-      <div class="listening-view tag-listening-view" style="display: none;">
-        <div class="audio-btn-wrapper">
-          <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
-            <svg class="audio-progress-ring" viewBox="0 0 80 80">
-              <circle class="ring-bg" cx="40" cy="40" r="36" />
-              <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-            </svg>
-            <span class="audio-btn-content">
-              <span class="audio-btn-label">文</span>
-            </span>
-          </button>
-          <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="#" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0')}return false"></a></span>
+      {{#Sentence Audio}}
+        <div class="listening-view tag-listening-view" style="display: none;">
+          <div class="audio-btn-wrapper">
+            <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
+              <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                <circle class="ring-bg" cx="40" cy="40" r="36" />
+                <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+              </svg>
+              <span class="audio-btn-content">
+                <span class="audio-btn-label">文</span>
+              </span>
+            </button>
+            <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
+          </div>
         </div>
-      </div>
+      {{/Sentence Audio}}
+      {{^Sentence Audio}}
+      {{#Word Audio}}
+        <div class="listening-view tag-listening-view" style="display: none;">
+          <div class="audio-btn-wrapper">
+            <button type="button" class="circular-audio-btn large-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
+              <svg class="audio-progress-ring" viewBox="0 0 80 80">
+                <circle class="ring-bg" cx="40" cy="40" r="36" />
+                <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
+              </svg>
+              <span class="audio-btn-content">
+                <span class="audio-btn-label">言葉</span>
+              </span>
+            </button>
+            <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
+          </div>
+        </div>
+      {{/Word Audio}}
+      {{/Sentence Audio}}
     {{/Tags}}
 
     <!-- Standard Study View -->
@@ -167,7 +211,8 @@
        AnkiDroid `replaybutton`). Never constructs an HTML5 audio element:
        on AnkiDroid the rendered link carries no usable filename (old builds
        emit `playsound:q:0`, which would be loaded as a bogus file and fail).
-       The ring is a decorative play-pulse, not true progress. */
+       The ring is a playback indicator (a decorative play-pulse), not true
+       progress — native audio remains the authority (ADR 003). */
     window.currentActiveBtn = window.currentActiveBtn || null;
     window.currentActiveTimer = window.currentActiveTimer || null;
 
@@ -206,6 +251,10 @@
         if (nativeReplay) {
             try { nativeReplay.click(); played = true; } catch (e) {}
         }
+        /* Last-resort fallback only: fires when no native replay link exists.
+           Every listening view now carries a real .raw-audio-source (the
+           actual audio field), so the nativeReplay.click() path above is the
+           one that fires — it plays the field the button is labelled with. */
         if (!played && typeof pycmd !== 'undefined') {
             try { pycmd('play:a:0'); played = true; } catch (e) {}
         }
@@ -296,35 +345,57 @@
         console.warn('[Blank Collapse]', blankErr);
       }
 
-      /* --- LISTENING RESOLVER ---
-         A card is a listening card if:
-         1. It carries the #listening tag (deliberate exercise, triggered via tag-listening-view), OR
-         2. Classic audio-only / pathological legacy card: Definition, Extended definition, and Frequency are absent
-            and audio is present (classic-listening-view).
-         Normal study cards without #listening tag never show audio on front. */
+      /* --- LISTENING RESOLVER (Policy B) ---
+         A card activates the listening front ONLY when usable audio exists:
+         1. #listening tag (deliberate exercise): the tag-listening-view must
+            have a real .raw-audio-source (Sentence Audio, or Word Audio as
+            fallback). #listening + no usable audio → fall back to the normal
+            sentence front. Never leave a dead/empty listening UI.
+         2. Classic audio-only / pathological legacy card: Definition, Extended
+            definition, and Frequency are absent and audio is present
+            (classic-listening-view).
+         Normal study cards without #listening tag never show audio on front.
+
+         Exactly-one-listening-button invariant: the markup may render both a
+         tag-listening-view and a classic-listening-view for the same audio;
+         the resolver keeps only the active one and removes every dead/
+         duplicate view, plus strips any listening view whose audio source
+         is empty (missing field). */
       const tagsProbe = container.querySelector('.tags-probe');
       const tagText = tagsProbe ? (tagsProbe.textContent || '') : '';
       const hasListeningTag = /(^|[\s:#])listening([\s:#]|$)/i.test(tagText);
       const tagView = container.querySelector('.tag-listening-view');
       const classicView = container.querySelector('.classic-listening-view');
 
+      const hasUsableAudio = (view) => {
+        if (!view) return false;
+        const src = view.querySelector('.raw-audio-source');
+        if (!src) return false;
+        const txt = (src.textContent || '').replace(/\s+/g, ' ').trim();
+        return !!txt;
+      };
+
       let isListening = false;
-      if (hasListeningTag && tagView) {
+      if (hasListeningTag && hasUsableAudio(tagView)) {
         isListening = true;
         tagView.style.display = '';
         wrapper.classList.add('listening-mode');
         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
+        if (classicView) classicView.remove();
         setTimeout(function() {
           const btn = tagView.querySelector('.circular-audio-btn');
           if (btn && window.playCircularAudio) window.playCircularAudio(btn);
         }, 120);
-      } else if (classicView) {
+      } else if (classicView && hasUsableAudio(classicView)) {
         isListening = true;
         wrapper.classList.add('listening-mode');
         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
+        if (tagView) tagView.remove();
       }
-      if (!isListening && tagView) {
-        tagView.remove();
+      /* Dead/duplicate view cleanup: any listening-view that was not activated
+         is removed so it never leaves a silent/empty audio button behind. */
+      if (!isListening) {
+        container.querySelectorAll('.listening-view').forEach((v) => v.remove());
       }
 
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured
@@ -592,6 +663,13 @@
             }
           } catch (reviewErr) {
             console.log('[Mature Word Mode] no active review, trying content search');
+            /* Content-search fallback (Browse previewer only). This is a
+               best-effort heuristic: guiCurrentCard failed, so identity is
+               reconstructed from field content. NEVER pick candidate 0
+               blindly — duplicates are common (same Expression across many
+               notes). Use Sentence then cloze-body as discriminators; if
+               ambiguity remains after both, fail safely to the sentence
+               front (interval stays null → no word mode). */
             const wordEl = document.querySelector('.front-word-display');
             const sentEl = document.querySelector('.sentence-display');
             if (wordEl && !isListening) {
@@ -607,15 +685,40 @@
                   const infos = await post('cardsInfo', { cards: ids });
                   const fieldText = (info, name) =>
                     normText((info.fields && info.fields[name] && info.fields[name].value) || '');
-                  let matches = infos.filter(i => fieldText(i, 'Expression') === exprDom);
-                  if (matches.length > 1 && sentEl) {
+                  let candidates = infos.filter(i => fieldText(i, 'Expression') === exprDom);
+                  if (candidates.length > 1 && sentEl) {
+                    /* Discriminator 1: Sentence. The front sentence is
+                       the strongest content signal — it is unique per
+                       mined note in practice. */
                     const sentDom = normText(sentEl.innerText || sentEl.textContent || '');
-                    const withSent = matches.filter(i => fieldText(i, 'Sentence') === sentDom);
-                    if (withSent.length) matches = withSent;
+                    if (sentDom) {
+                      const withSent = candidates.filter(i => fieldText(i, 'Sentence') === sentDom);
+                      if (withSent.length) candidates = withSent;
+                    }
                   }
-                  if (matches.length) {
-                    interval = matches[0].interval;
+                  if (candidates.length > 1) {
+                    /* Discriminator 2: cloze-body. The cloze trio is
+                       rendered on the front (hidden probe), so its body
+                       text is available as a second identity signal. */
+                    const clozeProbe = container.querySelector('.cloze-probe .cloze-mid');
+                    const clozeDom = clozeProbe
+                      ? normText(clozeProbe.innerText || clozeProbe.textContent || '')
+                      : '';
+                    if (clozeDom) {
+                      const withCloze = candidates.filter(i =>
+                        fieldText(i, 'cloze-body') === clozeDom);
+                      if (withCloze.length) candidates = withCloze;
+                    }
+                  }
+                  /* Exact-card resolution: only one candidate remains after
+                     discriminators → use its interval. Multiple candidates
+                     (ambiguous) → fail safely to the sentence front. Never
+                     pick candidate 0. */
+                  if (candidates.length === 1) {
+                    interval = candidates[0].interval;
                     source = 'content-search';
+                  } else if (candidates.length > 1) {
+                    source = 'content-search-ambiguous (' + candidates.length + ' candidates) → sentence fallback';
                   }
                 }
               }

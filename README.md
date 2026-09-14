@@ -16,8 +16,8 @@ A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for d
 - **🔢 Minimal by design** — every visible element must justify its screen space. The front is a pure retrieval surface (just the Japanese); the back is a quiet reading interface: target → reading → meaning → context, with secondary info collapsed behind `More ▾`. Anki is the SRS — no badges, dashboards, or grading UI.
 - **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoint jumps; sentence + picture context grid on desktop, single column on phones; container queries with a media-query fallback for old WebViews. Cards size to their content (no forced viewport fill).
 - **🔤 Zero-reflow furigana** — hidden by default, revealed on hover (desktop) / tap (mobile); **`F`** pins full-card furigana on the back. Nothing ever shifts.
-- **🔊 Native audio** — `文` / `言葉` buttons and Anki's own **`R`** shortcut delegate to Anki's replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid.
-- **👁️ On-demand secondary info** — `T` reveals the translation; `More ▾` exposes the full Yomitan definition, extra context, kanji and general notes. Quiet by default.
+- **🔊 Native audio** — `文` / `言葉` buttons delegate to Anki's replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid. The ring is a playback indicator (a decorative play-pulse), not true progress. **`R`** is Anki's own shortcut (native replay) — the template never adds it. Custom template shortcuts: `Z` (furigana), `X` (translation), `C` (expanded-info).
+- **👁️ On-demand secondary info** — `T`/`X` reveals the translation; `More ▾` exposes the full Yomitan definition, extra context, kanji and general notes. `C` toggles expanded-info. Quiet by default.
 - **🖼️ Lightbox** — tap any image for a full-screen overlay; closes on backdrop click or <kbd>Escape</kbd>.
 - **🏷️ Behavioral tags** — tags drive card behavior (e.g. `#listening` forces the listening front) and are never rendered as decoration.
 
@@ -32,16 +32,16 @@ The front contains ONLY the thing being tested — the sentence itself is the re
 | Definition present | Sentence (or Expression if no Sentence) |
 | No definitions, but `Frequency` set (legacy cards) | Usual sentence — never the audio button |
 | No definitions, no Frequency, `Sentence Audio` set | Listening-mode audio button |
-| Card tagged `#listening` | Listening-mode audio button (deliberate listening exercise, even with glosses) |
+| Card tagged `#listening` | Listening-mode audio button — **only when usable audio exists** (Sentence Audio, or Word Audio fallback); without audio, falls back to the sentence front |
 | Nothing available | Sentence / Expression fallback |
 | Sentence has no bold term + cloze trio complete | Rebuilt `prefix + `<b>`body`</b>` + suffix`, styled identically to a Yomitan sentence |
 | Review interval ≥ 365 days | Word only (Mature Word Mode, see below) |
 
 **Cloze fallback** (jidoushio mobile exports): when `Sentence` lacks its `<b>` target word, JS rebuilds it from `cloze-prefix` / `cloze-body` / `cloze-suffix` — but only if all three are non-empty, otherwise the sentence is kept as-is.
 
-**Mature Word Mode** (anti-overlearning): old cards stop testing the word and start testing sentence recognition, so at `interval ≥ LONG_INTERVAL_DAYS` (default `365`, one constant in `Card 1 - Front.template.anki`) the front shows only the `Expression`. The interval is read live at render time — AnkiConnect (`guiCurrentCard` → `cardsInfo`, with a `findCards` content-search fallback for the Browse previewer) on desktop, the AnkiDroid JS API on mobile. Any failure degrades to the normal sentence front; listening cards are never touched; an anti-flash gate keeps the card hidden until the decision is made (500 ms fetch timeout, 1200 ms reveal cap).
+**Mature Word Mode** (anti-overlearning): old cards stop testing the word and start testing sentence recognition, so at `interval ≥ LONG_INTERVAL_DAYS` (default `365`, one constant in `Card 1 - Front.template.anki`) the front shows only the `Expression`. The interval is read live at render time — the **exact current card** on desktop (AnkiConnect `guiCurrentCard` → `cardsInfo`) and mobile (AnkiDroid JS API `ankiGetCardInterval()`). The content-search fallback (Browse previewer only, when exact identity is unavailable) uses Sentence then cloze-body as discriminators and **never picks candidate 0** blindly; if ambiguity remains, it fails safely to the sentence front. Any failure degrades to the normal sentence front; listening cards are never touched; an anti-flash gate keeps the card hidden until the decision is made (500 ms fetch timeout, 1200 ms reveal cap). The gate is deterministic and safe — it never depends on a single async path that can be throttled into a blank front.
 
-**Listening semantics**: the audio button markup is gated on `Sentence Audio` and inert until a synchronous resolver confirms the listening condition — the classic audio-only field shape OR the `#listening` tag. Every other card (and every failure path, including no-JS) keeps the sentence front.
+**Listening semantics (Policy B)**: the audio button markup is gated on `Sentence Audio` and inert until a synchronous resolver confirms the listening condition — the classic audio-only field shape OR the `#listening` tag — **with usable audio**. The tag-listening-view binds to the actual `{{Sentence Audio}}` field (not the hardcoded `play:a:0` which plays the first audio field = Word Audio); Word Audio is the fallback, and the label matches what plays (文 for sentence, 言葉 for word). `#listening` + no usable audio falls back to the normal sentence front. The resolver removes every dead/duplicate view so exactly one listening sound button is ever visible. Every other card (and every failure path, including no-JS) keeps the sentence front.
 
 ---
 
@@ -100,7 +100,7 @@ python3 release_apkg.py    # exports sample deck to dist/*.apkg
 ├── ARCHITECTURE.md + docs/adr/    # Technical structure / lasting decisions
 ├── QUALITY.md / TEST_STRATEGY.md  # Invariants / how they are verified
 ├── IMPLEMENTATION_PLAN.md         # Task graph + status
-├── tests/                         # test_compactor.py + test_templates.py (run by finish.sh)
+├── tests/                         # test_compactor.py + test_templates.py + test_front_modes.py + test_mature_content.py + test_layout.py (run by ./verify)
 ├── chat_history/                  # Archived agent prompts
 ├── dist/                          # Exported .apkg (gitignored, GitHub Release asset)
 ├── backups/                       # Pre-sync Anki snapshots (gitignored)
@@ -119,7 +119,7 @@ Edit the local `.template.anki` / `.css` files (never inside Anki's UI), then ru
 # --local: sync + export + commit only · --minor: bump v1.x.0 · --prompt "text": archive prompt
 ```
 
-This runs tests, syncs to Anki, exports the apkg, commits, pushes, and publishes a tagged release. `tests/` covers the compactor selectors and template invariants (furigana ban on front, audio/lightbox semantics, balanced conditionals, Mature Mode + cloze + truncator rules).
+This runs tests, syncs to Anki, exports the apkg, commits, pushes, and publishes a tagged release. `tests/` covers the compactor selectors, template invariants (furigana ban on front, audio/lightbox semantics, balanced conditionals, listening Policy B, R-is-Anki-owned, playback indicator terminology, finish.sh ordering), front-mode resolver behavior, mature content-search fallback (duplicate cards / ambiguity), and headless layout checks.
 
 ---
 
