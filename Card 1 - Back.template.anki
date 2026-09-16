@@ -133,30 +133,32 @@
       {{/Picture}}
     </div>
 
+    <!-- TRANSLATION — independent toggle (X/T, click), not part of More -->
+    {{#Sentence}}
+      {{#Translation}}
+        <div class="translation-box"
+             role="button"
+             tabindex="0"
+             aria-expanded="false"
+              onclick="if(event.target.closest('.translation-text')) return; this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();this.click()}">
+          <div class="translation-hint">訳 ▾</div>
+          <div class="translation-text">{{edit:Translation}}</div>
+        </div>
+      {{/Translation}}
+    {{/Sentence}}
+    {{^Sentence}}
+      {{#Translation}}
+        <div class="translation-text revealed-static">{{edit:Translation}}</div>
+      {{/Translation}}
+    {{/Sentence}}
+
     <!-- LEVEL 4: SECONDARY INFORMATION — collapsed behind "詳細 ▾" -->
     <div class="more-section" hidden>
       {{#Sentence}}
-        {{#Translation}}
-          <div class="translation-box"
-               role="button"
-               tabindex="0"
-               aria-expanded="false"
-                onclick="if(event.target.closest('.translation-text')) return; this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();this.click()}">
-            <div class="translation-hint">訳 ▾</div>
-            <div class="translation-text">{{edit:Translation}}</div>
-          </div>
-        {{/Translation}}
         {{#context}}
           <div class="html-content secondary-block">{{edit:context}}</div>
         {{/context}}
-      {{/Sentence}}
-
-      <!-- Orphan Translation (When Sentence is empty) -->
-      {{^Sentence}}
-        {{#Translation}}
-          <div class="translation-text revealed-static">{{edit:Translation}}</div>
-        {{/Translation}}
       {{/Sentence}}
 
       {{#Kanji Notes}}
@@ -393,14 +395,19 @@
         var section = document.querySelector('.more-section');
         var btn = document.querySelector('.more-toggle');
         if (section && btn) {
-          section.querySelectorAll('.secondary-block, .translation-box, .revealed-static, .extended-full').forEach(function(el) {
+          section.querySelectorAll('.secondary-block, .extended-full').forEach(function(el) {
             if (!el.textContent || !el.textContent.trim()) el.remove();
           });
-          if (!section.querySelector('.secondary-block, .translation-box, .revealed-static, .extended-full')) {
+          if (!section.querySelector('.secondary-block, .extended-full')) {
             btn.remove();
             section.remove();
           }
         }
+      } catch (e) { /* keep default rendering */ }
+      try {
+        document.querySelectorAll('.translation-box, .revealed-static').forEach(function(el) {
+          if (!el.textContent || !el.textContent.trim()) el.remove();
+        });
       } catch (e) { /* keep default rendering */ }
     };
 
@@ -433,7 +440,7 @@
         } else if (key === 'c') {
           e.preventDefault();
           e.stopPropagation();
-          /* C toggles expansion of all secondary info and definitions */
+          /* C toggles More + definitions (isolated: never touches translation) */
           var moreBtn = wrapper.querySelector('.more-toggle');
           var isCurrentlyOpen = moreBtn && moreBtn.getAttribute('aria-expanded') === 'true';
 
@@ -442,16 +449,8 @@
             wrapper.querySelectorAll('.primary-definition').forEach(function(d) {
               window.expandDefinition(d);
             });
-            wrapper.querySelectorAll('.translation-box').forEach(function(t) {
-              t.classList.add('revealed');
-              t.setAttribute('aria-expanded', 'true');
-            });
           } else {
             if (moreBtn) window.toggleMore(moreBtn);
-            wrapper.querySelectorAll('.translation-box').forEach(function(t) {
-              t.classList.remove('revealed');
-              t.setAttribute('aria-expanded', 'false');
-            });
           }
         }
       });

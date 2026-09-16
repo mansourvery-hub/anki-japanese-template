@@ -2296,3 +2296,7 @@ Build on reverted baseline 59ac56f (v1.8.2):
 ---
 
 pressing X opens  evrythign not only transaltion field, can fix it ?
+
+---
+
+x does nithing now, wtf did you just do
