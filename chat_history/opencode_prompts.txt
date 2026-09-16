@@ -2292,3 +2292,7 @@ Build on reverted baseline 59ac56f (v1.8.2):
 7. finish.sh deterministic ordering (push main before gh release --target main)
 8. Tests: test_mature_content.py (6 cases), extended test_front_modes.py (8 cases), 18 new structural invariants
 9. Docs audit across all methodology files
+
+---
+
+pressing X opens  evrythign not only transaltion field, can fix it ?

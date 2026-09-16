@@ -421,18 +421,14 @@
           e.preventDefault();
           e.stopPropagation();
           var box = wrapper.querySelector('.translation-box');
-          var moreBtn = wrapper.querySelector('.more-toggle');
           if (!box) return;
-          var isMoreOpen = moreBtn && moreBtn.getAttribute('aria-expanded') === 'true';
           var isRevealed = box.classList.contains('revealed');
-
-          if (!isMoreOpen || !isRevealed) {
-            if (moreBtn && !isMoreOpen) window.toggleMore(moreBtn);
-            box.classList.add('revealed');
-            box.setAttribute('aria-expanded', 'true');
-          } else {
+          if (isRevealed) {
             box.classList.remove('revealed');
             box.setAttribute('aria-expanded', 'false');
+          } else {
+            box.classList.add('revealed');
+            box.setAttribute('aria-expanded', 'true');
           }
         } else if (key === 'c') {
           e.preventDefault();
