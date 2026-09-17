@@ -1557,30 +1557,19 @@ ruby:focus-within rt {
 /* ==============================================================================
     16. CARD ENTRANCE & VISUAL POLISH
     ==============================================================================
-    Subtle entrance animation gives the card a sense of being alive.
-    The word display fades in with a gentle rise. Back card elements
-    stagger slightly for visual flow. All animations respect
-    prefers-reduced-motion (section 15 kills durations). */
+    One quick settle, no stagger: the old per-element delays (up to 0.14s +
+    0.35s durations) kept every card visibly in flight for ~half a second,
+    which reads as load lag by review #200. A single 0.15s fade keeps a
+    whisper of motion; delete the block for instant cards. All animations
+    respect prefers-reduced-motion (section 15 kills durations). */
 
-/* Back card entrance: the hero word and definition arrive gently */
-.back-card .word-display {
-  animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.back-card .definition-box {
-  animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
-}
-
-.back-card .audio-row {
-  animation: fadeInUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
-}
-
-.back-card .context-grid {
-  animation: fadeInUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
-}
-
+/* Back card entrance: everything settles together, once */
+.back-card .word-display,
+.back-card .definition-box,
+.back-card .audio-row,
+.back-card .context-grid,
 .back-card .card-separator {
-  animation: fadeInUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+  animation: fadeInUp 0.15s ease-out both;
 }
 
 @keyframes fadeInUp {
@@ -1594,11 +1583,11 @@ ruby:focus-within rt {
   }
 }
 
-/* Front card: single gentle entrance */
+/* Front card: single quick entrance */
 .card-container .sentence-display,
 .card-container .front-word-display,
 .card-container .listening-view {
-  animation: fadeIn 0.3s ease both;
+  animation: fadeIn 0.15s ease-out both;
 }
 
 @keyframes fadeIn {

@@ -123,7 +123,7 @@ centered word | right meta; stacked on narrow; freq/pitch/audio split sides), **
 §9b full-card furigana mode, §10 media/lightbox, §11 footer,
 §12 listening (inert until `.listening-mode`), §13 mobile,
 §14 deletable Fuji backdrop, §15 reduced motion (+ blur kill),
-§16 card entrance (staggered fadeInUp; killed by §15).
+§16 card entrance (single 0.15s settle, no stagger; killed by §15).
 
 ### Tooling
 
