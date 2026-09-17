@@ -244,6 +244,10 @@
        progress — native audio remains the authority (ADR 003). */
     window.currentActiveBtn = window.currentActiveBtn || null;
     window.currentActiveTimer = window.currentActiveTimer || null;
+    /* WebView DOM re-use: never pin a detached button across card flips. */
+    if (typeof window.addEventListener === 'function') {
+        window.addEventListener('pagehide', () => { try { window.resetAudioState(); } catch (_) {} });
+    }
 
     window.resetAudioState = function() {
         if (window.currentActiveTimer) {
@@ -280,13 +284,12 @@
         if (nativeReplay) {
             try { nativeReplay.click(); played = true; } catch (e) {}
         }
-        /* Last-resort fallback only: fires when no native replay link exists.
-           Every listening view now carries a real .raw-audio-source (the
-           actual audio field), so the nativeReplay.click() path above is the
-           one that fires — it plays the field the button is labelled with. */
-        if (!played && typeof pycmd !== 'undefined') {
-            try { pycmd('play:a:0'); played = true; } catch (e) {}
-        }
+        /* Last-resort fallback (removed): every listening view now carries
+           a real .raw-audio-source (the actual audio field), so the
+           nativeReplay.click() path above is the only path — it plays the
+           field the button is labelled with. A hardcoded pycmd('play:a:0')
+           would play the first audio field regardless of label, so silent
+           no-op is safer than the wrong audio. */
         if (played || nativeReplay) {
             btn.classList.add('is-playing');
             if (ringFill) {

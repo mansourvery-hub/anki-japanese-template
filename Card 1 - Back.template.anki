@@ -336,6 +336,10 @@
     /* --- CIRCULAR AUDIO CONTROLLER (native-only) --- */
     window.currentActiveBtn = window.currentActiveBtn || null;
     window.currentActiveTimer = window.currentActiveTimer || null;
+    /* WebView DOM re-use: never pin a detached button across card flips. */
+    if (typeof window.addEventListener === 'function') {
+        window.addEventListener('pagehide', () => { try { window.resetAudioState(); } catch (_) {} });
+    }
 
     window.resetAudioState = function() {
         if (window.currentActiveTimer) {
