@@ -412,6 +412,12 @@ def main():
           "max-height: 44vh" in css
           and "max-height: clamp(24vh, 22vmin, 32vh)" in css
           and "min(46vw, 640px)" in css)
+    check("Back: stylized separators before AND after the definition",
+          back.count('class="card-separator"') == 2
+          and back.index('class="card-separator"') < back.index('primary-definition'))
+    check("CSS: context-grid row is top-anchored in both container + fallback rules",
+          len(re.findall(r"\.context-grid:has\(\.context-picture\)\s*\{[^}]*align-items:\s*flex-start", css)) == 2
+          and len(re.findall(r"\.context-grid:has\(\.context-picture\)\s*\{[^}]*align-items:\s*center", css)) == 0)
     check("Back: More section + toggle self-remove when secondary content is absent",
           "btn.remove()" in back and "section.remove()" in back)
 

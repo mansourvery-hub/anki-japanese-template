@@ -92,6 +92,11 @@
       </div>
     </div>
 
+    <!-- Decorative separator: seigaiha-inspired arc motif between
+         hero header and primary meaning. Matches the one below the
+         definition — pure decorative, same as its twin. -->
+    <div class="card-separator" aria-hidden="true"><span class="sep-motif"></span></div>
+
     <!-- LEVEL 2: PRIMARY MEANING (compact: see Definition Compactor §6b) -->
     {{#Definition}}
       <div class="definition-box primary-definition" tabindex="0" role="button" aria-expanded="false" onclick="expandDefinition(this)" onkeydown="handleDefinitionKey(event, this)">

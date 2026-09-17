@@ -257,6 +257,13 @@ PROBE = """(() => {
     r.heroStacked = (wb.bottom <= lb.top + 1) && (wb.bottom <= rb.top + 1);
     if (heroAudio) r.heroAudioSize = heroAudio.getBoundingClientRect().width;
   }
+  // Context grid top-anchor: the picture must sit at the grid top no
+  // matter how long the sentence grows (never vertically centered).
+  const ctxGrid = document.querySelector('.context-grid');
+  const ctxPicBox = document.querySelector('.context-picture');
+  if (ctxGrid && ctxPicBox) {
+    r.picTopOff = ctxPicBox.getBoundingClientRect().top - ctxGrid.getBoundingClientRect().top;
+  }
   return r;
 })()"""
 
@@ -360,6 +367,18 @@ def main():
     if nopic:
         check("desktop back (no picture): single column (no twoCol)", not nopic.get("twoCol", False))
         check("desktop back (no picture): no horizontal overflow", not nopic["hOverflow"])
+
+    # ---- Long sentence: picture stays top-anchored, never dragged down ----
+    long_html = BACK_CARD.replace(
+        "長い文章が二行に折り返される場合の検証も兼ねている。",
+        "長い文章が二行に折り返される場合の検証も兼ねている。" * 30)
+    longcard = render(long_html.replace("__CSS__", css), 1440, 900)
+    check("desktop back (long sentence): probe returned", longcard is not None)
+    if longcard:
+        check("desktop back (long sentence): no horizontal overflow", not longcard["hOverflow"])
+        check("desktop back (long sentence): picture top-anchored (top offset <= 12px)",
+              longcard.get("picTopOff", 999) <= 12,
+              f"picTopOff={longcard.get('picTopOff', 999):.0f}")
 
     # ---- Mobile back card (A50-ish 412x892) ----
     mob = render(BACK_CARD.replace("__CSS__", css), 412, 892)

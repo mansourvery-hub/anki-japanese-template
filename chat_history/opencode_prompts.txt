@@ -2308,3 +2308,7 @@ the template is functional now, my small nitpick is that space is not utilised p
 ---
 
 esperssionshould be at the center(not it slightly moved), also split the other fields in right and left, don't put all in right
+
+---
+
+ok, add a small sytlized hr(like the one after defintion) before defintion. now the image is aligned with the sentnece, this is generally good, but if the sentence is too long(say 5 pragraphs) then the picture wil also be way down to much the long sentence, why not put the picture up high(still below defintion) indepadnant of sentence

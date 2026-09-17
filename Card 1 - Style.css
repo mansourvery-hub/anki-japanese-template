@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.9 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.10 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -284,10 +284,12 @@
 }
 
 @container anki-card (min-width: 580px) {
-  /* Editorial balance: sentence left/center, picture right */
+  /* Editorial balance: sentence left/center, picture right, both
+     top-anchored — the picture stays just below the definition no matter
+     how long the sentence grows (never dragged down by it). */
   .context-grid:has(.context-picture) {
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: clamp(20px, 3.5vw, 48px);
   }
@@ -318,7 +320,7 @@
 @media (min-width: 580px) {
   .context-grid:has(.context-picture) {
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: clamp(20px, 3.5vw, 48px);
   }
