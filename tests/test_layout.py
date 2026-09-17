@@ -113,6 +113,7 @@ __CSS__
       <div class="html-content secondary-block extended-full">Full extended definition text that stays untruncated.</div>
     </div>
     <button type="button" class="more-toggle" aria-expanded="false">More <span class="more-caret">▾</span></button>
+    <div class="shortcut-hints"><span class="shortcut-item"><kbd>Z</kbd> hints</span></div>
     <div class="source-footer">SOURCE — some novel</div>
   </div>
 </div>
@@ -235,6 +236,9 @@ PROBE = """(() => {
   if (footer && wrapper) {
     r.footerInside = footer.getBoundingClientRect().bottom <= wrapper.getBoundingClientRect().bottom + 1;
   }
+  // Keyboard hints: visible on desktop, hidden on touch phones (dead weight).
+  const hints = document.querySelector('.shortcut-hints');
+  if (hints) { r.hintsDisplay = getComputedStyle(hints).display; }
   // Hero header: 3-column grid (left | word | right) on wide screens,
   // word stacked on its own row with sides below on narrow phones.
   // The word must stay truly centered: |wordCenter - headerCenter| ≈ 0.
@@ -359,6 +363,9 @@ def main():
               back.get("moreCollapsed", False))
         check("desktop back: footer inside the card wrapper",
               back.get("footerInside", False))
+        check("desktop back: keyboard hints visible (physical keyboard)",
+              back.get("hintsDisplay", "none") != "none",
+              f"display={back.get('hintsDisplay')}")
 
     # ---- Back card without picture (single column) ----
     nopic_html = re.sub(r'<div class="context-picture">[\s\S]*?</div>\s*</div>', '</div>', BACK_CARD)
@@ -397,6 +404,9 @@ def main():
               mob["wrapperH"] < 0.95 * mob["viewportH"],
               f"wrapper={mob['wrapperH']:.0f} viewport={mob['viewportH']}")
         check("mobile back: sentence font stays >= 1rem", mob.get("sentFont", 1) >= 16)
+        check("mobile back: keyboard hints hidden (no physical keyboard)",
+              mob.get("hintsDisplay", "") == "none",
+              f"display={mob.get('hintsDisplay')}")
 
     # ---- Front sentence card ----
     fr = render(FRONT_SENTENCE.replace("__CSS__", css), 1440, 900)

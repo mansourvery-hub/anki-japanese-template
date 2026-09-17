@@ -1453,10 +1453,10 @@ ruby:focus-within rt {
     padding: 6px 10px;
   }
 
+  /* No physical keyboard on phones: the Z/X/C hints are dead weight
+     that costs scroll space on every card. Desktop keeps them. */
   .shortcut-hints {
-    gap: 6px;
-    margin: 6px auto 2px auto;
-    padding: 2px 6px;
+    display: none;
   }
 
   .shortcut-item {
