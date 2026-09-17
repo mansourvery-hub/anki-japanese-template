@@ -2326,3 +2326,9 @@ the template is 100% functional but the cards became too bloated as of now, that
 ---
 ok [Approved implementing BLOAT-02 → 04 → 01A → 03 → 01B → 05, small-chunked on branch perf-bloat with ./verify per step.]
 ---
+ok [Approved BLOAT fix order; implemented on perf-bloat.]
+---
+sync
+---
+feels smoother but yet again this is just a feel. no bugs. push, release etc
+---
