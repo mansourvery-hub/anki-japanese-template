@@ -2322,3 +2322,7 @@ sync so i test
 ---
 everything works, go ahead
 ---
+the template is 100% functional but the cards became too bloated as of now, that's one explanation why it takes too long to load, take a look at the template again (same as the very first prompt), this time focus purely on performance. [Delivered as reports/performance-bloat-report.html, measured.]
+---
+ok [Approved implementing BLOAT-02 → 04 → 01A → 03 → 01B → 05, small-chunked on branch perf-bloat with ./verify per step.]
+---
