@@ -433,11 +433,13 @@
          a wedged/busy Anki — and the fallback is always the safe
          sentence front, never a hang. */
       const post = (action, params) => {
-        const timeout = new Promise((_, rej) => 
-          setTimeout(() => rej(new Error('AnkiConnect timeout')), 500)
+        const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const timeout = new Promise((_, rej) =>
+          setTimeout(() => { try { ctl && ctl.abort(); } catch (_) {} rej(new Error('AnkiConnect timeout')); }, 500)
         );
         const fetchPromise = fetch('http://127.0.0.1:8765', {
           method: 'POST',
+          ...(ctl ? { signal: ctl.signal } : {}),
           body: JSON.stringify({ action: action, version: 6, params: params })
         }).then(r => r.json()).then(data => {
           if (data.error) throw new Error(data.error);
@@ -446,7 +448,7 @@
         return Promise.race([fetchPromise, timeout]);
       };
 
-      const escQuery = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/([*_])/g, '\\$1');
+      const escQuery = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/([*_():-])/g, '\\$1');
       const normText = (s) => s
         .replace(/<br\s*\/?>/gi, ' ')
         .replace(/<[^>]+>/g, ' ')
@@ -710,7 +712,14 @@
                    model name), and the exact Expression field match below
                    already restricts results to this note type's cards. */
                 const query = '"Expression:' + escQuery(exprDom) + '"';
-                const ids = await post('findCards', { query: query });
+                let ids = await post('findCards', { query: query });
+                /* Bound: a common Expression can match hundreds of notes;
+                   materialising every cardsInfo would jank the previewer.
+                   Over-broad → sentence fallback (same safe default). */
+                if (ids && ids.length > 50) {
+                  source = 'content-search-too-broad → sentence fallback';
+                  ids = [];
+                }
                 if (ids && ids.length) {
                   const infos = await post('cardsInfo', { cards: ids });
                   const fieldText = (info, name) =>
@@ -748,7 +757,7 @@
                     interval = candidates[0].interval;
                     source = 'content-search';
                   } else if (candidates.length > 1) {
-                    source = 'content-search-ambiguous (' + candidates.length + ' candidates) → sentence fallback';
+                    source = 'content-search-ambiguous → sentence fallback';
                   }
                 }
               }

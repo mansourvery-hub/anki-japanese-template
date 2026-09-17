@@ -307,7 +307,7 @@ def main():
     check("Front: safety reveal cap bounds worst-case hidden time",
           "setTimeout(reveal, 1200)" in front)
     check("Front: AnkiConnect calls fail fast when Anki is wedged (safe sentence fallback)",
-          "AnkiConnect timeout" in front and "')), 500)" in front)
+          "AnkiConnect timeout" in front and ", 500)" in front)
     check("Front: temporary toast diagnostic removed (no TEMP-DIAG remnants)",
           "TEMP-DIAG" not in front and "ankiShowToast" not in front)
     check("Front: on-card debug diagnostic present (mwm-debug)",
