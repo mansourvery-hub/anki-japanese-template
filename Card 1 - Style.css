@@ -173,8 +173,10 @@
 
 .back-card .card-container {
   background: rgba(19, 24, 34, 0.78);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  /* 8px, not 18px: fullscreen blur is the top repaint cost on scroll;
+     the frosted look survives, the offscreen surface gets ~2x cheaper. */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--card-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-premium);
