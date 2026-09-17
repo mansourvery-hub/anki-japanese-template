@@ -183,12 +183,15 @@
         <div class="html-content secondary-block">{{edit:furigana:Notes}}</div>
       {{/Notes}}
 
-      <!-- Full Yomitan definition (only when the compact one exists too) -->
+      <!-- Full Yomitan definition (only when the compact one exists too).
+           Inert <template>: up to ~13KB of glossary is parsed but never
+           rendered, styled, or laid out until More is first opened. -->
       {{#Definition}}
         {{#Extended definition}}
           <div class="extended-def-wrapper">
             <div class="extended-def-header">詳細辞書</div>
-            <div class="html-content secondary-block extended-full">{{Extended definition}}</div>
+            <template class="extended-full-tpl">{{Extended definition}}</template>
+            <div class="html-content secondary-block extended-full" data-lazy hidden></div>
           </div>
         {{/Extended definition}}
       {{/Definition}}
@@ -230,6 +233,16 @@
     window.toggleMore = function(btn) {
       var section = document.querySelector('.more-section');
       if (!section) return;
+      /* Lazy extended definition: stamp the inert template into its host
+         once, on first open. Until then it costs no style/layout/paint. */
+      section.querySelectorAll('template.extended-full-tpl').forEach(function(t) {
+        var host = t.parentNode.querySelector('.extended-full');
+        if (host && !host.hasChildNodes()) {
+          host.appendChild(t.content.cloneNode(true));
+          host.removeAttribute('hidden');
+        }
+        t.remove();
+      });
       var isExpanded = btn.getAttribute('aria-expanded') === 'true';
       section.hidden = isExpanded;
       btn.setAttribute('aria-expanded', String(!isExpanded));
@@ -448,9 +461,12 @@
         var btn = document.querySelector('.more-toggle');
         if (section && btn) {
           section.querySelectorAll('.secondary-block, .extended-full').forEach(function(el) {
+            /* Lazy host: content lives in the sibling template until first
+               open — never strip it here. */
+            if (el.hasAttribute('data-lazy')) return;
             if (!el.textContent || !el.textContent.trim()) el.remove();
           });
-          if (!section.querySelector('.secondary-block, .extended-full')) {
+          if (!section.querySelector('.secondary-block, .extended-full, template.extended-full-tpl')) {
             btn.remove();
             section.remove();
           }
