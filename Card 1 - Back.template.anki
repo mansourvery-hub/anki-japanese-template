@@ -240,7 +240,15 @@
       }
     };
 
-    /* --- FREQUENCY VISUALIZER (5-Star Scale + Tier Theming) --- */
+    /* --- FREQUENCY VISUALIZER (5-Star Scale + Tier Theming) ---
+       Single table: one edit point for thresholds, labels, fills. */
+    const FREQ_TIERS = [
+      { max: 500,   stars: 5, cls: 'freq-very-common', label: '最頻出 (上位500)',  fill: 95 },
+      { max: 2500,  stars: 4, cls: 'freq-common',      label: '頻出 (上位2,500)',  fill: 75 },
+      { max: 7000,  stars: 3, cls: 'freq-medium',      label: '常用 (上位7,000)',  fill: 55 },
+      { max: 18000, stars: 2, cls: 'freq-uncommon',    label: '上級 (上位1.8万)',  fill: 35 },
+      { max: Infinity, stars: 1, cls: 'freq-rare',     label: '稀少 (1.8万超)',    fill: 15 },
+    ];
     window.renderFrequencyIndicator = function() {
       const badges = document.querySelectorAll('.frequency-badge[data-freq]');
       badges.forEach(badge => {
@@ -252,37 +260,12 @@
         if (isNaN(val) || val <= 0) return;
 
         // Japanese Frequency Tiers (Top 500 / 2.5k / 7k / 18k / Rare)
-        let stars = 1;
-        let tierClass = 'freq-rare';
-        let tierLabel = '稀少 (1.8万超)';
-        let fillPercent = 15;
-
-        if (val <= 500) {
-          stars = 5;
-          tierClass = 'freq-very-common';
-          tierLabel = '最頻出 (上位500)';
-          fillPercent = 95;
-        } else if (val <= 2500) {
-          stars = 4;
-          tierClass = 'freq-common';
-          tierLabel = '頻出 (上位2,500)';
-          fillPercent = 75;
-        } else if (val <= 7000) {
-          stars = 3;
-          tierClass = 'freq-medium';
-          tierLabel = '常用 (上位7,000)';
-          fillPercent = 55;
-        } else if (val <= 18000) {
-          stars = 2;
-          tierClass = 'freq-uncommon';
-          tierLabel = '上級 (上位1.8万)';
-          fillPercent = 35;
-        } else {
-          stars = 1;
-          tierClass = 'freq-rare';
-          tierLabel = '稀少 (1.8万超)';
-          fillPercent = 15;
-        }
+        let tier = FREQ_TIERS[FREQ_TIERS.length - 1];
+        for (const t of FREQ_TIERS) { if (val <= t.max) { tier = t; break; } }
+        const stars = tier.stars;
+        const tierClass = tier.cls;
+        const tierLabel = tier.label;
+        const fillPercent = tier.fill;
 
         badge.classList.add(tierClass);
         badge.setAttribute('title', '語彙頻度: ' + raw.trim() + ' • ' + tierLabel);
@@ -301,7 +284,10 @@
     /* --- LIGHTBOX CONTROLLER (click to expand / click outside to close) --- */
     window.openLightbox = function(target) {
       const img = target.querySelector('img') || (target.tagName === 'IMG' ? target : null);
-      if (!img) return;
+      if (!img || !img.getAttribute('src')) return;
+      /* Only local Anki media: refuse remote/file URLs that would leak
+         (IP/DNS) or fail outside the media dir. Relative paths pass. */
+      if (/^(https?:|file:|javascript:|data:text\/html)/i.test(img.getAttribute('src'))) return;
       if (document.querySelector('.lightbox-overlay')) return;
 
       const overlay = document.createElement('div');
@@ -312,7 +298,8 @@
       const clone = document.createElement('img');
       clone.src = img.src;
       clone.className = 'expanded-img';
-      if (img.alt) clone.alt = img.alt;
+      clone.referrerPolicy = 'no-referrer';
+      clone.alt = img.alt || '';
 
       overlay.appendChild(clone);
       document.body.appendChild(overlay);
@@ -332,6 +319,14 @@
       };
       document.addEventListener('keydown', handleKey);
     };
+
+    /* Card flip with lightbox open: never orphan the overlay in a re-used DOM. */
+    if (typeof window.addEventListener === 'function') {
+      window.addEventListener('pagehide', () => {
+        const ov = document.querySelector('.lightbox-overlay');
+        if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+      });
+    }
 
     /* --- CIRCULAR AUDIO CONTROLLER (native-only) --- */
     window.currentActiveBtn = window.currentActiveBtn || null;
@@ -398,11 +393,13 @@
 
     window.initDefinitionTruncation = function(root) {
       const scope = root || document;
+      /* Subpixel rounding tolerance for scrollHeight vs clientHeight. */
+      const TRUNC_SLACK_PX = 2;
       scope.querySelectorAll('.primary-definition').forEach(function(box) {
         if (!box.textContent || !box.textContent.trim()) { box.remove(); return; }
         box.classList.remove('is-expanded');
         box.setAttribute('aria-expanded', 'false');
-        const overflows = box.scrollHeight > box.clientHeight + 2;
+        const overflows = box.scrollHeight > box.clientHeight + TRUNC_SLACK_PX;
         box.classList.toggle('is-truncated', overflows);
       });
     };
