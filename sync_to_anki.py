@@ -1,6 +1,7 @@
 import urllib.request
 import json
 import os
+import shutil
 import sys
 from datetime import datetime
 
@@ -80,6 +81,16 @@ def snapshot_live_state():
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     dest = os.path.join(BACKUP_DIR, stamp)
     os.makedirs(dest, exist_ok=True)
+    try:
+        os.chmod(dest, 0o700)
+    except OSError:
+        pass
+    # Retention: keep the newest 20 snapshots (unbounded growth guard).
+    try:
+        for old in sorted(os.listdir(BACKUP_DIR))[:-20]:
+            shutil.rmtree(os.path.join(BACKUP_DIR, old), ignore_errors=True)
+    except OSError:
+        pass
     for card_name, pair in tpls.items():
         safe = card_name.replace(os.sep, "_")
         with open(os.path.join(dest, f"{safe}.front.anki"), "w", encoding="utf-8") as f:

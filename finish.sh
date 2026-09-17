@@ -65,6 +65,10 @@ done
 
 # ---------- optional prompt archiving (before anything else) ----------
 if [ -n "$PROMPT_TEXT" ]; then
+  if printf '%s' "$PROMPT_TEXT" | grep -Ei -q 'api[_-]?key|token|passwd|password|secret|BEGIN .*PRIVATE KEY'; then
+    echo "Refusing: --prompt text looks like it contains a secret; archive it manually after redacting." >&2
+    exit 1
+  fi
   printf '\n---\n\n%s\n' "$PROMPT_TEXT" >> chat_history/opencode_prompts.txt
   echo "    (prompt archived to chat_history/opencode_prompts.txt)"
 fi

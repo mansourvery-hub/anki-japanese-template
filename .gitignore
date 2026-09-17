@@ -4,3 +4,4 @@ backups/
 dist/
 .anki_fields.json
 conversations/
+reports/
