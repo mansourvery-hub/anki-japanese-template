@@ -432,6 +432,21 @@
         container.querySelectorAll('.listening-view').forEach((v) => v.remove());
       }
 
+      /* Static early-exit: with no Expression, word mode is impossible (the
+         hasExpression gate below), so the whole retrieval chain — fetch,
+         bridge wait, content search — is skipped and the sentence front
+         reveals now. Failure-identical to the universal fallback, ~50ms
+         faster per such card on desktop. The class toggle is explicit
+         because WebView DOM re-use can carry word-mode over from the
+         previous card. */
+      var wordProbeEarly = container.querySelector('.front-word-display');
+      if (!isListening && wordProbeEarly && !(wordProbeEarly.textContent || '').trim()) {
+        clearTimeout(safetyTimeout);
+        wrapper.classList.toggle('word-mode', false);
+        reveal();
+        return;
+      }
+
       /* Anki-Connect helper with timeout. 500ms is ~15x the measured
          healthy localhost latency (~25ms/call), so it only ever binds
          a wedged/busy Anki — and the fallback is always the safe
