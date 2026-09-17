@@ -75,6 +75,33 @@ def fixture(name):
         return f.read().strip()
 
 
+def apply_prune(html):
+    """Mirror of Back's pruneCompactedGlossary (BLOAT-01A): remove exactly
+    what the §6b hide rules hide. Grouped per parent like CSS `~`."""
+    soup = BeautifulSoup(html, "html.parser")
+    for box in sv.select(".primary-definition", soup):
+        for sel, keep in [
+            (".yomitan-glossary > ol > li", 1),
+            ('div[data-sc-name="語義G"]', 2),
+            ("div[data-sc-l3]", 2),
+            ("div[data-sc-l3-a]", 1),
+            ('[data-sc-content="glossary"] > li', 2),
+        ]:
+            groups = {}
+            for el in sv.select(sel, box):
+                groups.setdefault(id(el.parent), []).append(el)
+            for group in groups.values():
+                for el in group[keep:]:
+                    el.decompose()
+        for el in box.select(
+            'div[data-sc-name="補説G"], span[data-sc-name="可能形"], '
+            'span[data-sc-name="歴史仮名"], span[data-sc-name="アクセントG"], '
+            'li[data-sc-content="forms"], div[data-sc-content="attribution"], i'
+        ):
+            el.decompose()
+    return soup
+
+
 def main():
     # --- 1. Verbatim Yomitan structured entry (大辞林 + 大辞泉) ---
     field = f'<div class="definition-box primary-definition">{fixture("yomitan_daijirin_daijisen.html")}</div>'
@@ -127,6 +154,17 @@ def main():
     # --- 4. Scope guard: selectors must all be prefixed .primary-definition ---
     leaked = [s for s in load_hide_selectors() if not s.startswith(".primary-definition")]
     check("all hide rules scoped to .primary-definition", not leaked)
+
+    # --- 5. Prune mirror (BLOAT-01A): JS removal == CSS hiding, per fixture ---
+    for name in ("yomitan_daijirin_daijisen.html", "yomitan_plain_gloss.html",
+                 "yomitan_dict_label.html"):
+        field = f'<div class="definition-box primary-definition">{fixture(name)}</div>'
+        css_only = visible_text(field)
+        pruned = apply_prune(field)
+        leftover = [s for s in load_hide_selectors() if sv.select(s, pruned)]
+        check(f"prune removes everything CSS would hide ({name})", not leftover)
+        check(f"prune preserves visible text ({name})",
+              visible_text(str(pruned)) == css_only)
 
     print()
     print(f"{PASS} passed, {FAIL} failed")

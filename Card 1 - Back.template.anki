@@ -404,6 +404,43 @@
       });
     };
 
+    /* --- GLOSSARY PRUNE (live-DOM twin of CSS §6b) ---
+       §6b hides overflow dictionaries/senses/appendices with display:none,
+       but hidden nodes still cost parse + style-match + layout. Removing
+       exactly what §6b hides is rendering-identical and shrinks every
+       later pass (including the truncation measure). Each removal mirrors
+       one §6b rule 1:1 — keep them paired; test_compactor.py enforces the
+       mirror on fixtures (prune ⇒ hide rules match nothing, text equal). */
+    window.pruneCompactedGlossary = function(root) {
+      const scope = root || document;
+      /* CSS `A ~ A` counts preceding same-parent siblings: group matches
+         by parent, drop from index `keep` on. Mirrors §6b keep-counts:
+         dictionaries 1, senses 2 (l3-a keeps 1), plain glosses 2. */
+      const dropFrom = (box, sel, keep) => {
+        const byParent = new Map();
+        box.querySelectorAll(sel).forEach(function(el) {
+          const p = el.parentNode;
+          if (!byParent.has(p)) byParent.set(p, []);
+          byParent.get(p).push(el);
+        });
+        byParent.forEach(function(list) {
+          for (let i = keep; i < list.length; i++) list[i].remove();
+        });
+      };
+      scope.querySelectorAll('.primary-definition').forEach(function(box) {
+        dropFrom(box, '.yomitan-glossary > ol > li', 1);
+        dropFrom(box, 'div[data-sc-name="語義G"]', 2);
+        dropFrom(box, 'div[data-sc-l3]', 2);
+        dropFrom(box, 'div[data-sc-l3-a]', 1);
+        dropFrom(box, '[data-sc-content="glossary"] > li', 2);
+        box.querySelectorAll(
+          'div[data-sc-name="補説G"], span[data-sc-name="可能形"], ' +
+          'span[data-sc-name="歴史仮名"], span[data-sc-name="アクセントG"], ' +
+          'li[data-sc-content="forms"], div[data-sc-content="attribution"], i'
+        ).forEach(function(n) { n.remove(); });
+      });
+    };
+
     /* --- SECONDARY SECTION CLEANUP + KEYBOARD SHORTCUTS --- */
     window.initSecondarySection = function() {
       try {
@@ -471,6 +508,9 @@
       });
     };
 
+    /* Prune first: the truncation measure below then runs over the small
+       live DOM instead of the full hidden glossary. */
+    window.pruneCompactedGlossary();
     window.renderFrequencyIndicator();
     window.initSecondarySection();
     window.initCardShortcuts();
