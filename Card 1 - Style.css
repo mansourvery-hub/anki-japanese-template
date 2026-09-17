@@ -768,7 +768,12 @@
 
 /* Yomitan inline <style> blocks inside the glossary leak their own rules
    (list display modes, per-dictionary colors). Neutralize styling that
-   fights the card theme; keep size/margins untouched so SC layouts hold. */
+   fights the card theme; keep size/margins untouched so SC layouts hold.
+   background-image is killed outright: hide-only compactor must never let
+   mined CSS exfiltrate via url() or overlay UI. */
+.primary-definition .yomitan-glossary * {
+  background-image: none !important;
+}
 .primary-definition .yomitan-glossary ul[data-sc-content="glossary"] {
   display: inline;
   list-style: none;
@@ -861,8 +866,11 @@
 }
 
 /* ==============================================================================
-    7. CIRCULAR AUDIO BUTTON WITH SVG PROGRESS RING
-    ============================================================================== */
+   7. CIRCULAR AUDIO BUTTON WITH SVG PROGRESS RING
+   ============================================================================== */
+/* Ring geometry: stroke-dasharray 226.19 (large, r=36) / 119.38 (small,
+   r=19) = 2πr. The same constants live in the SVG markup and the JS
+   resetAudioState fallbacks — update all three together if r changes. */
 .audio-row {
   display: inline-flex;
   align-items: center;
@@ -1355,6 +1363,10 @@ ruby:focus-within rt {
     margin: 0 auto;
     padding: 8px 6px;
     border-radius: var(--border-radius-md);
+    /* A50 fast-path: stacked layout hides the backdrop anyway; skip the
+       offscreen blur surface on the weakest GPU. */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .sentence-display,
@@ -1532,6 +1544,12 @@ ruby:focus-within rt {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+  /* Static blurs repaint on scroll; cheapest paint for reduced-motion. */
+  .back-card .card-container,
+  .lightbox-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
 

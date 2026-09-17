@@ -324,8 +324,9 @@
       const t0 = nowMs();
 
       /* Safety Reveal: Ensure card shows even if async calls hang.
-         The cap sits well above the slowest happy path (low hundreds
-         of ms) and only binds failure paths. */
+         Timing budget: 500ms AnkiConnect race / 700ms bridge poll /
+         1000ms bridge init+call / 1200ms reveal cap. The cap only binds
+         failure paths; the word-mode toggle runs before reveal. */
       const reveal = () => {
         container.style.visibility = 'visible';
       };
