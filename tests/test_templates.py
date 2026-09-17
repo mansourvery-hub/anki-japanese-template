@@ -387,6 +387,24 @@ def main():
           re.search(r"\.context-grid:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
     check("CSS: empty .context-main collapses (no sentence/context => gone)",
           re.search(r"\.context-main:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
+    check("CSS: empty .hero-header collapses (no word/meta => gone)",
+          re.search(r"\.hero-header:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
+    check("Back: hero-header wraps word + meta (single-row header)",
+          'class="hero-header"' in back
+          and back.index('class="hero-header"') < back.index('class="word-meta-bar"')
+          and back.index('class="hero-word-wrap"') < back.index('class="word-meta-bar"'))
+    check("CSS: hero-header is a flex column by default, row on wide screens",
+          re.search(r"\.hero-header\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column", css) is not None
+          and re.search(r"\.hero-header\s*\{[^}]*flex-direction:\s*row", css) is not None)
+    check("CSS: hero-header row has a media-query fallback (no container-query-only layout)",
+          re.search(r"@media \(min-width: 580px\)[\s\S]{0,600}\.hero-header", css) is not None)
+    check("CSS: hero word never forces horizontal overflow (min-width + anywhere wrap)",
+          re.search(r"\.hero-word-wrap\s*\{[^}]*min-width:\s*0", css) is not None
+          and re.search(r"\.word-display\s*\{[^}]*overflow-wrap:\s*anywhere", css) is not None)
+    check("CSS: picture fills the parallel row (generous desktop cap, compact mobile cap)",
+          "max-height: 44vh" in css
+          and "max-height: clamp(24vh, 22vmin, 32vh)" in css
+          and "min(46vw, 640px)" in css)
     check("Back: More section + toggle self-remove when secondary content is absent",
           "btn.remove()" in back and "section.remove()" in back)
 

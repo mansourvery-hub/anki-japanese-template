@@ -2300,3 +2300,7 @@ pressing X opens  evrythign not only transaltion field, can fix it ?
 ---
 
 x does nithing now, wtf did you just do
+
+---
+
+the template is functional now, my small nitpick is that space is not utilised properely whihc leads some time scroll down. For ex, why not put picth and audio buttons to the sides of expression instead of below it. This is just one suggestion, feel free to thnink of other ways to better use screen space yourself. --- proceed, but a few remarks : pciture is laredy small and it not taking space(its in parallel to sentence), it sould maybe be bigger to utilize more empty space

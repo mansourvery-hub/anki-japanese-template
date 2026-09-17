@@ -144,6 +144,15 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   structural invariants in `test_templates.py` (§§6d–6f, 8c, 9). Docs audit
   across all methodology files. Status: COMPLETE.
 
+- **T15 — Hero single-row density (R2).** Back `hero-header`: word + freq/
+  pitch/audio share one flex row on wide screens (container + media fallback),
+  tight stacked column on phones; vertical rhythm tightened (`--gap-section`,
+  definition/separator/context gaps, quieter shortcut hints); picture fills the
+  parallel row (44vh / 46vw-640px desktop, compact mobile cap unchanged).
+  Empty-collapse + hierarchy + touch targets preserved; layout-probe proof in
+  `test_layout.py` (shared-row desktop, stacked mobile), structural guards in
+  `test_templates.py`. Status: COMPLETE.
+
 ## Roadmap (evolution loop input, not committed scope)
 
 - R1: extra compactor fixtures if Yomitan markup drifts.

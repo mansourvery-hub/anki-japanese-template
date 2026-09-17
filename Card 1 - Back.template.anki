@@ -23,20 +23,24 @@
 <div class="card-wrapper back-card">
   <div class="card-container">
 
-    <!-- LEVEL 1: TARGET + READING -->
-    <div class="hero-word-wrap">
-      {{#furigana}}
-        <div class="word-display">{{edit:furigana:furigana}}</div>
-      {{/furigana}}
-      {{^furigana}}
-        {{#Expression}}
-          <div class="word-display">{{edit:furigana:Expression}}</div>
-        {{/Expression}}
-      {{/furigana}}
-    </div>
+    <!-- LEVEL 1: TARGET + META — single header row on wide screens,
+         tight stacked column on narrow phones (see Style §6 hero-header).
+         Word stays the hero; freq/pitch/audio sit inline beside it when
+         space allows, saving one full-width vertical row. -->
+    <div class="hero-header">
+      <div class="hero-word-wrap">
+        {{#furigana}}
+          <div class="word-display">{{edit:furigana:furigana}}</div>
+        {{/furigana}}
+        {{^furigana}}
+          {{#Expression}}
+            <div class="word-display">{{edit:furigana:Expression}}</div>
+          {{/Expression}}
+        {{/furigana}}
+      </div>
 
-    <!-- METADATA BAR: Frequency 5-Star Visualizer + Pitch Accent + Audio Affordances -->
-    <div class="word-meta-bar">
+      <!-- METADATA BAR: Frequency 5-Star Visualizer + Pitch Accent + Audio Affordances -->
+      <div class="word-meta-bar">
       {{#Frequency}}
         <div class="frequency-badge" data-freq="{{text:Frequency}}">
           <div class="frequency-bar-track">
@@ -81,6 +85,7 @@
           </span>
         {{/Sentence Audio}}
       </div>
+    </div>
     </div>
 
     <!-- LEVEL 2: PRIMARY MEANING (compact: see Definition Compactor §6b) -->

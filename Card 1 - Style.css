@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.7 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.8 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -59,8 +59,10 @@
   --border-radius-md: 10px;
   --border-radius-sm: 6px;
 
-  /* Spacing Tokens - Fluid viewport-based */
-  --gap-section: clamp(12px, 1.8vh, 20px);
+  /* Spacing Tokens - Fluid viewport-based (tightened density pass:
+     hero-header single row saves one full-width row, so section gaps
+     can stay compact without feeling cramped) */
+  --gap-section: clamp(8px, 1.2vh, 14px);
   --gap-block: clamp(6px, 1.2vmin, 12px);
   --block-pad-y: clamp(2px, 0.4vmin, 6px);
   --block-pad-x: clamp(10px, 1.8vmin, 18px);
@@ -255,7 +257,7 @@
 .context-grid {
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2vh, 24px);
+  gap: clamp(10px, 1.5vh, 18px);
   align-items: center;
   width: 100%;
   margin-top: var(--gap-section);
@@ -303,7 +305,7 @@
   .context-picture {
     flex: 0 1 46%;
     width: auto;
-    max-width: min(45vw, 560px);
+    max-width: min(46vw, 640px);
   }
 
   .small-audio-btn {
@@ -334,7 +336,7 @@
   .context-picture {
     flex: 0 1 46%;
     width: auto;
-    max-width: min(45vw, 560px);
+    max-width: min(46vw, 640px);
   }
 }
 
@@ -423,12 +425,27 @@
    The word display now occupies more visual space with generous sizing
    and a subtle warm glow backdrop. */
 
+.hero-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Empty-shell guard: collapse when neither word nor meta exists */
+.hero-header:not(:has(.word-display, .frequency-badge, .pitch-quiet, .circular-audio-btn)) {
+  display: none;
+}
+
 .hero-word-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   width: 100%;
+  min-width: 0;
 }
 
 /* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.
@@ -446,6 +463,8 @@
   padding-bottom: clamp(2px, 0.5vh, 6px);
   margin: 0;
   text-align: center;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Furigana on Back Card: shown by default on the hero expression */
@@ -454,14 +473,16 @@
   opacity: 1;
 }
 
-/* Metadata Bar: Frequency Star Visualizer + Pitch Accent + Audio Buttons */
+/* Metadata Bar: Frequency Star Visualizer + Pitch Accent + Audio Buttons.
+   Stacked as one tight line under the word on narrow screens; inline
+   beside the word in .hero-header on wide screens (see row rules below). */
 .word-meta-bar {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 2px auto 6px auto;
+  margin: 0 auto 4px auto;
 }
 
 .word-meta-bar .audio-row {
@@ -470,6 +491,53 @@
 
 .word-meta-bar:not(:has(.frequency-badge, .pitch-quiet, .circular-audio-btn)) {
   display: none;
+}
+
+/* Single header row on wide screens: word + freq/pitch/audio share one
+   line — saves a full-width vertical row vs the old stacked layout.
+   Lives here (after the base .hero-header column) so it wins the cascade;
+   the @media twin is the portability fallback for WebViews without
+   container-query support. Narrow phones stay stacked via §13. */
+@container anki-card (min-width: 580px) {
+  .hero-header {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: clamp(12px, 2vw, 24px);
+  }
+
+  .hero-header .hero-word-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+
+  .hero-header .word-meta-bar {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+}
+
+@media (min-width: 580px) {
+  .hero-header {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: clamp(12px, 2vw, 24px);
+  }
+
+  .hero-header .hero-word-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+
+  .hero-header .word-meta-bar {
+    flex: 0 0 auto;
+    margin: 0;
+  }
 }
 
 /* Frequency badge: 5-star scale & progress track */
@@ -585,7 +653,7 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  margin: clamp(6px, 1vh, 12px) auto;
+  margin: clamp(4px, 0.8vh, 8px) auto;
   width: 100%;
   max-width: 280px;
   height: 12px;
@@ -663,7 +731,7 @@
   line-height: calc(var(--furigana-headroom) + 1em + 0.15em);
   color: var(--text-primary);
   max-width: 68ch;
-  margin: clamp(6px, 1.2vh, 14px) auto 0 auto;
+  margin: clamp(4px, 0.8vh, 10px) auto 0 auto;
   padding-top: var(--furigana-headroom);
   width: 100%;
   text-align: center;
@@ -1114,11 +1182,14 @@ ruby:focus-within rt {
    10. MEDIA & LIGHTBOX MODAL
    ============================================================================== */
 .picture-container img {
-  /* Block-level: kills the inline-baseline descender gap that left loose pixels */
+  /* Block-level: kills the inline-baseline descender gap that left loose pixels.
+     Desktop cap is generous (44vh) so the parallel picture fills the row
+     height beside the sentence instead of leaving empty space; mobile
+     override (§13) stays compact for no-scroll. */
   display: block;
   margin-inline: auto;
   max-width: 100%;
-  max-height: 39vh;
+  max-height: 44vh;
   height: auto;
   object-fit: contain;
   border-radius: var(--border-radius-md);
@@ -1205,9 +1276,9 @@ ruby:focus-within rt {
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin: clamp(8px, 1.2vh, 16px) auto 4px auto;
+  margin: clamp(6px, 1vh, 12px) auto 4px auto;
   padding: 6px 12px;
-  opacity: 0.65;
+  opacity: 0.55;
   transition: opacity 0.2s ease;
   user-select: none;
 }
@@ -1332,10 +1403,16 @@ ruby:focus-within rt {
     font-size: clamp(1.9rem, 4.5vmin + 1rem, 2.7rem);
   }
 
+  /* Narrow phones: hero stays a tight stacked column (word, then one
+     meta line) — never a squeezed side-by-side row. */
+  .hero-header {
+    flex-direction: column;
+    gap: 1px;
+  }
+
   .word-meta-bar {
     gap: 8px;
-    margin-top: 2px;
-    margin-bottom: 4px;
+    margin: 0 auto 2px auto;
   }
 
   .frequency-badge {
@@ -1387,7 +1464,7 @@ ruby:focus-within rt {
 
   .card-separator {
     max-width: 180px;
-    margin: 6px auto;
+    margin: 4px auto;
   }
 
   .secondary-block {

@@ -61,8 +61,23 @@ __CSS__
 <div class="card back-card">
 <div class="card-wrapper back-card">
   <div class="card-container">
-    <div class="word-display" id="word"><ruby>澄<rt>す</rt></ruby>ます</div>
-    <div class="pitch-quiet">[0]</div>
+    <div class="hero-header">
+      <div class="hero-word-wrap"><div class="word-display" id="word"><ruby>澄<rt>す</rt></ruby>ます</div></div>
+      <div class="word-meta-bar">
+        <div class="frequency-badge"><span class="frequency-stars">★★★★☆</span></div>
+        <div class="pitch-quiet">[0]</div>
+        <div class="audio-row">
+          <span class="audio-btn-wrapper">
+            <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">言葉</span></span></button>
+            <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
+          </span>
+          <span class="audio-btn-wrapper">
+            <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">文</span></span></button>
+            <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
+          </span>
+        </div>
+      </div>
+    </div>
     <div class="definition-box primary-definition" id="def">
       <div class="yomitan-glossary"><ol>
         <li><div data-sc-name="語義G">水などを濁りのない状態にする。とても長い定義のテキストで、三行を超えることを保証するためにさらに文字を追加している。三行目に入ってもまだ続くほど十分に長い定義であることを確認するための文です。全幅レイアウトでも確実に三行を超えるように、さらに追加の検証用テキストをここに置く。この文が折り返して四行目に達すれば、切り詰め機能が正しく発動するはずである。</div>
@@ -77,16 +92,6 @@ __CSS__
            environment, so the truncator checks never depend on font
            availability. -->
       <div style="height:140px"></div>
-    </div>
-    <div class="audio-row">
-      <span class="audio-btn-wrapper">
-        <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">言葉</span></span></button>
-        <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
-      </span>
-      <span class="audio-btn-wrapper">
-        <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">文</span></span></button>
-        <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
-      </span>
     </div>
     <div class="context-grid">
       <div class="context-main">
@@ -226,6 +231,22 @@ PROBE = """(() => {
   if (footer && wrapper) {
     r.footerInside = footer.getBoundingClientRect().bottom <= wrapper.getBoundingClientRect().bottom + 1;
   }
+  // Hero header: single row on wide screens (word + meta share a row),
+  // tight stacked column on narrow phones. No horizontal overflow either way.
+  const hero = document.querySelector('.hero-header');
+  const heroWord = document.querySelector('.hero-word-wrap');
+  const heroMeta = document.querySelector('.word-meta-bar');
+  const heroAudio = document.querySelector('.word-meta-bar .circular-audio-btn');
+  if (hero && heroWord && heroMeta) {
+    r.heroDir = getComputedStyle(hero).flexDirection;
+    if (heroAudio && word) {
+      const wb = word.getBoundingClientRect();
+      const ab = heroAudio.getBoundingClientRect();
+      // same-row iff vertical ranges overlap (wide) — stacked on narrow
+      r.heroSharedRow = (ab.top < wb.bottom - 1) && (ab.bottom > wb.top + 1);
+      r.heroAudioSize = ab.width;
+    }
+  }
   return r;
 })()"""
 
@@ -293,9 +314,15 @@ def main():
               f"clamped={back['defClampedH']:.0f} expected={back['defPadTop'] + 3*back['defLineH']:.0f}")
         check("desktop back: expand grows the definition (one-way)",
               back.get("defExpandedH", 0) > back.get("defClampedH", 0) + 4)
-        check("desktop back: image height capped (<= 40vh)",
-              back.get("picH", 0) <= 0.40 * back["viewportH"] + 2,
+        check("desktop back: image height capped (<= 45vh, fills parallel row)",
+              back.get("picH", 0) <= 0.45 * back["viewportH"] + 2,
               f"picH={back.get('picH', 0):.0f}")
+        check("desktop back: hero header shares one row (word + audio side-by-side)",
+              back.get("heroDir", "") == "row" and back.get("heroSharedRow", False) is True,
+              f"dir={back.get('heroDir')} shared={back.get('heroSharedRow')}")
+        check("desktop back: hero audio stays tappable (>= 32px)",
+              back.get("heroAudioSize", 0) >= 32,
+              f"audio={back.get('heroAudioSize', 0):.0f}")
         check("desktop back: context grid engaged (picture beside sentence)",
               back.get("twoCol", False),
               f"main={back.get('mainW', 0):.0f} pic-col={back.get('sideW', 0):.0f}")
@@ -319,6 +346,10 @@ def main():
     check("mobile back: probe returned", mob is not None)
     if mob:
         check("mobile back: no horizontal overflow", not mob["hOverflow"])
+        check("mobile back: hero stacks (column, audio below word)", mob.get("heroDir", "") == "column")
+        check("mobile back: hero audio stays tappable (>= 32px)",
+              mob.get("heroAudioSize", 0) >= 32,
+              f"audio={mob.get('heroAudioSize', 0):.0f}")
         check("mobile back: stacked (no context-grid columns)", not mob.get("twoCol", False))
         check("mobile back: no forced viewport fill",
               mob["wrapperH"] < 0.95 * mob["viewportH"],
