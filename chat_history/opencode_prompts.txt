@@ -2316,3 +2316,9 @@ Act as a Principal Software Engineer. Review the provided code with a strict foc
 ---
 create a new branch. I'm not technically literate enough to judge the report, choose what to implement based on severity and how much complexity it would add to the code (no need to add a technically correct fix if it makes the code unreadable/unmaintainable for a very niche edge case). Performance is at a higher premium than the rest especially for the parts that execute a million times (like the html css and js sections), less so for dev tools (like the python test suite). Implement all the fixes that you pick with all that in mind, sequentially, in small chunks, at every step you should not break functionality and should always verify (breaking a 100% working template for some "bug" fix is a complete non starter) the card works as intended (not just pass ./verify command and call it a day).
 ---
+in desktop cards reload feel noticeably slower/laggy front and back. in mobile it displays an error: card content error: failed to load (but i don't see any visible bugs). a small nitpick, keyboard shortcuts are displayed on mobile.
+---
+sync so i test
+---
+everything works, go ahead
+---
