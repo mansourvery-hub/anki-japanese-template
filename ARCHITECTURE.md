@@ -88,9 +88,11 @@ Single quiet column with typography-driven hierarchy:
 
 ```text
 card-container
- ├── .hero-header (single row on wide: word + meta inline; stacked on phones)
+ ├── .hero-header (3-col grid: left meta | centered word | right meta;
+ │    │  stacked word-over-sides on phones)
+ │    ├── .hero-side-left (freq visualizer + 言葉 audio)
  │    ├── .hero-word-wrap > .word-display (target + furigana hover — hero element)
- │    └── .word-meta-bar (freq visualizer + .pitch-quiet + .audio-row 文/言葉)
+ │    └── .hero-side-right (.pitch-quiet + 文 audio)
  ├── definition-box.primary-definition (compacted §6b, 3-line §6c)
  ├── .context-grid (sentence + picture; row on wide screens, stacked on phones)
  ├── .more-section (hidden) + .more-toggle "More ▾"
@@ -113,8 +115,8 @@ keyboard shortcuts (`F` full-card furigana, `T`/`X` translation reveal,
 Numbered sections are the contract: §1 tokens/themes (no `--freq-*`:
 accent is reserved for the target and interactive states), §2 containers,
 §3 More toggle, §4 context grid + desktop overrides, §5 front type,
-§5b word-mode swap, §6 back hierarchy (hero-header single row: word + meta inline
-wide / stacked narrow; word/pitch/audio), **§6b Definition Compactor**
+§5b word-mode swap, §6 back hierarchy (hero-header 3-col grid: left meta |
+centered word | right meta; stacked on narrow; freq/pitch/audio split sides), **§6b Definition Compactor**
 (first dictionary, ≤2 senses, no appendices, `.primary-definition`-scoped),
 §6c truncator (3-line cap + fade + chevron), §7 audio rings (playback indicator, not true progress),
 §8 sentence/translation + secondary blocks, §9 zero-reflow ruby +

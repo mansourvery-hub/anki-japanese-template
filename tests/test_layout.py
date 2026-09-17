@@ -62,15 +62,19 @@ __CSS__
 <div class="card-wrapper back-card">
   <div class="card-container">
     <div class="hero-header">
-      <div class="hero-word-wrap"><div class="word-display" id="word"><ruby>澄<rt>す</rt></ruby>ます</div></div>
-      <div class="word-meta-bar">
+      <div class="hero-side hero-side-left">
         <div class="frequency-badge"><span class="frequency-stars">★★★★☆</span></div>
-        <div class="pitch-quiet">[0]</div>
         <div class="audio-row">
           <span class="audio-btn-wrapper">
             <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">言葉</span></span></button>
             <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
           </span>
+        </div>
+      </div>
+      <div class="hero-word-wrap"><div class="word-display" id="word"><ruby>澄<rt>す</rt></ruby>ます</div></div>
+      <div class="hero-side hero-side-right">
+        <div class="pitch-quiet">[0]</div>
+        <div class="audio-row">
           <span class="audio-btn-wrapper">
             <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">文</span></span></button>
             <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
@@ -231,21 +235,27 @@ PROBE = """(() => {
   if (footer && wrapper) {
     r.footerInside = footer.getBoundingClientRect().bottom <= wrapper.getBoundingClientRect().bottom + 1;
   }
-  // Hero header: single row on wide screens (word + meta share a row),
-  // tight stacked column on narrow phones. No horizontal overflow either way.
+  // Hero header: 3-column grid (left | word | right) on wide screens,
+  // word stacked on its own row with sides below on narrow phones.
+  // The word must stay truly centered: |wordCenter - headerCenter| ≈ 0.
   const hero = document.querySelector('.hero-header');
   const heroWord = document.querySelector('.hero-word-wrap');
-  const heroMeta = document.querySelector('.word-meta-bar');
-  const heroAudio = document.querySelector('.word-meta-bar .circular-audio-btn');
-  if (hero && heroWord && heroMeta) {
-    r.heroDir = getComputedStyle(hero).flexDirection;
-    if (heroAudio && word) {
-      const wb = word.getBoundingClientRect();
-      const ab = heroAudio.getBoundingClientRect();
-      // same-row iff vertical ranges overlap (wide) — stacked on narrow
-      r.heroSharedRow = (ab.top < wb.bottom - 1) && (ab.bottom > wb.top + 1);
-      r.heroAudioSize = ab.width;
-    }
+  const heroLeft = document.querySelector('.hero-side-left');
+  const heroRight = document.querySelector('.hero-side-right');
+  const heroAudio = document.querySelector('.hero-side .circular-audio-btn');
+  if (hero && heroWord && heroLeft && heroRight && word) {
+    r.heroDisplay = getComputedStyle(hero).display;
+    r.heroAreas = getComputedStyle(hero).gridTemplateAreas || '';
+    const hb = hero.getBoundingClientRect();
+    const wb = word.getBoundingClientRect();
+    r.heroCenterOff = Math.abs((wb.left + wb.width / 2) - (hb.left + hb.width / 2));
+    const lb = heroLeft.getBoundingClientRect();
+    const rb = heroRight.getBoundingClientRect();
+    // split check: left cell ends at/before word start, right starts at/after word end (wide)
+    // stacked check (narrow): word bottom above both sides' tops
+    r.heroSplit = (lb.right <= wb.left + 2) && (rb.left >= wb.right - 2);
+    r.heroStacked = (wb.bottom <= lb.top + 1) && (wb.bottom <= rb.top + 1);
+    if (heroAudio) r.heroAudioSize = heroAudio.getBoundingClientRect().width;
   }
   return r;
 })()"""
@@ -290,6 +300,11 @@ def main():
         print("[SKIP] no headless Chrome found — layout checks skipped")
         return 0
     css = open(CSS, encoding="utf-8").read()
+    # Headless virtual-time freezes the card entrance animations
+    # (fadeInUp `both` fill) mid-flight, shifting measured Y positions by
+    # up to 10px. Kill animations/transitions in the harness only so probes
+    # measure final layout; the product animations are untouched.
+    css += "\n*,*::before,*::after{animation:none!important;transition:none!important;}\n"
 
     # ---- Desktop back card (1440x900, rich card) ----
     back = render(BACK_CARD.replace("__CSS__", css), 1440, 900)
@@ -317,9 +332,14 @@ def main():
         check("desktop back: image height capped (<= 45vh, fills parallel row)",
               back.get("picH", 0) <= 0.45 * back["viewportH"] + 2,
               f"picH={back.get('picH', 0):.0f}")
-        check("desktop back: hero header shares one row (word + audio side-by-side)",
-              back.get("heroDir", "") == "row" and back.get("heroSharedRow", False) is True,
-              f"dir={back.get('heroDir')} shared={back.get('heroSharedRow')}")
+        check("desktop back: hero is a 3-col grid with meta split left/right",
+              back.get("heroDisplay", "") == "grid"
+              and "left" in back.get("heroAreas", "")
+              and back.get("heroSplit", False) is True,
+              f"display={back.get('heroDisplay')} areas={back.get('heroAreas')} split={back.get('heroSplit')}")
+        check("desktop back: word truly centered (off-center <= 8px)",
+              back.get("heroCenterOff", 999) <= 8,
+              f"off={back.get('heroCenterOff', 999):.1f}px")
         check("desktop back: hero audio stays tappable (>= 32px)",
               back.get("heroAudioSize", 0) >= 32,
               f"audio={back.get('heroAudioSize', 0):.0f}")
@@ -346,7 +366,10 @@ def main():
     check("mobile back: probe returned", mob is not None)
     if mob:
         check("mobile back: no horizontal overflow", not mob["hOverflow"])
-        check("mobile back: hero stacks (column, audio below word)", mob.get("heroDir", "") == "column")
+        check("mobile back: hero stacks word above sides", mob.get("heroStacked", False) is True)
+        check("mobile back: word stays centered (off-center <= 8px)",
+              mob.get("heroCenterOff", 999) <= 8,
+              f"off={mob.get('heroCenterOff', 999):.1f}px")
         check("mobile back: hero audio stays tappable (>= 32px)",
               mob.get("heroAudioSize", 0) >= 32,
               f"audio={mob.get('heroAudioSize', 0):.0f}")

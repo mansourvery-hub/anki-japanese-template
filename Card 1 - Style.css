@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.8 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.9 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -426,10 +426,12 @@
    and a subtle warm glow backdrop. */
 
 .hero-header {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "left word right";
   align-items: center;
-  gap: 2px;
+  column-gap: clamp(8px, 1.5vw, 18px);
+  row-gap: 2px;
   width: 100%;
   margin: 0 auto;
 }
@@ -440,12 +442,41 @@
 }
 
 .hero-word-wrap {
+  grid-area: word;
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   position: relative;
-  width: 100%;
   min-width: 0;
+}
+
+/* Side cells hug the word (end/start) so buttons sit beside the
+   expression, not at the far card edges. They stay in the grid even
+   when empty — that is what keeps the word truly centered. Zero
+   margin/padding here, so empty sides leave no chrome behind. */
+.hero-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.hero-side-left {
+  grid-area: left;
+  justify-self: end;
+  justify-content: flex-end;
+}
+
+.hero-side-right {
+  grid-area: right;
+  justify-self: start;
+  justify-content: flex-start;
+}
+
+.hero-side .audio-row {
+  margin: 0;
 }
 
 /* Furigana headroom: ruby rt renders 0.55em above the text with a 2px gap.
@@ -471,73 +502,6 @@
 .word-display ruby rt {
   visibility: visible;
   opacity: 1;
-}
-
-/* Metadata Bar: Frequency Star Visualizer + Pitch Accent + Audio Buttons.
-   Stacked as one tight line under the word on narrow screens; inline
-   beside the word in .hero-header on wide screens (see row rules below). */
-.word-meta-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 0 auto 4px auto;
-}
-
-.word-meta-bar .audio-row {
-  margin: 0;
-}
-
-.word-meta-bar:not(:has(.frequency-badge, .pitch-quiet, .circular-audio-btn)) {
-  display: none;
-}
-
-/* Single header row on wide screens: word + freq/pitch/audio share one
-   line — saves a full-width vertical row vs the old stacked layout.
-   Lives here (after the base .hero-header column) so it wins the cascade;
-   the @media twin is the portability fallback for WebViews without
-   container-query support. Narrow phones stay stacked via §13. */
-@container anki-card (min-width: 580px) {
-  .hero-header {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: clamp(12px, 2vw, 24px);
-  }
-
-  .hero-header .hero-word-wrap {
-    flex: 1 1 auto;
-    min-width: 0;
-    width: auto;
-  }
-
-  .hero-header .word-meta-bar {
-    flex: 0 0 auto;
-    margin: 0;
-  }
-}
-
-@media (min-width: 580px) {
-  .hero-header {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: clamp(12px, 2vw, 24px);
-  }
-
-  .hero-header .hero-word-wrap {
-    flex: 1 1 auto;
-    min-width: 0;
-    width: auto;
-  }
-
-  .hero-header .word-meta-bar {
-    flex: 0 0 auto;
-    margin: 0;
-  }
 }
 
 /* Frequency badge: 5-star scale & progress track */
@@ -1403,16 +1367,20 @@ ruby:focus-within rt {
     font-size: clamp(1.9rem, 4.5vmin + 1rem, 2.7rem);
   }
 
-  /* Narrow phones: hero stays a tight stacked column (word, then one
-     meta line) — never a squeezed side-by-side row. */
+  /* Narrow phones: word on its own centered row, the two sides share
+     one tight row below it (left cell right-aligned, right cell
+     left-aligned, so the pair stays jointly centered). */
   .hero-header {
-    flex-direction: column;
-    gap: 1px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "word word"
+      "left right";
+    row-gap: 1px;
+    column-gap: 8px;
   }
 
-  .word-meta-bar {
+  .hero-side {
     gap: 8px;
-    margin: 0 auto 2px auto;
   }
 
   .frequency-badge {

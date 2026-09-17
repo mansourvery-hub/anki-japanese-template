@@ -23,11 +23,40 @@
 <div class="card-wrapper back-card">
   <div class="card-container">
 
-    <!-- LEVEL 1: TARGET + META — single header row on wide screens,
-         tight stacked column on narrow phones (see Style §6 hero-header).
-         Word stays the hero; freq/pitch/audio sit inline beside it when
-         space allows, saving one full-width vertical row. -->
+    <!-- LEVEL 1: TARGET + META — 3-column grid on wide screens
+         (left meta | centered word | right meta; see Style §6 hero-header).
+         The word stays truly centered: equal 1fr side columns absorb any
+         asymmetry. Narrow phones stack the word on its own row with the
+         two sides sharing one tight row below it. -->
     <div class="hero-header">
+      <div class="hero-side hero-side-left">
+        {{#Frequency}}
+          <div class="frequency-badge" data-freq="{{text:Frequency}}">
+            <div class="frequency-bar-track">
+              <div class="frequency-bar-fill"></div>
+            </div>
+            <span class="frequency-stars"></span>
+          </div>
+        {{/Frequency}}
+
+        <div class="audio-row">
+          {{#Word Audio}}
+            <span class="audio-btn-wrapper">
+              <button type="button" class="circular-audio-btn small-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
+                <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                  <circle class="ring-bg" cx="22" cy="22" r="19" />
+                  <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+                </svg>
+                <span class="audio-btn-content">
+                  <span class="audio-btn-label">言葉</span>
+                </span>
+              </button>
+              <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
+            </span>
+          {{/Word Audio}}
+        </div>
+      </div>
+
       <div class="hero-word-wrap">
         {{#furigana}}
           <div class="word-display">{{edit:furigana:furigana}}</div>
@@ -39,53 +68,28 @@
         {{/furigana}}
       </div>
 
-      <!-- METADATA BAR: Frequency 5-Star Visualizer + Pitch Accent + Audio Affordances -->
-      <div class="word-meta-bar">
-      {{#Frequency}}
-        <div class="frequency-badge" data-freq="{{text:Frequency}}">
-          <div class="frequency-bar-track">
-            <div class="frequency-bar-fill"></div>
-          </div>
-          <span class="frequency-stars"></span>
+      <div class="hero-side hero-side-right">
+        {{#Pitch Accent}}
+          <div class="pitch-quiet">{{edit:Pitch Accent}}</div>
+        {{/Pitch Accent}}
+
+        <div class="audio-row">
+          {{#Sentence Audio}}
+            <span class="audio-btn-wrapper">
+              <button type="button" class="circular-audio-btn small-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
+                <svg class="audio-progress-ring" viewBox="0 0 44 44">
+                  <circle class="ring-bg" cx="22" cy="22" r="19" />
+                  <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
+                </svg>
+                <span class="audio-btn-content">
+                  <span class="audio-btn-label">文</span>
+                </span>
+              </button>
+              <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
+            </span>
+          {{/Sentence Audio}}
         </div>
-      {{/Frequency}}
-
-      {{#Pitch Accent}}
-        <div class="pitch-quiet">{{edit:Pitch Accent}}</div>
-      {{/Pitch Accent}}
-
-      <div class="audio-row">
-        {{#Word Audio}}
-          <span class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn small-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 44 44">
-                <circle class="ring-bg" cx="22" cy="22" r="19" />
-                <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-              </svg>
-              <span class="audio-btn-content">
-                <span class="audio-btn-label">言葉</span>
-              </span>
-            </button>
-            <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-          </span>
-        {{/Word Audio}}
-
-        {{#Sentence Audio}}
-          <span class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn small-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 44 44">
-                <circle class="ring-bg" cx="22" cy="22" r="19" />
-                <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-              </svg>
-              <span class="audio-btn-content">
-                <span class="audio-btn-label">文</span>
-              </span>
-            </button>
-            <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-          </span>
-        {{/Sentence Audio}}
       </div>
-    </div>
     </div>
 
     <!-- LEVEL 2: PRIMARY MEANING (compact: see Definition Compactor §6b) -->

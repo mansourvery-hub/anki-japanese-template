@@ -389,15 +389,22 @@ def main():
           re.search(r"\.context-main:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
     check("CSS: empty .hero-header collapses (no word/meta => gone)",
           re.search(r"\.hero-header:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
-    check("Back: hero-header wraps word + meta (single-row header)",
+    check("Back: hero-header splits meta left/right around a centered word",
           'class="hero-header"' in back
-          and back.index('class="hero-header"') < back.index('class="word-meta-bar"')
-          and back.index('class="hero-word-wrap"') < back.index('class="word-meta-bar"'))
-    check("CSS: hero-header is a flex column by default, row on wide screens",
-          re.search(r"\.hero-header\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column", css) is not None
-          and re.search(r"\.hero-header\s*\{[^}]*flex-direction:\s*row", css) is not None)
-    check("CSS: hero-header row has a media-query fallback (no container-query-only layout)",
-          re.search(r"@media \(min-width: 580px\)[\s\S]{0,600}\.hero-header", css) is not None)
+          and 'class="hero-side hero-side-left"' in back
+          and 'class="hero-side hero-side-right"' in back
+          and back.index('hero-side-left') < back.index('hero-word-wrap') < back.index('hero-side-right')
+          and back.index('{{#Frequency}}') < back.index('hero-word-wrap')
+          and back.index('{{#Word Audio}}') < back.index('hero-word-wrap')
+          and back.index('hero-word-wrap') < back.index('{{#Pitch Accent}}')
+          and back.index('hero-word-wrap') < back.index('{{#Sentence Audio}}'))
+    check("CSS: hero-header is a 3-column grid (left | word | right)",
+          re.search(r"\.hero-header\s*\{[^}]*display:\s*grid", css) is not None
+          and '"left word right"' in css)
+    check("CSS: hero sides hug the word (end/start), narrow stacks word on top",
+          re.search(r"\.hero-side-left\s*\{[^}]*justify-content:\s*flex-end", css) is not None
+          and re.search(r"\.hero-side-right\s*\{[^}]*justify-content:\s*flex-start", css) is not None
+          and '"word word"' in css)
     check("CSS: hero word never forces horizontal overflow (min-width + anywhere wrap)",
           re.search(r"\.hero-word-wrap\s*\{[^}]*min-width:\s*0", css) is not None
           and re.search(r"\.word-display\s*\{[^}]*overflow-wrap:\s*anywhere", css) is not None)
