@@ -472,22 +472,31 @@
     };
 
     window.renderFrequencyIndicator();
-    window.initDefinitionTruncation();
     window.initSecondarySection();
     window.initCardShortcuts();
 
-    try {
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(function() {
+    /* Truncation is measured ONCE, after fonts settle: the boot-time measure
+       forced a full sync layout over the glossary, then fonts.ready forced
+       it again (the early result can be wrong once webfonts arrive, so it
+       was partly thrown away). Local fonts resolve pre-paint, so the
+       chevron timing is unchanged in practice. */
+    window.__truncQueued = false;
+    window.queueTruncation = function() {
+      if (window.__truncQueued) return;
+      window.__truncQueued = true;
+      var run = function() {
+        window.__truncQueued = false;
+        window.initDefinitionTruncation();
+      };
+      try {
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(function() {
           window.renderFrequencyIndicator();
-          window.initDefinitionTruncation();
+          run();
         });
-      } else {
-        window.addEventListener('load', function() {
-          window.renderFrequencyIndicator();
-          window.initDefinitionTruncation();
-        });
-      }
-    } catch (e) { /* measure-once fallback */ }
+        else if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run);
+        else setTimeout(run, 0);
+      } catch (e) { run(); }
+    };
+    window.queueTruncation();
   })();
 </script>
