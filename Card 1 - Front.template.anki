@@ -675,47 +675,24 @@ const safeApiCall = (api, methodName, ...args) => {
             };
           }
         };
-        /* Platform-exclusive retrieval. Phones use ONLY the AnkiDroid
-           bridge (AnkiConnect is unreachable from a mobile WebView — the
-           refused fetch surfaces natively as "Failed to load
-           downloadfile.bin"). Desktops use ONLY AnkiConnect (no
-           AnkiDroidJS global exists there). Neither platform ever
-           attempts the other's method. */
+        /* Platform policy:
+         *
+         * Do NOT call the AnkiDroid JS API from this template.
+         *
+         * AnkiDroid 2.24 implements its JS API as fetch('/jsapi/...') requests.
+         * Those requests can be reported by the reviewer as the native
+         * "Card Content Error: Failed to load '...'" media error even when the
+         * API call itself is harmless/successful. This is an AnkiDroid/WebView
+         * issue (see AnkiDroid #16510), not a missing file in this deck.
+         *
+         * The mature-word feature therefore remains exact on desktop, where
+         * AnkiConnect is available, and safely degrades to the normal sentence
+         * front on Android. Crucially, mobile performs ZERO JS-API requests.
+         */
+        const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
         if (!isListening && isMobile) {
-          if (bridgeAvailable()) {
-            const r = await getAnkiDroidInterval();
-            interval = r.interval;
-            source = r.source;
-          } else {
-            /* Phone without an (already injected) bridge: AnkiDroid injects
-               its API around card load, often AFTER card scripts run — so poll
-               for it while the card is still hidden (no flash risk), then give
-               up to the sentence front. 700ms cap: the legacy reviewer
-               injects js-api.js synchronously in <head>, so a longer wait
-               only delays preview screens, where the sentence fallback is
-               correct anyway. */
-            const waitForBridge = async (deadlineMs, stepMs) => {
-              const start = Date.now();
-              while (!bridgeAvailable()) {
-                if (Date.now() - start >= deadlineMs) return false;
-                await new Promise(r => setTimeout(r, stepMs));
-              }
-              return true;
-            };
-            if (await waitForBridge(700, 100)) {
-              const r = await getAnkiDroidInterval();
-              interval = r.interval;
-              source = r.source;
-            } else {
-              /* No bridge script in the page: on AnkiDroid this means a
-                 preview screen (card browser / template / editor preview),
-                 never a real review — the legacy reviewer always injects
-                 js-api.js synchronously via card_template.html <head>.
-                 Sentence fallback is correct here; review the card for
-                 real to exercise mature mode. */
-              source = 'no-bridge-mobile (preview? bridge exists only in reviewer)';
-            }
-          }
+          source = 'mobile-jsapi-disabled (AnkiDroid media-error workaround)';
         } else if (!isListening) {
           /* DESKTOP-ONLY: AnkiConnect guiCurrentCard -> cardsInfo. The
              bridge is never touched here. guiCurrentCard carries no
