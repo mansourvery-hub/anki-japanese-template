@@ -487,22 +487,6 @@
         const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
         /* AnkiDroid compatibility helpers */
         const bridgeAvailable = () =>
-          typeof AnkiDroidJS !== "undefined" &&
-          AnkiDroidJS !== null;
-
-// Safe wrapper for AnkiDroid JS API calls to prevent exceptions that trigger media error handler
-// This prevents failed JS API calls from being misinterpreted as missing media errors
-const safeApiCall = (methodName, ...args) => {
-  if (!api || typeof api[methodName] !== "function") {
-    console.debug(`AnkiDroid API not available or method ${methodName} not found`);
-    return Promise.resolve(null);
-  }
-  return api[methodName](...args).catch((e) => {
-    console.warn(`AnkiDroid API call ${methodName} failed:`, e);
-    return null;
-  });
-};
-
           typeof AnkiDroidJS !== 'undefined' &&
           AnkiDroidJS !== null;
 
