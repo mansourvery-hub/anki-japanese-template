@@ -273,34 +273,34 @@ def main():
           "getCardsInfo" not in front)
     check("Front: no card-id-from-URL guess (no URLSearchParams)",
           "URLSearchParams" not in front)
-    check("Front: AnkiDroid JS API with verified contract",
-          "ankiGetCardInterval" in front and 'new AnkiDroidJS(' in front)
-    check("Front: supports constructor + direct bridge APIs",
-          "apiKind" in front and "'constructor'" in front and "'direct'" in front)
-    check("Front: never invokes new-reviewer stub bridge (signal:jsapi guard)",
-          "signal" in front and "jsapi" in front
-          and "ankiDroid-stub" in front)
-    check("Front: accepts AnkiDroid {success,value} shape (official wiki contract)",
-          "parseDroidInterval" in front
-          and "hasOwnProperty" in front
-          and "'value'" in front)
-    check("Front: rejects {success:false} failure defaults (number => -1)",
-          "success === false" in front)
-    check("Front: parses numeric strings + JSON-encoded responses",
-          "JSON.parse" in front and "Number.isFinite" in front)
-    check("Front: bridge call has its own timeout (never hangs the card)",
-          "withBridgeTimeout" in front)
-    check("Front: never fetches AnkiConnect from mobile WebViews (downloadfile.bin toast)",
-          "isMobile" in front and "no-bridge-mobile" in front
+    check("Front: no executable AnkiDroid JS API code remains",
+          "AnkiDroidJS" not in front and "ankiGetCardInterval" not in front)
+    check("Front: no bridge helpers / polling remain",
+          "safeApiCall" not in front and "withBridgeTimeout" not in front
+          and "parseDroidInterval" not in front
+          and "bridgeAvailable" not in front and "waitForBridge" not in front
+          and "apiKind" not in front
+          and "signal:jsapi" not in front)
+    check("Front: mobile explicitly disables JS-API interval retrieval",
+          "isMobile" in front and "mobile-jsapi-disabled" in front)
+    # Isolate the mobile branch (if (isMobile) { ... } else if...) and prove
+    # it contains no retrieval call whatsoever: no AnkiConnect post/fetch and
+    # no JS API. This makes the desktop/mobile branches mutually exclusive.
+    mob = re.search(
+        r"if \(!isListening && isMobile\) \{(.*?)\n\s*\} else if \(!isListening\) \{",
+        front, re.S)
+    check("Front: mobile branch makes no interval request at all",
+          mob is not None
+          and "mobile-jsapi-disabled" in mob.group(1)
+          and "post(" not in mob.group(1)
+          and "fetch(" not in mob.group(1)
+          and "guiCurrentCard" not in mob.group(1)
+          and "cardsInfo" not in mob.group(1))
+    check("Front: mobile never fetches the desktop AnkiConnect endpoint",
+          mob is not None and "127.0.0.1" not in mob.group(1)
           and "127.0.0.1" in front)
-    check("Front: one deferred bridge retry on mobile while still hidden",
-          "bridgeAvailable" in front)
-    check("Front: polls for late-injected bridge with a firm deadline",
-          "waitForBridge" in front)
-    check("Front: bridge poll capped short (fast preview fallback)",
-          "waitForBridge(700" in front)
-    check("Front: platform-exclusive retrieval (mobile bridge vs desktop AnkiConnect)",
-          "Platform-exclusive retrieval" in front and "DESKTOP-ONLY" in front)
+    check("Front: desktop retrieval remains platform-exclusive (DESKTOP-ONLY)",
+          "DESKTOP-ONLY" in front)
     check("Front: retrieval latency is measured and logged",
           "performance.now" in front and "elapsedMs" in front
           and "[Mature Word Mode] source=" in front)

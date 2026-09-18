@@ -94,12 +94,13 @@ Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · native-only
 circular audio (`文`/`言葉`, sibling replay link, debounce, playback
 indicator — not true progress) · `R` is Anki-owned (never a template
 shortcut) · Mature Word Mode (`LONG_INTERVAL_DAYS = 365`,
-platform-exclusive live interval read — exact current card on
-desktop/mobile, content-search fallback for the Browse previewer only,
-never picks candidate 0, sentence fallback, listening untouched, anti-flash
-gate) · `#listening` requires usable audio (Policy B: falls back to sentence
-without it) · `:has()` is intentional architecture · no debug badges or
-verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
+desktop-only AnkiConnect live interval read — exact current card on desktop,
+content-search fallback for the Browse previewer only, never picks
+candidate 0, sentence fallback, mobile intentionally degrades to the
+sentence front and makes no AnkiDroid JS API call, listening untouched,
+anti-flash gate) · `#listening` requires usable audio (Policy B: falls back
+to sentence without it) · `:has()` is intentional architecture · no debug
+badges or verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
 
 ## File map
 

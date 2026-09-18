@@ -27,7 +27,7 @@ run `./verify`; CI re-runs `./verify` after every push.
 | Balanced Anki conditionals | `tests/test_templates.py` §5 |
 | Minimal redesign: no tags bar / frequency badges; More collapse; state label; F/T shortcuts; listening resolver wiring | `tests/test_templates.py` §§6b–6c |
 | `:focus-visible`, reduced motion, content-driven sizing, context-grid fallback, clamp() authority, no JS font override | `tests/test_templates.py` §§6–7 |
-| Mature Word Mode: const, platform-exclusive retrieval, no `note:` clause, stub/timeout/fallback rules, anti-flash gate, word-mode CSS | `tests/test_templates.py` §8b |
+| Mature Word Mode: const, desktop-only retrieval, no executable AnkiDroid JS API / bridge code, mobile degrades to sentence, no `note:` clause, anti-flash gate, word-mode CSS | `tests/test_templates.py` §8b |
 | Mature content-search fallback: never picks candidate 0, Sentence + cloze-body discriminators, fails safely on ambiguity, exact-card resolution | `tests/test_mature_content.py` — extracts the content-search block verbatim, runs 6 headless Chrome cases with mocked AnkiConnect (skipped gracefully without Chrome) |
 | Listening Policy B + exactly-one-button: `#listening` without audio → sentence front; `#listening` with audio → listening front; both-views markup → exactly one active; dead/duplicate views removed | `tests/test_front_modes.py` — 8 state harnesses in headless Chrome (skipped gracefully without Chrome) |
 | Listening audio source: tag-listening-view binds to `{{Sentence Audio}}` (not `play:a:0`), Word Audio fallback, label matches | `tests/test_templates.py` §6d |

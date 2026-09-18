@@ -93,12 +93,15 @@ off-screen context to be solvable is a bad mine and should be re-mined.
   secondary information toggleable behind `More ▾` / `Less ▴` (translation,
   context, kanji notes, notes, full extended definition), keyboard shortcuts
   hints, source footer. Content hierarchy communicates card structure directly.
-- Mature Word Mode: live interval read at render time — **exact current
-  card** on desktop (AnkiConnect `guiCurrentCard`→`cardsInfo`) and mobile
-  (AnkiDroid JS API `ankiGetCardInterval()`); content search
+- Mature Word Mode (desktop only): live interval read at render time — **exact
+  current card** via AnkiConnect `guiCurrentCard`→`cardsInfo`; content search
   (Expression → Sentence → cloze-body) is only a best-effort preview/browser
   fallback when exact identity is unavailable, and never picks candidate 0
   blindly; any failure → sentence front; listening fronts untouched.
+  On Android/mobile Mature Word Mode is **intentionally disabled** and the
+  ordinary sentence front is shown: the template makes no AnkiDroid JS API
+  interval request, because those calls can surface natively as false
+  "Card Content Error: Failed to load" media warnings in the reviewer.
 - Tags are behavioral metadata, never decoration: hidden probes only;
   `#listening` forces listening behavior (requires usable audio, else
   falls back to sentence); extensible for future behavior-related tags
@@ -153,8 +156,9 @@ off-screen context to be solvable is a bad mine and should be re-mined.
 
 - Yomitan markup shape (`.yomitan-glossary`, `data-sc-*` attributes) is
   stable enough for structural CSS scoping; drift is caught by fixtures.
-- AnkiConnect on `127.0.0.1:8765` (desktop) and the AnkiDroid JS bridge
-  (reviewer only) remain the interval sources; both can be absent.
+- AnkiConnect on `127.0.0.1:8765` (desktop) remains the interval source; it
+  can be absent. The AnkiDroid JS bridge is deliberately **not** used
+  (its calls can trigger the reviewer's false media-load error).
 - One card type ("Card 1"); model name
   `Japanese Note type (Sentence card by Default)` is stable.
 

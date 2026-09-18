@@ -22,9 +22,10 @@ compact informative back, and a one-command sync → export → release loop.
 - Front: pure retrieval surface — sentence / Expression fallback,
   Frequency-legacy sentence path, cloze-trio rebuild, pure audio-only listening
   cards (usable audio required; `#listening` without audio falls back to
-  sentence), Mature Word Mode (interval-gated, platform-exclusive
-  retrieval — exact current card on desktop/mobile, content-search fallback
-  for the Browse previewer only, never picks candidate 0, sentence fallback).
+  sentence), Mature Word Mode (interval-gated, desktop-only AnkiConnect
+  retrieval — exact current card on desktop, mobile intentionally degrades
+  to the sentence front, content-search fallback for the Browse previewer
+  only, never picks candidate 0, sentence fallback).
 - Back: typography-driven hierarchy — word+furigana target, quiet pitch
   text, Definition Compactor (CSS §6b), 3-line truncator with one-way
   expand (§6c), context (sentence + picture as core information,
@@ -64,17 +65,19 @@ compact informative back, and a one-command sync → export → release loop.
 
 ## Known limitations
 
-- Mature interval needs AnkiConnect (desktop) or the AnkiDroid reviewer
-  bridge; Browse/template previews without a bridge correctly fall back to
-  the sentence front.
-- AnkiDroid fragment-reviewer stub bridges (`signal:jsapi`) are detected and
-  never invoked.
+- Mature interval needs AnkiConnect (desktop); Browse/template previews without
+  it correctly fall back to the sentence front.
+- Mature Word Mode is **intentionally unavailable on Android/mobile** (safe
+  sentence fallback). The template makes no AnkiDroid JS API interval request,
+  because those calls can surface natively as false "Card Content Error:
+  Failed to load" media warnings in the reviewer.
 - Headless layout checks skip gracefully when Chrome is absent.
 
 ## Deferred features
 
 - Further density passes beyond the current clamp/container-query system.
-- Additional AnkiDroid bridge capabilities (beyond interval read).
+- A reliable mobile interval source that does not trigger AnkiDroid's false
+  media-load error (revisit if AnkiDroid stabilises its JS API).
 - Extra dictionaries/markup variants beyond current compactor fixtures.
 - Any `docs/adr/` entries beyond decided items (added only when a decision
   has alternatives + consequences + long-term relevance).

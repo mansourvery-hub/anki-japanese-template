@@ -82,8 +82,9 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   Frequency-legacy path, fallback, cloze-trio rebuild. Status: COMPLETE.
 - **T3 — Back grid.** Tags, word header, sentence/translation/context, side
   column, footer; DOM-reuse-safe controllers. Status: COMPLETE.
-- **T4 — Mature Word Mode.** `LONG_INTERVAL_DAYS` gate, platform-exclusive
-  interval retrieval, fallbacks, anti-flash reveal. Status: COMPLETE.
+- **T4 — Mature Word Mode.** `LONG_INTERVAL_DAYS` gate, desktop-only
+  AnkiConnect interval retrieval (mobile intentionally degrades to the
+  sentence front), fallbacks, anti-flash reveal. Status: COMPLETE.
 - **T5 — Definition Compactor + truncator.** CSS §6b structural scoping +
   §6c 3-line one-way expand. Status: COMPLETE.
 - **T6 — Audio + lightbox.** Native delegation, debounce, sibling source;

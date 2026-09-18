@@ -19,8 +19,7 @@ Card 1 - Style.css           ──→ themes, layout, compactor, truncator
   │  vanilla JS (scoped, DOM-reuse safe), no libraries
   ↓
 Anki renderers: Desktop Qt6 WebEngine · AnkiDroid WebView
-  │  live services at render time: AnkiConnect :8765 (desktop only),
-  │  AnkiDroid JS bridge (mobile reviewer only)
+  │  live services at render time: AnkiConnect :8765 (desktop only)
   ↓
 Tooling (stdlib-only): fetch_anki_fields.py · sync_to_anki.py ·
                        release_apkg.py · verify · finish.sh
@@ -47,11 +46,18 @@ sentence-display fallback
 cloze fixup: Sentence has no <b> AND cloze trio complete?
         │ yes → prefix + <b>body</b> + suffix
         │
-Mature check (not listening, Expression non-empty,
+Mature check (desktop only; not listening, Expression non-empty,
               interval ≥ LONG_INTERVAL_DAYS=365)?
         │ yes → .word-mode: front-word-display only
         │ no  → sentence front (also the universal fallback)
 ```
+
+Mature Word Mode is **desktop-only by design**: on Android/mobile the
+template deliberately makes no interval request at all (no AnkiDroid JS API
+call), because those calls can surface natively as false "Card Content
+Error: Failed to load" media warnings in the reviewer. Mobile always keeps
+the sentence front; reliability of the reviewer beats this optional
+presentation feature.
 
 Hidden behavioral probes never render visibly: the cloze trio and the
 tags probe. Normal cards never evaluate `{{Sentence Audio}}` on the front,
@@ -63,12 +69,12 @@ binds to `{{Sentence Audio}}` (label 文), falling back to `{{Word Audio}}`
 (label 言葉) — never the hardcoded `play:a:0`. `#listening` + no usable
 audio falls back to the normal sentence front; dead/duplicate views are
 removed so exactly one listening button is ever visible.
-Interval retrieval is **platform-exclusive** and distinguishes
+Interval retrieval is **desktop-only** and distinguishes
 **exact-current-card** retrieval from **heuristic content-search fallback**:
-- Exact card (primary): mobile uses only the AnkiDroid bridge
-  (`ankiGetCardInterval()`, constructor + direct shapes, stub guard,
-  timeouts, 700 ms late-injection poll); desktop uses only AnkiConnect
+- Exact card (primary, desktop): AnkiConnect only
   (`guiCurrentCard`→`cardsInfo` — the exact current review card).
+- Mobile: **no retrieval** — the AnkiDroid JS API is deliberately never
+  called (false media-load warnings); interval stays null → sentence front.
 - Content-search fallback (Browse previewer only, when guiCurrentCard
   fails): `findCards` by Expression, then Sentence and cloze-body
   discriminators narrow to exactly one candidate. **Never picks candidate
@@ -150,8 +156,9 @@ entity graph exists beyond what is shown.
 
 ## Key decisions (summaries; full records in `docs/adr/`)
 
-- **001** Mature interval via platform-exclusive live read (no
-  `{{Interval}}`, no new fields/add-ons; mobile never touches AnkiConnect).
+- **001** Mature interval via desktop-only live read (no `{{Interval}}`,
+  no new fields/add-ons; Android deliberately makes no JS API request and
+  degrades to the sentence front).
 - **002** Definition Compactor as structural CSS (dictionary-agnostic,
   `.primary-definition`-scoped; extended definition untouched).
 - **003** Native-only audio delegation (no `new Audio()`; sibling replay

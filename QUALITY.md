@@ -45,24 +45,26 @@ mechanically verified*. Code implements; tests enforce.
 - Listening cards never enter Mature Word Mode and skip all interval
   retrieval.
 - Interval has no `{{Interval}}` marker and no `note:` search clause
-  (`{{Type}}` is the scheduling type, not the model): desktop AnkiConnect
-  only, mobile AnkiDroid bridge only; mobile never fetches
-  `127.0.0.1:8765`.
-- **Mature mode interval retrieval** distinguishes exact-card retrieval
-  (desktop `guiCurrentCard` → `cardsInfo`; mobile AnkiDroid
-  `ankiGetCardInterval()`) from heuristic content-search fallback (Browse
-  previewer only). The content fallback uses Sentence then cloze-body as
-  discriminators; if ambiguity remains, it fails safely to the sentence
-  front. It never picks candidate 0 blindly.
+  (`{{Type}}` is the scheduling type, not the model): desktop uses
+  AnkiConnect only; the mobile path makes **no interval request at all** —
+  the AnkiDroid JS API is deliberately never called (it can trigger false
+  "Card Content Error: Failed to load" media warnings), and mobile never
+  fetches `127.0.0.1:8765`.
+- **Mature mode interval retrieval** is desktop-only exact-card retrieval
+  (`guiCurrentCard` → `cardsInfo`). Android/mobile intentionally degrades to
+  the sentence front; heuristic content-search fallback (Browse previewer
+  only) uses Sentence then cloze-body as discriminators; if ambiguity
+  remains, it fails safely to the sentence front. It never picks candidate 0
+  blindly.
 - Any retrieval failure degrades to the sentence front; anti-flash
   `visibility:hidden` gate with a bounded reveal cap. The gate is
   deterministic and safe: it must never depend on a single async path or
   timer that can be throttled, and it must never leave a blank/hung card.
 - Cloze rebuild fires only when Sentence lacks `<b>`/`<strong>` **and** the
   full prefix/body/suffix trio is non-empty; rebuild uses `<b>`.
-- AnkiDroid stub bridges (`signal:jsapi`) are never invoked;
-  `{success:false}` never becomes an interval; numeric strings and
-  JSON-encoded responses parse; bridge calls time out.
+- The template contains **no executable AnkiDroid JS API code** and makes no
+  `/jsapi/` request; mobile Mature Word Mode is intentionally disabled and
+  degrades to the sentence front.
 - `:has()` is intentional architecture for empty-shell collapse; it is not
   removed for theoretical portability.
 - Front template size is not a defect; correctness is prioritized over line

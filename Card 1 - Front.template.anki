@@ -17,18 +17,19 @@
          usual sentence is kept untouched.
        - Frequency legacy: No definitions but Frequency present (old cards with deleted glosses) → usual sentence, never the audio button.
        - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
-       - Mature Word Mode: If the card interval >= LONG_INTERVAL_DAYS (script constant),
-         the front shows only the Expression instead of the sentence (anti-overlearning).
-          Interval is the EXACT current card's interval: AnkiDroid JS API
-          (ankiGetCardInterval) on mobile, AnkiConnect guiCurrentCard →
-          cardsInfo on desktop during active review. Content search
-          (Expression → Sentence → cloze-body) is only a best-effort
-          preview/browser fallback when exact identity is unavailable;
-          it never picks candidate 0 blindly and fails safely to the
-          sentence front on ambiguity. Mobile preview screens have no JS
-          bridge (only the reviewer injects js-api.js), so they always
-          fall back to the sentence front. Any failure falls back to the
-          normal sentence front.
+- Mature Word Mode (desktop only): If the card interval >= LONG_INTERVAL_DAYS
+          (script constant), the front shows only the Expression instead of the
+          sentence (anti-overlearning). Interval is the EXACT current card's
+          interval from AnkiConnect guiCurrentCard → cardsInfo during active
+          review. Content search (Expression → Sentence → cloze-body) is only
+          a best-effort preview/browser fallback when exact identity is
+          unavailable; it never picks candidate 0 blindly and fails safely to
+          the sentence front on ambiguity.
+          On Android/mobile Mature Word Mode is INTENTIONALLY DISABLED: the
+          template makes no AnkiDroid JS API call for it, because those calls
+          can surface natively as false "Card Content Error: Failed to load"
+          media warnings in the reviewer. Mobile always keeps the ordinary
+          sentence front. Any failure falls back to the normal sentence front.
          - Front sentence sizing: pure CSS (base clamp + smaller phone
            override in the stylesheet's mobile block). No JS involved.
          - Front reveal is deterministic and safe: the anti-flash
@@ -314,8 +315,8 @@
       let interval = null;
       let source = 'unavailable';
       /* Latency probe: t0 at script start; elapsed retrieval time is
-         logged with the decision, so AnkiConnect (desktop) vs bridge
-         (mobile) costs can be compared per card. */
+         logged with the decision, so AnkiConnect (desktop) cost can be
+         measured per card. */
       const nowMs = () => (
         (typeof performance !== 'undefined' && performance.now)
           ? performance.now()
@@ -324,9 +325,9 @@
       const t0 = nowMs();
 
       /* Safety Reveal: Ensure card shows even if async calls hang.
-         Timing budget: 500ms AnkiConnect race / 700ms bridge poll /
-         1000ms bridge init+call / 1200ms reveal cap. The cap only binds
-         failure paths; the word-mode toggle runs before reveal. */
+         Timing budget: 500ms AnkiConnect race / 1200ms reveal cap. The
+         cap only binds failure paths; the word-mode toggle runs before
+         reveal. Mobile skips retrieval entirely, so it reveals at once. */
       const reveal = () => {
         container.style.visibility = 'visible';
       };
@@ -434,11 +435,10 @@
 
       /* Static early-exit: with no Expression, word mode is impossible (the
          hasExpression gate below), so the whole retrieval chain — fetch,
-         bridge wait, content search — is skipped and the sentence front
-         reveals now. Failure-identical to the universal fallback, ~50ms
-         faster per such card on desktop. The class toggle is explicit
-         because WebView DOM re-use can carry word-mode over from the
-         previous card. */
+         content search — is skipped and the sentence front reveals now.
+         Failure-identical to the universal fallback, ~50ms faster per such
+         card on desktop. The class toggle is explicit because WebView DOM
+         re-use can carry word-mode over from the previous card. */
       var wordProbeEarly = container.querySelector('.front-word-display');
       if (!isListening && wordProbeEarly && !(wordProbeEarly.textContent || '').trim()) {
         clearTimeout(safetyTimeout);
@@ -477,250 +477,27 @@
 
       try {
         /* isListening (resolved above): listening cards never use word
-           mode — skip ALL retrieval up front (also avoids needless
-           AnkiDroid JS-API calls, which can trigger AnkiDroid's known
-           false-positive "Failed to load *.bin" toast). */
+           mode — skip ALL retrieval up front. */
         /* Mobile WebViews (AnkiDroid / AnkiMobile) have no AnkiConnect: a
            fetch to 127.0.0.1 is refused and Android surfaces it natively as
            "Failed to load 'downloadfile.bin'". Never fetch from a phone. */
         const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
         const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
-        /* AnkiDroid compatibility helpers */
-        const bridgeAvailable = () =>
-          typeof AnkiDroidJS !== "undefined" &&
-          AnkiDroidJS !== null;
-
-// Safe wrapper for AnkiDroid JS API calls.
-const safeApiCall = (api, methodName, ...args) => {
-  if (!api || typeof api[methodName] !== "function") {
-    console.debug(`AnkiDroid API not available or method ${methodName} not found`);
-    return Promise.resolve(null);
-  }
-  try {
-    // Promise.resolve() handles bridges that return a plain value
-    // instead of a real Promise.
-    return Promise.resolve(api[methodName](...args)).catch((e) => {
-      console.warn(`AnkiDroid API call ${methodName} failed:`, e);
-      return null;
-    });
-  } catch (e) {
-    console.warn(`AnkiDroid API call ${methodName} threw synchronously:`, e);
-    return Promise.resolve(null);
-  }
-};
-        const withBridgeTimeout = (promise, ms) =>
-          new Promise((resolve, reject) => {
-            const timer = setTimeout(
-              () => reject(new Error('AnkiDroid bridge timeout')),
-              ms
-            );
-
-            Promise.resolve(promise).then(
-              value => {
-                clearTimeout(timer);
-                resolve(value);
-              },
-              error => {
-                clearTimeout(timer);
-                reject(error);
-              }
-            );
-          });
-
-        /*
-         * Accept:
-         *   365
-         *   "365"
-         *   {success: true, value: 365}
-         *   {success: true, value: "365"}
-         *   JSON-encoded versions of these responses
-         *
-         * Never turn null, false, or an empty string into an interval.
-         */
-        const parseDroidInterval = raw => {
-          let value = raw;
-
-          for (let depth = 0; depth < 6; depth++) {
-            if (typeof value === 'number') {
-              if (!Number.isFinite(value) || value < 0) {
-                throw new Error('No usable card interval');
-              }
-              return value;
-            }
-
-            if (typeof value === 'string') {
-              const text = value.trim();
-
-              if (!text) {
-                throw new Error('Empty interval response');
-              }
-
-              // Ordinary numeric string.
-              const number = Number(text);
-              if (Number.isFinite(number)) {
-                value = number;
-                continue;
-              }
-
-              // JSON-encoded response.
-              try {
-                value = JSON.parse(text);
-              } catch (_) {
-                throw new Error(
-                  'Unrecognized interval response: ' + text.slice(0, 120)
-                );
-              }
-              continue;
-            }
-
-            if (value && typeof value === 'object') {
-              if (
-                value.success === false ||
-                value.success === 'false'
-              ) {
-                throw new Error('AnkiDroid reported success=false');
-              }
-
-              if (
-                Object.prototype.hasOwnProperty.call(value, 'value')
-              ) {
-                value = value.value;
-                continue;
-              }
-
-              if (
-                Object.prototype.hasOwnProperty.call(value, 'interval')
-              ) {
-                value = value.interval;
-                continue;
-              }
-            }
-
-            throw new Error('Unsupported interval response');
-          }
-
-          throw new Error('Unexpectedly nested interval response');
-        };
-
-        const getAnkiDroidInterval = async () => {
-          try {
-            const options = {
-              developer: 'mansourvery-hub@users.noreply.github.com',
-              version: '0.0.3'
-            };
-
-            let api;
-            let apiKind;
-
-            if (typeof AnkiDroidJS === 'function') {
-              // Constructor-based API.
-              api = new AnkiDroidJS(options);
-              apiKind = 'constructor';
-            } else {
-              // Direct/native bridge API.
-              api = AnkiDroidJS;
-              apiKind = 'direct';
-
-              if (typeof api.init === 'function') {
-                const initialized = await withBridgeTimeout(
-                  safeApiCall(api, "init", JSON.stringify(options)),
-                  1000
-                );
-
-                if (
-                  initialized === false ||
-                  initialized === 'false'
-                ) {
-                  throw new Error('AnkiDroid API initialization failed');
-                }
-              }
-            }
-
-            if (
-              !api ||
-              typeof api.ankiGetCardInterval !== 'function'
-            ) {
-              throw new Error('ankiGetCardInterval is unavailable');
-            }
-
-            /* New-reviewer stub guard: AnkiDroid's fragment-based reviewer
-               injects a placeholder AnkiDroidJS whose methods only navigate
-               to 'signal:jsapi' (no data). Never invoke it — the navigation
-               is unhandled and yields nothing. Detect by method source. */
-            let methodSrc = '';
-            try {
-              methodSrc = Function.prototype.toString.call(api.ankiGetCardInterval);
-            } catch (_) { /* fall through to the call */ }
-            if (/signal\s*:\s*jsapi/.test(methodSrc)) {
-              return {
-                interval: null,
-                source: 'ankiDroid-stub (reviewer without interval API)'
-              };
-            }
-
-            const raw = await withBridgeTimeout(
-              safeApiCall(api, "ankiGetCardInterval"),
-              1000
-            );
-
-            return {
-              interval: parseDroidInterval(raw),
-              source: 'ankiDroid-' + apiKind
-            };
-          } catch (error) {
-            return {
-              interval: null,
-              source: 'ankiDroid-error: ' +
-                (error && error.message ? error.message : String(error))
-            };
-          }
-        };
-        /* Platform-exclusive retrieval. Phones use ONLY the AnkiDroid
-           bridge (AnkiConnect is unreachable from a mobile WebView — the
-           refused fetch surfaces natively as "Failed to load
-           downloadfile.bin"). Desktops use ONLY AnkiConnect (no
-           AnkiDroidJS global exists there). Neither platform ever
-           attempts the other's method. */
+        /* Mature Word Mode is desktop-only by design. On mobile we
+           deliberately do NOT touch the AnkiDroid JS API: its calls can
+           surface natively as false "Card Content Error: Failed to load"
+           media warnings in the reviewer. Reliability beats this optional
+           presentation feature, so mobile always keeps the sentence front
+           (interval stays null). */
         if (!isListening && isMobile) {
-          if (bridgeAvailable()) {
-            const r = await getAnkiDroidInterval();
-            interval = r.interval;
-            source = r.source;
-          } else {
-            /* Phone without an (already injected) bridge: AnkiDroid injects
-               its API around card load, often AFTER card scripts run — so poll
-               for it while the card is still hidden (no flash risk), then give
-               up to the sentence front. 700ms cap: the legacy reviewer
-               injects js-api.js synchronously in <head>, so a longer wait
-               only delays preview screens, where the sentence fallback is
-               correct anyway. */
-            const waitForBridge = async (deadlineMs, stepMs) => {
-              const start = Date.now();
-              while (!bridgeAvailable()) {
-                if (Date.now() - start >= deadlineMs) return false;
-                await new Promise(r => setTimeout(r, stepMs));
-              }
-              return true;
-            };
-            if (await waitForBridge(700, 100)) {
-              const r = await getAnkiDroidInterval();
-              interval = r.interval;
-              source = r.source;
-            } else {
-              /* No bridge script in the page: on AnkiDroid this means a
-                 preview screen (card browser / template / editor preview),
-                 never a real review — the legacy reviewer always injects
-                 js-api.js synchronously via card_template.html <head>.
-                 Sentence fallback is correct here; review the card for
-                 real to exercise mature mode. */
-              source = 'no-bridge-mobile (preview? bridge exists only in reviewer)';
-            }
-          }
+          /* Deliberately no AnkiDroid JS API call. Safe fallback: the
+             ordinary sentence front remains. */
+          source = 'mobile-jsapi-disabled';
         } else if (!isListening) {
-          /* DESKTOP-ONLY: AnkiConnect guiCurrentCard -> cardsInfo. The
-             bridge is never touched here. guiCurrentCard carries no
-             interval field (per the AnkiConnect action docs), so the
-             cardsInfo follow-up is mandatory, not redundant. */
+          /* DESKTOP-ONLY: AnkiConnect guiCurrentCard -> cardsInfo.
+             guiCurrentCard carries no interval field (per the AnkiConnect
+             action docs), so the cardsInfo follow-up is mandatory, not
+             redundant. Mobile never reaches this branch. */
           try {
             const current = await post('guiCurrentCard', {});
             if (current && current.cardId) {
