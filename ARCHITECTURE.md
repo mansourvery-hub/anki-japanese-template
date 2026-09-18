@@ -65,10 +65,11 @@ audio falls back to the normal sentence front; dead/duplicate views are
 removed so exactly one listening button is ever visible.
 Interval retrieval is **platform-exclusive** and distinguishes
 **exact-current-card** retrieval from **heuristic content-search fallback**:
-- Exact card (primary): mobile uses only the AnkiDroid bridge
-  (`ankiGetCardInterval()`, constructor + direct shapes, stub guard,
-  timeouts, 700 ms late-injection poll); desktop uses only AnkiConnect
+- Exact card (primary): desktop uses only AnkiConnect
   (`guiCurrentCard`→`cardsInfo` — the exact current review card).
+  **Android intentionally does not use the AnkiDroid JS API**: AnkiDroid's
+  `fetch('/jsapi/...')` bridge can surface false media-load errors in the
+  reviewer, so mobile degrades to sentence mode with zero JS-API requests.
 - Content-search fallback (Browse previewer only, when guiCurrentCard
   fails): `findCards` by Expression, then Sentence and cloze-body
   discriminators narrow to exactly one candidate. **Never picks candidate
@@ -150,8 +151,9 @@ entity graph exists beyond what is shown.
 
 ## Key decisions (summaries; full records in `docs/adr/`)
 
-- **001** Mature interval via platform-exclusive live read (no
-  `{{Interval}}`, no new fields/add-ons; mobile never touches AnkiConnect).
+- **001** Mature interval via live AnkiConnect read on desktop only (no
+  `{{Interval}}`, no new fields/add-ons). Android deliberately disables
+  JS-API interval retrieval to avoid AnkiDroid/WebView false media errors.
 - **002** Definition Compactor as structural CSS (dictionary-agnostic,
   `.primary-definition`-scoped; extended definition untouched).
 - **003** Native-only audio delegation (no `new Audio()`; sibling replay
