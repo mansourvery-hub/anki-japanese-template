@@ -2372,3 +2372,7 @@ fix false positive 'Failed to load downloadfile.bin' error from JS API calls
 ---
 
 fix false positive 'Failed to load downloadfile.bin' error from JS API calls
+
+---
+
+fix false positive 'Failed to load downloadfile.bin' error from JS API calls
