@@ -605,7 +605,7 @@
 
               if (typeof api.init === 'function') {
                 const initialized = await withBridgeTimeout(
-                  safeApiCall("init", JSON.stringify(options)),
+                  api.init(JSON.stringify(options)),
                   1000
                 );
 
@@ -641,7 +641,7 @@
             }
 
             const raw = await withBridgeTimeout(
-              safeApiCall("ankiGetCardInterval"),
+              api.ankiGetCardInterval(),
               1000
             );
 
