@@ -273,6 +273,11 @@ def main():
           "getCardsInfo" not in front)
     check("Front: no card-id-from-URL guess (no URLSearchParams)",
           "URLSearchParams" not in front)
+    check("Front: no AnkiDroid JS API bridge code remains",
+          "AnkiDroidJS" not in front
+          and "ankiGetCardInterval" not in front
+          and "safeApiCall" not in front
+          and "withBridgeTimeout" not in front)
     check("Front: AnkiDroid media-error workaround disables mobile JS API",
           "mobile-jsapi-disabled" in front
           and "ZERO JS-API requests" in front
