@@ -273,34 +273,15 @@ def main():
           "getCardsInfo" not in front)
     check("Front: no card-id-from-URL guess (no URLSearchParams)",
           "URLSearchParams" not in front)
-    check("Front: AnkiDroid JS API with verified contract",
-          "ankiGetCardInterval" in front and 'new AnkiDroidJS(' in front)
-    check("Front: supports constructor + direct bridge APIs",
-          "apiKind" in front and "'constructor'" in front and "'direct'" in front)
-    check("Front: never invokes new-reviewer stub bridge (signal:jsapi guard)",
-          "signal" in front and "jsapi" in front
-          and "ankiDroid-stub" in front)
-    check("Front: accepts AnkiDroid {success,value} shape (official wiki contract)",
-          "parseDroidInterval" in front
-          and "hasOwnProperty" in front
-          and "'value'" in front)
-    check("Front: rejects {success:false} failure defaults (number => -1)",
-          "success === false" in front)
-    check("Front: parses numeric strings + JSON-encoded responses",
-          "JSON.parse" in front and "Number.isFinite" in front)
-    check("Front: bridge call has its own timeout (never hangs the card)",
-          "withBridgeTimeout" in front)
-    check("Front: never fetches AnkiConnect from mobile WebViews (downloadfile.bin toast)",
-          "isMobile" in front and "no-bridge-mobile" in front
-          and "127.0.0.1" in front)
-    check("Front: one deferred bridge retry on mobile while still hidden",
-          "bridgeAvailable" in front)
-    check("Front: polls for late-injected bridge with a firm deadline",
-          "waitForBridge" in front)
-    check("Front: bridge poll capped short (fast preview fallback)",
-          "waitForBridge(700" in front)
-    check("Front: platform-exclusive retrieval (mobile bridge vs desktop AnkiConnect)",
-          "Platform-exclusive retrieval" in front and "DESKTOP-ONLY" in front)
+    check("Front: AnkiDroid media-error workaround disables mobile JS API",
+          "mobile-jsapi-disabled" in front
+          and "ZERO JS-API requests" in front
+          and "AnkiDroid #16510" in front)
+    check("Front: mobile still avoids AnkiConnect",
+          "isMobile" in front and "127.0.0.1" in front
+          and re.search(r"if \(!isListening && isMobile\).*?mobile-jsapi-disabled.*?else if \(!isListening\)", front, re.S) is not None)
+    check("Front: desktop remains AnkiConnect-only for exact interval",
+          "DESKTOP-ONLY" in front and "guiCurrentCard" in front and "cardsInfo" in front)
     check("Front: retrieval latency is measured and logged",
           "performance.now" in front and "elapsedMs" in front
           and "[Mature Word Mode] source=" in front)
