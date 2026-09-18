@@ -2396,3 +2396,7 @@ fix false positive 'Failed to load downloadfile.bin' error from JS API calls
 ---
 
 fix false positive 'Failed to load downloadfile.bin' error from JS API calls
+
+---
+
+[rung/bisect protocol] sync rung1 minimal template (no error) + rung2 full feature set (no error) on AnkiDroid — JS-API-removed template verified clean; main fast-forwarded to the fix
