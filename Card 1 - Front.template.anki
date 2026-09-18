@@ -490,22 +490,24 @@
           typeof AnkiDroidJS !== "undefined" &&
           AnkiDroidJS !== null;
 
-// Safe wrapper for AnkiDroid JS API calls to prevent exceptions that trigger media error handler
-// This prevents failed JS API calls from being misinterpreted as missing media errors
-const safeApiCall = (methodName, ...args) => {
+// Safe wrapper for AnkiDroid JS API calls.
+const safeApiCall = (api, methodName, ...args) => {
   if (!api || typeof api[methodName] !== "function") {
     console.debug(`AnkiDroid API not available or method ${methodName} not found`);
     return Promise.resolve(null);
   }
-  return api[methodName](...args).catch((e) => {
-    console.warn(`AnkiDroid API call ${methodName} failed:`, e);
-    return null;
-  });
+  try {
+    // Promise.resolve() handles bridges that return a plain value
+    // instead of a real Promise.
+    return Promise.resolve(api[methodName](...args)).catch((e) => {
+      console.warn(`AnkiDroid API call ${methodName} failed:`, e);
+      return null;
+    });
+  } catch (e) {
+    console.warn(`AnkiDroid API call ${methodName} threw synchronously:`, e);
+    return Promise.resolve(null);
+  }
 };
-
-          typeof AnkiDroidJS !== 'undefined' &&
-          AnkiDroidJS !== null;
-
         const withBridgeTimeout = (promise, ms) =>
           new Promise((resolve, reject) => {
             const timer = setTimeout(
@@ -621,7 +623,7 @@ const safeApiCall = (methodName, ...args) => {
 
               if (typeof api.init === 'function') {
                 const initialized = await withBridgeTimeout(
-                  safeApiCall("init", JSON.stringify(options)),
+                  safeApiCall(api, "init", JSON.stringify(options)),
                   1000
                 );
 
@@ -657,7 +659,7 @@ const safeApiCall = (methodName, ...args) => {
             }
 
             const raw = await withBridgeTimeout(
-              safeApiCall("ankiGetCardInterval"),
+              safeApiCall(api, "ankiGetCardInterval"),
               1000
             );
 
