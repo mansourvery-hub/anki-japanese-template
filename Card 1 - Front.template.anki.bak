@@ -641,7 +641,7 @@
             }
 
             const raw = await withBridgeTimeout(
-              safeApiCall("ankiGetCardInterval"),
+              api.ankiGetCardInterval(),
               1000
             );
 

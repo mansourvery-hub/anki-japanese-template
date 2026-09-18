@@ -2332,3 +2332,7 @@ sync
 ---
 feels smoother but yet again this is just a feel. no bugs. push, release etc
 ---
+
+---
+
+fix false positive 'Failed to load downloadfile.bin' error from JS API calls
