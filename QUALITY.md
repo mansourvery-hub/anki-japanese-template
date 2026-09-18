@@ -45,24 +45,24 @@ mechanically verified*. Code implements; tests enforce.
 - Listening cards never enter Mature Word Mode and skip all interval
   retrieval.
 - Interval has no `{{Interval}}` marker and no `note:` search clause
-  (`{{Type}}` is the scheduling type, not the model): desktop AnkiConnect
-  only, mobile AnkiDroid bridge only; mobile never fetches
-  `127.0.0.1:8765`.
-- **Mature mode interval retrieval** distinguishes exact-card retrieval
-  (desktop `guiCurrentCard` → `cardsInfo`; mobile AnkiDroid
-  `ankiGetCardInterval()`) from heuristic content-search fallback (Browse
-  previewer only). The content fallback uses Sentence then cloze-body as
-  discriminators; if ambiguity remains, it fails safely to the sentence
-  front. It never picks candidate 0 blindly.
+  (`{{Type}}` is the scheduling type, not the model). Desktop uses
+  AnkiConnect only; Android intentionally makes no interval API request
+  and stays in sentence mode. No mobile request targets `127.0.0.1:8765`.
+- **Mature mode interval retrieval** uses the exact desktop card
+  (`guiCurrentCard` → `cardsInfo`). The Browse-preview content-search
+  fallback remains heuristic only; it uses Sentence then cloze-body as
+  discriminators, fails safely on ambiguity, and never picks candidate 0.
+- **AnkiDroid compatibility invariant**: the front must not instantiate or
+  call `AnkiDroidJS` / `ankiGetCardInterval()`. AnkiDroid's JS API uses
+  `fetch('/jsapi/...')` and can surface false `Card Content Error: Failed
+  to load '...'` media errors in the reviewer (AnkiDroid #16510).
 - Any retrieval failure degrades to the sentence front; anti-flash
   `visibility:hidden` gate with a bounded reveal cap. The gate is
   deterministic and safe: it must never depend on a single async path or
   timer that can be throttled, and it must never leave a blank/hung card.
 - Cloze rebuild fires only when Sentence lacks `<b>`/`<strong>` **and** the
   full prefix/body/suffix trio is non-empty; rebuild uses `<b>`.
-- AnkiDroid stub bridges (`signal:jsapi`) are never invoked;
-  `{success:false}` never becomes an interval; numeric strings and
-  JSON-encoded responses parse; bridge calls time out.
+- AnkiDroid JS-API bridges are never invoked by the front template.
 - `:has()` is intentional architecture for empty-shell collapse; it is not
   removed for theoretical portability.
 - Front template size is not a defect; correctness is prioritized over line
