@@ -636,6 +636,40 @@
         }
 
         reveal();
+
+        /* --- TEMP DIAGNOSTIC (remove after root-cause found) ---
+           AnkiDroid surfaces any failed resource as a native
+           "Card Content Error: Failed to load '...'" snackbar. The failing
+           URL is invisible on-device. Report it directly on the card:
+           every <img> that failed to decode, plus every resource entry
+           whose transferSize is 0 (no bytes received → blocked/404).
+           Displayed as a small fixed badge with the raw URL(s). */
+        try {
+          setTimeout(function () {
+            var bad = [];
+            container.querySelectorAll('img').forEach(function (im) {
+              if (!im.complete || im.naturalWidth === 0) bad.push('IMG ' + (im.getAttribute('src') || ''));
+            });
+            if (window.performance && performance.getEntriesByType) {
+              performance.getEntriesByType('resource').forEach(function (r) {
+                var n = r.name || '';
+                if (r.transferSize === 0 && r.decodedBodySize === 0) {
+                  if (n.indexOf('/_anki/') === -1) bad.push('RES ' + n);
+                }
+              });
+            }
+            var ua = (navigator && navigator.userAgent) || '';
+            if (bad.length) {
+              var d = document.createElement('div');
+              d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
+                'background:#b00020;color:#fff;font:10px/1.5 monospace;padding:6px 8px;' +
+                'overflow-wrap:anywhere;max-height:40%;overflow-y:auto;white-space:pre-wrap;';
+              d.textContent = 'FAILED RESOURCES [' + ua.slice(0, 80) + ']:\n' + bad.join('\n');
+              document.body.appendChild(d);
+            }
+          }, 1500);
+        } catch (diagErr) { /* never block the reveal */ }
+        /* --- TEMP DIAGNOSTIC (END) --- */
       }
     }
   })();
