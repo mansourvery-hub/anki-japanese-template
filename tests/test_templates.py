@@ -281,22 +281,24 @@ def main():
           and "bridgeAvailable" not in front and "waitForBridge" not in front
           and "apiKind" not in front
           and "signal:jsapi" not in front)
-    check("Front: mobile explicitly disables JS-API interval retrieval",
-          "isMobile" in front and "mobile-jsapi-disabled" in front)
-    # Isolate the mobile branch (if (isMobile) { ... } else if...) and prove
-    # it contains no retrieval call whatsoever: no AnkiConnect post/fetch and
-    # no JS API. This makes the desktop/mobile branches mutually exclusive.
+    check("Front: non-desktop hard-disables JS-API interval retrieval (allowlist)",
+          "isDesktop" in front and "QtWebEngine" in front
+          and "mobile-jsapi-disabled" in front)
+    # Isolate the non-desktop branch (if (!isListening && !isDesktop) { ... } else if...)
+    # and prove it contains no retrieval call whatsoever: no AnkiConnect post/fetch and
+    # no JS API. The fetch is ALLOWLISTED on QtWebEngine (desktop) — every other
+    # environment, whatever its user agent, takes this zero-network branch.
     mob = re.search(
-        r"if \(!isListening && isMobile\) \{(.*?)\n\s*\} else if \(!isListening\) \{",
+        r"if \(!isListening && !isDesktop\) \{(.*?)\n\s*\} else if \(!isListening\) \{",
         front, re.S)
-    check("Front: mobile branch makes no interval request at all",
+    check("Front: non-desktop branch makes no interval request at all",
           mob is not None
           and "mobile-jsapi-disabled" in mob.group(1)
           and "post(" not in mob.group(1)
           and "fetch(" not in mob.group(1)
           and "guiCurrentCard" not in mob.group(1)
           and "cardsInfo" not in mob.group(1))
-    check("Front: mobile never fetches the desktop AnkiConnect endpoint",
+    check("Front: non-desktop never fetches the desktop AnkiConnect endpoint",
           mob is not None and "127.0.0.1" not in mob.group(1)
           and "127.0.0.1" in front)
     check("Front: desktop retrieval remains platform-exclusive (DESKTOP-ONLY)",

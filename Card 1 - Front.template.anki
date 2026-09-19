@@ -478,18 +478,23 @@
       try {
         /* isListening (resolved above): listening cards never use word
            mode — skip ALL retrieval up front. */
-        /* Mobile WebViews (AnkiDroid / AnkiMobile) have no AnkiConnect: a
-           fetch to 127.0.0.1 is refused and Android surfaces it natively as
-           "Failed to load 'downloadfile.bin'". Never fetch from a phone. */
+        /* Hard-disable the AnkiConnect fetch outside desktop Anki. The
+           fetch must be positively ALLOWED, never merely blocked: the old
+           blacklist (/Android|iPhone|.../ on the UA) silently missed
+           devices with non-standard user agents, and every escaped fetch
+           surfaced natively as "Failed to load '...'" on the reviewer
+           front. Desktop Anki's QtWebEngine UA always contains
+           "QtWebEngine"; anything else (phones, forks, exotic WebViews)
+           keeps the safe sentence front with zero network activity. */
         const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
-        /* Mature Word Mode is desktop-only by design. On mobile we
+        const isDesktop = /QtWebEngine/i.test(ua);
+        /* Mature Word Mode is desktop-only by design. On non-desktop we
            deliberately do NOT touch the AnkiDroid JS API: its calls can
            surface natively as false "Card Content Error: Failed to load"
            media warnings in the reviewer. Reliability beats this optional
-           presentation feature, so mobile always keeps the sentence front
-           (interval stays null). */
-        if (!isListening && isMobile) {
+           presentation feature, so non-desktop always keeps the sentence
+           front (interval stays null). */
+        if (!isListening && !isDesktop) {
           /* Deliberately no AnkiDroid JS API call. Safe fallback: the
              ordinary sentence front remains. */
           source = 'mobile-jsapi-disabled';
