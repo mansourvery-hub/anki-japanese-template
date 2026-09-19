@@ -637,39 +637,62 @@
 
         reveal();
 
-        /* --- TEMP DIAGNOSTIC (remove after root-cause found) ---
-           AnkiDroid surfaces any failed resource as a native
-           "Card Content Error: Failed to load '...'" snackbar. The failing
-           URL is invisible on-device. Report it directly on the card:
-           every <img> that failed to decode, plus every resource entry
-           whose transferSize is 0 (no bytes received → blocked/404).
-           Displayed as a small fixed badge with the raw URL(s). */
+        /* --- TEMP DIAGNOSTIC v2 (remove after root-cause found) ---
+           v1 flagged cross-origin fetches via transferSize==0 — false
+           positive: without Timing-Allow-Origin, browsers zero those
+           fields even on SUCCESS (the desktop badge showed the 2 healthy
+           8765 calls). v2 instruments precisely:
+           - gate verdict: source / isDesktop / interval / UA prefix
+           - EVERY fetch(): url + HTTP status (fetch resolves on 404)
+           - fetch() rejections (network/abort → unhandledrejection)
+           - broken <img> srcs (naturalWidth===0 — same-origin reliable)
+           Rendered as a fixed red badge 1.5s after reveal. */
         try {
-          setTimeout(function () {
-            var bad = [];
-            container.querySelectorAll('img').forEach(function (im) {
-              if (!im.complete || im.naturalWidth === 0) bad.push('IMG ' + (im.getAttribute('src') || ''));
-            });
-            if (window.performance && performance.getEntriesByType) {
-              performance.getEntriesByType('resource').forEach(function (r) {
-                var n = r.name || '';
-                if (r.transferSize === 0 && r.decodedBodySize === 0) {
-                  if (n.indexOf('/_anki/') === -1) bad.push('RES ' + n);
-                }
-              });
+          (function () {
+            var calls = [];
+            var fails = [];
+            if (typeof window.fetch === 'function') {
+              var origFetch = window.fetch;
+              window.fetch = function () {
+                var url = String((arguments[0] && arguments[0].url) || arguments[0] || '');
+                return origFetch.apply(this, arguments).then(
+                  function (res) {
+                    calls.push('FETCH ' + res.status + (res.ok ? '' : '!') + ' ' + url);
+                    return res;
+                  },
+                  function (err) {
+                    fails.push('FETCH-REJECT ' + url + ' :: ' + (err && err.message || err));
+                    throw err;
+                  });
+              };
             }
-            var ua = (navigator && navigator.userAgent) || '';
-            if (bad.length) {
+            window.addEventListener('unhandledrejection', function (e) {
+              fails.push('REJECTION ' + (e.reason && e.reason.message || e.reason));
+            });
+            window.addEventListener('error', function (e) {
+              if (e.target && e.target.tagName === 'IMG') {
+                fails.push('IMG ' + (e.target.getAttribute('src') || ''));
+              }
+            }, true);
+            setTimeout(function () {
+              var ua = (navigator && navigator.userAgent) || '';
+              var lines = [
+                'GATE src=' + source + ' isDesktop=' + isDesktop +
+                  ' interval=' + String(interval),
+                'UA ' + ua.slice(0, 60)
+              ];
+              calls.forEach(function (l) { lines.push(l); });
+              fails.forEach(function (l) { lines.push(l); });
               var d = document.createElement('div');
               d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
                 'background:#b00020;color:#fff;font:10px/1.5 monospace;padding:6px 8px;' +
                 'overflow-wrap:anywhere;max-height:40%;overflow-y:auto;white-space:pre-wrap;';
-              d.textContent = 'FAILED RESOURCES [' + ua.slice(0, 80) + ']:\n' + bad.join('\n');
+              d.textContent = 'DIAG v2\n' + lines.join('\n');
               document.body.appendChild(d);
-            }
-          }, 1500);
+            }, 1500);
+          })();
         } catch (diagErr) { /* never block the reveal */ }
-        /* --- TEMP DIAGNOSTIC (END) --- */
+        /* --- TEMP DIAGNOSTIC v2 (END) --- */
       }
     }
   })();
