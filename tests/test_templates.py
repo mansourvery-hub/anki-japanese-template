@@ -285,6 +285,9 @@ def main():
     check("Front: post helper UA-guards every AnkiConnect call (mobile rejects before fetch)",
           re.search(r"const post = \(action, params\) => \{[\s\S]*?/Android\|iPhone\|iPad\|iPod/i\.test\(ua\)", front) is not None
           and "AnkiConnect is desktop-only" in front)
+    check("Front: QtWebEngine allowlist — fetch only from desktop Anki's engine",
+          re.search(r"const post = \(action, params\) => \{[\s\S]*?/QtWebEngine/i\.test\(ua\)", front) is not None
+          and "requires desktop QtWebEngine" in front)
     check("Front: mobile never reaches a fetch (guard inside post, before fetch)",
           re.search(r"const post = \(action, params\) => \{[\s\S]*?fetch\('http://127\.0\.0\.1:8765'", front, re.S) is not None)
     check("Front: retrieval remains platform-exclusive (DESKTOP-ONLY marker)",

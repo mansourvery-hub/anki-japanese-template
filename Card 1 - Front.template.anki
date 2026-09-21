@@ -470,6 +470,13 @@
         if (/Android|iPhone|iPad|iPod/i.test(ua)) {
           return Promise.reject(new Error('AnkiConnect is desktop-only'));
         }
+        /* Belt-and-braces allowlist: 127.0.0.1:8765 is Anki desktop's local
+           HTTP server; only QtWebEngine (desktop Anki's engine) may ever
+           fetch it. AnkiDroid's WebView UA can never contain QtWebEngine,
+           so this rejects even if the platform check above were bypassed. */
+        if (!/QtWebEngine/i.test(ua)) {
+          return Promise.reject(new Error('requires desktop QtWebEngine'));
+        }
         const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
         const timeout = new Promise((_, rej) =>
           setTimeout(() => { try { ctl && ctl.abort(); } catch (_) {} rej(new Error('AnkiConnect timeout')); }, 500)
