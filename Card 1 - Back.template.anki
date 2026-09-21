@@ -41,18 +41,7 @@
 
         <div class="audio-row">
           {{#Word Audio}}
-            <span class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn small-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
-                <svg class="audio-progress-ring" viewBox="0 0 44 44">
-                  <circle class="ring-bg" cx="22" cy="22" r="19" />
-                  <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-                </svg>
-                <span class="audio-btn-content">
-                  <span class="audio-btn-label">言葉</span>
-                </span>
-              </button>
-              <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-            </span>
+            <span class="native-audio">{{Word Audio}}</span>
           {{/Word Audio}}
         </div>
       </div>
@@ -75,18 +64,7 @@
 
         <div class="audio-row">
           {{#Sentence Audio}}
-            <span class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn small-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-                <svg class="audio-progress-ring" viewBox="0 0 44 44">
-                  <circle class="ring-bg" cx="22" cy="22" r="19" />
-                  <circle class="ring-fill" cx="22" cy="22" r="19" stroke-dasharray="119.38" stroke-dashoffset="119.38" />
-                </svg>
-                <span class="audio-btn-content">
-                  <span class="audio-btn-label">文</span>
-                </span>
-              </button>
-              <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-            </span>
+            <span class="native-audio">{{Sentence Audio}}</span>
           {{/Sentence Audio}}
         </div>
       </div>
@@ -340,55 +318,6 @@
         if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
       });
     }
-
-    /* --- CIRCULAR AUDIO CONTROLLER (native-only) --- */
-    window.currentActiveBtn = window.currentActiveBtn || null;
-    window.currentActiveTimer = window.currentActiveTimer || null;
-    /* WebView DOM re-use: never pin a detached button across card flips. */
-    if (typeof window.addEventListener === 'function') {
-        window.addEventListener('pagehide', () => { try { window.resetAudioState(); } catch (_) {} });
-    }
-
-    window.resetAudioState = function() {
-        if (window.currentActiveTimer) {
-            clearTimeout(window.currentActiveTimer);
-            window.currentActiveTimer = null;
-        }
-        if (window.currentActiveBtn) {
-            window.currentActiveBtn.classList.remove('is-playing');
-            const ring = window.currentActiveBtn.querySelector('.ring-fill');
-            if (ring) {
-                const circ = parseFloat(ring.getAttribute('stroke-dasharray')) || 119.38;
-                ring.style.transition = '';
-                ring.style.strokeDashoffset = circ;
-            }
-            window.currentActiveBtn = null;
-        }
-    };
-
-    window.playCircularAudio = function(btn) {
-        if (window.currentActiveBtn === btn) return;
-        window.resetAudioState();
-        const ringFill = btn.querySelector('.ring-fill');
-
-        const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
-        const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
-          || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
-        if (nativeReplay) {
-            try { nativeReplay.click(); } catch (e) { return; }
-            btn.classList.add('is-playing');
-            if (ringFill) {
-                ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
-                ringFill.style.strokeDashoffset = '0';
-            }
-            window.currentActiveBtn = btn;
-            window.currentActiveTimer = setTimeout(() => {
-                if (window.currentActiveBtn === btn) {
-                    window.resetAudioState();
-                }
-            }, 800);
-        }
-    };
 
     /* --- DEFINITION TRUNCATOR (3-line cap + click to expand, stays open) --- */
     window.expandDefinition = function(element) {

@@ -87,13 +87,21 @@ def build_html(resolver, is_listening_card, tags_text="", tag_audio_source=None)
         # that audio source — mirroring the real template's Policy B markup.
         if tag_audio_source is not None:
             audio_inner = tag_audio_source
-            tag_view_html = (
-                '<div class="listening-view tag-listening-view" style="display: none;">'
-                '<div class="audio-btn-wrapper">'
-                '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
-                f'<span class="raw-audio-source" aria-hidden="true">{audio_inner}</span>'
-                '</div></div>'
-            )
+            # Fully-native audio: the view carries Anki's own replay anchor
+            # (no custom button, no hidden raw source). An empty audio field
+            # renders an empty shell — Policy B must reject it (no link, no
+            # text) and fall back to the sentence front.
+            if audio_inner == "":
+                tag_view_html = (
+                    '<div class="listening-view tag-listening-view" '
+                    'style="display: none;"></div>'
+                )
+            else:
+                tag_view_html = (
+                    '<div class="listening-view tag-listening-view" style="display: none;">'
+                    f'<a class="native-audio-link" href="#" data-audio="{audio_inner}">文</a>'
+                    '</div>'
+                )
         else:
             tag_view_html = ""
         tags_html = (
@@ -104,10 +112,7 @@ def build_html(resolver, is_listening_card, tags_text="", tag_audio_source=None)
         tags_html = ""
     classic_audio = (
         '<div class="listening-view classic-listening-view">'
-        '<div class="audio-btn-wrapper">'
-        '<button type="button" class="circular-audio-btn large-audio-btn">文</button>'
-        '<span class="raw-audio-source" aria-hidden="true">[sound:test.mp3]</span>'
-        '</div>'
+        '<span class="native-audio"><a class="replay-button" href="#">文</a></span>'
         '</div>'
     ) if is_listening_card else ""
     return f"""<!doctype html><html><head><meta charset="utf-8">

@@ -32,11 +32,11 @@ mechanically verified*. Code implements; tests enforce.
   Normal study cards never include `{{Sentence Audio}}` on front, guaranteeing
   zero audio autoplay on front.
 - **Listening Policy B**: `#listening` activates the listening front **only
-  when usable audio exists** (the tag-listening-view must have a real
-  `.raw-audio-source` — `{{Sentence Audio}}`, or `{{Word Audio}}` as
+  when usable audio exists** (the tag-listening-view must carry a real
+  audio link — `{{Sentence Audio}}`, or `{{Word Audio}}` as
   fallback). `#listening` + no usable audio falls back safely to the normal
   sentence front. The resolver removes every dead/duplicate listening view
-  so exactly one listening sound button is ever visible.
+  so exactly one listening control is ever visible.
 - **Listening audio source**: the tag-listening-view binds to the actual
   `{{Sentence Audio}}` field (not the hardcoded `play:a:0` which plays the
   first audio field = Word Audio on listening cards). Word Audio is the
@@ -84,13 +84,13 @@ mechanically verified*. Code implements; tests enforce.
   `X` toggles translation (alias for `T`), `C` toggles expanded-info;
   shortcuts never fire in inputs/contentEditable. **`R` is Anki-owned**
   (native replay) and never appears in the template's shortcut UI.
-- Every circular audio button has an `aria-label`; replay source is a
-  **sibling** `.raw-audio-source` (never inside `<button>`, never
-  `display:none`); playback delegates to the native replay link; re-tap is
-  debounced; `playCircularAudio` starts with `resetAudioState`; no `new
-  Audio()`, no `is-paused` remnants, no `div`-inside-`button`. The ring is
-  a **playback indicator** (a decorative play-pulse), not true progress —
-  native audio remains the authority (ADR 003).
+- Audio is **fully native**: the template renders the audio fields
+  themselves (`{{Word Audio}}` / `{{Sentence Audio}}` — Anki collects the
+  `[sound:...]` tags and renders its own replay links) and ships **no**
+  custom audio machinery (no buttons, no progress ring, no JS controller).
+  No `new Audio()` on AnkiDroid; no raw field lives outside its
+  conditional. The template styles Anki's replay link compactly
+  (`.native-audio`) but playback is entirely Anki's (ADR 003).
 - Lightbox closes only on backdrop click (`e.target === overlay`) or
   `Escape`; overlay carries dialog semantics; cloned image preserves `alt`.
 - Definition expand is one-way (never re-collapses); `.is-truncated` is set

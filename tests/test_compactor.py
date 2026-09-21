@@ -45,7 +45,7 @@ def load_hide_selectors():
     # Anchor on the first rule's comment, not the section banner (the banner
     # comment wraps the "6b." marker itself and would leak header text).
     start = css.index("/* --- Collapse all dictionary entries after the first --- */")
-    end = css.index("7. CIRCULAR AUDIO BUTTON")
+    end = css.index("7. NATIVE AUDIO")
     block = css[start:end]
     block = re.sub(r"/\*.*?\*/", "", block, flags=re.S)
     selectors = []

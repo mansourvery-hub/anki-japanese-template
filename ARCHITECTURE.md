@@ -64,7 +64,7 @@ tags probe. Normal cards never evaluate `{{Sentence Audio}}` on the front,
 guaranteeing zero audio autoplay and zero audio controls on normal cards.
 **Listening Policy B**: `#listening` (or the legacy audio-only shape)
 activates the listening front **only when usable audio exists**
-(`hasUsableAudio` check on the `.raw-audio-source`). The tag-listening-view
+(`hasUsableAudio` check on the tag-listening-view). The tag-listening-view
 binds to `{{Sentence Audio}}` (label 文), falling back to `{{Word Audio}}`
 (label 言葉) — never the hardcoded `play:a:0`. `#listening` + no usable
 audio falls back to the normal sentence front; dead/duplicate views are
@@ -109,12 +109,13 @@ card-container
 
 JS controllers (all idempotent under WebView DOM re-use): More toggle (one-way reveal;
 section+button self-remove when secondary content is absent),
-native-only circular audio (`playCircularAudio` → sibling replay link
-click, re-tap debounce, playback indicator pulse), definition truncator (blank boxes
+definition truncator (blank boxes
 removed, then measure → `.is-truncated` → one-way `.is-expanded`),
 lightbox (backdrop-click / `Escape` close, alt preserved), back-only
 keyboard shortcuts (`F` full-card furigana, `T`/`X` translation reveal,
-`C` expanded-info toggle; `R` is Anki-owned, never listed).
+`C` expanded-info toggle; `R` is Anki-owned, never listed). Audio is
+fully native (ADR 003): fields render inside their conditionals, Anki
+renders the replay links, the template only styles them.
 
 ### Style (`Card 1 - Style.css`)
 
@@ -124,7 +125,7 @@ accent is reserved for the target and interactive states), §2 containers,
 §5b word-mode swap, §6 back hierarchy (hero-header 3-col grid: left meta |
 centered word | right meta; stacked on narrow; freq/pitch/audio split sides), **§6b Definition Compactor**
 (first dictionary, ≤2 senses, no appendices, `.primary-definition`-scoped),
-§6c truncator (3-line cap + fade + chevron), §7 audio rings (playback indicator, not true progress),
+§6c truncator (3-line cap + fade + chevron), §7 native audio styling (Anki owns playback, ADR 003),
 §8 sentence/translation + secondary blocks, §9 zero-reflow ruby +
 §9b full-card furigana mode, §10 media/lightbox, §11 footer,
 §12 listening (inert until `.listening-mode`), §13 mobile,

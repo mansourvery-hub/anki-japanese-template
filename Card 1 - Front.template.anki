@@ -81,52 +81,19 @@
       {{#Sentence Audio}}
         {{#Word Audio}}
           <div class="listening-view tag-listening-view" style="display: none;">
-            <div class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-                <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                  <circle class="ring-bg" cx="40" cy="40" r="36" />
-                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                </svg>
-                <span class="audio-btn-content">
-                  <span class="audio-btn-label">文</span>
-                </span>
-              </button>
-              <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:1" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:1');return false;}"></a></span>
-            </div>
+            <a class="native-audio-link" href="playsound:a:1" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:1');return false;}" title="音声再生">文</a>
           </div>
         {{/Word Audio}}
         {{^Word Audio}}
           <div class="listening-view tag-listening-view" style="display: none;">
-            <div class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-                <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                  <circle class="ring-bg" cx="40" cy="40" r="36" />
-                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                </svg>
-                <span class="audio-btn-content">
-                  <span class="audio-btn-label">文</span>
-                </span>
-              </button>
-              <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}"></a></span>
-            </div>
+            <a class="native-audio-link" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}" title="音声再生">文</a>
           </div>
         {{/Word Audio}}
       {{/Sentence Audio}}
       {{^Sentence Audio}}
       {{#Word Audio}}
         <div class="listening-view tag-listening-view" style="display: none;">
-          <div class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn large-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
-              <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                <circle class="ring-bg" cx="40" cy="40" r="36" />
-                <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-              </svg>
-              <span class="audio-btn-content">
-                <span class="audio-btn-label">言葉</span>
-              </span>
-            </button>
-            <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}"></a></span>
-          </div>
+          <a class="native-audio-link" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}" title="音声再生">言葉</a>
         </div>
       {{/Word Audio}}
       {{/Sentence Audio}}
@@ -180,36 +147,14 @@
         <!-- Sentence Audio available: only rendered on pure listening cards (no glosses, no frequency) -->
         {{#Sentence Audio}}
           <div class="listening-view classic-listening-view">
-            <div class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
-                <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                  <circle class="ring-bg" cx="40" cy="40" r="36" />
-                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                </svg>
-                <span class="audio-btn-content">
-                  <span class="audio-btn-label">文</span>
-                </span>
-              </button>
-              <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-            </div>
+            <span class="native-audio">{{Sentence Audio}}</span>
           </div>
         {{/Sentence Audio}}
 
         {{^Sentence Audio}}
         {{#Word Audio}}
           <div class="listening-view classic-listening-view">
-            <div class="audio-btn-wrapper">
-              <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
-                <svg class="audio-progress-ring" viewBox="0 0 80 80">
-                  <circle class="ring-bg" cx="40" cy="40" r="36" />
-                  <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-                </svg>
-                <span class="audio-btn-content">
-                  <span class="audio-btn-label">言葉</span>
-                </span>
-              </button>
-              <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-            </div>
+            <span class="native-audio">{{Word Audio}}</span>
           </div>
         {{/Word Audio}}
         {{/Sentence Audio}}
@@ -235,76 +180,6 @@
 <script>
   (async function() {
     /* --- 1. HOISTED UTILITIES & FUNCTIONS --- */
-
-    /* --- CIRCULAR AUDIO CONTROLLER (native-only) ---
-       Always delegates to Anki's own replay link (desktop `replay-button`,
-       AnkiDroid `replaybutton`). Never constructs an HTML5 audio element:
-       on AnkiDroid the rendered link carries no usable filename (old builds
-       emit `playsound:q:0`, which would be loaded as a bogus file and fail).
-       The ring is a playback indicator (a decorative play-pulse), not true
-       progress — native audio remains the authority (ADR 003). */
-    window.currentActiveBtn = window.currentActiveBtn || null;
-    window.currentActiveTimer = window.currentActiveTimer || null;
-    /* WebView DOM re-use: never pin a detached button across card flips. */
-    if (typeof window.addEventListener === 'function') {
-        window.addEventListener('pagehide', () => { try { window.resetAudioState(); } catch (_) {} });
-    }
-
-    window.resetAudioState = function() {
-        if (window.currentActiveTimer) {
-            clearTimeout(window.currentActiveTimer);
-            window.currentActiveTimer = null;
-        }
-        if (window.currentActiveBtn) {
-            window.currentActiveBtn.classList.remove('is-playing');
-            const ring = window.currentActiveBtn.querySelector('.ring-fill');
-            if (ring) {
-                const circ = parseFloat(ring.getAttribute('stroke-dasharray')) || 226.19;
-                ring.style.transition = '';
-                ring.style.strokeDashoffset = circ;
-            }
-            window.currentActiveBtn = null;
-        }
-    };
-
-    window.playCircularAudio = function(btn) {
-        /* Debounce: native playback can't be stopped programmatically, so
-           ignore rapid re-taps on the already-playing button (prevents
-           overlapping audio on AnkiDroid). */
-        if (window.currentActiveBtn === btn) return;
-        window.resetAudioState();
-        const ringFill = btn.querySelector('.ring-fill');
-
-        /* The replay link lives in the sibling .raw-audio-source (kept OUT
-           of the <button>: <a> inside <button> is invalid HTML and Android
-           WebView mishandles taps on it). */
-        const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
-        const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
-          || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
-        let played = false;
-        if (nativeReplay) {
-            try { nativeReplay.click(); played = true; } catch (e) {}
-        }
-        /* Last-resort fallback (removed): every listening view now carries
-           a real .raw-audio-source (the actual audio field), so the
-           nativeReplay.click() path above is the only path — it plays the
-           field the button is labelled with. A hardcoded pycmd('play:a:0')
-           would play the first audio field regardless of label, so silent
-           no-op is safer than the wrong audio. */
-        if (played || nativeReplay) {
-            btn.classList.add('is-playing');
-            if (ringFill) {
-                ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
-                ringFill.style.strokeDashoffset = '0';
-            }
-            window.currentActiveBtn = btn;
-            window.currentActiveTimer = setTimeout(() => {
-                if (window.currentActiveBtn === btn) {
-                    window.resetAudioState();
-                }
-            }, 800);
-        }
-    };
 
     /* --- 2. MAIN EXECUTION BLOCK --- */
     const container = document.querySelector('.card-container');
@@ -368,21 +243,10 @@
       }
       /* --- CLOZE FALLBACK (END) --- */
 
-      /* Empty-field collapse (QUALITY.md): after the cloze rebuild, a
-         sentence block with no text at all (neither Sentence nor
-         Expression) leaves no padded void. Runs before the reveal. */
-      try {
-        container.querySelectorAll('.sentence-display').forEach((sd) => {
-          if (!sd.textContent || !sd.textContent.trim()) sd.remove();
-        });
-      } catch (blankErr) {
-        console.warn('[Blank Collapse]', blankErr);
-      }
-
       /* --- LISTENING RESOLVER (Policy B) ---
          A card activates the listening front ONLY when usable audio exists:
          1. #listening tag (deliberate exercise): the tag-listening-view must
-            have a real .raw-audio-source (Sentence Audio, or Word Audio as
+            carry a real audio link (Sentence Audio, or Word Audio as
             fallback). #listening + no usable audio → fall back to the normal
             sentence front. Never leave a dead/empty listening UI.
          2. Classic audio-only / pathological legacy card: Definition, Extended
@@ -403,11 +267,10 @@
 
       const hasUsableAudio = (view) => {
         if (!view) return false;
-        const src = view.querySelector('.raw-audio-source');
-        if (!src) return false;
-        const hasLink = !!src.querySelector('a, .replaybutton, .replay-button, .soundLink');
-        const hasText = !!(src.textContent || '').replace(/\s+/g, ' ').trim();
-        return hasLink || hasText;
+        const link = view.querySelector('a[href^="playsound:"], .replaybutton, .replay-button, .soundLink, .native-audio');
+        if (link) return true;
+        /* Native field rendering may carry its own replay link or raw text. */
+        return !!(view.textContent || '').replace(/\s+/g, ' ').trim();
       };
 
       let isListening = false;
@@ -417,9 +280,10 @@
         wrapper.classList.add('listening-mode');
         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
         if (classicView) classicView.remove();
+        /* Auto-play on reveal: click Anki's own native link once. */
         setTimeout(function() {
-          const btn = tagView.querySelector('.circular-audio-btn');
-          if (btn && window.playCircularAudio) window.playCircularAudio(btn);
+          const link = tagView.querySelector('a[href^="playsound:"]');
+          if (link) { try { link.click(); } catch (e) {} }
         }, 120);
       } else if (classicView && hasUsableAudio(classicView)) {
         isListening = true;
@@ -636,63 +500,6 @@
         }
 
         reveal();
-
-        /* --- TEMP DIAGNOSTIC v2 (remove after root-cause found) ---
-           v1 flagged cross-origin fetches via transferSize==0 — false
-           positive: without Timing-Allow-Origin, browsers zero those
-           fields even on SUCCESS (the desktop badge showed the 2 healthy
-           8765 calls). v2 instruments precisely:
-           - gate verdict: source / isDesktop / interval / UA prefix
-           - EVERY fetch(): url + HTTP status (fetch resolves on 404)
-           - fetch() rejections (network/abort → unhandledrejection)
-           - broken <img> srcs (naturalWidth===0 — same-origin reliable)
-           Rendered as a fixed red badge 1.5s after reveal. */
-        try {
-          (function () {
-            var calls = [];
-            var fails = [];
-            if (typeof window.fetch === 'function') {
-              var origFetch = window.fetch;
-              window.fetch = function () {
-                var url = String((arguments[0] && arguments[0].url) || arguments[0] || '');
-                return origFetch.apply(this, arguments).then(
-                  function (res) {
-                    calls.push('FETCH ' + res.status + (res.ok ? '' : '!') + ' ' + url);
-                    return res;
-                  },
-                  function (err) {
-                    fails.push('FETCH-REJECT ' + url + ' :: ' + (err && err.message || err));
-                    throw err;
-                  });
-              };
-            }
-            window.addEventListener('unhandledrejection', function (e) {
-              fails.push('REJECTION ' + (e.reason && e.reason.message || e.reason));
-            });
-            window.addEventListener('error', function (e) {
-              if (e.target && e.target.tagName === 'IMG') {
-                fails.push('IMG ' + (e.target.getAttribute('src') || ''));
-              }
-            }, true);
-            setTimeout(function () {
-              var ua = (navigator && navigator.userAgent) || '';
-              var lines = [
-                'GATE src=' + source + ' isDesktop=' + isDesktop +
-                  ' interval=' + String(interval),
-                'UA ' + ua.slice(0, 60)
-              ];
-              calls.forEach(function (l) { lines.push(l); });
-              fails.forEach(function (l) { lines.push(l); });
-              var d = document.createElement('div');
-              d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
-                'background:#b00020;color:#fff;font:10px/1.5 monospace;padding:6px 8px;' +
-                'overflow-wrap:anywhere;max-height:40%;overflow-y:auto;white-space:pre-wrap;';
-              d.textContent = 'DIAG v2\n' + lines.join('\n');
-              document.body.appendChild(d);
-            }, 1500);
-          })();
-        } catch (diagErr) { /* never block the reveal */ }
-        /* --- TEMP DIAGNOSTIC v2 (END) --- */
       }
     }
   })();

@@ -31,7 +31,7 @@ run `./verify`; CI re-runs `./verify` after every push.
 | Mature content-search fallback: never picks candidate 0, Sentence + cloze-body discriminators, fails safely on ambiguity, exact-card resolution | `tests/test_mature_content.py` — extracts the content-search block verbatim, runs 6 headless Chrome cases with mocked AnkiConnect (skipped gracefully without Chrome) |
 | Listening Policy B + exactly-one-button: `#listening` without audio → sentence front; `#listening` with audio → listening front; both-views markup → exactly one active; dead/duplicate views removed | `tests/test_front_modes.py` — 8 state harnesses in headless Chrome (skipped gracefully without Chrome) |
 | Listening audio source: tag-listening-view binds to `{{Sentence Audio}}` (not `play:a:0`), Word Audio fallback, label matches | `tests/test_templates.py` §6d |
-| R shortcut is Anki-owned (never in template shortcut UI); playback indicator terminology | `tests/test_templates.py` §§6e–6f |
+| R shortcut is Anki-owned (never in template shortcut UI); fully-native audio (no custom buttons/ring/controller) | `tests/test_templates.py` §§6e, 2–3 |
 | finish.sh deterministic ordering (push main before release, `--target main`), no-op protection | `tests/test_templates.py` §9 |
 | Stdlib-only sync, microsecond backups, finish.sh no-op guard | `tests/test_templates.py` §9 |
 | Content-driven height, no h-overflow, furigana containment, type hierarchy, 3-line clamp + one-way expand, listening target size, context grid, More collapsed by default, footer containment | `tests/test_layout.py` — headless Chrome on the **real** stylesheet; skipped gracefully when Chrome is absent |

@@ -2404,3 +2404,7 @@ fix false positive 'Failed to load downloadfile.bin' error from JS API calls
 ---
 
 hard-disable the fetch outside desktop - minimal solution that keeps most features but avoids the error
+
+---
+
+fully native audio - remove circular buttons and ring, fields render in conditionals, Anki owns playback

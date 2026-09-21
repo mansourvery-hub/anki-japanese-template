@@ -90,10 +90,10 @@ Archive every new user prompt to `chat_history/opencode_prompts.txt`
 
 ### 4. Technical constraints (summaries; full rules in QUALITY.md)
 
-Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · native-only
-circular audio (`文`/`言葉`, sibling replay link, debounce, playback
-indicator — not true progress) · `R` is Anki-owned (never a template
-shortcut) · Mature Word Mode (`LONG_INTERVAL_DAYS = 365`,
+Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · fully
+native audio (fields render in their conditionals; Anki owns playback —
+no custom buttons/ring/JS controller, ADR 003) · `R` is Anki-owned (never
+a template shortcut) · Mature Word Mode (`LONG_INTERVAL_DAYS = 365`,
 desktop-only AnkiConnect live interval read — exact current card on desktop,
 content-search fallback for the Browse previewer only, never picks
 candidate 0, sentence fallback, mobile intentionally degrades to the

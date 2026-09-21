@@ -83,42 +83,43 @@ def main():
     else:
         print("[SKIP] node not found — template script syntax check skipped")
 
-    # --- 2. Audio buttons: aria-labels present ---
-    # Front is sentence-audio-only (1) + Back has word + sentence (2) = 3 total.
-    # (Word-audio fallback was removed from the front listening mode.)
+    # --- 2. Audio is fully native (no custom audio UI) ---
+    # Playback is entirely Anki's: the template renders the audio field
+    # ({{Word Audio}} / {{Sentence Audio}}) or Anki's own replay anchor, and
+    # never ships its own audio machinery (buttons, rings, JS controller).
     buttons = re.findall(r"<button[^>]*circular-audio-btn[^>]*>", front + back)
-    check(f"all {len(buttons)} audio buttons have aria-label",
-          len(buttons) >= 3 and all("aria-label" in b for b in buttons))
+    check("no circular audio buttons remain (fully native audio)",
+          len(buttons) == 0)
+    check("no audio JS controller remains (playCircularAudio/resetAudioState gone)",
+          "playCircularAudio" not in front + back
+          and "resetAudioState" not in front + back
+          and "currentActiveBtn" not in front + back)
+    check("no raw-audio-source spans remain",
+          "raw-audio-source" not in front + back and "raw-audio-source" not in css)
 
-    # --- 3. Audio controller: native-only (no HTML5 Audio path) ---
+    # --- 3. Audio playback: native-only (no HTML5 Audio path) ---
     for name, src in (("Front", front), ("Back", back)):
         check(f"{name}: no is-paused state remnants",
               "is-paused" not in src)
-        check(f"{name}: resetAudioState defined",
-              "window.resetAudioState = function" in src)
         check(f"{name}: native-only playback (no new Audio garbage-loads on AnkiDroid)",
               "new Audio(" not in src)
-        check(f"{name}: delegates to Anki replay link",
-              "nativeReplay.click()" in src)
-        check(f"{name}: replay link resolved via wrapper scope (not nested in button)",
-              "closest('.audio-btn-wrapper')" in src)
-        check(f"{name}: re-tap debounce (native audio can't be stopped)",
-              "window.currentActiveBtn === btn" in src)
-        # restart-only: every click path goes through resetAudioState first
-        check(f"{name}: playCircularAudio starts with resetAudioState",
-              re.search(r"window\.playCircularAudio = function\(btn\) \{\s*(/\*.*?\*/\s*)*if \(window\.currentActiveBtn === btn\) return;\s*window\.resetAudioState\(\);", src, re.S) is not None)
+        check(f"{name}: no audio controller remnants",
+              "window.currentActiveBtn" not in src
+              and "window.resetAudioState" not in src)
 
-    # --- 3b. Audio markup: valid + clickable on AnkiDroid ---
-    for name, src in (("Front", front), ("Back", back)):
-        check(f"{name}: replay source lives OUTSIDE the button (sibling span)",
-              re.search(r"</button>\s*<span class=\"raw-audio-source\"", src) is not None)
-        check(f"{name}: no display:none audio source (breaks .click() playback)",
-              "raw-audio-source\" style=\"display:none" not in src)
-        check(f"{name}: no div-inside-button (invalid HTML, breaks AnkiDroid taps)",
-              '<div class="audio-btn-content">' not in src)
-    check("CSS: raw-audio-source visually hidden but present (no display:none)",
-          re.search(r"\.raw-audio-source\s*\{[^}]*position:\s*absolute", css) is not None
-          and ".raw-audio-source" in css)
+    # --- 3b. Back renders native audio fields directly ---
+    check("Back: Word Audio renders as a native field (inside its conditional)",
+          re.search(r"\{\{#Word Audio\}\}\s*<span class=\"native-audio\">\{\{Word Audio\}\}</span>\s*\{\{/Word Audio\}\}",
+                    back) is not None)
+    check("Back: Sentence Audio renders as a native field (inside its conditional)",
+          re.search(r"\{\{#Sentence Audio\}\}\s*<span class=\"native-audio\">\{\{Sentence Audio\}\}</span>\s*\{\{/Sentence Audio\}\}",
+                    back) is not None)
+    check("Back: audio rows carry no custom playsound anchors",
+          re.search(r'class="audio-row"[\s\S]*?playsound:a:', back) is None)
+    check("CSS: .audio-row collapses when no audio (native-audio guard)",
+          ".audio-row:not(:has(.native-audio))" in css)
+    check("CSS: .native-audio styled compact (no default size blowout)",
+          ".native-audio {" in css)
 
     # --- 2c. Cloze fallback: bold-less Sentence rebuilt from cloze trio ---
     check("Front: hidden cloze probe with plain prefix/body/suffix fields",
@@ -221,7 +222,7 @@ def main():
         check("Front: tag-listening-view plays Sentence Audio (a:0 when Word Audio absent)",
               re.search(r'\{\{\^Word Audio\}\}[\s\S]*?文[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
         check("Front: tag-listening-view falls back to Word Audio (a:0) with 言葉 label",
-              re.search(r'\{\{\^Sentence Audio\}\}[\s\S]*?\{\{#Word Audio\}\}[\s\S]*?言葉[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
+              re.search(r'\{\{\^Sentence Audio\}\}[\s\S]*?\{\{#Word Audio\}\}[\s\S]*?playsound:a:0[\s\S]*?言葉[\s\S]*?</div>', tag_src) is not None)
         # CRITICAL: raw {{Sentence Audio}} must NOT appear inside {{#Tags}} on
         # front — otherwise Anki auto-plays audio on every tagged normal card.
         check("Front: no raw audio fields inside {{#Tags}} (prevents auto-play on normal cards)",
@@ -232,8 +233,8 @@ def main():
     check("Front: exactly-one-listening-button cleanup removes dead/duplicate views",
           "Dead/duplicate view cleanup" in front
           and "container.querySelectorAll('.listening-view').forEach" in front)
-    check("Front: last-resort pycmd fallback is documented (not the primary path)",
-          "Last-resort fallback" in front)
+    check("Front: tag view has no JS audio controller (native anchors only)",
+          "Last-resort fallback" not in front and "nativeReplay" not in front)
 
     # --- 6e. R shortcut is Anki-owned, never template-owned (Feature 1) ---
     check("Back: R shortcut hint removed from shortcut UI (Anki-owned)",
@@ -241,11 +242,11 @@ def main():
     check("Back: custom template shortcuts are Z, X, C only",
           all(k in back for k in ['<kbd>Z</kbd>', '<kbd>X</kbd>', '<kbd>C</kbd>']))
 
-    # --- 6f. Audio terminology: playback indicator, not progress ring (Feature 4) ---
-    check("Front: ring described as playback indicator (not true progress)",
-          "playback indicator" in front.lower())
-    check("CSS: ring described as playback indicator",
-          "playback indicator" in css.lower())
+    # --- 6f. Audio terminology: no progress ring remains (fully native audio) ---
+    check("Front: no progress ring markup remains",
+          "audio-progress-ring" not in front and "ring-fill" not in front)
+    check("CSS: no progress ring styles remain",
+          "audio-progress-ring" not in css and "ring-fill" not in css)
 
     # --- 7. Font sizing source-of-truth ---
     check("Back: no JS font-scaler overriding CSS (inline fontSize ban)",
@@ -383,8 +384,8 @@ def main():
           not bare)
 
     # 10b. Unconditional shells collapse when all conditional children absent.
-    check("CSS: empty .audio-row collapses (no button => gone)",
-          re.search(r"\.audio-row:not\(:has\(\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
+    check("CSS: empty .audio-row collapses (no audio => gone)",
+          re.search(r"\.audio-row:not\(:has\(\.native-audio\)\)\s*\{\s*display:\s*none", css) is not None)
     check("CSS: empty .context-grid collapses (no sentence/context/picture => gone)",
           re.search(r"\.context-grid:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
     check("CSS: empty .context-main collapses (no sentence/context => gone)",

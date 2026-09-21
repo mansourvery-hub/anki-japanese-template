@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.31 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.32 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -312,10 +312,6 @@
     max-width: min(46vw, 640px);
   }
 
-  .small-audio-btn {
-    width: 36px;
-    height: 36px;
-  }
 }
 
 /* Portability fallback for WebViews without container-query support */
@@ -441,7 +437,7 @@
 }
 
 /* Empty-shell guard: collapse when neither word nor meta exists */
-.hero-header:not(:has(.word-display, .frequency-badge, .pitch-quiet, .circular-audio-btn)) {
+.hero-header:not(:has(.word-display, .frequency-badge, .pitch-quiet)) {
   display: none;
 }
 
@@ -688,7 +684,7 @@
    renders unconditionally while its buttons are conditional — collapse
    the shell when every child is absent so no margin/gap survives an
    empty field. */
-.audio-row:not(:has(.circular-audio-btn)) {
+.audio-row:not(:has(.native-audio)) {
   display: none;
 }
 
@@ -868,133 +864,13 @@
 }
 
 /* ==============================================================================
-   7. CIRCULAR AUDIO BUTTON WITH SVG PROGRESS RING
+   7. NATIVE AUDIO (Anki renders the field; template only styles it)
    ============================================================================== */
-/* Ring geometry: stroke-dasharray 226.19 (large, r=36) / 119.38 (small,
-   r=19) = 2πr. The same constants live in the SVG markup and the JS
-   resetAudioState fallbacks — update all three together if r changes. */
 .audio-row {
   display: inline-flex;
   align-items: center;
   gap: 10px;
 }
-
-.circular-audio-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--accent-light);
-  border: 1px solid var(--card-border);
-  border-radius: 50%;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  outline: none;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-              border-color 0.2s ease,
-              background-color 0.2s ease,
-              box-shadow 0.2s ease;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.small-audio-btn {
-  width: 36px;
-  height: 36px;
-}
-
-/* Keyboard focus indicator (outline: none above only affects mouse clicks;
-   :focus-visible restores a compact accent ring for keyboard navigation) */
-.circular-audio-btn:focus-visible,
-.translation-box:focus-visible,
-.picture-container:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
-
-.large-audio-btn {
-  width: 84px;
-  height: 84px;
-  background-color: var(--card-bg-elevated);
-  box-shadow: var(--shadow-premium);
-}
-
-.circular-audio-btn:hover,
-.circular-audio-btn:active {
-  transform: scale(1.08);
-  border-color: var(--accent-color);
-  background-color: var(--accent-soft);
-  box-shadow: var(--accent-glow);
-}
-
-.circular-audio-btn.is-playing {
-  border-color: var(--accent-color);
-  box-shadow: var(--accent-glow);
-  background-color: var(--accent-soft);
-}
-
-.audio-progress-ring {
-  /* Playback indicator: a decorative play-pulse, not true progress.
-     Native audio is the authority (ADR 003); this ring only signals that
-     a play was triggered and re-tap debounce is active. */
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-  pointer-events: none;
-}
-
-.audio-progress-ring .ring-bg {
-  fill: none;
-  stroke: var(--accent-light);
-  stroke-width: 2px;
-}
-
-.audio-progress-ring .ring-fill {
-  fill: none;
-  stroke: var(--accent-color);
-  stroke-width: 2px;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.08s linear;
-}
-
-.audio-btn-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-
-.small-audio-btn .audio-btn-label {
-  font-family: var(--font-japanese-serif);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
-  line-height: 1;
-  transition: color 0.15s ease;
-}
-
-.small-audio-btn:hover .audio-btn-label {
-  color: var(--accent-color);
-}
-
-.large-audio-btn .audio-btn-label {
-  font-family: var(--font-japanese-serif);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  letter-spacing: 0.04em;
-  line-height: 1;
-}
-
-.circular-audio-btn.is-playing .audio-btn-label {
-  color: var(--text-primary);
-}
-
 
 /* ==============================================================================
     8. SENTENCE & TRANSLATION - Fluid Typography
@@ -1330,30 +1206,58 @@ ruby:focus-within rt {
   display: none;
 }
 
-.audio-btn-wrapper {
+/* Native audio: Anki renders the field itself ([sound:...] -> replay
+   link). Style it compact and themed; playback is entirely Anki's. */
+.native-audio {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+}
+
+.native-audio .replay-button,
+.native-audio a.replay-button,
+.native-audio-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  min-width: 34px;
+  min-height: 30px;
+  padding: 0 8px;
+  border-radius: 15px;
+  background-color: var(--accent-light);
+  border: 1px solid var(--card-border);
+  color: var(--accent-color);
+  font-family: var(--font-japanese-serif);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Holds Anki's own replay link. Visually hidden but KEPT in layout:
-   display:none breaks programmatic .click() playback on some clients,
-   and the link must not live inside the <button> (invalid HTML that
-   Android WebView mishandles). */
-.raw-audio-source {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
+.native-audio .replay-button:hover,
+.native-audio-link:hover {
+  border-color: var(--accent-color);
+  background-color: var(--accent-soft);
 }
 
+.native-audio-link:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Tag-listening front control: the native link itself is the button. */
+.tag-listening-view .native-audio-link {
+  min-width: 64px;
+  /* 62px + 2x1px border = 64px total tap target (WCAG 2.5.5 / Material). */
+  min-height: 62px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background-color: var(--card-bg-elevated);
+  box-shadow: var(--shadow-premium);
+}
 
 /* ==============================================================================
     13. MOBILE SPECIFIC OPTIMIZATIONS (< 600px / Samsung Galaxy A50)
@@ -1431,13 +1335,10 @@ ruby:focus-within rt {
     gap: 8px;
   }
 
-  .small-audio-btn {
-    width: 32px;
-    height: 32px;
-  }
-
-  .small-audio-btn .audio-btn-label {
-    font-size: 0.66rem;
+  .tag-listening-view .native-audio-link {
+    min-width: 56px;
+    min-height: 48px;
+    font-size: 1.3rem;
   }
 
   .more-toggle {

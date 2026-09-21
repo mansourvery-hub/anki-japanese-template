@@ -65,20 +65,14 @@ __CSS__
       <div class="hero-side hero-side-left">
         <div class="frequency-badge"><span class="frequency-stars">★★★★☆</span></div>
         <div class="audio-row">
-          <span class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">言葉</span></span></button>
-            <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
-          </span>
+          <span class="native-audio"><a class="replay-button" href="#">言葉</a></span>
         </div>
       </div>
       <div class="hero-word-wrap"><div class="word-display" id="word"><ruby>澄<rt>す</rt></ruby>ます</div></div>
       <div class="hero-side hero-side-right">
         <div class="pitch-quiet">[0]</div>
         <div class="audio-row">
-          <span class="audio-btn-wrapper">
-            <button type="button" class="circular-audio-btn small-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">文</span></span></button>
-            <span class="raw-audio-source"><a class="replay-button" href="#">replay</a></span>
-          </span>
+          <span class="native-audio"><a class="replay-button" href="#">文</a></span>
         </div>
       </div>
     </div>
@@ -146,10 +140,8 @@ FRONT_LISTENING = """<!doctype html><html><head><meta charset="utf-8">
 <style>__CSS__</style></head><body>
 <div class="card"><div class="card-wrapper listening-mode">
   <div class="card-container">
-    <div class="listening-view" id="listening">
-      <div class="audio-btn-wrapper">
-        <button type="button" class="circular-audio-btn large-audio-btn"><span class="audio-btn-content"><span class="audio-btn-label">文</span></span></button>
-      </div>
+    <div class="listening-view tag-listening-view" id="listening">
+      <a class="native-audio-link" href="#">文</a>
     </div>
   </div>
 </div></div>
@@ -212,7 +204,7 @@ PROBE = """(() => {
   const listening = document.querySelector('#listening');
   if (listening) {
     const lb = listening.getBoundingClientRect();
-    const btn = listening.querySelector('.circular-audio-btn');
+    const btn = listening.querySelector('.native-audio-link');
     r.listenH = lb.height;
     r.listenBtn = btn.getBoundingClientRect().height;
   }
@@ -246,7 +238,7 @@ PROBE = """(() => {
   const heroWord = document.querySelector('.hero-word-wrap');
   const heroLeft = document.querySelector('.hero-side-left');
   const heroRight = document.querySelector('.hero-side-right');
-  const heroAudio = document.querySelector('.hero-side .circular-audio-btn');
+  const heroAudio = document.querySelector('.hero-side .native-audio');
   if (hero && heroWord && heroLeft && heroRight && word) {
     r.heroDisplay = getComputedStyle(hero).display;
     r.heroAreas = getComputedStyle(hero).gridTemplateAreas || '';

@@ -29,8 +29,8 @@ compact informative back, and a one-command sync → export → release loop.
 - Back: typography-driven hierarchy — word+furigana target, quiet pitch
   text, Definition Compactor (CSS §6b), 3-line truncator with one-way
   expand (§6c), context (sentence + picture as core information,
-  responsive grid), native circular audio (playback indicator, not true
-  progress), secondary information collapsed behind `More ▾` (translation,
+  responsive grid), native audio (Anki renders the field, styled by the
+  template), secondary information collapsed behind `More ▾` (translation,
   context, kanji notes, notes, full extended definition), source footer.
   Custom shortcuts: `Z` furigana, `X`/`T` translation, `C` expanded-info;
   `R` is Anki-owned (never in the template's shortcut UI). Content
