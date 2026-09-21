@@ -19,17 +19,19 @@
        - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
 - Mature Word Mode (desktop only): If the card interval >= LONG_INTERVAL_DAYS
           (script constant), the front shows only the Expression instead of the
-          sentence (anti-overlearning). Interval is the EXACT current card's
-          interval from AnkiConnect guiCurrentCard → cardsInfo during active
-          review. Content search (Expression → Sentence → cloze-body) is only
-          a best-effort preview/browser fallback when exact identity is
-          unavailable; it never picks candidate 0 blindly and fails safely to
-          the sentence front on ambiguity.
+          sentence (anti-overlearning). The interval comes from a
+          fallback-only AnkiConnect content search (Expression → Sentence →
+          cloze-body discriminators) — the live guiCurrentCard reviewer read
+          was REMOVED so reviewer and Browse previewer share one identical
+          path. It never picks candidate 0 blindly and fails safely to the
+          sentence front on ambiguity.
           On Android/mobile Mature Word Mode is INTENTIONALLY DISABLED: the
-          template makes no AnkiDroid JS API call for it, because those calls
-          can surface natively as false "Card Content Error: Failed to load"
-          media warnings in the reviewer. Mobile always keeps the ordinary
-          sentence front. Any failure falls back to the normal sentence front.
+          template makes no AnkiDroid JS API call and no AnkiConnect fetch
+          (the fetch is UA-guarded inside `post`), because refused localhost
+          requests surface natively as false "Card Content Error: Failed to
+          load" media warnings in the reviewer. Mobile always keeps the
+          ordinary sentence front. Any failure falls back to the sentence
+          front.
          - Front sentence sizing: pure CSS (base clamp + smaller phone
            override in the stylesheet's mobile block). No JS involved.
          - Front reveal is deterministic and safe: the anti-flash
@@ -434,8 +436,9 @@
       }
 
       /* Static early-exit: with no Expression, word mode is impossible (the
-         hasExpression gate below), so the whole retrieval chain — fetch,
-         content search — is skipped and the sentence front reveals now.
+         hasExpression gate below), so the whole retrieval chain —
+         AnkiConnect content search — is skipped and the sentence front
+         reveals now.
          Failure-identical to the universal fallback, ~50ms faster per such
          card on desktop. The class toggle is explicit because WebView DOM
          re-use can carry word-mode over from the previous card. */
@@ -447,11 +450,26 @@
         return;
       }
 
-      /* Anki-Connect helper with timeout. 500ms is ~15x the measured
-         healthy localhost latency (~25ms/call), so it only ever binds
-         a wedged/busy Anki — and the fallback is always the safe
-         sentence front, never a hang. */
+      /* Anki-Connect helper with timeout + platform guard. 500ms is ~15x
+         the measured healthy localhost latency (~25ms/call), so it only
+         ever binds a wedged/busy Anki — and the fallback is always the
+         safe sentence front, never a hang.
+
+         PLATFORM GUARD — DESKTOP-ONLY (this is the downloadfile.bin fix):
+         fetch() only
+         runs on desktop Anki (QtWebEngine). On AnkiDroid the WebView has
+         no AnkiConnect, the request 404s into a media download, and
+         Android surfaces it natively as "Card Content Error: Failed to
+         load 'downloadfile.bin'". Mobile never reaches any fetch; word
+         mode simply stays off (sentence front), by design. */
       const post = (action, params) => {
+        if (typeof fetch !== 'function') {
+          return Promise.reject(new Error('fetch unavailable (mobile)'));
+        }
+        const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+        if (/Android|iPhone|iPad|iPod/i.test(ua)) {
+          return Promise.reject(new Error('AnkiConnect is desktop-only'));
+        }
         const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
         const timeout = new Promise((_, rej) =>
           setTimeout(() => { try { ctl && ctl.abort(); } catch (_) {} rej(new Error('AnkiConnect timeout')); }, 500)
@@ -476,103 +494,71 @@
         .trim();
 
       try {
-        /* isListening (resolved above): listening cards never use word
-           mode — skip ALL retrieval up front. */
-        /* Mobile WebViews (AnkiDroid / AnkiMobile) have no AnkiConnect: a
-           fetch to 127.0.0.1 is refused and Android surfaces it natively as
-           "Failed to load 'downloadfile.bin'". Never fetch from a phone. */
-        const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
-        /* Mature Word Mode is desktop-only by design. On mobile we
-           deliberately do NOT touch the AnkiDroid JS API: its calls can
-           surface natively as false "Card Content Error: Failed to load"
-           media warnings in the reviewer. Reliability beats this optional
-           presentation feature, so mobile always keeps the sentence front
-           (interval stays null). */
-        if (!isListening && isMobile) {
-          /* Deliberately no AnkiDroid JS API call. Safe fallback: the
-             ordinary sentence front remains. */
-          source = 'mobile-jsapi-disabled';
-        } else if (!isListening) {
-          /* DESKTOP-ONLY: AnkiConnect guiCurrentCard -> cardsInfo.
-             guiCurrentCard carries no interval field (per the AnkiConnect
-             action docs), so the cardsInfo follow-up is mandatory, not
-             redundant. Mobile never reaches this branch. */
-          try {
-            const current = await post('guiCurrentCard', {});
-            if (current && current.cardId) {
-              const infos = await post('cardsInfo', { cards: [current.cardId] });
-              if (infos && infos[0]) {
-                interval = infos[0].interval;
-                source = 'guiCurrentCard';
+        /* Fallback-only word mode: no AnkiConnect fetch in this branch —
+           the content search below IS the primary path now. */
+        if (!isListening) {
+          /* BROWSE-PREVIEWER CONTENT SEARCH.
+             Identity is reconstructed from field content. NEVER pick
+             candidate 0 blindly — duplicates are common (same Expression
+             across many notes). Use Sentence then cloze-body as
+             discriminators; if ambiguity remains after both, fail safely
+             to the sentence front (interval stays null → no word mode). */
+          const wordEl = document.querySelector('.front-word-display');
+          const sentEl = document.querySelector('.sentence-display');
+          if (wordEl) {
+            const exprDom = normText(wordEl.innerText || wordEl.textContent || '');
+            if (exprDom) {
+              /* No "note:" clause: the note type name is not exposed to
+                 templates ({{Type}} is the scheduling type, not the
+                 model name), and the exact Expression field match below
+                 already restricts results to this note type's cards. */
+              const query = '"Expression:' + escQuery(exprDom) + '"';
+              let ids = await post('findCards', { query: query });
+              /* Bound: a common Expression can match hundreds of notes;
+                 materialising every cardsInfo would jank the previewer.
+                 Over-broad → sentence fallback (same safe default). */
+              if (ids && ids.length > 50) {
+                source = 'content-search-too-broad → sentence fallback';
+                ids = [];
               }
-            }
-          } catch (reviewErr) {
-            console.log('[Mature Word Mode] no active review, trying content search');
-            /* Content-search fallback (Browse previewer only). This is a
-               best-effort heuristic: guiCurrentCard failed, so identity is
-               reconstructed from field content. NEVER pick candidate 0
-               blindly — duplicates are common (same Expression across many
-               notes). Use Sentence then cloze-body as discriminators; if
-               ambiguity remains after both, fail safely to the sentence
-               front (interval stays null → no word mode). */
-            const wordEl = document.querySelector('.front-word-display');
-            const sentEl = document.querySelector('.sentence-display');
-            if (wordEl && !isListening) {
-              const exprDom = normText(wordEl.innerText || wordEl.textContent || '');
-              if (exprDom) {
-                /* No "note:" clause: the note type name is not exposed to
-                   templates ({{Type}} is the scheduling type, not the
-                   model name), and the exact Expression field match below
-                   already restricts results to this note type's cards. */
-                const query = '"Expression:' + escQuery(exprDom) + '"';
-                let ids = await post('findCards', { query: query });
-                /* Bound: a common Expression can match hundreds of notes;
-                   materialising every cardsInfo would jank the previewer.
-                   Over-broad → sentence fallback (same safe default). */
-                if (ids && ids.length > 50) {
-                  source = 'content-search-too-broad → sentence fallback';
-                  ids = [];
+              if (ids && ids.length) {
+                const infos = await post('cardsInfo', { cards: ids });
+                const fieldText = (info, name) =>
+                  normText((info.fields && info.fields[name] && info.fields[name].value) || '');
+                let candidates = infos.filter(i => fieldText(i, 'Expression') === exprDom);
+                if (candidates.length > 1 && sentEl) {
+                  /* Discriminator 1: Sentence. The front sentence is
+                     the strongest content signal — it is unique per
+                     mined note in practice. */
+                  const sentDom = normText(sentEl.innerText || sentEl.textContent || '');
+                  if (sentDom) {
+                    const withSent = candidates.filter(i => fieldText(i, 'Sentence') === sentDom);
+                    if (withSent.length) candidates = withSent;
+                  }
                 }
-                if (ids && ids.length) {
-                  const infos = await post('cardsInfo', { cards: ids });
-                  const fieldText = (info, name) =>
-                    normText((info.fields && info.fields[name] && info.fields[name].value) || '');
-                  let candidates = infos.filter(i => fieldText(i, 'Expression') === exprDom);
-                  if (candidates.length > 1 && sentEl) {
-                    /* Discriminator 1: Sentence. The front sentence is
-                       the strongest content signal — it is unique per
-                       mined note in practice. */
-                    const sentDom = normText(sentEl.innerText || sentEl.textContent || '');
-                    if (sentDom) {
-                      const withSent = candidates.filter(i => fieldText(i, 'Sentence') === sentDom);
-                      if (withSent.length) candidates = withSent;
-                    }
+                if (candidates.length > 1) {
+                  /* Discriminator 2: cloze-body. The cloze trio is
+                     rendered on the front (hidden probe), so its body
+                     text is available as a second identity signal. */
+                  const clozeProbe = container.querySelector('.cloze-probe .cloze-mid');
+                  const clozeDom = clozeProbe
+                    ? normText(clozeProbe.innerText || clozeProbe.textContent || '')
+                    : '';
+                  if (clozeDom) {
+                    const withCloze = candidates.filter(i =>
+                      fieldText(i, 'cloze-body') === clozeDom);
+                    if (withCloze.length) candidates = withCloze;
                   }
-                  if (candidates.length > 1) {
-                    /* Discriminator 2: cloze-body. The cloze trio is
-                       rendered on the front (hidden probe), so its body
-                       text is available as a second identity signal. */
-                    const clozeProbe = container.querySelector('.cloze-probe .cloze-mid');
-                    const clozeDom = clozeProbe
-                      ? normText(clozeProbe.innerText || clozeProbe.textContent || '')
-                      : '';
-                    if (clozeDom) {
-                      const withCloze = candidates.filter(i =>
-                        fieldText(i, 'cloze-body') === clozeDom);
-                      if (withCloze.length) candidates = withCloze;
-                    }
-                  }
-                  /* Exact-card resolution: only one candidate remains after
-                     discriminators → use its interval. Multiple candidates
-                     (ambiguous) → fail safely to the sentence front. Never
-                     pick candidate 0. */
-                  if (candidates.length === 1) {
-                    interval = candidates[0].interval;
-                    source = 'content-search';
-                  } else if (candidates.length > 1) {
-                    source = 'content-search-ambiguous → sentence fallback';
-                  }
+                }
+                /* Exact-card resolution: only one candidate remains after
+                   discriminators → use its interval. Multiple candidates
+                   (ambiguous) → fail safely to the sentence front. Never
+                   pick candidate 0. */
+                if (candidates.length === 1) {
+                  interval = candidates[0].interval;
+                  source = 'content-search';
+                } else if (candidates.length > 1) {
+                  source = 'content-search-ambiguous → sentence fallback';
                 }
               }
             }

@@ -58,9 +58,9 @@ def load_block():
     then strip `await` keywords so the harness can run it synchronously
     (the mock `post` returns values directly, not Promises).
 
-    The block is the entire `catch (reviewErr) { ... }` body: guiCurrentCard
-    is mocked to throw, so the catch's content-search fallback runs. We
-    also extract escQuery/normText helpers.
+    The block is the `if (!isListening) { ... }` body inside the main
+    try: content search IS the primary path now (the live guiCurrentCard
+    reviewer read was removed). We also extract escQuery/normText helpers.
     """
     with open(FRONT, encoding="utf-8") as f:
         front = f.read()
@@ -68,12 +68,12 @@ def load_block():
     norm_t = re.search(r"const normText = \(s\) => s\s.*?\.trim\(\);", front, re.S)
     if not esc_q or not norm_t:
         raise RuntimeError("escQuery/normText helpers not found in front template")
-    # Extract the catch block: from `} catch (reviewErr) {` to the `}` that
-    # closes it (5 braces: catch + wordEl if + exprDom if + ids if + candidates if).
-    # The 6th brace closes the outer `else if (!isListening)` — not included.
+    # Extract the `if (!isListening) { ... }` content-search block: from
+    # the branch opener to the closing brace before the outer catch.
     m = re.search(
-        r"\} catch \(reviewErr\) \{.*?source = 'content-search-ambiguous.*?sentence fallback';\s*\}\s*\}\s*\}\s*\}\s*\}"
-        , front, re.S)
+        r"if \(!isListening\) \{\s*\n\s*/\* BROWSE-PREVIEWER CONTENT SEARCH.*?"
+        r"source = 'content-search-ambiguous.*?sentence fallback';\s*\}\s*\}\s*\}\s*\}\s*\}",
+        front, re.S)
     if not m:
         raise RuntimeError("content-search fallback block not found in front template")
     block = m.group(0)
@@ -134,8 +134,6 @@ try {{
 {mock_post}
 {esc_q}
 {norm_t}
-  try {{
-    post('guiCurrentCard', {{}});
   {block}
 }} catch(e) {{ report.err = String(e && e.stack || e); }}
 document.title = JSON.stringify(report);

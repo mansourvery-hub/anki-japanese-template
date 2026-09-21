@@ -264,11 +264,12 @@ def main():
           and len(re.findall(r">=\s*365", front)) == 0)
     check("Front: word probe div present with Expression",
           re.search(r'class="front-word-display">\s*\{\{edit:Expression\}\}', front) is not None)
-    check("Front: desktop flow guiCurrentCard -> cardsInfo -> interval",
-          "guiCurrentCard" in front and "cardsInfo" in front
+    check("Front: no guiCurrentCard call anywhere (fallback-only word mode)",
+          "'guiCurrentCard'" not in front
           and re.search(r"cardsInfo.*?interval", front, re.S) is not None)
-    check("Front: previewer fallback via content search (findCards)",
-          "findCards" in front and "content search" in front)
+    check("Front: word-mode interval via content search (findCards)",
+          "findCards" in front and "content search" in front
+          and "BROWSE-PREVIEWER CONTENT SEARCH" in front)
     check("Front: no nonexistent Anki-Connect actions",
           "getCardsInfo" not in front)
     check("Front: no card-id-from-URL guess (no URLSearchParams)",
@@ -281,25 +282,12 @@ def main():
           and "bridgeAvailable" not in front and "waitForBridge" not in front
           and "apiKind" not in front
           and "signal:jsapi" not in front)
-    check("Front: mobile explicitly disables JS-API interval retrieval",
-          "isMobile" in front and "mobile-jsapi-disabled" in front)
-    # Isolate the mobile branch (if (isMobile) { ... } else if...) and prove
-    # it contains no retrieval call whatsoever: no AnkiConnect post/fetch and
-    # no JS API. This makes the desktop/mobile branches mutually exclusive.
-    mob = re.search(
-        r"if \(!isListening && isMobile\) \{(.*?)\n\s*\} else if \(!isListening\) \{",
-        front, re.S)
-    check("Front: mobile branch makes no interval request at all",
-          mob is not None
-          and "mobile-jsapi-disabled" in mob.group(1)
-          and "post(" not in mob.group(1)
-          and "fetch(" not in mob.group(1)
-          and "guiCurrentCard" not in mob.group(1)
-          and "cardsInfo" not in mob.group(1))
-    check("Front: mobile never fetches the desktop AnkiConnect endpoint",
-          mob is not None and "127.0.0.1" not in mob.group(1)
-          and "127.0.0.1" in front)
-    check("Front: desktop retrieval remains platform-exclusive (DESKTOP-ONLY)",
+    check("Front: post helper UA-guards every AnkiConnect call (mobile rejects before fetch)",
+          re.search(r"const post = \(action, params\) => \{[\s\S]*?/Android\|iPhone\|iPad\|iPod/i\.test\(ua\)", front) is not None
+          and "AnkiConnect is desktop-only" in front)
+    check("Front: mobile never reaches a fetch (guard inside post, before fetch)",
+          re.search(r"const post = \(action, params\) => \{[\s\S]*?fetch\('http://127\.0\.0\.1:8765'", front, re.S) is not None)
+    check("Front: retrieval remains platform-exclusive (DESKTOP-ONLY marker)",
           "DESKTOP-ONLY" in front)
     check("Front: retrieval latency is measured and logged",
           "performance.now" in front and "elapsedMs" in front
@@ -333,9 +321,9 @@ def main():
           and re.search(r"findCards[^\n]*note:", front) is None
           and 'escQuery(NOTE_TYPE)' not in front)
 
-    # --- 8c. Mature content-search fallback invariants (Feature 6) ---
-    # Exact current card is the primary path (guiCurrentCard → cardsInfo).
-    # Content search is a best-effort preview fallback only. It must:
+    # --- 8c. Mature content-search invariants (fallback-only word mode) ---
+    # Content search is the ONLY retrieval path (guiCurrentCard removed).
+    # It must:
     # - NEVER pick candidate 0 blindly (matches[0] is banned)
     # - Use Sentence then cloze-body as discriminators
     # - Fail safely to sentence mode when ambiguity remains

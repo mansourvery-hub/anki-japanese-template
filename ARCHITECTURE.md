@@ -69,16 +69,16 @@ binds to `{{Sentence Audio}}` (label 文), falling back to `{{Word Audio}}`
 (label 言葉) — never the hardcoded `play:a:0`. `#listening` + no usable
 audio falls back to the normal sentence front; dead/duplicate views are
 removed so exactly one listening button is ever visible.
-Interval retrieval is **desktop-only** and distinguishes
-**exact-current-card** retrieval from **heuristic content-search fallback**:
-- Exact card (primary, desktop): AnkiConnect only
-  (`guiCurrentCard`→`cardsInfo` — the exact current review card).
-- Mobile: **no retrieval** — the AnkiDroid JS API is deliberately never
-  called (false media-load warnings); interval stays null → sentence front.
-- Content-search fallback (Browse previewer only, when guiCurrentCard
-  fails): `findCards` by Expression, then Sentence and cloze-body
-  discriminators narrow to exactly one candidate. **Never picks candidate
-  0**; if ambiguity remains, fails safely to the sentence front.
+Interval retrieval is **desktop-only** via a single **content-search**
+path (the live `guiCurrentCard` reviewer read was removed — reviewer and
+Browse previewer now share the identical code path):
+- Content search (only path): `findCards` by Expression, then Sentence
+  and cloze-body discriminators narrow to exactly one candidate. **Never
+  picks candidate 0**; if ambiguity remains, fails safely to the sentence
+  front.
+- Mobile: **no retrieval** — `post` UA-guards every AnkiConnect call
+  before any fetch (refused localhost requests surface natively as false
+  "Failed to load" media warnings); interval stays null → sentence front.
 Anti-flash gate (`visibility:hidden` → reveal, 1200 ms safety cap); blank
 sentence blocks are removed after the cloze fixup. The gate is
 deterministic and safe: it never depends on a single async path or timer
@@ -156,9 +156,10 @@ entity graph exists beyond what is shown.
 
 ## Key decisions (summaries; full records in `docs/adr/`)
 
-- **001** Mature interval via desktop-only live read (no `{{Interval}}`,
-  no new fields/add-ons; Android deliberately makes no JS API request and
-  degrades to the sentence front).
+- **001** Mature interval via desktop-only content search (no
+  `{{Interval}}`, no new fields/add-ons; `guiCurrentCard` live read
+  removed after AnkiDroid false-media-warning debugging; mobile makes no
+  network request at all and degrades to the sentence front).
 - **002** Definition Compactor as structural CSS (dictionary-agnostic,
   `.primary-definition`-scoped; extended definition untouched).
 - **003** Native-only audio delegation (no `new Audio()`; sibling replay

@@ -93,11 +93,12 @@ off-screen context to be solvable is a bad mine and should be re-mined.
   secondary information toggleable behind `More ▾` / `Less ▴` (translation,
   context, kanji notes, notes, full extended definition), keyboard shortcuts
   hints, source footer. Content hierarchy communicates card structure directly.
-- Mature Word Mode (desktop only): live interval read at render time — **exact
-  current card** via AnkiConnect `guiCurrentCard`→`cardsInfo`; content search
-  (Expression → Sentence → cloze-body) is only a best-effort preview/browser
-  fallback when exact identity is unavailable, and never picks candidate 0
-  blindly; any failure → sentence front; listening fronts untouched.
+- Mature Word Mode (desktop only): interval resolved at render time via a
+  fallback-only AnkiConnect content search (Expression → Sentence →
+  cloze-body discriminators) — reviewer and Browse previewer share the
+  one identical path (the live `guiCurrentCard` read was removed), it
+  never picks candidate 0 blindly, and any failure → sentence front;
+  listening fronts untouched.
   On Android/mobile Mature Word Mode is **intentionally disabled** and the
   ordinary sentence front is shown: the template makes no AnkiDroid JS API
   interval request, because those calls can surface natively as false

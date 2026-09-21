@@ -23,9 +23,10 @@ compact informative back, and a one-command sync → export → release loop.
   Frequency-legacy sentence path, cloze-trio rebuild, pure audio-only listening
   cards (usable audio required; `#listening` without audio falls back to
   sentence), Mature Word Mode (interval-gated, desktop-only AnkiConnect
-  retrieval — exact current card on desktop, mobile intentionally degrades
-  to the sentence front, content-search fallback for the Browse previewer
-  only, never picks candidate 0, sentence fallback).
+  content search — one fallback-only path for reviewer and Browse
+  previewer (live `guiCurrentCard` read removed), mobile intentionally
+  degrades
+  to the sentence front, never picks candidate 0, sentence fallback).
 - Back: typography-driven hierarchy — word+furigana target, quiet pitch
   text, Definition Compactor (CSS §6b), 3-line truncator with one-way
   expand (§6c), context (sentence + picture as core information,

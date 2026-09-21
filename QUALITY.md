@@ -50,11 +50,13 @@ mechanically verified*. Code implements; tests enforce.
   the AnkiDroid JS API is deliberately never called (it can trigger false
   "Card Content Error: Failed to load" media warnings), and mobile never
   fetches `127.0.0.1:8765`.
-- **Mature mode interval retrieval** is desktop-only exact-card retrieval
-  (`guiCurrentCard` → `cardsInfo`). Android/mobile intentionally degrades to
-  the sentence front; heuristic content-search fallback (Browse previewer
-  only) uses Sentence then cloze-body as discriminators; if ambiguity
-  remains, it fails safely to the sentence front. It never picks candidate 0
+- **Mature mode interval retrieval** is desktop-only fallback content
+  search (`findCards` by Expression → Sentence/cloze-body discriminators →
+  `cardsInfo`). The live reviewer read (`guiCurrentCard`) was REMOVED —
+  one identical path for reviewer and Browse previewer. Android/mobile
+  intentionally degrades to the sentence front (`post` UA-guards every
+  AnkiConnect call before any fetch); if ambiguity remains, retrieval
+  fails safely to the sentence front. It never picks candidate 0
   blindly.
 - Any retrieval failure degrades to the sentence front; anti-flash
   `visibility:hidden` gate with a bounded reveal cap. The gate is
