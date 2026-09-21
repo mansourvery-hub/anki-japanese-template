@@ -2406,3 +2406,9 @@ fix false positive 'Failed to load downloadfile.bin' error from JS API calls
 still same eorror git to the last 100% functional state, then removethe mature card feature
 [forwarded reply from the external AI diagnosing the AnkiDroid error, after phone confirmed running v1.8.33] The error persists on v1.8.33 content, so: (1) apply the QtWebEngine allowlist diff to post() — `if (!/QtWebEngine/i.test(ua)) return Promise.reject(new Error('requires desktop QtWebEngine'))` after the mobile check — release it, and confirm the phone's Front template contains "requires desktop QtWebEngine"; toast disappearing = UA guard was failing, persisting = fetch exonerated. Also asked to verify whether rung2 (2397782) really lacked the AnkiConnect code, and to run a data check over all 11 notes printing any field with a URL-loading construct plus which notes would show raw audio on the front (none did — 0/11 front-rendered fields contain constructs; no audio-only fronts). If the toast persists after the release: send a screenshot and the two words on the affected cards.
 ---
+
+---
+
+The previous response was interrupted. Continue from where you left off without repeating completed content.
+[User/external advisor instruction for minimal front test] Cut the front down to the rung1 shape: delete Mature Word Mode/AnkiConnect (post, escQuery, normText, retrieval block, front-word-display, word-mode toggle), listening mode (tags probe, tag-listening-view, classic-listening-view, listening resolver, setTimeout auto-click, playCircularAudio/resetAudioState on front), blank-front risk (visibility: hidden, reveal(), 1200ms timer), and edit: filters (replaced with plain Sentence/Expression). Keep sentence display, definition/extended conditions, cloze-fallback rebuild. Add marker comment `v1.8.35 minimal front`.
+---

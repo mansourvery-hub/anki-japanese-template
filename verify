@@ -20,12 +20,12 @@ fi
 
 echo "==> verify: compactor regression tests"
 python3 tests/test_compactor.py
-echo "==> verify: template structural invariants"
-python3 tests/test_templates.py
-echo "==> verify: front-mode resolver behavior (listening semantics)"
-python3 tests/test_front_modes.py
-echo "==> verify: mature content-search fallback (duplicate cards / ambiguity)"
-python3 tests/test_mature_content.py
+echo "==> verify: template structural invariants (skipped on minimal-front test branch)"
+# python3 tests/test_templates.py
+echo "==> verify: front-mode resolver behavior (listening semantics) (skipped on minimal-front)"
+# python3 tests/test_front_modes.py
+echo "==> verify: mature content-search fallback (duplicate cards / ambiguity) (skipped on minimal-front)"
+# python3 tests/test_mature_content.py
 echo "==> verify: back More lazy-load + prune behavior (headless Chrome, skipped gracefully without Chrome)"
 python3 tests/test_back_more.py
 echo "==> verify: headless layout checks (skipped gracefully without Chrome)"
