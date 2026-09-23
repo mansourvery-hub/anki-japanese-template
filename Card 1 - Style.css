@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.36 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.37 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -83,6 +83,14 @@
   /* Decorative: separator motif (seigaiha-inspired wave) */
   --separator-color: rgba(255, 255, 255, 0.05);
   --separator-accent: rgba(224, 122, 95, 0.20);
+
+  /* Scenic Band (Yūkei) Tokens — Dark / Tokyo Night defaults */
+  --scenic-sky: linear-gradient(180deg,#171a33 0%,#23274a 42%,#33284f 72%,#402b46 100%);
+  --scenic-fuji: #100e1c;
+  --scenic-snow: #d8d3e8;
+  --scenic-cloud: #2c2f52;
+  --scenic-star-op: .8;
+  --scenic-band-h: clamp(44px, 12.5vw, 58px);
 }
 
 /* --- AKI PAPER LIGHT THEME (Warm Washi) --- */
@@ -115,6 +123,13 @@
 
   --separator-color: rgba(0, 0, 0, 0.04);
   --separator-accent: rgba(184, 74, 57, 0.18);
+
+  /* Scenic Band (Yūkei) Tokens — Aki Paper light override */
+  --scenic-sky: linear-gradient(180deg,#f6c69b 0%,#f0a08a 42%,#d98a95 72%,#b8879c 100%);
+  --scenic-fuji: #5b4a6b;
+  --scenic-snow: #fbeadf;
+  --scenic-cloud: #fbe7d8;
+  --scenic-star-op: 0;
 }
 
 .card.nightMode,
@@ -133,6 +148,13 @@
   --warm-accent-border: rgba(255, 183, 120, 0.08);
   --separator-color: rgba(255, 255, 255, 0.05);
   --separator-accent: rgba(224, 122, 95, 0.20);
+
+  /* Scenic Band (Yūkei) Tokens — Explicit dark theme */
+  --scenic-sky: linear-gradient(180deg,#171a33 0%,#23274a 42%,#33284f 72%,#402b46 100%);
+  --scenic-fuji: #100e1c;
+  --scenic-snow: #d8d3e8;
+  --scenic-cloud: #2c2f52;
+  --scenic-star-op: .8;
 }
 
 
@@ -182,6 +204,11 @@
   box-shadow: var(--shadow-premium);
   margin-top: clamp(4px, 0.8vh, 10px);
   margin-bottom: clamp(4px, 0.8vh, 10px);
+  overflow: hidden; /* clips .scenic-band's square corners to the card's
+                        existing border-radius; nothing else in this rule
+                        currently relies on overflow being visible —
+                        verify the lightbox (appended to document.body,
+                        should be unaffected) and any focus outline. */
 }
 
 .card:not(.nightMode):not(.night_mode) .back-card .card-container {
@@ -1606,4 +1633,78 @@ ruby:focus-within rt {
 ::-moz-selection {
   background: var(--accent-soft);
   color: var(--text-primary);
+}
+
+
+/* ==============================================================================
+   17. SCENIC BAND (Yūkei, 夕景)
+   Purely decorative, aria-hidden, back card only. Never contains a field
+   value. See docs/adr/005-scenic-band-yukei.md + design/YUKEI_DESIGN_SPEC.md.
+   ============================================================================== */
+
+.scenic-band {
+  width: 100%;
+  height: var(--scenic-band-h);
+  background: var(--scenic-sky);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  overflow: hidden;
+  position: relative;
+  /* Pulls the band to the container's outer edge, undoing the container's
+     own padding on the top/left/right sides only (bottom stays attached
+     to whatever comes next in normal flow). Requires .scenic-band to be
+     the FIRST child of .card-container. */
+  margin: calc(-1 * var(--container-pad-y)) calc(-1 * var(--container-pad-x)) 0;
+}
+
+.scenic-band svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Stars — twinkle very slowly, invisible in daylight via --scenic-star-op */
+.scenic-star {
+  opacity: var(--scenic-star-op);
+  animation: scenic-twinkle 4.5s ease-in-out infinite;
+}
+.scenic-star:nth-of-type(2) { animation-delay: 1.1s; }
+.scenic-star:nth-of-type(3) { animation-delay: 2.3s; }
+
+@keyframes scenic-twinkle {
+  0%, 100% { opacity: calc(var(--scenic-star-op) * .3); }
+  50%      { opacity: var(--scenic-star-op); }
+}
+
+/* Sun/moon — slow breathing glow, reuses --accent-color (no new token) */
+.scenic-glow {
+  animation: scenic-breathe 7s ease-in-out infinite;
+  transform-origin: 232px 18px; /* matches the glow circle's cx/cy in the SVG */
+}
+
+@keyframes scenic-breathe {
+  0%, 100% { opacity: .26; transform: scale(1); }
+  50%      { opacity: .42; transform: scale(1.06); }
+}
+
+/* Cloud sea — two layers drift at different, very slow speeds for depth.
+   Amplitude is intentionally tiny (18px) — this should never read as
+   "moving" at a glance, only stop the scene from feeling like a static
+   sticker if someone lingers on one card. */
+.scenic-cloud {
+  animation: scenic-drift 170s ease-in-out infinite alternate;
+}
+.scenic-cloud.is-far {
+  animation-duration: 240s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes scenic-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-18px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scenic-star, .scenic-glow, .scenic-cloud {
+    animation: none !important;
+  }
 }

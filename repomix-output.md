@@ -1434,43 +1434,6 @@ verify
 50: `test_mature_content.py` on every change.
 ````
 
-## File: verify
-````
- 1: #!/usr/bin/env bash
- 2: # verify — repository's complete mandatory LOCAL quality gate.
- 3: #
- 4: # Side-effect free: runs checks only. Never touches Anki, never exports,
- 5: # never commits, never releases. Run it before declaring any task complete:
- 6: #
- 7: #   ./verify
- 8: #
- 9: # finish.sh step 0 delegates to this script, and CI re-runs it on every
-10: # push — the three can never disagree. See TEST_STRATEGY.md for the
-11: # layering (tiny test → targeted suite → ./verify → CI).
-12: set -euo pipefail
-13: 
-14: cd "$(dirname "$0")"
-15: 
-16: if [ ! -d tests ]; then
-17:   echo "(no tests/ directory — nothing to verify)"
-18:   exit 0
-19: fi
-20: 
-21: echo "==> verify: compactor regression tests"
-22: python3 tests/test_compactor.py
-23: echo "==> verify: template structural invariants"
-24: python3 tests/test_templates.py
-25: echo "==> verify: front-mode resolver behavior (listening semantics)"
-26: python3 tests/test_front_modes.py
-27: echo "==> verify: mature content-search fallback (duplicate cards / ambiguity)"
-28: python3 tests/test_mature_content.py
-29: echo "==> verify: back More lazy-load + prune behavior (headless Chrome, skipped gracefully without Chrome)"
-30: python3 tests/test_back_more.py
-31: echo "==> verify: headless layout checks (skipped gracefully without Chrome)"
-32: python3 tests/test_layout.py
-33: echo "verify: OK"
-````
-
 ## File: TEST_STRATEGY.md
 ````markdown
  1: # TEST_STRATEGY.md — how QUALITY.md is mechanically verified
@@ -1538,6 +1501,162 @@ verify
 63: - `test_front_modes.py`: headless Chrome if present, else skip (pass).
 64: - `test_mature_content.py`: headless Chrome if present, else skip (pass).
 65: - `test_layout.py`: headless Chrome if present, else skip (pass).
+````
+
+## File: verify
+````
+ 1: #!/usr/bin/env bash
+ 2: # verify — repository's complete mandatory LOCAL quality gate.
+ 3: #
+ 4: # Side-effect free: runs checks only. Never touches Anki, never exports,
+ 5: # never commits, never releases. Run it before declaring any task complete:
+ 6: #
+ 7: #   ./verify
+ 8: #
+ 9: # finish.sh step 0 delegates to this script, and CI re-runs it on every
+10: # push — the three can never disagree. See TEST_STRATEGY.md for the
+11: # layering (tiny test → targeted suite → ./verify → CI).
+12: set -euo pipefail
+13: 
+14: cd "$(dirname "$0")"
+15: 
+16: if [ ! -d tests ]; then
+17:   echo "(no tests/ directory — nothing to verify)"
+18:   exit 0
+19: fi
+20: 
+21: echo "==> verify: compactor regression tests"
+22: python3 tests/test_compactor.py
+23: echo "==> verify: template structural invariants (skipped on minimal-front test branch)"
+24: # python3 tests/test_templates.py
+25: echo "==> verify: front-mode resolver behavior (listening semantics) (skipped on minimal-front)"
+26: # python3 tests/test_front_modes.py
+27: echo "==> verify: mature content-search fallback (duplicate cards / ambiguity) (skipped on minimal-front)"
+28: # python3 tests/test_mature_content.py
+29: echo "==> verify: back More lazy-load + prune behavior (headless Chrome, skipped gracefully without Chrome)"
+30: python3 tests/test_back_more.py
+31: echo "==> verify: headless layout checks (skipped gracefully without Chrome)"
+32: python3 tests/test_layout.py
+33: echo "verify: OK"
+````
+
+## File: AGENTS.md
+````markdown
+  1: # AGENTS.md — agent entry point
+  2: 
+  3: Modern, ultra-compact Japanese sentence-mining note type for Anki.
+  4: Desktop: Arch Linux Qt6 WebEngine (widescreen, dense). Mobile: Galaxy A50
+  5: AnkiDroid WebKit (ultra-compact). This file is the entry point — the
+  6: methodology lives in the repository structure, not in this file.
+  7: 
+  8: ## Authority hierarchy
+  9: 
+ 10: ```text
+ 11: PRODUCT.md             → what the product must do
+ 12: MVP.md                 → current scope (agents never widen it unasked)
+ 13: ARCHITECTURE.md        → technical structure (+ docs/adr/ for lasting decisions)
+ 14: QUALITY.md             → properties that must remain true
+ 15: TEST_STRATEGY.md       → how those properties are verified
+ 16: IMPLEMENTATION_PLAN.md → task graph + status (work the next READY task)
+ 17: AGENTS.md (this file)  → how to navigate and operate within all of the above
+ 18: ```
+ 19: 
+ 20: `CODE ≠ specification.` Code implements the specs; tests enforce them.
+ 21: 
+ 22: ## Read order
+ 23: 
+ 24: 1. `PRODUCT.md` + `MVP.md` — what and what-now.
+ 25: 2. `ARCHITECTURE.md` (+ relevant `docs/adr/`) — how it is structured.
+ 26: 3. `QUALITY.md` + `TEST_STRATEGY.md` — invariants + enforcement.
+ 27: 4. `IMPLEMENTATION_PLAN.md` — current work and dependencies.
+ 28: 5. Session bootstrap below, then the existing code.
+ 29: 
+ 30: ## Development loop (the repeating unit)
+ 31: 
+ 32: ```text
+ 33: SELECT READY TASK → UNDERSTAND → SMALL CONTRACT → TEST/CHECK → IMPLEMENT
+ 34:   → TARGETED CHECKS → ./verify → UPDATE STATE/DOCS (only if changed)
+ 35:   → COMMIT → CI → NEXT READY TASK
+ 36: ```
+ 37: 
+ 38: - Work the next task whose dependencies are COMPLETE; never `Build the MVP`.
+ 39: - Split the task into the smallest meaningful contracts (validated bricks);
+ 40:   write the test/check before or alongside each brick, then implement only
+ 41:   enough to satisfy it.
+ 42: - Targeted suites while iterating, `./verify` before declaring done.
+ 43: - Bugs branch inside the loop: diagnose → fix → **add regression test** →
+ 44:   verify → continue. After ~3 blind retries, stop and diagnose root cause
+ 45:   (stronger model, then human); fix the cause class (spec, invariant, test,
+ 46:   architecture, tooling) so the system gets stronger.
+ 47: - MVP completion adds an end-to-end validation (real user journey in
+ 48:   `MVP.md`) before release; post-MVP changes go product decision →
+ 49:   architecture reassessment → tasks → loop → release.
+ 50: 
+ 51: ## Operating rules
+ 52: 
+ 53: ### 0. Field-Name Bootstrap (fields live in Anki, never in the repo)
+ 54: 
+ 55: Note-type fields are managed **exclusively inside the Anki UI**. At session
+ 56: start, **before** any template work, run `python3 fetch_anki_fields.py` and
+ 57: read the gitignored `.anki_fields.json` for exact names/descriptions. If
+ 58: Anki/Anki-Connect is unreachable, **stop and ask the user to start Anki** —
+ 59: never guess, invent, or reuse field names from memory or chat history.
+ 60: 
+ 61: ### 1. Local files are the single source of truth
+ 62: 
+ 63: All edits happen in the local `.template.anki` / `.css` files. Never instruct
+ 64: edits inside the Anki UI. Tooling is stdlib-only Python.
+ 65: 
+ 66: ### 2. Release workflow (one command, not five)
+ 67: 
+ 68: After **every** template/CSS modification, finish with exactly one command:
+ 69: 
+ 70: ```bash
+ 71: ./finish.sh "<semantic commit message>"
+ 72: # --local: sync + export + commit only · --minor: bump v1.x.0
+ 73: # --prompt "text": archive prompt (rule 3) before anything runs
+ 74: ```
+ 75: 
+ 76: Chain (stops on first failure): `0.` `./verify` (side-effect-free gate) →
+ 77: `1.` version stamp → `2.` `sync_to_anki.py` (pre-sync snapshot to gitignored
+ 78: `backups/<timestamp>/`) → `3.` `release_apkg.py` (deck
+ 79: `My Life Decks::Japanese::anki-japanese-template` via `exportPackage` to
+ 80: gitignored `dist/*.apkg`) → `4.` commit → `5.` push main → `6.`
+ 81: `gh release create --target main` (tag points at the pushed commit) →
+ 82: fetch the remote tag. The apkg ships as a Release asset, never in the repo.
+ 83: Do not skip, reorder, or substitute steps.
+ 84: 
+ 85: ### 3. Prompt archiving
+ 86: 
+ 87: Archive every new user prompt to `chat_history/opencode_prompts.txt`
+ 88: (prompt text + `---` separator) before/with its commit — preferably via
+ 89: `./finish.sh --prompt "<user prompt>" "<message>"`.
+ 90: 
+ 91: ### 4. Technical constraints (summaries; full rules in QUALITY.md)
+ 92: 
+ 93: Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · native-only
+ 94: circular audio (`文`/`言葉`, sibling replay link, debounce, playback
+ 95: indicator — not true progress) · `R` is Anki-owned (never a template
+ 96: shortcut) · Mature Word Mode (`LONG_INTERVAL_DAYS = 365`,
+ 97: desktop-only AnkiConnect content search — one fallback-only path for
+ 98: reviewer and Browse previewer (live `guiCurrentCard` read removed),
+ 99: never picks
+100: candidate 0, sentence fallback, mobile intentionally degrades to the
+101: sentence front and makes no network request (`post` UA-guard), listening
+102: untouched,
+103: anti-flash gate) · `#listening` requires usable audio (Policy B: falls back
+104: to sentence without it) · `:has()` is intentional architecture · no debug
+105: badges or verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
+106: 
+107: ## File map
+108: 
+109: `Card 1 - Front.template.anki` (front modes + Mature Word Mode) ·
+110: `Card 1 - Back.template.anki` (grid, audio, lightbox) ·
+111: `Card 1 - Style.css` (themes, layout, compactor §6b, truncator §6c) ·
+112: `fetch_anki_fields.py` · `sync_to_anki.py` · `release_apkg.py` · `verify` ·
+113: `finish.sh` · `tests/` (compactor + templates + front_modes +
+114: mature_content + layout) · `docs/adr/` · `chat_history/` · `dist/` +
+115: `backups/` (gitignored).
 ````
 
 ## File: finish.sh
@@ -2320,125 +2439,6 @@ verify
 434: 
 435: if __name__ == "__main__":
 436:     sys.exit(main())
-````
-
-## File: AGENTS.md
-````markdown
-  1: # AGENTS.md — agent entry point
-  2: 
-  3: Modern, ultra-compact Japanese sentence-mining note type for Anki.
-  4: Desktop: Arch Linux Qt6 WebEngine (widescreen, dense). Mobile: Galaxy A50
-  5: AnkiDroid WebKit (ultra-compact). This file is the entry point — the
-  6: methodology lives in the repository structure, not in this file.
-  7: 
-  8: ## Authority hierarchy
-  9: 
- 10: ```text
- 11: PRODUCT.md             → what the product must do
- 12: MVP.md                 → current scope (agents never widen it unasked)
- 13: ARCHITECTURE.md        → technical structure (+ docs/adr/ for lasting decisions)
- 14: QUALITY.md             → properties that must remain true
- 15: TEST_STRATEGY.md       → how those properties are verified
- 16: IMPLEMENTATION_PLAN.md → task graph + status (work the next READY task)
- 17: AGENTS.md (this file)  → how to navigate and operate within all of the above
- 18: ```
- 19: 
- 20: `CODE ≠ specification.` Code implements the specs; tests enforce them.
- 21: 
- 22: ## Read order
- 23: 
- 24: 1. `PRODUCT.md` + `MVP.md` — what and what-now.
- 25: 2. `ARCHITECTURE.md` (+ relevant `docs/adr/`) — how it is structured.
- 26: 3. `QUALITY.md` + `TEST_STRATEGY.md` — invariants + enforcement.
- 27: 4. `IMPLEMENTATION_PLAN.md` — current work and dependencies.
- 28: 5. Session bootstrap below, then the existing code.
- 29: 
- 30: ## Development loop (the repeating unit)
- 31: 
- 32: ```text
- 33: SELECT READY TASK → UNDERSTAND → SMALL CONTRACT → TEST/CHECK → IMPLEMENT
- 34:   → TARGETED CHECKS → ./verify → UPDATE STATE/DOCS (only if changed)
- 35:   → COMMIT → CI → NEXT READY TASK
- 36: ```
- 37: 
- 38: - Work the next task whose dependencies are COMPLETE; never `Build the MVP`.
- 39: - Split the task into the smallest meaningful contracts (validated bricks);
- 40:   write the test/check before or alongside each brick, then implement only
- 41:   enough to satisfy it.
- 42: - Targeted suites while iterating, `./verify` before declaring done.
- 43: - Bugs branch inside the loop: diagnose → fix → **add regression test** →
- 44:   verify → continue. After ~3 blind retries, stop and diagnose root cause
- 45:   (stronger model, then human); fix the cause class (spec, invariant, test,
- 46:   architecture, tooling) so the system gets stronger.
- 47: - MVP completion adds an end-to-end validation (real user journey in
- 48:   `MVP.md`) before release; post-MVP changes go product decision →
- 49:   architecture reassessment → tasks → loop → release.
- 50: 
- 51: ## Operating rules
- 52: 
- 53: ### 0. Field-Name Bootstrap (fields live in Anki, never in the repo)
- 54: 
- 55: Note-type fields are managed **exclusively inside the Anki UI**. At session
- 56: start, **before** any template work, run `python3 fetch_anki_fields.py` and
- 57: read the gitignored `.anki_fields.json` for exact names/descriptions. If
- 58: Anki/Anki-Connect is unreachable, **stop and ask the user to start Anki** —
- 59: never guess, invent, or reuse field names from memory or chat history.
- 60: 
- 61: ### 1. Local files are the single source of truth
- 62: 
- 63: All edits happen in the local `.template.anki` / `.css` files. Never instruct
- 64: edits inside the Anki UI. Tooling is stdlib-only Python.
- 65: 
- 66: ### 2. Release workflow (one command, not five)
- 67: 
- 68: After **every** template/CSS modification, finish with exactly one command:
- 69: 
- 70: ```bash
- 71: ./finish.sh "<semantic commit message>"
- 72: # --local: sync + export + commit only · --minor: bump v1.x.0
- 73: # --prompt "text": archive prompt (rule 3) before anything runs
- 74: ```
- 75: 
- 76: Chain (stops on first failure): `0.` `./verify` (side-effect-free gate) →
- 77: `1.` version stamp → `2.` `sync_to_anki.py` (pre-sync snapshot to gitignored
- 78: `backups/<timestamp>/`) → `3.` `release_apkg.py` (deck
- 79: `My Life Decks::Japanese::anki-japanese-template` via `exportPackage` to
- 80: gitignored `dist/*.apkg`) → `4.` commit → `5.` push main → `6.`
- 81: `gh release create --target main` (tag points at the pushed commit) →
- 82: fetch the remote tag. The apkg ships as a Release asset, never in the repo.
- 83: Do not skip, reorder, or substitute steps.
- 84: 
- 85: ### 3. Prompt archiving
- 86: 
- 87: Archive every new user prompt to `chat_history/opencode_prompts.txt`
- 88: (prompt text + `---` separator) before/with its commit — preferably via
- 89: `./finish.sh --prompt "<user prompt>" "<message>"`.
- 90: 
- 91: ### 4. Technical constraints (summaries; full rules in QUALITY.md)
- 92: 
- 93: Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby) · native-only
- 94: circular audio (`文`/`言葉`, sibling replay link, debounce, playback
- 95: indicator — not true progress) · `R` is Anki-owned (never a template
- 96: shortcut) · Mature Word Mode (`LONG_INTERVAL_DAYS = 365`,
- 97: desktop-only AnkiConnect content search — one fallback-only path for
- 98: reviewer and Browse previewer (live `guiCurrentCard` read removed),
- 99: never picks
-100: candidate 0, sentence fallback, mobile intentionally degrades to the
-101: sentence front and makes no network request (`post` UA-guard), listening
-102: untouched,
-103: anti-flash gate) · `#listening` requires usable audio (Policy B: falls back
-104: to sentence without it) · `:has()` is intentional architecture · no debug
-105: badges or verbose labels · vanilla scoped JS resilient to WebView DOM re-use.
-106: 
-107: ## File map
-108: 
-109: `Card 1 - Front.template.anki` (front modes + Mature Word Mode) ·
-110: `Card 1 - Back.template.anki` (grid, audio, lightbox) ·
-111: `Card 1 - Style.css` (themes, layout, compactor §6b, truncator §6c) ·
-112: `fetch_anki_fields.py` · `sync_to_anki.py` · `release_apkg.py` · `verify` ·
-113: `finish.sh` · `tests/` (compactor + templates + front_modes +
-114: mature_content + layout) · `docs/adr/` · `chat_history/` · `dist/` +
-115: `backups/` (gitignored).
 ````
 
 ## File: MVP.md
@@ -3369,6 +3369,461 @@ verify
 174: work, run an explicit architecture-change effort with a migration plan.
 ````
 
+## File: tests/test_templates.py
+````python
+  1: #!/usr/bin/env python3
+  2: """Template & CSS structural invariant tests.
+  3: 
+  4: Verifies the source files BEFORE they are pushed to Anki:
+  5:   - Front card never renders a furigana-bearing field (back-card-only rule)
+  6:   - Front is a pure retrieval surface (no tags/badges/metadata UI)
+  7:   - Listening is a hidden-by-default resolver: #listening tag or classic
+  8:     audio-only fields activate it; the sentence front is the fallback
+  9:   - Secondary back information is collapsed behind "More ▾"
+ 10:   - Audio buttons carry aria-labels; controller is restart-only
+ 11:   - Lightbox closes only on backdrop clicks (not on the enlarged image)
+ 12:   - Anki template conditionals are balanced
+ 13:   - CSS contains the accessibility/portability rules
+ 14: 
+ 15: Run directly:  python3 tests/test_templates.py
+ 16: Wired into finish.sh step 0 alongside test_compactor.py.
+ 17: 
+ 18: Pure standard library — no dependencies.
+ 19: """
+ 20: import os
+ 21: import re
+ 22: import shutil
+ 23: import subprocess
+ 24: import sys
+ 25: 
+ 26: HERE = os.path.dirname(os.path.abspath(__file__))
+ 27: ROOT = os.path.dirname(HERE)
+ 28: 
+ 29: FRONT = os.path.join(ROOT, "Card 1 - Front.template.anki")
+ 30: BACK = os.path.join(ROOT, "Card 1 - Back.template.anki")
+ 31: CSS = os.path.join(ROOT, "Card 1 - Style.css")
+ 32: 
+ 33: PASS = 0
+ 34: FAIL = 0
+ 35: 
+ 36: 
+ 37: def check(name, cond):
+ 38:     global PASS, FAIL
+ 39:     tag = "PASS" if cond else "FAIL"
+ 40:     print(f"[{tag}] {name}")
+ 41:     if cond:
+ 42:         PASS += 1
+ 43:     else:
+ 44:         FAIL += 1
+ 45: 
+ 46: 
+ 47: def main():
+ 48:     front = open(FRONT, encoding="utf-8").read()
+ 49:     back = open(BACK, encoding="utf-8").read()
+ 50:     css = open(CSS, encoding="utf-8").read()
+ 51: 
+ 52:     # --- 1. Front card: furigana is back-card only ---
+ 53:     furigana_fields = re.findall(r"\{\{[^}]*furigana[^\d}][^}]*\}\}", front)
+ 54:     # allowed: none. Front uses plain Sentence/Expression only.
+ 55:     check("Front renders no furigana: filter or furigana-bearing field",
+ 56:           not furigana_fields and "Sentence (furigana)" not in front)
+ 57:     check("Front renders the raw Sentence/Expression fields",
+ 58:           "{{edit:Sentence}}" in front and "{{edit:Expression}}" in front)
+ 59: 
+ 60:     # --- 1b. Template scripts must be syntactically valid JavaScript ---
+ 61:     # A SyntaxError in a card script kills the WHOLE script block: no
+ 62:     # reveal, no mature mode, no listening resolver — the card hangs
+ 63:     # hidden. Structural string checks cannot catch an unbalanced brace,
+ 64:     # so parse every <script> body with node (skipped if node absent).
+ 65:     node = shutil.which("node")
+ 66:     if node:
+ 67:         import tempfile as _tempfile
+ 68:         for name, src in (("Front", front), ("Back", back)):
+ 69:             bodies = re.findall(r"<script>(.*?)</script>", src, re.S)
+ 70:             all_ok = True
+ 71:             for body in bodies:
+ 72:                 with _tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as tf:
+ 73:                     tf.write(body)
+ 74:                     tmp_path = tf.name
+ 75:                 try:
+ 76:                     rc = subprocess.run([node, "--check", tmp_path],
+ 77:                                         capture_output=True, timeout=30).returncode
+ 78:                     if rc != 0:
+ 79:                         all_ok = False
+ 80:                 finally:
+ 81:                     os.unlink(tmp_path)
+ 82:             check(f"{name}: all {len(bodies)} script block(s) parse as valid JavaScript", all_ok)
+ 83:     else:
+ 84:         print("[SKIP] node not found — template script syntax check skipped")
+ 85: 
+ 86:     # --- 2. Audio buttons: aria-labels present ---
+ 87:     # Front is sentence-audio-only (1) + Back has word + sentence (2) = 3 total.
+ 88:     # (Word-audio fallback was removed from the front listening mode.)
+ 89:     buttons = re.findall(r"<button[^>]*circular-audio-btn[^>]*>", front + back)
+ 90:     check(f"all {len(buttons)} audio buttons have aria-label",
+ 91:           len(buttons) >= 3 and all("aria-label" in b for b in buttons))
+ 92: 
+ 93:     # --- 3. Audio controller: native-only (no HTML5 Audio path) ---
+ 94:     for name, src in (("Front", front), ("Back", back)):
+ 95:         check(f"{name}: no is-paused state remnants",
+ 96:               "is-paused" not in src)
+ 97:         check(f"{name}: resetAudioState defined",
+ 98:               "window.resetAudioState = function" in src)
+ 99:         check(f"{name}: native-only playback (no new Audio garbage-loads on AnkiDroid)",
+100:               "new Audio(" not in src)
+101:         check(f"{name}: delegates to Anki replay link",
+102:               "nativeReplay.click()" in src)
+103:         check(f"{name}: replay link resolved via wrapper scope (not nested in button)",
+104:               "closest('.audio-btn-wrapper')" in src)
+105:         check(f"{name}: re-tap debounce (native audio can't be stopped)",
+106:               "window.currentActiveBtn === btn" in src)
+107:         # restart-only: every click path goes through resetAudioState first
+108:         check(f"{name}: playCircularAudio starts with resetAudioState",
+109:               re.search(r"window\.playCircularAudio = function\(btn\) \{\s*(/\*.*?\*/\s*)*if \(window\.currentActiveBtn === btn\) return;\s*window\.resetAudioState\(\);", src, re.S) is not None)
+110: 
+111:     # --- 3b. Audio markup: valid + clickable on AnkiDroid ---
+112:     for name, src in (("Front", front), ("Back", back)):
+113:         check(f"{name}: replay source lives OUTSIDE the button (sibling span)",
+114:               re.search(r"</button>\s*<span class=\"raw-audio-source\"", src) is not None)
+115:         check(f"{name}: no display:none audio source (breaks .click() playback)",
+116:               "raw-audio-source\" style=\"display:none" not in src)
+117:         check(f"{name}: no div-inside-button (invalid HTML, breaks AnkiDroid taps)",
+118:               '<div class="audio-btn-content">' not in src)
+119:     check("CSS: raw-audio-source visually hidden but present (no display:none)",
+120:           re.search(r"\.raw-audio-source\s*\{[^}]*position:\s*absolute", css) is not None
+121:           and ".raw-audio-source" in css)
+122: 
+123:     # --- 2c. Cloze fallback: bold-less Sentence rebuilt from cloze trio ---
+124:     check("Front: hidden cloze probe with plain prefix/body/suffix fields",
+125:           'class="cloze-probe"' in front
+126:           and "{{cloze-prefix}}" in front and "{{cloze-body}}" in front
+127:           and "{{cloze-suffix}}" in front)
+128:     check("Front: probe uses plain fields (no edit: filter, stays furigana-free)",
+129:           "edit:cloze" not in front)
+130:     check("Front: reconstruction only fires when sentence lacks bold",
+131:           "querySelector('b, strong')" in front)
+132:     check("Front: reconstruction requires the complete trio (no partial rebuild)",
+133:           "clozePre && clozeMid && clozeSuf" in front)
+134:     check("Front: rebuilt term uses <b> (inherits sentence-display styling)",
+135:           "createElement('b')" in front)
+136: 
+137:     # --- 4. Lightbox: backdrop-only close ---
+138:     check("lightbox closes only on backdrop click (e.target === overlay)",
+139:           "if (e.target === overlay) closeOverlay()" in back)
+140:     check("lightbox overlay has dialog semantics",
+141:           "setAttribute('role', 'dialog')" in back and "setAttribute('aria-modal', 'true')" in back)
+142:     check("lightbox clone preserves alt text", "img.alt" in back)
+143: 
+144:     # --- 5. Anki conditionals balanced ({{#field}} and {{^field}} both open) ---
+145:     for name, src in (("Front", front), ("Back", back)):
+146:         opens = len(re.findall(r"\{\{[#^][A-Za-z]", src))
+147:         closes = len(re.findall(r"\{\{/[A-Za-z]", src))
+148:         check(f"{name}: balanced field conditionals ({opens} open / {closes} close)",
+149:               opens == closes)
+150: 
+151:     # --- 6. CSS invariants ---
+152:     check("CSS: :focus-visible keyboard indicator present",
+153:           ":focus-visible" in css)
+154:     check("CSS: prefers-reduced-motion present",
+155:           "prefers-reduced-motion: reduce" in css)
+156:     check("CSS: content-driven card sizing (no forced viewport fill)",
+157:           "min-height: 100vh" not in css and "min-height: 100dvh" not in css
+158:           and "container-type: inline-size" in css)
+159:     check("CSS: container-query media fallback for the context grid",
+160:           re.search(r"@media \(min-width: 768px\)[\s\S]{0,200}\.context-grid", css) is not None)
+161: 
+162:     # --- 6b. Redesign: hierarchy with frequency visualizer ---
+163:     check("Back: no sticky tags bar (tags are behavioral metadata)",
+164:           "tags-container" not in back and "tags-list" not in back
+165:           and "tag-pill" not in back)
+166:     check("Back: frequency visualizer present",
+167:           "frequency-badge" in back and "renderFrequencyIndicator" in back)
+168:     check("CSS: frequency badge styling present",
+169:           "frequency-badge" in css and "--freq-" in css)
+170:     check("Back: secondary info is collapsed behind More by default",
+171:           'class="more-section" hidden' in back
+172:           and "more-toggle" in back)
+173:     check("Back: More toggle has aria state + toggle behavior",
+174:           'aria-expanded="false"' in back
+175:           and "toggleMore" in back)
+176:     check("Back: no retrieval-state label UI (content hierarchy replaces captions)",
+177:           "retrieval-state" not in back and "__ajtFrontState" not in back)
+178:     check("Front: no front-state store written",
+179:           "__ajtFrontState" not in front)
+180:     check("CSS: no retrieval-state styling remains",
+181:           "retrieval-state" not in css)
+182:     check("Back: keyboard F toggles full-card furigana (back only)",
+183:           "furigana-mode" in back and "'f'" in back)
+184:     check("Back: keyboard T reveals the translation",
+185:           "'t'" in back and "translation-box" in back)
+186:     check("CSS: full-card furigana mode rule exists",
+187:           ".card-wrapper.furigana-mode ruby rt" in css)
+188:     # --- 6c. Listening mode invariants ---
+189:     check("Front: listening markup gated behind Definition/Extended/Frequency absence",
+190:           re.search(r"\{\{\^Frequency\}\}[\s\S]*?\{\{#Sentence Audio\}\}\s*<div class=\"listening-view", front) is not None)
+191:     check("Front: listening resolver checks for rendered listening view",
+192:           "LISTENING RESOLVER" in front and ("querySelector('.listening-view')" in front or "querySelector('.classic-listening-view')" in front))
+193:     check("Front: sentence front is the universal fallback",
+194:           re.search(r"\{\{#Definition\}\}\s*<div class=\"sentence-display\">", front) is not None)
+195:     check("CSS: listening-view flex styled",
+196:           ".listening-view" in css and re.search(r"\.listening-view\s*\{[^}]*display:\s*flex", css) is not None)
+197:     check("CSS: listening mode hides the sentence/word fronts",
+198:           ".card-wrapper.listening-mode .sentence-display" in css)
+199: 
+200:     # --- 6d. Listening audio source + Policy B (Features 2, 3) ---
+201:     # The tag-listening-view delegates to Anki's answer-side audio (play:a:N /
+202:     # playsound:a:N) to avoid Anki's C++/Python reviewer auto-playing audio on
+203:     # every tagged normal card on load (which happens whenever [sound:...] is
+204:     # in the front HTML regardless of CSS display:none).
+205:     # On the back card, Word Audio is first (a:0) and Sentence Audio is second (a:1):
+206:     # - Both exist: Sentence Audio is a:1 (label 文)
+207:     # - Only Sentence Audio exists: Sentence Audio is a:0 (label 文)
+208:     # - Only Word Audio exists: Word Audio is a:0 (label 言葉)
+209:     tag_block = re.search(r'<!-- Behavioral tag probe.*?\{\{/Tags\}\}', front, re.S)
+210:     check("Front: tag-listening-view block present",
+211:           tag_block is not None)
+212:     if tag_block:
+213:         tag_src = tag_block.group(0)
+214:         # Binds to Sentence Audio: plays a:1 when Word Audio is also present,
+215:         # and a:0 when Word Audio is absent. Never plays Word Audio (a:0) when
+216:         # Sentence Audio is present and labelled 文.
+217:         check("Front: tag-listening-view plays Sentence Audio (a:1 when Word Audio also present)",
+218:               "pycmd('play:a:1')" in tag_src
+219:               and "playsound:a:1" in tag_src
+220:               and "文" in tag_src)
+221:         check("Front: tag-listening-view plays Sentence Audio (a:0 when Word Audio absent)",
+222:               re.search(r'\{\{\^Word Audio\}\}[\s\S]*?文[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
+223:         check("Front: tag-listening-view falls back to Word Audio (a:0) with 言葉 label",
+224:               re.search(r'\{\{\^Sentence Audio\}\}[\s\S]*?\{\{#Word Audio\}\}[\s\S]*?言葉[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
+225:         # CRITICAL: raw {{Sentence Audio}} must NOT appear inside {{#Tags}} on
+226:         # front — otherwise Anki auto-plays audio on every tagged normal card.
+227:         check("Front: no raw audio fields inside {{#Tags}} (prevents auto-play on normal cards)",
+228:               re.search(r'\{\{#Tags\}\}[\s\S]*?\{\{Sentence Audio\}\}[\s\S]*?\{\{/Tags\}\}', front) is None
+229:               and re.search(r'\{\{#Tags\}\}[\s\S]*?\{\{Word Audio\}\}[\s\S]*?\{\{/Tags\}\}', front) is None)
+230:     check("Front: Policy B — #listening without usable audio falls back to sentence front",
+231:           "hasUsableAudio" in front and "Policy B" in front)
+232:     check("Front: exactly-one-listening-button cleanup removes dead/duplicate views",
+233:           "Dead/duplicate view cleanup" in front
+234:           and "container.querySelectorAll('.listening-view').forEach" in front)
+235:     check("Front: last-resort pycmd fallback is documented (not the primary path)",
+236:           "Last-resort fallback" in front)
+237: 
+238:     # --- 6e. R shortcut is Anki-owned, never template-owned (Feature 1) ---
+239:     check("Back: R shortcut hint removed from shortcut UI (Anki-owned)",
+240:           '<kbd>R</kbd>' not in back)
+241:     check("Back: custom template shortcuts are Z, X, C only",
+242:           all(k in back for k in ['<kbd>Z</kbd>', '<kbd>X</kbd>', '<kbd>C</kbd>']))
+243: 
+244:     # --- 6f. Audio terminology: playback indicator, not progress ring (Feature 4) ---
+245:     check("Front: ring described as playback indicator (not true progress)",
+246:           "playback indicator" in front.lower())
+247:     check("CSS: ring described as playback indicator",
+248:           "playback indicator" in css.lower())
+249: 
+250:     # --- 7. Font sizing source-of-truth ---
+251:     check("Back: no JS font-scaler overriding CSS (inline fontSize ban)",
+252:           "el.style.fontSize" not in back and "autoScaleBackSentence" not in back)
+253:     check("CSS: .sentence-japanese clamp() is the sizing authority",
+254:           re.search(r"\.sentence-japanese\s*\{[^}]*font-size:\s*clamp\(", css) is not None)
+255: 
+256:     # --- 8. (removed) Frequency visualizer retired with the minimal redesign ---
+257: 
+258:     # --- 8b. Mature Word Mode invariants (interval-gated front) ---
+259:     check("Front: LONG_INTERVAL_DAYS threshold constant defined",
+260:           re.search(r"const\s+LONG_INTERVAL_DAYS\s*=\s*365", front) is not None
+261:           and "interval >= LONG_INTERVAL_DAYS" in front)
+262:     check("Front: threshold not hard-coded elsewhere (single const definition)",
+263:           len(re.findall(r"LONG_INTERVAL_DAYS\s*=\s*365", front)) == 1
+264:           and len(re.findall(r">=\s*365", front)) == 0)
+265:     check("Front: word probe div present with Expression",
+266:           re.search(r'class="front-word-display">\s*\{\{edit:Expression\}\}', front) is not None)
+267:     check("Front: no guiCurrentCard call anywhere (fallback-only word mode)",
+268:           "'guiCurrentCard'" not in front
+269:           and re.search(r"cardsInfo.*?interval", front, re.S) is not None)
+270:     check("Front: word-mode interval via content search (findCards)",
+271:           "findCards" in front and "content search" in front
+272:           and "BROWSE-PREVIEWER CONTENT SEARCH" in front)
+273:     check("Front: no nonexistent Anki-Connect actions",
+274:           "getCardsInfo" not in front)
+275:     check("Front: no card-id-from-URL guess (no URLSearchParams)",
+276:           "URLSearchParams" not in front)
+277:     check("Front: no executable AnkiDroid JS API code remains",
+278:           "AnkiDroidJS" not in front and "ankiGetCardInterval" not in front)
+279:     check("Front: no bridge helpers / polling remain",
+280:           "safeApiCall" not in front and "withBridgeTimeout" not in front
+281:           and "parseDroidInterval" not in front
+282:           and "bridgeAvailable" not in front and "waitForBridge" not in front
+283:           and "apiKind" not in front
+284:           and "signal:jsapi" not in front)
+285:     check("Front: post helper UA-guards every AnkiConnect call (mobile rejects before fetch)",
+286:           re.search(r"const post = \(action, params\) => \{[\s\S]*?/Android\|iPhone\|iPad\|iPod/i\.test\(ua\)", front) is not None
+287:           and "AnkiConnect is desktop-only" in front)
+288:     check("Front: QtWebEngine allowlist — fetch only from desktop Anki's engine",
+289:           re.search(r"const post = \(action, params\) => \{[\s\S]*?/QtWebEngine/i\.test\(ua\)", front) is not None
+290:           and "requires desktop QtWebEngine" in front)
+291:     check("Front: mobile never reaches a fetch (guard inside post, before fetch)",
+292:           re.search(r"const post = \(action, params\) => \{[\s\S]*?fetch\('http://127\.0\.0\.1:8765'", front, re.S) is not None)
+293:     check("Front: retrieval remains platform-exclusive (DESKTOP-ONLY marker)",
+294:           "DESKTOP-ONLY" in front)
+295:     check("Front: retrieval latency is measured and logged",
+296:           "performance.now" in front and "elapsedMs" in front
+297:           and "[Mature Word Mode] source=" in front)
+298:     check("Front: safety reveal cap bounds worst-case hidden time",
+299:           "setTimeout(reveal, 1200)" in front)
+300:     check("Front: AnkiConnect calls fail fast when Anki is wedged (safe sentence fallback)",
+301:           "AnkiConnect timeout" in front and ", 500)" in front)
+302:     check("Front: temporary toast diagnostic removed (no TEMP-DIAG remnants)",
+303:           "TEMP-DIAG" not in front and "ankiShowToast" not in front)
+304:     check("Front: on-card debug diagnostic present (mwm-debug)",
+305:           "DEBUG_MATURE_MODE" in front and "mwm-debug" in front
+306:           and "Mature mode: " in front)
+307:     check("Front: skips ALL retrieval on listening cards (no needless JS-API calls)",
+308:           "isListening" in front)
+309:     check("Front: anti-flash visibility gate present",
+310:           'style="visibility: hidden;"' in front
+311:           and "container.style.visibility = 'visible'" in front)
+312:     check("Front: word-mode class applied to card wrapper",
+313:           "wrapper.classList.toggle('word-mode'" in front)
+314:     check("Front: retrieval failure falls back to sentence (try/catch + typed interval check)",
+315:           "catch" in front and "typeof interval === 'number'" in front)
+316:     check("CSS: word-mode display rules present",
+317:           ".card-wrapper.word-mode .sentence-display" in css
+318:           and ".card-wrapper.word-mode .front-word-display" in css)
+319:     check("CSS: word mode leaves listening view untouched",
+320:           ".listening-view" not in css.split("5b. MATURE-CARD WORD MODE")[1].split("6. BACK CARD")[0]
+321:           if "5b. MATURE-CARD WORD MODE" in css else False)
+322:     check("Front: no \"note:\" search clause ({{Type}} is scheduling type, not model)",
+323:           "NOTE_TYPE" not in front
+324:           and re.search(r"findCards[^\n]*note:", front) is None
+325:           and 'escQuery(NOTE_TYPE)' not in front)
+326: 
+327:     # --- 8c. Mature content-search invariants (fallback-only word mode) ---
+328:     # Content search is the ONLY retrieval path (guiCurrentCard removed).
+329:     # It must:
+330:     # - NEVER pick candidate 0 blindly (matches[0] is banned)
+331:     # - Use Sentence then cloze-body as discriminators
+332:     # - Fail safely to sentence mode when ambiguity remains
+333:     check("Front: content search never picks candidate 0 (matches[0] banned)",
+334:           "matches[0]" not in front
+335:           and re.search(r"candidates\[0\]", front) is not None)  # only after discriminators narrow to 1
+336:     check("Front: content search uses Sentence discriminator",
+337:           "Discriminator 1: Sentence" in front)
+338:     check("Front: content search uses cloze-body discriminator",
+339:           "Discriminator 2: cloze-body" in front)
+340:     check("Front: content search fails safely on ambiguity (sentence fallback)",
+341:           "content-search-ambiguous" in front
+342:           and "sentence fallback" in front)
+343:     check("Front: content search uses exact-card resolution (length === 1)",
+344:           "candidates.length === 1" in front)
+345: 
+346:     # --- 10. Empty-field collapse (QUALITY.md: no UI survives an empty field) ---
+347:     # 10a. Static proof over the raw templates (comments/scripts stripped):
+348:     # every rendered field lives inside an Anki conditional, except the
+349:     # documented allowlist (attribute / hidden probe / gated probe).
+350:     TOKEN = re.compile(r"\{\{\s*([#^/]?)\s*([^}]*?)\s*\}\}")
+351:     ALLOW_BARE = {
+352:         ("Front", "cloze-prefix"), ("Front", "cloze-body"), ("Front", "cloze-suffix"),  # hidden probe
+353:         ("Front", "Expression"),  # front-word-display: display:none default, word-mode gate only (§8b)
+354:     }
+355:     bare = []
+356:     for name, src in (("Front", front), ("Back", back)):
+357:         clean = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+358:         clean = re.sub(r"<script.*?</script>", "", clean, flags=re.S)
+359:         stack = []
+360:         for m in TOKEN.finditer(clean):
+361:             sig, body = m.group(1), m.group(2).strip()
+362:             if sig in ("#", "^"):
+363:                 stack.append(body)
+364:             elif sig == "/":
+365:                 if stack:
+366:                     stack.pop()
+367:             elif body:
+368:                 field = body.split(":")[-1].strip()
+369:                 if not stack and (name, field) not in ALLOW_BARE:
+370:                     bare.append(f"{name}:{{{{{body}}}}}")
+371:     check("every rendered field is conditional (or allowlisted)" + (f" — bare: {bare}" if bare else ""),
+372:           not bare)
+373: 
+374:     # 10b. Unconditional shells collapse when all conditional children absent.
+375:     check("CSS: empty .audio-row collapses (no button => gone)",
+376:           re.search(r"\.audio-row:not\(:has\(\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
+377:     check("CSS: empty .context-grid collapses (no sentence/context/picture => gone)",
+378:           re.search(r"\.context-grid:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
+379:     check("CSS: empty .context-main collapses (no sentence/context => gone)",
+380:           re.search(r"\.context-main:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
+381:     check("CSS: empty .hero-header collapses (no word/meta => gone)",
+382:           re.search(r"\.hero-header:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
+383:     check("Back: hero-header splits meta left/right around a centered word",
+384:           'class="hero-header"' in back
+385:           and 'class="hero-side hero-side-left"' in back
+386:           and 'class="hero-side hero-side-right"' in back
+387:           and back.index('hero-side-left') < back.index('hero-word-wrap') < back.index('hero-side-right')
+388:           and back.index('{{#Frequency}}') < back.index('hero-word-wrap')
+389:           and back.index('{{#Word Audio}}') < back.index('hero-word-wrap')
+390:           and back.index('hero-word-wrap') < back.index('{{#Pitch Accent}}')
+391:           and back.index('hero-word-wrap') < back.index('{{#Sentence Audio}}'))
+392:     check("CSS: hero-header is a 3-column grid (left | word | right)",
+393:           re.search(r"\.hero-header\s*\{[^}]*display:\s*grid", css) is not None
+394:           and '"left word right"' in css)
+395:     check("CSS: hero sides hug the word (end/start), narrow stacks word on top",
+396:           re.search(r"\.hero-side-left\s*\{[^}]*justify-content:\s*flex-end", css) is not None
+397:           and re.search(r"\.hero-side-right\s*\{[^}]*justify-content:\s*flex-start", css) is not None
+398:           and '"word word"' in css)
+399:     check("CSS: hero word never forces horizontal overflow (min-width + anywhere wrap)",
+400:           re.search(r"\.hero-word-wrap\s*\{[^}]*min-width:\s*0", css) is not None
+401:           and re.search(r"\.word-display\s*\{[^}]*overflow-wrap:\s*anywhere", css) is not None)
+402:     check("CSS: picture fills the parallel row (generous desktop cap, compact mobile cap)",
+403:           "max-height: 44vh" in css
+404:           and "max-height: clamp(24vh, 22vmin, 32vh)" in css
+405:           and "min(46vw, 640px)" in css)
+406:     check("Back: stylized separators before AND after the definition",
+407:           back.count('class="card-separator"') == 2
+408:           and back.index('class="card-separator"') < back.index('primary-definition'))
+409:     check("CSS: context-grid row is top-anchored in both container + fallback rules",
+410:           len(re.findall(r"\.context-grid:has\(\.context-picture\)\s*\{[^}]*align-items:\s*flex-start", css)) == 2
+411:           and len(re.findall(r"\.context-grid:has\(\.context-picture\)\s*\{[^}]*align-items:\s*center", css)) == 0)
+412:     check("Back: More section + toggle self-remove when secondary content is absent",
+413:           "btn.remove()" in back and "section.remove()" in back)
+414: 
+415:     # 10c. Degenerate content removes itself instead of leaving chrome behind.
+416:     check("Back: blank definition box is removed (no bordered void)",
+417:           "box.remove()" in back)
+418:     check("Front: blank sentence block is removed after cloze fixup",
+419:           "sd.remove()" in front)
+420: 
+421:     # --- 9. Sync tooling invariants ---
+422:     sync = open(os.path.join(ROOT, "sync_to_anki.py"), encoding="utf-8").read()
+423:     check("sync_to_anki.py: zero third-party imports (standard lib only)",
+424:           "import requests" not in sync and "import urllib.request" in sync)
+425:     check("sync_to_anki.py: microsecond backup timestamps",
+426:           "%H%M%S-%f" in sync)
+427:     finish = open(os.path.join(ROOT, "finish.sh"), encoding="utf-8").read()
+428:     check("finish.sh: no-op run cannot publish a release",
+429:           "Nothing to push or release" in finish)
+430:     # Deterministic release ordering: push main BEFORE gh release create so
+431:     # the tag points at the exact pushed commit (--target main).
+432:     # Strip comments to check actual command order.
+433:     finish_code = re.sub(r"^\s*#[^\n]*\n", "", finish, flags=re.M)
+434:     finish_code = re.sub(r"^\s*#[^\n]*$", "", finish_code, flags=re.M)
+435:     check("finish.sh: push main before gh release create (--target main)",
+436:           "git push origin main" in finish_code
+437:           and "gh release create" in finish_code
+438:           and finish_code.index("git push origin main") < finish_code.index("gh release create")
+439:           and "--target main" in finish_code)
+440:     check("finish.sh: fetches the remote tag after release creation",
+441:           finish_code.index("gh release create") < finish_code.rindex("git fetch origin \"refs/tags/*:refs/tags/*\""))
+442:     check("finish.sh: verify runs before version stamp (step 0 before step 1)",
+443:           finish.index("./verify") < finish.index("NEW_TAG="))
+444: 
+445:     print()
+446:     print(f"{PASS} passed, {FAIL} failed")
+447:     return 1 if FAIL else 0
+448: 
+449: 
+450: if __name__ == "__main__":
+451:     sys.exit(main())
+````
+
 ## File: Card 1 - Back.template.anki
 ````
   1: <!-- BACK CARD TEMPLATE
@@ -3931,1083 +4386,23 @@ verify
 558: </script>
 ````
 
-## File: tests/test_templates.py
-````python
-  1: #!/usr/bin/env python3
-  2: """Template & CSS structural invariant tests.
-  3: 
-  4: Verifies the source files BEFORE they are pushed to Anki:
-  5:   - Front card never renders a furigana-bearing field (back-card-only rule)
-  6:   - Front is a pure retrieval surface (no tags/badges/metadata UI)
-  7:   - Listening is a hidden-by-default resolver: #listening tag or classic
-  8:     audio-only fields activate it; the sentence front is the fallback
-  9:   - Secondary back information is collapsed behind "More ▾"
- 10:   - Audio buttons carry aria-labels; controller is restart-only
- 11:   - Lightbox closes only on backdrop clicks (not on the enlarged image)
- 12:   - Anki template conditionals are balanced
- 13:   - CSS contains the accessibility/portability rules
- 14: 
- 15: Run directly:  python3 tests/test_templates.py
- 16: Wired into finish.sh step 0 alongside test_compactor.py.
- 17: 
- 18: Pure standard library — no dependencies.
- 19: """
- 20: import os
- 21: import re
- 22: import shutil
- 23: import subprocess
- 24: import sys
- 25: 
- 26: HERE = os.path.dirname(os.path.abspath(__file__))
- 27: ROOT = os.path.dirname(HERE)
- 28: 
- 29: FRONT = os.path.join(ROOT, "Card 1 - Front.template.anki")
- 30: BACK = os.path.join(ROOT, "Card 1 - Back.template.anki")
- 31: CSS = os.path.join(ROOT, "Card 1 - Style.css")
- 32: 
- 33: PASS = 0
- 34: FAIL = 0
- 35: 
- 36: 
- 37: def check(name, cond):
- 38:     global PASS, FAIL
- 39:     tag = "PASS" if cond else "FAIL"
- 40:     print(f"[{tag}] {name}")
- 41:     if cond:
- 42:         PASS += 1
- 43:     else:
- 44:         FAIL += 1
- 45: 
- 46: 
- 47: def main():
- 48:     front = open(FRONT, encoding="utf-8").read()
- 49:     back = open(BACK, encoding="utf-8").read()
- 50:     css = open(CSS, encoding="utf-8").read()
- 51: 
- 52:     # --- 1. Front card: furigana is back-card only ---
- 53:     furigana_fields = re.findall(r"\{\{[^}]*furigana[^\d}][^}]*\}\}", front)
- 54:     # allowed: none. Front uses plain Sentence/Expression only.
- 55:     check("Front renders no furigana: filter or furigana-bearing field",
- 56:           not furigana_fields and "Sentence (furigana)" not in front)
- 57:     check("Front renders the raw Sentence/Expression fields",
- 58:           "{{edit:Sentence}}" in front and "{{edit:Expression}}" in front)
- 59: 
- 60:     # --- 1b. Template scripts must be syntactically valid JavaScript ---
- 61:     # A SyntaxError in a card script kills the WHOLE script block: no
- 62:     # reveal, no mature mode, no listening resolver — the card hangs
- 63:     # hidden. Structural string checks cannot catch an unbalanced brace,
- 64:     # so parse every <script> body with node (skipped if node absent).
- 65:     node = shutil.which("node")
- 66:     if node:
- 67:         import tempfile as _tempfile
- 68:         for name, src in (("Front", front), ("Back", back)):
- 69:             bodies = re.findall(r"<script>(.*?)</script>", src, re.S)
- 70:             all_ok = True
- 71:             for body in bodies:
- 72:                 with _tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as tf:
- 73:                     tf.write(body)
- 74:                     tmp_path = tf.name
- 75:                 try:
- 76:                     rc = subprocess.run([node, "--check", tmp_path],
- 77:                                         capture_output=True, timeout=30).returncode
- 78:                     if rc != 0:
- 79:                         all_ok = False
- 80:                 finally:
- 81:                     os.unlink(tmp_path)
- 82:             check(f"{name}: all {len(bodies)} script block(s) parse as valid JavaScript", all_ok)
- 83:     else:
- 84:         print("[SKIP] node not found — template script syntax check skipped")
- 85: 
- 86:     # --- 2. Audio buttons: aria-labels present ---
- 87:     # Front is sentence-audio-only (1) + Back has word + sentence (2) = 3 total.
- 88:     # (Word-audio fallback was removed from the front listening mode.)
- 89:     buttons = re.findall(r"<button[^>]*circular-audio-btn[^>]*>", front + back)
- 90:     check(f"all {len(buttons)} audio buttons have aria-label",
- 91:           len(buttons) >= 3 and all("aria-label" in b for b in buttons))
- 92: 
- 93:     # --- 3. Audio controller: native-only (no HTML5 Audio path) ---
- 94:     for name, src in (("Front", front), ("Back", back)):
- 95:         check(f"{name}: no is-paused state remnants",
- 96:               "is-paused" not in src)
- 97:         check(f"{name}: resetAudioState defined",
- 98:               "window.resetAudioState = function" in src)
- 99:         check(f"{name}: native-only playback (no new Audio garbage-loads on AnkiDroid)",
-100:               "new Audio(" not in src)
-101:         check(f"{name}: delegates to Anki replay link",
-102:               "nativeReplay.click()" in src)
-103:         check(f"{name}: replay link resolved via wrapper scope (not nested in button)",
-104:               "closest('.audio-btn-wrapper')" in src)
-105:         check(f"{name}: re-tap debounce (native audio can't be stopped)",
-106:               "window.currentActiveBtn === btn" in src)
-107:         # restart-only: every click path goes through resetAudioState first
-108:         check(f"{name}: playCircularAudio starts with resetAudioState",
-109:               re.search(r"window\.playCircularAudio = function\(btn\) \{\s*(/\*.*?\*/\s*)*if \(window\.currentActiveBtn === btn\) return;\s*window\.resetAudioState\(\);", src, re.S) is not None)
-110: 
-111:     # --- 3b. Audio markup: valid + clickable on AnkiDroid ---
-112:     for name, src in (("Front", front), ("Back", back)):
-113:         check(f"{name}: replay source lives OUTSIDE the button (sibling span)",
-114:               re.search(r"</button>\s*<span class=\"raw-audio-source\"", src) is not None)
-115:         check(f"{name}: no display:none audio source (breaks .click() playback)",
-116:               "raw-audio-source\" style=\"display:none" not in src)
-117:         check(f"{name}: no div-inside-button (invalid HTML, breaks AnkiDroid taps)",
-118:               '<div class="audio-btn-content">' not in src)
-119:     check("CSS: raw-audio-source visually hidden but present (no display:none)",
-120:           re.search(r"\.raw-audio-source\s*\{[^}]*position:\s*absolute", css) is not None
-121:           and ".raw-audio-source" in css)
-122: 
-123:     # --- 2c. Cloze fallback: bold-less Sentence rebuilt from cloze trio ---
-124:     check("Front: hidden cloze probe with plain prefix/body/suffix fields",
-125:           'class="cloze-probe"' in front
-126:           and "{{cloze-prefix}}" in front and "{{cloze-body}}" in front
-127:           and "{{cloze-suffix}}" in front)
-128:     check("Front: probe uses plain fields (no edit: filter, stays furigana-free)",
-129:           "edit:cloze" not in front)
-130:     check("Front: reconstruction only fires when sentence lacks bold",
-131:           "querySelector('b, strong')" in front)
-132:     check("Front: reconstruction requires the complete trio (no partial rebuild)",
-133:           "clozePre && clozeMid && clozeSuf" in front)
-134:     check("Front: rebuilt term uses <b> (inherits sentence-display styling)",
-135:           "createElement('b')" in front)
-136: 
-137:     # --- 4. Lightbox: backdrop-only close ---
-138:     check("lightbox closes only on backdrop click (e.target === overlay)",
-139:           "if (e.target === overlay) closeOverlay()" in back)
-140:     check("lightbox overlay has dialog semantics",
-141:           "setAttribute('role', 'dialog')" in back and "setAttribute('aria-modal', 'true')" in back)
-142:     check("lightbox clone preserves alt text", "img.alt" in back)
-143: 
-144:     # --- 5. Anki conditionals balanced ({{#field}} and {{^field}} both open) ---
-145:     for name, src in (("Front", front), ("Back", back)):
-146:         opens = len(re.findall(r"\{\{[#^][A-Za-z]", src))
-147:         closes = len(re.findall(r"\{\{/[A-Za-z]", src))
-148:         check(f"{name}: balanced field conditionals ({opens} open / {closes} close)",
-149:               opens == closes)
-150: 
-151:     # --- 6. CSS invariants ---
-152:     check("CSS: :focus-visible keyboard indicator present",
-153:           ":focus-visible" in css)
-154:     check("CSS: prefers-reduced-motion present",
-155:           "prefers-reduced-motion: reduce" in css)
-156:     check("CSS: content-driven card sizing (no forced viewport fill)",
-157:           "min-height: 100vh" not in css and "min-height: 100dvh" not in css
-158:           and "container-type: inline-size" in css)
-159:     check("CSS: container-query media fallback for the context grid",
-160:           re.search(r"@media \(min-width: 768px\)[\s\S]{0,200}\.context-grid", css) is not None)
-161: 
-162:     # --- 6b. Redesign: hierarchy with frequency visualizer ---
-163:     check("Back: no sticky tags bar (tags are behavioral metadata)",
-164:           "tags-container" not in back and "tags-list" not in back
-165:           and "tag-pill" not in back)
-166:     check("Back: frequency visualizer present",
-167:           "frequency-badge" in back and "renderFrequencyIndicator" in back)
-168:     check("CSS: frequency badge styling present",
-169:           "frequency-badge" in css and "--freq-" in css)
-170:     check("Back: secondary info is collapsed behind More by default",
-171:           'class="more-section" hidden' in back
-172:           and "more-toggle" in back)
-173:     check("Back: More toggle has aria state + toggle behavior",
-174:           'aria-expanded="false"' in back
-175:           and "toggleMore" in back)
-176:     check("Back: no retrieval-state label UI (content hierarchy replaces captions)",
-177:           "retrieval-state" not in back and "__ajtFrontState" not in back)
-178:     check("Front: no front-state store written",
-179:           "__ajtFrontState" not in front)
-180:     check("CSS: no retrieval-state styling remains",
-181:           "retrieval-state" not in css)
-182:     check("Back: keyboard F toggles full-card furigana (back only)",
-183:           "furigana-mode" in back and "'f'" in back)
-184:     check("Back: keyboard T reveals the translation",
-185:           "'t'" in back and "translation-box" in back)
-186:     check("CSS: full-card furigana mode rule exists",
-187:           ".card-wrapper.furigana-mode ruby rt" in css)
-188:     # --- 6c. Listening mode invariants ---
-189:     check("Front: listening markup gated behind Definition/Extended/Frequency absence",
-190:           re.search(r"\{\{\^Frequency\}\}[\s\S]*?\{\{#Sentence Audio\}\}\s*<div class=\"listening-view", front) is not None)
-191:     check("Front: listening resolver checks for rendered listening view",
-192:           "LISTENING RESOLVER" in front and ("querySelector('.listening-view')" in front or "querySelector('.classic-listening-view')" in front))
-193:     check("Front: sentence front is the universal fallback",
-194:           re.search(r"\{\{#Definition\}\}\s*<div class=\"sentence-display\">", front) is not None)
-195:     check("CSS: listening-view flex styled",
-196:           ".listening-view" in css and re.search(r"\.listening-view\s*\{[^}]*display:\s*flex", css) is not None)
-197:     check("CSS: listening mode hides the sentence/word fronts",
-198:           ".card-wrapper.listening-mode .sentence-display" in css)
-199: 
-200:     # --- 6d. Listening audio source + Policy B (Features 2, 3) ---
-201:     # The tag-listening-view delegates to Anki's answer-side audio (play:a:N /
-202:     # playsound:a:N) to avoid Anki's C++/Python reviewer auto-playing audio on
-203:     # every tagged normal card on load (which happens whenever [sound:...] is
-204:     # in the front HTML regardless of CSS display:none).
-205:     # On the back card, Word Audio is first (a:0) and Sentence Audio is second (a:1):
-206:     # - Both exist: Sentence Audio is a:1 (label 文)
-207:     # - Only Sentence Audio exists: Sentence Audio is a:0 (label 文)
-208:     # - Only Word Audio exists: Word Audio is a:0 (label 言葉)
-209:     tag_block = re.search(r'<!-- Behavioral tag probe.*?\{\{/Tags\}\}', front, re.S)
-210:     check("Front: tag-listening-view block present",
-211:           tag_block is not None)
-212:     if tag_block:
-213:         tag_src = tag_block.group(0)
-214:         # Binds to Sentence Audio: plays a:1 when Word Audio is also present,
-215:         # and a:0 when Word Audio is absent. Never plays Word Audio (a:0) when
-216:         # Sentence Audio is present and labelled 文.
-217:         check("Front: tag-listening-view plays Sentence Audio (a:1 when Word Audio also present)",
-218:               "pycmd('play:a:1')" in tag_src
-219:               and "playsound:a:1" in tag_src
-220:               and "文" in tag_src)
-221:         check("Front: tag-listening-view plays Sentence Audio (a:0 when Word Audio absent)",
-222:               re.search(r'\{\{\^Word Audio\}\}[\s\S]*?文[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
-223:         check("Front: tag-listening-view falls back to Word Audio (a:0) with 言葉 label",
-224:               re.search(r'\{\{\^Sentence Audio\}\}[\s\S]*?\{\{#Word Audio\}\}[\s\S]*?言葉[\s\S]*?pycmd\(\'play:a:0\'\)', tag_src) is not None)
-225:         # CRITICAL: raw {{Sentence Audio}} must NOT appear inside {{#Tags}} on
-226:         # front — otherwise Anki auto-plays audio on every tagged normal card.
-227:         check("Front: no raw audio fields inside {{#Tags}} (prevents auto-play on normal cards)",
-228:               re.search(r'\{\{#Tags\}\}[\s\S]*?\{\{Sentence Audio\}\}[\s\S]*?\{\{/Tags\}\}', front) is None
-229:               and re.search(r'\{\{#Tags\}\}[\s\S]*?\{\{Word Audio\}\}[\s\S]*?\{\{/Tags\}\}', front) is None)
-230:     check("Front: Policy B — #listening without usable audio falls back to sentence front",
-231:           "hasUsableAudio" in front and "Policy B" in front)
-232:     check("Front: exactly-one-listening-button cleanup removes dead/duplicate views",
-233:           "Dead/duplicate view cleanup" in front
-234:           and "container.querySelectorAll('.listening-view').forEach" in front)
-235:     check("Front: last-resort pycmd fallback is documented (not the primary path)",
-236:           "Last-resort fallback" in front)
-237: 
-238:     # --- 6e. R shortcut is Anki-owned, never template-owned (Feature 1) ---
-239:     check("Back: R shortcut hint removed from shortcut UI (Anki-owned)",
-240:           '<kbd>R</kbd>' not in back)
-241:     check("Back: custom template shortcuts are Z, X, C only",
-242:           all(k in back for k in ['<kbd>Z</kbd>', '<kbd>X</kbd>', '<kbd>C</kbd>']))
-243: 
-244:     # --- 6f. Audio terminology: playback indicator, not progress ring (Feature 4) ---
-245:     check("Front: ring described as playback indicator (not true progress)",
-246:           "playback indicator" in front.lower())
-247:     check("CSS: ring described as playback indicator",
-248:           "playback indicator" in css.lower())
-249: 
-250:     # --- 7. Font sizing source-of-truth ---
-251:     check("Back: no JS font-scaler overriding CSS (inline fontSize ban)",
-252:           "el.style.fontSize" not in back and "autoScaleBackSentence" not in back)
-253:     check("CSS: .sentence-japanese clamp() is the sizing authority",
-254:           re.search(r"\.sentence-japanese\s*\{[^}]*font-size:\s*clamp\(", css) is not None)
-255: 
-256:     # --- 8. (removed) Frequency visualizer retired with the minimal redesign ---
-257: 
-258:     # --- 8b. Mature Word Mode invariants (interval-gated front) ---
-259:     check("Front: LONG_INTERVAL_DAYS threshold constant defined",
-260:           re.search(r"const\s+LONG_INTERVAL_DAYS\s*=\s*365", front) is not None
-261:           and "interval >= LONG_INTERVAL_DAYS" in front)
-262:     check("Front: threshold not hard-coded elsewhere (single const definition)",
-263:           len(re.findall(r"LONG_INTERVAL_DAYS\s*=\s*365", front)) == 1
-264:           and len(re.findall(r">=\s*365", front)) == 0)
-265:     check("Front: word probe div present with Expression",
-266:           re.search(r'class="front-word-display">\s*\{\{edit:Expression\}\}', front) is not None)
-267:     check("Front: no guiCurrentCard call anywhere (fallback-only word mode)",
-268:           "'guiCurrentCard'" not in front
-269:           and re.search(r"cardsInfo.*?interval", front, re.S) is not None)
-270:     check("Front: word-mode interval via content search (findCards)",
-271:           "findCards" in front and "content search" in front
-272:           and "BROWSE-PREVIEWER CONTENT SEARCH" in front)
-273:     check("Front: no nonexistent Anki-Connect actions",
-274:           "getCardsInfo" not in front)
-275:     check("Front: no card-id-from-URL guess (no URLSearchParams)",
-276:           "URLSearchParams" not in front)
-277:     check("Front: no executable AnkiDroid JS API code remains",
-278:           "AnkiDroidJS" not in front and "ankiGetCardInterval" not in front)
-279:     check("Front: no bridge helpers / polling remain",
-280:           "safeApiCall" not in front and "withBridgeTimeout" not in front
-281:           and "parseDroidInterval" not in front
-282:           and "bridgeAvailable" not in front and "waitForBridge" not in front
-283:           and "apiKind" not in front
-284:           and "signal:jsapi" not in front)
-285:     check("Front: post helper UA-guards every AnkiConnect call (mobile rejects before fetch)",
-286:           re.search(r"const post = \(action, params\) => \{[\s\S]*?/Android\|iPhone\|iPad\|iPod/i\.test\(ua\)", front) is not None
-287:           and "AnkiConnect is desktop-only" in front)
-288:     check("Front: mobile never reaches a fetch (guard inside post, before fetch)",
-289:           re.search(r"const post = \(action, params\) => \{[\s\S]*?fetch\('http://127\.0\.0\.1:8765'", front, re.S) is not None)
-290:     check("Front: retrieval remains platform-exclusive (DESKTOP-ONLY marker)",
-291:           "DESKTOP-ONLY" in front)
-292:     check("Front: retrieval latency is measured and logged",
-293:           "performance.now" in front and "elapsedMs" in front
-294:           and "[Mature Word Mode] source=" in front)
-295:     check("Front: safety reveal cap bounds worst-case hidden time",
-296:           "setTimeout(reveal, 1200)" in front)
-297:     check("Front: AnkiConnect calls fail fast when Anki is wedged (safe sentence fallback)",
-298:           "AnkiConnect timeout" in front and ", 500)" in front)
-299:     check("Front: temporary toast diagnostic removed (no TEMP-DIAG remnants)",
-300:           "TEMP-DIAG" not in front and "ankiShowToast" not in front)
-301:     check("Front: on-card debug diagnostic present (mwm-debug)",
-302:           "DEBUG_MATURE_MODE" in front and "mwm-debug" in front
-303:           and "Mature mode: " in front)
-304:     check("Front: skips ALL retrieval on listening cards (no needless JS-API calls)",
-305:           "isListening" in front)
-306:     check("Front: anti-flash visibility gate present",
-307:           'style="visibility: hidden;"' in front
-308:           and "container.style.visibility = 'visible'" in front)
-309:     check("Front: word-mode class applied to card wrapper",
-310:           "wrapper.classList.toggle('word-mode'" in front)
-311:     check("Front: retrieval failure falls back to sentence (try/catch + typed interval check)",
-312:           "catch" in front and "typeof interval === 'number'" in front)
-313:     check("CSS: word-mode display rules present",
-314:           ".card-wrapper.word-mode .sentence-display" in css
-315:           and ".card-wrapper.word-mode .front-word-display" in css)
-316:     check("CSS: word mode leaves listening view untouched",
-317:           ".listening-view" not in css.split("5b. MATURE-CARD WORD MODE")[1].split("6. BACK CARD")[0]
-318:           if "5b. MATURE-CARD WORD MODE" in css else False)
-319:     check("Front: no \"note:\" search clause ({{Type}} is scheduling type, not model)",
-320:           "NOTE_TYPE" not in front
-321:           and re.search(r"findCards[^\n]*note:", front) is None
-322:           and 'escQuery(NOTE_TYPE)' not in front)
-323: 
-324:     # --- 8c. Mature content-search invariants (fallback-only word mode) ---
-325:     # Content search is the ONLY retrieval path (guiCurrentCard removed).
-326:     # It must:
-327:     # - NEVER pick candidate 0 blindly (matches[0] is banned)
-328:     # - Use Sentence then cloze-body as discriminators
-329:     # - Fail safely to sentence mode when ambiguity remains
-330:     check("Front: content search never picks candidate 0 (matches[0] banned)",
-331:           "matches[0]" not in front
-332:           and re.search(r"candidates\[0\]", front) is not None)  # only after discriminators narrow to 1
-333:     check("Front: content search uses Sentence discriminator",
-334:           "Discriminator 1: Sentence" in front)
-335:     check("Front: content search uses cloze-body discriminator",
-336:           "Discriminator 2: cloze-body" in front)
-337:     check("Front: content search fails safely on ambiguity (sentence fallback)",
-338:           "content-search-ambiguous" in front
-339:           and "sentence fallback" in front)
-340:     check("Front: content search uses exact-card resolution (length === 1)",
-341:           "candidates.length === 1" in front)
-342: 
-343:     # --- 10. Empty-field collapse (QUALITY.md: no UI survives an empty field) ---
-344:     # 10a. Static proof over the raw templates (comments/scripts stripped):
-345:     # every rendered field lives inside an Anki conditional, except the
-346:     # documented allowlist (attribute / hidden probe / gated probe).
-347:     TOKEN = re.compile(r"\{\{\s*([#^/]?)\s*([^}]*?)\s*\}\}")
-348:     ALLOW_BARE = {
-349:         ("Front", "cloze-prefix"), ("Front", "cloze-body"), ("Front", "cloze-suffix"),  # hidden probe
-350:         ("Front", "Expression"),  # front-word-display: display:none default, word-mode gate only (§8b)
-351:     }
-352:     bare = []
-353:     for name, src in (("Front", front), ("Back", back)):
-354:         clean = re.sub(r"<!--.*?-->", "", src, flags=re.S)
-355:         clean = re.sub(r"<script.*?</script>", "", clean, flags=re.S)
-356:         stack = []
-357:         for m in TOKEN.finditer(clean):
-358:             sig, body = m.group(1), m.group(2).strip()
-359:             if sig in ("#", "^"):
-360:                 stack.append(body)
-361:             elif sig == "/":
-362:                 if stack:
-363:                     stack.pop()
-364:             elif body:
-365:                 field = body.split(":")[-1].strip()
-366:                 if not stack and (name, field) not in ALLOW_BARE:
-367:                     bare.append(f"{name}:{{{{{body}}}}}")
-368:     check("every rendered field is conditional (or allowlisted)" + (f" — bare: {bare}" if bare else ""),
-369:           not bare)
-370: 
-371:     # 10b. Unconditional shells collapse when all conditional children absent.
-372:     check("CSS: empty .audio-row collapses (no button => gone)",
-373:           re.search(r"\.audio-row:not\(:has\(\.circular-audio-btn\)\)\s*\{\s*display:\s*none", css) is not None)
-374:     check("CSS: empty .context-grid collapses (no sentence/context/picture => gone)",
-375:           re.search(r"\.context-grid:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
-376:     check("CSS: empty .context-main collapses (no sentence/context => gone)",
-377:           re.search(r"\.context-main:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
-378:     check("CSS: empty .hero-header collapses (no word/meta => gone)",
-379:           re.search(r"\.hero-header:not\(:has\([^)]+\)\)\s*\{\s*display:\s*none", css) is not None)
-380:     check("Back: hero-header splits meta left/right around a centered word",
-381:           'class="hero-header"' in back
-382:           and 'class="hero-side hero-side-left"' in back
-383:           and 'class="hero-side hero-side-right"' in back
-384:           and back.index('hero-side-left') < back.index('hero-word-wrap') < back.index('hero-side-right')
-385:           and back.index('{{#Frequency}}') < back.index('hero-word-wrap')
-386:           and back.index('{{#Word Audio}}') < back.index('hero-word-wrap')
-387:           and back.index('hero-word-wrap') < back.index('{{#Pitch Accent}}')
-388:           and back.index('hero-word-wrap') < back.index('{{#Sentence Audio}}'))
-389:     check("CSS: hero-header is a 3-column grid (left | word | right)",
-390:           re.search(r"\.hero-header\s*\{[^}]*display:\s*grid", css) is not None
-391:           and '"left word right"' in css)
-392:     check("CSS: hero sides hug the word (end/start), narrow stacks word on top",
-393:           re.search(r"\.hero-side-left\s*\{[^}]*justify-content:\s*flex-end", css) is not None
-394:           and re.search(r"\.hero-side-right\s*\{[^}]*justify-content:\s*flex-start", css) is not None
-395:           and '"word word"' in css)
-396:     check("CSS: hero word never forces horizontal overflow (min-width + anywhere wrap)",
-397:           re.search(r"\.hero-word-wrap\s*\{[^}]*min-width:\s*0", css) is not None
-398:           and re.search(r"\.word-display\s*\{[^}]*overflow-wrap:\s*anywhere", css) is not None)
-399:     check("CSS: picture fills the parallel row (generous desktop cap, compact mobile cap)",
-400:           "max-height: 44vh" in css
-401:           and "max-height: clamp(24vh, 22vmin, 32vh)" in css
-402:           and "min(46vw, 640px)" in css)
-403:     check("Back: stylized separators before AND after the definition",
-404:           back.count('class="card-separator"') == 2
-405:           and back.index('class="card-separator"') < back.index('primary-definition'))
-406:     check("CSS: context-grid row is top-anchored in both container + fallback rules",
-407:           len(re.findall(r"\.context-grid:has\(\.context-picture\)\s*\{[^}]*align-items:\s*flex-start", css)) == 2
-408:           and len(re.findall(r"\.context-grid:has\(\.context-picture\)\s*\{[^}]*align-items:\s*center", css)) == 0)
-409:     check("Back: More section + toggle self-remove when secondary content is absent",
-410:           "btn.remove()" in back and "section.remove()" in back)
-411: 
-412:     # 10c. Degenerate content removes itself instead of leaving chrome behind.
-413:     check("Back: blank definition box is removed (no bordered void)",
-414:           "box.remove()" in back)
-415:     check("Front: blank sentence block is removed after cloze fixup",
-416:           "sd.remove()" in front)
-417: 
-418:     # --- 9. Sync tooling invariants ---
-419:     sync = open(os.path.join(ROOT, "sync_to_anki.py"), encoding="utf-8").read()
-420:     check("sync_to_anki.py: zero third-party imports (standard lib only)",
-421:           "import requests" not in sync and "import urllib.request" in sync)
-422:     check("sync_to_anki.py: microsecond backup timestamps",
-423:           "%H%M%S-%f" in sync)
-424:     finish = open(os.path.join(ROOT, "finish.sh"), encoding="utf-8").read()
-425:     check("finish.sh: no-op run cannot publish a release",
-426:           "Nothing to push or release" in finish)
-427:     # Deterministic release ordering: push main BEFORE gh release create so
-428:     # the tag points at the exact pushed commit (--target main).
-429:     # Strip comments to check actual command order.
-430:     finish_code = re.sub(r"^\s*#[^\n]*\n", "", finish, flags=re.M)
-431:     finish_code = re.sub(r"^\s*#[^\n]*$", "", finish_code, flags=re.M)
-432:     check("finish.sh: push main before gh release create (--target main)",
-433:           "git push origin main" in finish_code
-434:           and "gh release create" in finish_code
-435:           and finish_code.index("git push origin main") < finish_code.index("gh release create")
-436:           and "--target main" in finish_code)
-437:     check("finish.sh: fetches the remote tag after release creation",
-438:           finish_code.index("gh release create") < finish_code.rindex("git fetch origin \"refs/tags/*:refs/tags/*\""))
-439:     check("finish.sh: verify runs before version stamp (step 0 before step 1)",
-440:           finish.index("./verify") < finish.index("NEW_TAG="))
-441: 
-442:     print()
-443:     print(f"{PASS} passed, {FAIL} failed")
-444:     return 1 if FAIL else 0
-445: 
-446: 
-447: if __name__ == "__main__":
-448:     sys.exit(main())
-````
-
 ## File: Card 1 - Front.template.anki
 ````
-  1: <!-- FRONT CARD TEMPLATE
-  2:      Premium Ergonomic Japanese Front Card
-  3: 
-  4:        Behavior:
-  5:        - Standard: Shows Sentence (or Expression) if Definition / Extended definition exists. Zero audio on front.
-  6:        - Listening (Policy B): #listening (or the legacy audio-only shape)
-  7:          activates the listening front ONLY when usable audio exists.
-  8:          The tag-listening-view binds to {{Sentence Audio}} (label 文),
-  9:          falling back to {{Word Audio}} (label 言葉) — never the hardcoded
- 10:          play:a:0 (which plays the first audio field = Word Audio on
- 11:          listening cards). #listening + no usable audio falls back to the
- 12:          normal sentence front. The resolver removes every dead/duplicate
- 13:          view so exactly one listening button is ever visible.
- 14:        - Cloze Fallback: Sentence without a bold term (jidoushio mobile
- 15:          exports) is rebuilt in JS from cloze-prefix + <b>cloze-body</b>
- 16:          + cloze-suffix when all three are non-empty; otherwise the
- 17:          usual sentence is kept untouched.
- 18:        - Frequency legacy: No definitions but Frequency present (old cards with deleted glosses) → usual sentence, never the audio button.
- 19:        - Fallback: Shows Sentence / Expression if both definitions and audio are missing.
- 20: - Mature Word Mode (desktop only): If the card interval >= LONG_INTERVAL_DAYS
- 21:           (script constant), the front shows only the Expression instead of the
- 22:           sentence (anti-overlearning). The interval comes from a
- 23:           fallback-only AnkiConnect content search (Expression → Sentence →
- 24:           cloze-body discriminators) — the live guiCurrentCard reviewer read
- 25:           was REMOVED so reviewer and Browse previewer share one identical
- 26:           path. It never picks candidate 0 blindly and fails safely to the
- 27:           sentence front on ambiguity.
- 28:           On Android/mobile Mature Word Mode is INTENTIONALLY DISABLED: the
- 29:           template makes no AnkiDroid JS API call and no AnkiConnect fetch
- 30:           (the fetch is UA-guarded inside `post`), because refused localhost
- 31:           requests surface natively as false "Card Content Error: Failed to
- 32:           load" media warnings in the reviewer. Mobile always keeps the
- 33:           ordinary sentence front. Any failure falls back to the sentence
- 34:           front.
- 35:          - Front sentence sizing: pure CSS (base clamp + smaller phone
- 36:            override in the stylesheet's mobile block). No JS involved.
- 37:          - Front reveal is deterministic and safe: the anti-flash
- 38:            visibility gate never depends on a single async path or timer
- 39:            that can be throttled into a blank front. R shortcut is
- 40:            Anki-owned; the template's custom shortcuts are Z/X/C only.
- 41: 
- 42:          Minimalism (PRODUCT.md): the front shows NO other UI — no tags,
- 43:          no badges, no metadata, no labels, NO AUDIO on normal cards.
- 44:          Front template size is not a defect; correctness > line count.
- 45: -->
- 46: 
- 47: <div class="card-wrapper">
- 48:   <div class="card-container" style="visibility: hidden;">
- 49:     <!-- Mature-Card Word Mode probe: shown instead of sentence when interval >= threshold -->
- 50:     <div class="front-word-display">{{edit:Expression}}</div>
- 51: 
- 52:     <!-- Cloze-fallback probe (jidoushio mobile exports): hidden source
- 53:          parts for JS sentence reconstruction when Sentence has no bold
- 54:          term. Plain filters — never displayed, never edited. -->
- 55:     <div class="cloze-probe" hidden>
- 56:       <span class="cloze-pre">{{cloze-prefix}}</span>
- 57:       <span class="cloze-mid">{{cloze-body}}</span>
- 58:       <span class="cloze-suf">{{cloze-suffix}}</span>
- 59:     </div>
- 60: 
- 61:     <!-- Behavioral tag probe: tags are behavioral metadata, never rendered as decoration.
- 62:          #listening Policy B: the tag-listening-view activates only when usable
- 63:          audio exists. To avoid Anki's C++/Python reviewer auto-playing audio on
- 64:          EVERY tagged card on card load (which happens whenever [sound:...] is
- 65:          in the front HTML regardless of CSS display:none), the tag-listening-view
- 66:          does NOT embed raw {{Sentence Audio}} / {{Word Audio}} fields.
- 67:          Instead, it delegates to Anki's Answer-side (Back) audio via replay links
- 68:          (play:a:N on desktop, playsound:a:N on AnkiDroid).
- 69:          On the back card, Word Audio is first and Sentence Audio is second:
- 70:          - Both exist → Sentence Audio is a:1 (label 文)
- 71:          - Only Sentence Audio exists → Sentence Audio is a:0 (label 文)
- 72:          - Only Word Audio exists (fallback) → Word Audio is a:0 (label 言葉)
- 73:          - Neither exists → tag-listening-view is not rendered (Policy B: falls
- 74:            back to the normal sentence front).
- 75:          This guarantees:
- 76:          1. ZERO audio autoplay on normal cards (no [sound:...] on front)
- 77:          2. #listening cards WITH definitions can still activate
- 78:          3. Button plays Sentence Audio (a:1 when both exist, matching 文 label)
- 79:          4. Desktop uses pycmd('play:a:N') with return false (no security block)
- 80:          5. AnkiDroid uses href="playsound:a:N" -->
- 81:     {{#Tags}}
- 82:       <div class="tags-probe" hidden>{{Tags}}</div>
- 83:       {{#Sentence Audio}}
- 84:         {{#Word Audio}}
- 85:           <div class="listening-view tag-listening-view" style="display: none;">
- 86:             <div class="audio-btn-wrapper">
- 87:               <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
- 88:                 <svg class="audio-progress-ring" viewBox="0 0 80 80">
- 89:                   <circle class="ring-bg" cx="40" cy="40" r="36" />
- 90:                   <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
- 91:                 </svg>
- 92:                 <span class="audio-btn-content">
- 93:                   <span class="audio-btn-label">文</span>
- 94:                 </span>
- 95:               </button>
- 96:               <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:1" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:1');return false;}"></a></span>
- 97:             </div>
- 98:           </div>
- 99:         {{/Word Audio}}
-100:         {{^Word Audio}}
-101:           <div class="listening-view tag-listening-view" style="display: none;">
-102:             <div class="audio-btn-wrapper">
-103:               <button type="button" class="circular-audio-btn large-audio-btn" title="例文音声を再生" aria-label="例文音声を再生" onclick="playCircularAudio(this)">
-104:                 <svg class="audio-progress-ring" viewBox="0 0 80 80">
-105:                   <circle class="ring-bg" cx="40" cy="40" r="36" />
-106:                   <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-107:                 </svg>
-108:                 <span class="audio-btn-content">
-109:                   <span class="audio-btn-label">文</span>
-110:                 </span>
-111:               </button>
-112:               <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}"></a></span>
-113:             </div>
-114:           </div>
-115:         {{/Word Audio}}
-116:       {{/Sentence Audio}}
-117:       {{^Sentence Audio}}
-118:       {{#Word Audio}}
-119:         <div class="listening-view tag-listening-view" style="display: none;">
-120:           <div class="audio-btn-wrapper">
-121:             <button type="button" class="circular-audio-btn large-audio-btn" title="単語音声を再生" aria-label="単語音声を再生" onclick="playCircularAudio(this)">
-122:               <svg class="audio-progress-ring" viewBox="0 0 80 80">
-123:                 <circle class="ring-bg" cx="40" cy="40" r="36" />
-124:                 <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-125:               </svg>
-126:               <span class="audio-btn-content">
-127:                 <span class="audio-btn-label">言葉</span>
-128:               </span>
-129:             </button>
-130:             <span class="raw-audio-source" aria-hidden="true"><a class="replay-button soundLink" href="playsound:a:0" onclick="if(typeof pycmd!=='undefined'){pycmd('play:a:0');return false;}"></a></span>
-131:           </div>
-132:         </div>
-133:       {{/Word Audio}}
-134:       {{/Sentence Audio}}
-135:     {{/Tags}}
-136: 
-137:     <!-- Standard Study View -->
-138:     {{#Definition}}
-139:       <div class="sentence-display">
-140:         {{#Sentence}}
-141:           {{edit:Sentence}}
-142:         {{/Sentence}}
-143:         {{^Sentence}}
-144:           {{edit:Expression}}
-145:         {{/Sentence}}
-146:       </div>
-147:     {{/Definition}}
-148: 
-149:     <!-- Fallback Standard View (When only Extended definition is present) -->
-150:     {{^Definition}}
-151:       {{#Extended definition}}
-152:         <div class="sentence-display">
-153:           {{#Sentence}}
-154:             {{edit:Sentence}}
-155:           {{/Sentence}}
-156:           {{^Sentence}}
-157:             {{edit:Expression}}
-158:           {{/Sentence}}
-159:         </div>
-160:       {{/Extended definition}}
-161:     {{/Definition}}
-162: 
-163:     <!-- Listening Mode / Pathological Fallback -->
-164:     {{^Definition}}
-165:       {{^Extended definition}}
-166: 
-167:         <!-- Frequency present but definitions missing (legacy cards with
-168:              deleted English glosses): NOT a listening card — show the
-169:              usual sentence instead of the audio button. -->
-170:         {{#Frequency}}
-171:             <div class="sentence-display">
-172:               {{#Sentence}}
-173:                 {{edit:Sentence}}
-174:               {{/Sentence}}
-175:               {{^Sentence}}
-176:                 {{edit:Expression}}
-177:               {{/Sentence}}
-178:             </div>
-179:         {{/Frequency}}
-180: 
-181:         {{^Frequency}}
-182:         <!-- Sentence Audio available: only rendered on pure listening cards (no glosses, no frequency) -->
-183:         {{#Sentence Audio}}
-184:           <div class="listening-view classic-listening-view">
-185:             <div class="audio-btn-wrapper">
-186:               <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
-187:                 <svg class="audio-progress-ring" viewBox="0 0 80 80">
-188:                   <circle class="ring-bg" cx="40" cy="40" r="36" />
-189:                   <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-190:                 </svg>
-191:                 <span class="audio-btn-content">
-192:                   <span class="audio-btn-label">文</span>
-193:                 </span>
-194:               </button>
-195:               <span class="raw-audio-source" aria-hidden="true">{{Sentence Audio}}</span>
-196:             </div>
-197:           </div>
-198:         {{/Sentence Audio}}
-199: 
-200:         {{^Sentence Audio}}
-201:         {{#Word Audio}}
-202:           <div class="listening-view classic-listening-view">
-203:             <div class="audio-btn-wrapper">
-204:               <button type="button" class="circular-audio-btn large-audio-btn" title="音声再生" aria-label="音声再生" onclick="playCircularAudio(this)">
-205:                 <svg class="audio-progress-ring" viewBox="0 0 80 80">
-206:                   <circle class="ring-bg" cx="40" cy="40" r="36" />
-207:                   <circle class="ring-fill" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19" />
-208:                 </svg>
-209:                 <span class="audio-btn-content">
-210:                   <span class="audio-btn-label">言葉</span>
-211:                 </span>
-212:               </button>
-213:               <span class="raw-audio-source" aria-hidden="true">{{Word Audio}}</span>
-214:             </div>
-215:           </div>
-216:         {{/Word Audio}}
-217:         {{/Sentence Audio}}
-218: 
-219:         <!-- Bulletproof Fallback: No Sentence audio -->
-220:         {{^Sentence Audio}}
-221:             <div class="sentence-display">
-222:               {{#Sentence}}
-223:                 {{edit:Sentence}}
-224:               {{/Sentence}}
-225:               {{^Sentence}}
-226:                 {{edit:Expression}}
-227:               {{/Sentence}}
-228:             </div>
-229:         {{/Sentence Audio}}
-230:         {{/Frequency}}
-231:       {{/Extended definition}}
-232:     {{/Definition}}
-233: 
-234:   </div>
-235: </div>
-236: 
-237: <script>
-238:   (async function() {
-239:     /* --- 1. HOISTED UTILITIES & FUNCTIONS --- */
-240: 
-241:     /* --- CIRCULAR AUDIO CONTROLLER (native-only) ---
-242:        Always delegates to Anki's own replay link (desktop `replay-button`,
-243:        AnkiDroid `replaybutton`). Never constructs an HTML5 audio element:
-244:        on AnkiDroid the rendered link carries no usable filename (old builds
-245:        emit `playsound:q:0`, which would be loaded as a bogus file and fail).
-246:        The ring is a playback indicator (a decorative play-pulse), not true
-247:        progress — native audio remains the authority (ADR 003). */
-248:     window.currentActiveBtn = window.currentActiveBtn || null;
-249:     window.currentActiveTimer = window.currentActiveTimer || null;
-250:     /* WebView DOM re-use: never pin a detached button across card flips. */
-251:     if (typeof window.addEventListener === 'function') {
-252:         window.addEventListener('pagehide', () => { try { window.resetAudioState(); } catch (_) {} });
-253:     }
-254: 
-255:     window.resetAudioState = function() {
-256:         if (window.currentActiveTimer) {
-257:             clearTimeout(window.currentActiveTimer);
-258:             window.currentActiveTimer = null;
-259:         }
-260:         if (window.currentActiveBtn) {
-261:             window.currentActiveBtn.classList.remove('is-playing');
-262:             const ring = window.currentActiveBtn.querySelector('.ring-fill');
-263:             if (ring) {
-264:                 const circ = parseFloat(ring.getAttribute('stroke-dasharray')) || 226.19;
-265:                 ring.style.transition = '';
-266:                 ring.style.strokeDashoffset = circ;
-267:             }
-268:             window.currentActiveBtn = null;
-269:         }
-270:     };
-271: 
-272:     window.playCircularAudio = function(btn) {
-273:         /* Debounce: native playback can't be stopped programmatically, so
-274:            ignore rapid re-taps on the already-playing button (prevents
-275:            overlapping audio on AnkiDroid). */
-276:         if (window.currentActiveBtn === btn) return;
-277:         window.resetAudioState();
-278:         const ringFill = btn.querySelector('.ring-fill');
-279: 
-280:         /* The replay link lives in the sibling .raw-audio-source (kept OUT
-281:            of the <button>: <a> inside <button> is invalid HTML and Android
-282:            WebView mishandles taps on it). */
-283:         const scope = (btn.closest && btn.closest('.audio-btn-wrapper')) || document;
-284:         const nativeReplay = scope.querySelector('.replaybutton, .replay-button, a.sound, .soundLink')
-285:           || btn.querySelector('.replaybutton, .replay-button, a.sound, .soundLink');
-286:         let played = false;
-287:         if (nativeReplay) {
-288:             try { nativeReplay.click(); played = true; } catch (e) {}
-289:         }
-290:         /* Last-resort fallback (removed): every listening view now carries
-291:            a real .raw-audio-source (the actual audio field), so the
-292:            nativeReplay.click() path above is the only path — it plays the
-293:            field the button is labelled with. A hardcoded pycmd('play:a:0')
-294:            would play the first audio field regardless of label, so silent
-295:            no-op is safer than the wrong audio. */
-296:         if (played || nativeReplay) {
-297:             btn.classList.add('is-playing');
-298:             if (ringFill) {
-299:                 ringFill.style.transition = 'stroke-dashoffset 0.8s ease-in-out';
-300:                 ringFill.style.strokeDashoffset = '0';
-301:             }
-302:             window.currentActiveBtn = btn;
-303:             window.currentActiveTimer = setTimeout(() => {
-304:                 if (window.currentActiveBtn === btn) {
-305:                     window.resetAudioState();
-306:                 }
-307:             }, 800);
-308:         }
-309:     };
-310: 
-311:     /* --- 2. MAIN EXECUTION BLOCK --- */
-312:     const container = document.querySelector('.card-container');
-313:     const wrapper = document.querySelector('.card-wrapper');
-314: 
-315:     if (container && wrapper) {
-316:       let wordMode = false;
-317:       let interval = null;
-318:       let source = 'unavailable';
-319:       /* Latency probe: t0 at script start; elapsed retrieval time is
-320:          logged with the decision, so AnkiConnect (desktop) cost can be
-321:          measured per card. */
-322:       const nowMs = () => (
-323:         (typeof performance !== 'undefined' && performance.now)
-324:           ? performance.now()
-325:           : Date.now()
-326:       );
-327:       const t0 = nowMs();
-328: 
-329:       /* Safety Reveal: Ensure card shows even if async calls hang.
-330:          Timing budget: 500ms AnkiConnect race / 1200ms reveal cap. The
-331:          cap only binds failure paths; the word-mode toggle runs before
-332:          reveal. Mobile skips retrieval entirely, so it reveals at once. */
-333:       const reveal = () => {
-334:         container.style.visibility = 'visible';
-335:       };
-336:       const safetyTimeout = setTimeout(reveal, 1200);
-337: 
-338:       /* --- CLOZE FALLBACK (BEGIN — headless check extracts this block verbatim) ---
-339:          jidoujisho mobile exports often carry a Sentence with no <b>
-340:          target term. When the rendered sentence has no bold element but
-341:          the cloze trio (prefix/body/suffix) is complete, rebuild it as
-342:          prefix + <b>body</b> + suffix so the front is indistinguishable
-343:          from a proper Yomitan sentence (same .sentence-display b styling).
-344:          Any gap or failure keeps the original sentence untouched. */
-345:       try {
-346:         const probe = container.querySelector('.cloze-probe');
-347:         const probeText = (sel) => {
-348:           const el = probe && probe.querySelector(sel);
-349:           return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : '';
-350:         };
-351:         const clozePre = probeText('.cloze-pre');
-352:         const clozeMid = probeText('.cloze-mid');
-353:         const clozeSuf = probeText('.cloze-suf');
-354:         if (clozePre && clozeMid && clozeSuf) {
-355:           container.querySelectorAll('.sentence-display').forEach((sd) => {
-356:             if (!sd.querySelector('b, strong')) {
-357:               sd.textContent = '';
-358:               const bold = document.createElement('b');
-359:               bold.textContent = clozeMid;
-360:               sd.append(
-361:                 document.createTextNode(clozePre),
-362:                 bold,
-363:                 document.createTextNode(clozeSuf)
-364:               );
-365:             }
-366:           });
-367:         }
-368:       } catch (clozeErr) {
-369:         console.warn('[Cloze Fallback]', clozeErr);
-370:       }
-371:       /* --- CLOZE FALLBACK (END) --- */
-372: 
-373:       /* Empty-field collapse (QUALITY.md): after the cloze rebuild, a
-374:          sentence block with no text at all (neither Sentence nor
-375:          Expression) leaves no padded void. Runs before the reveal. */
-376:       try {
-377:         container.querySelectorAll('.sentence-display').forEach((sd) => {
-378:           if (!sd.textContent || !sd.textContent.trim()) sd.remove();
-379:         });
-380:       } catch (blankErr) {
-381:         console.warn('[Blank Collapse]', blankErr);
-382:       }
-383: 
-384:       /* --- LISTENING RESOLVER (Policy B) ---
-385:          A card activates the listening front ONLY when usable audio exists:
-386:          1. #listening tag (deliberate exercise): the tag-listening-view must
-387:             have a real .raw-audio-source (Sentence Audio, or Word Audio as
-388:             fallback). #listening + no usable audio → fall back to the normal
-389:             sentence front. Never leave a dead/empty listening UI.
-390:          2. Classic audio-only / pathological legacy card: Definition, Extended
-391:             definition, and Frequency are absent and audio is present
-392:             (classic-listening-view).
-393:          Normal study cards without #listening tag never show audio on front.
-394: 
-395:          Exactly-one-listening-button invariant: the markup may render both a
-396:          tag-listening-view and a classic-listening-view for the same audio;
-397:          the resolver keeps only the active one and removes every dead/
-398:          duplicate view, plus strips any listening view whose audio source
-399:          is empty (missing field). */
-400:       const tagsProbe = container.querySelector('.tags-probe');
-401:       const tagText = tagsProbe ? (tagsProbe.textContent || '') : '';
-402:       const hasListeningTag = /(^|[\s:#])listening([\s:#]|$)/i.test(tagText);
-403:       const tagView = container.querySelector('.tag-listening-view');
-404:       const classicView = container.querySelector('.classic-listening-view');
-405: 
-406:       const hasUsableAudio = (view) => {
-407:         if (!view) return false;
-408:         const src = view.querySelector('.raw-audio-source');
-409:         if (!src) return false;
-410:         const hasLink = !!src.querySelector('a, .replaybutton, .replay-button, .soundLink');
-411:         const hasText = !!(src.textContent || '').replace(/\s+/g, ' ').trim();
-412:         return hasLink || hasText;
-413:       };
-414: 
-415:       let isListening = false;
-416:       if (hasListeningTag && hasUsableAudio(tagView)) {
-417:         isListening = true;
-418:         tagView.style.display = '';
-419:         wrapper.classList.add('listening-mode');
-420:         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
-421:         if (classicView) classicView.remove();
-422:         setTimeout(function() {
-423:           const btn = tagView.querySelector('.circular-audio-btn');
-424:           if (btn && window.playCircularAudio) window.playCircularAudio(btn);
-425:         }, 120);
-426:       } else if (classicView && hasUsableAudio(classicView)) {
-427:         isListening = true;
-428:         wrapper.classList.add('listening-mode');
-429:         container.querySelectorAll('.sentence-display').forEach((sd) => sd.remove());
-430:         if (tagView) tagView.remove();
-431:       }
-432:       /* Dead/duplicate view cleanup: any listening-view that was not activated
-433:          is removed so it never leaves a silent/empty audio button behind. */
-434:       if (!isListening) {
-435:         container.querySelectorAll('.listening-view').forEach((v) => v.remove());
-436:       }
-437: 
-438:       /* Static early-exit: with no Expression, word mode is impossible (the
-439:          hasExpression gate below), so the whole retrieval chain —
-440:          AnkiConnect content search — is skipped and the sentence front
-441:          reveals now.
-442:          Failure-identical to the universal fallback, ~50ms faster per such
-443:          card on desktop. The class toggle is explicit because WebView DOM
-444:          re-use can carry word-mode over from the previous card. */
-445:       var wordProbeEarly = container.querySelector('.front-word-display');
-446:       if (!isListening && wordProbeEarly && !(wordProbeEarly.textContent || '').trim()) {
-447:         clearTimeout(safetyTimeout);
-448:         wrapper.classList.toggle('word-mode', false);
-449:         reveal();
-450:         return;
-451:       }
-452: 
-453:       /* Anki-Connect helper with timeout + platform guard. 500ms is ~15x
-454:          the measured healthy localhost latency (~25ms/call), so it only
-455:          ever binds a wedged/busy Anki — and the fallback is always the
-456:          safe sentence front, never a hang.
-457: 
-458:          PLATFORM GUARD — DESKTOP-ONLY (this is the downloadfile.bin fix):
-459:          fetch() only
-460:          runs on desktop Anki (QtWebEngine). On AnkiDroid the WebView has
-461:          no AnkiConnect, the request 404s into a media download, and
-462:          Android surfaces it natively as "Card Content Error: Failed to
-463:          load 'downloadfile.bin'". Mobile never reaches any fetch; word
-464:          mode simply stays off (sentence front), by design. */
-465:       const post = (action, params) => {
-466:         if (typeof fetch !== 'function') {
-467:           return Promise.reject(new Error('fetch unavailable (mobile)'));
-468:         }
-469:         const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
-470:         if (/Android|iPhone|iPad|iPod/i.test(ua)) {
-471:           return Promise.reject(new Error('AnkiConnect is desktop-only'));
-472:         }
-473:         const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-474:         const timeout = new Promise((_, rej) =>
-475:           setTimeout(() => { try { ctl && ctl.abort(); } catch (_) {} rej(new Error('AnkiConnect timeout')); }, 500)
-476:         );
-477:         const fetchPromise = fetch('http://127.0.0.1:8765', {
-478:           method: 'POST',
-479:           ...(ctl ? { signal: ctl.signal } : {}),
-480:           body: JSON.stringify({ action: action, version: 6, params: params })
-481:         }).then(r => r.json()).then(data => {
-482:           if (data.error) throw new Error(data.error);
-483:           return data.result;
-484:         });
-485:         return Promise.race([fetchPromise, timeout]);
-486:       };
-487: 
-488:       const escQuery = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/([*_():-])/g, '\\$1');
-489:       const normText = (s) => s
-490:         .replace(/<br\s*\/?>/gi, ' ')
-491:         .replace(/<[^>]+>/g, ' ')
-492:         .replace(/&nbsp;/gi, ' ')
-493:         .replace(/\s+/g, ' ')
-494:         .trim();
-495: 
-496:       try {
-497:         /* Fallback-only word mode: no AnkiConnect fetch in this branch —
-498:            the content search below IS the primary path now. */
-499:         if (!isListening) {
-500:           /* BROWSE-PREVIEWER CONTENT SEARCH.
-501:              Identity is reconstructed from field content. NEVER pick
-502:              candidate 0 blindly — duplicates are common (same Expression
-503:              across many notes). Use Sentence then cloze-body as
-504:              discriminators; if ambiguity remains after both, fail safely
-505:              to the sentence front (interval stays null → no word mode). */
-506:           const wordEl = document.querySelector('.front-word-display');
-507:           const sentEl = document.querySelector('.sentence-display');
-508:           if (wordEl) {
-509:             const exprDom = normText(wordEl.innerText || wordEl.textContent || '');
-510:             if (exprDom) {
-511:               /* No "note:" clause: the note type name is not exposed to
-512:                  templates ({{Type}} is the scheduling type, not the
-513:                  model name), and the exact Expression field match below
-514:                  already restricts results to this note type's cards. */
-515:               const query = '"Expression:' + escQuery(exprDom) + '"';
-516:               let ids = await post('findCards', { query: query });
-517:               /* Bound: a common Expression can match hundreds of notes;
-518:                  materialising every cardsInfo would jank the previewer.
-519:                  Over-broad → sentence fallback (same safe default). */
-520:               if (ids && ids.length > 50) {
-521:                 source = 'content-search-too-broad → sentence fallback';
-522:                 ids = [];
-523:               }
-524:               if (ids && ids.length) {
-525:                 const infos = await post('cardsInfo', { cards: ids });
-526:                 const fieldText = (info, name) =>
-527:                   normText((info.fields && info.fields[name] && info.fields[name].value) || '');
-528:                 let candidates = infos.filter(i => fieldText(i, 'Expression') === exprDom);
-529:                 if (candidates.length > 1 && sentEl) {
-530:                   /* Discriminator 1: Sentence. The front sentence is
-531:                      the strongest content signal — it is unique per
-532:                      mined note in practice. */
-533:                   const sentDom = normText(sentEl.innerText || sentEl.textContent || '');
-534:                   if (sentDom) {
-535:                     const withSent = candidates.filter(i => fieldText(i, 'Sentence') === sentDom);
-536:                     if (withSent.length) candidates = withSent;
-537:                   }
-538:                 }
-539:                 if (candidates.length > 1) {
-540:                   /* Discriminator 2: cloze-body. The cloze trio is
-541:                      rendered on the front (hidden probe), so its body
-542:                      text is available as a second identity signal. */
-543:                   const clozeProbe = container.querySelector('.cloze-probe .cloze-mid');
-544:                   const clozeDom = clozeProbe
-545:                     ? normText(clozeProbe.innerText || clozeProbe.textContent || '')
-546:                     : '';
-547:                   if (clozeDom) {
-548:                     const withCloze = candidates.filter(i =>
-549:                       fieldText(i, 'cloze-body') === clozeDom);
-550:                     if (withCloze.length) candidates = withCloze;
-551:                   }
-552:                 }
-553:                 /* Exact-card resolution: only one candidate remains after
-554:                    discriminators → use its interval. Multiple candidates
-555:                    (ambiguous) → fail safely to the sentence front. Never
-556:                    pick candidate 0. */
-557:                 if (candidates.length === 1) {
-558:                   interval = candidates[0].interval;
-559:                   source = 'content-search';
-560:                 } else if (candidates.length > 1) {
-561:                   source = 'content-search-ambiguous → sentence fallback';
-562:                 }
-563:               }
-564:             }
-565:           }
-566:         }
-567:       } catch (e) {
-568:         source = 'error: ' + (e && e.message ? e.message : String(e));
-569:         console.warn('[Mature Word Mode]', e);
-570:       } finally {
-571:         clearTimeout(safetyTimeout);
-572:         const elapsedMs = Math.round(nowMs() - t0);
-573:         console.log('[Mature Word Mode] source=' + source +
-574:           ' ivl=' + String(interval) + ' in ' + elapsedMs + 'ms');
-575: 
-576:         const LONG_INTERVAL_DAYS = 365;
-577: 
-578:         // Set to false after confirming that Android works.
-579:         const DEBUG_MATURE_MODE = false;
-580: 
-581:         const wordEl = container.querySelector('.front-word-display');
-582:         const hasExpression = !!(
-583:           wordEl && (wordEl.textContent || '').trim()
-584:         );
-585: 
-586:         wordMode =
-587:           typeof interval === 'number' &&
-588:           Number.isFinite(interval) &&
-589:           interval >= LONG_INTERVAL_DAYS &&
-590:           !isListening &&
-591:           hasExpression;
-592: 
-593:         // Explicitly reset the class as well as enabling it.
-594:         wrapper.classList.toggle('word-mode', wordMode);
-595: 
-596:         if (DEBUG_MATURE_MODE) {
-597:           let diagnostic = wrapper.querySelector('.mwm-debug');
-598: 
-599:           if (!diagnostic) {
-600:             diagnostic = document.createElement('div');
-601:             diagnostic.className = 'mwm-debug';
-602:             diagnostic.style.cssText =
-603:               'padding:6px 10px;' +
-604:               'font:12px/1.4 sans-serif;' +
-605:               'color:var(--text-secondary,#888);' +
-606:               'overflow-wrap:anywhere;' +
-607:               'text-align:left;';
-608:             wrapper.appendChild(diagnostic);
-609:           }
-610: 
-611:           diagnostic.textContent =
-612:             'Mature mode: ' + (wordMode ? 'ON' : 'OFF') +
-613:             ' | interval=' + String(interval) +
-614:             ' | threshold=' + LONG_INTERVAL_DAYS +
-615:             ' | source=' + source +
-616:             ' | ' + elapsedMs + 'ms';
-617:         }
-618: 
-619:         reveal();
-620:       }
-621:     }
-622:   })();
-623: </script>
+ 1: <!-- v1.8.35 minimal front
+ 2:      Rung1 shape: plain sentence / expression display, zero fetch, zero listening views, zero visibility: hidden / timers, zero JavaScript.
+ 3: -->
+ 4: <div class="card-wrapper">
+ 5:   <div class="card-container">
+ 6:     <div class="sentence-display">
+ 7:       {{#Sentence}}
+ 8:         {{Sentence}}
+ 9:       {{/Sentence}}
+10:       {{^Sentence}}
+11:         {{Expression}}
+12:       {{/Sentence}}
+13:     </div>
+14:   </div>
+15: </div>
 ````
 
 ## File: Card 1 - Style.css
@@ -5018,7 +4413,7 @@ verify
    4:  * (Tokyo Night Dark / Aki Paper Light)
    5:  *
    6:  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
-   7:  * Version: v1.8.33 — auto-bumped by finish.sh; matches the GitHub release tag
+   7:  * Version: v1.8.36 — auto-bumped by finish.sh; matches the GitHub release tag
    8:  *
    9:  * Front = pure retrieval surface (sentence / word / audio only).
   10:  * Back = strong hierarchy: target → reading → meaning → context →

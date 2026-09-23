@@ -1,0 +1,67 @@
+<!--
+  WHERE THIS GOES
+
+  In `Card 1 - Back.template.anki`, insert the block below as the FIRST
+  child of <div class="card-container">, i.e. immediately after this line:
+
+    <div class="card-wrapper back-card">
+      <div class="card-container">
+                                          <-- insert here, before the
+                                              "LEVEL 1: TARGET + META" comment
+                                              and its .hero-header div.
+
+  Nothing else in the file changes. No field is added or removed; this
+  block references no {{Field}} at all — it is pure decoration and must
+  stay that way (see design/YUKEI_DESIGN_SPEC.md §1).
+
+  Requires the CSS in snippets/yukei.css to be applied first (tokens +
+  .scenic-band component + the one-line .back-card .card-container edit).
+-->
+
+<div class="scenic-band" aria-hidden="true">
+  <svg viewBox="0 0 400 60" preserveAspectRatio="none" focusable="false">
+    <defs>
+      <filter id="scenicSoftEdge" x="-6%" y="-6%" width="112%" height="112%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="3" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+
+    <!-- stars: invisible in daylight via --scenic-star-op -->
+    <circle class="scenic-star" cx="70" cy="8" r="1.1" fill="#fff"/>
+    <circle class="scenic-star" cx="330" cy="6" r="1" fill="#fff"/>
+    <circle class="scenic-star" cx="40" cy="16" r=".9" fill="#fff"/>
+
+    <!-- sun / moon: reuses var(--accent-color), no new token -->
+    <circle class="scenic-glow" cx="232" cy="18" r="15" fill="var(--accent-color)"/>
+    <circle cx="232" cy="18" r="9" fill="var(--accent-color)" opacity=".4"/>
+
+    <!-- Fuji peak, cropped at the cloud line (no full mountain body/base) -->
+    <path d="M156,42 L185,2 L204,26 L211,23 L216,42 Z"
+          fill="var(--scenic-fuji)" filter="url(#scenicSoftEdge)"/>
+    <!-- snow cap: same silhouette, upper portion only, lighter fill -->
+    <path d="M185,2 L173,20 L179,17 L184,23 L190,16 L196,24 L204,26 L192,12 Z"
+          fill="var(--scenic-snow)" opacity=".92" filter="url(#scenicSoftEdge)"/>
+
+    <!-- cloud sea (unkai) — two depths, both drifting very slowly -->
+    <g class="scenic-cloud is-far">
+      <path d="M0,36 C50,28 100,38 160,31 C230,23 300,36 400,28 L400,60 L0,60 Z"
+            fill="var(--scenic-cloud)" opacity=".55"/>
+    </g>
+    <g class="scenic-cloud is-near">
+      <path d="M0,46 C60,39 130,48 210,41 C290,34 340,46 400,40 L400,60 L0,60 Z"
+            fill="var(--scenic-cloud)" opacity=".85"/>
+    </g>
+
+    <!-- seam into the panel below: fills with the panel's own background so
+         the cutoff reads as a soft horizon line, not a hard rectangle.
+         NOTE: .back-card .card-container's real background is a translucent
+         rgba() (for the backdrop-filter frosted effect), not a flat
+         var(--card-bg). var(--card-bg) is the closest flat approximation
+         and should look right once composited, but check both themes —
+         this is the one spot where a pixel-perfect match isn't guaranteed
+         by the token system alone. -->
+    <path d="M0,54 C60,50 130,56 210,52 C290,48 340,55 400,51 L400,60 L0,60 Z"
+          fill="var(--card-bg)"/>
+  </svg>
+</div>

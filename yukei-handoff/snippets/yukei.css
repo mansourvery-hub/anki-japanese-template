@@ -1,0 +1,142 @@
+/* ==============================================================================
+   HOW TO APPLY THIS FILE
+
+   1. Tokens: merge the three token blocks below into the existing three
+      blocks in Style.css §1 (COLOR SYSTEM & CSS VARIABLES) — i.e. add the
+      --scenic-* lines into the existing :root {}, the existing
+      .card:not(.nightMode):not(.night_mode) {}, and the existing
+      .card.nightMode, .card.night_mode {} rules. Do not create new
+      standalone blocks for them; they belong inside the existing ones.
+
+   2. Component + integration tweaks: append the rest of this file as a new
+      section at the end of Style.css (e.g. "§16. SCENIC BAND (Yūkei)" —
+      renumber to whatever the next free section number actually is).
+
+   3. Also apply the two integration edits to EXISTING selectors, marked
+      clearly below — they are the only changes to pre-existing rules.
+
+   See design/YUKEI_DESIGN_SPEC.md for the full rationale. Nothing here
+   touches .hero-header, .frequency-badge, .pitch-quiet, .word-display,
+   .card-separator, .definition-box, .context-grid, .translation-box, or
+   .more-section.
+   ============================================================================== */
+
+
+/* ---- 1a. Add to the existing :root {} block (dark / Tokyo Night defaults) ---- */
+/*
+  --scenic-sky: linear-gradient(180deg,#171a33 0%,#23274a 42%,#33284f 72%,#402b46 100%);
+  --scenic-fuji: #100e1c;
+  --scenic-snow: #d8d3e8;
+  --scenic-cloud: #2c2f52;
+  --scenic-star-op: .8;
+  --scenic-band-h: clamp(44px, 12.5vw, 58px);
+*/
+
+/* ---- 1b. Add to the existing .card:not(.nightMode):not(.night_mode) {} block (Aki Paper light) ---- */
+/*
+  --scenic-sky: linear-gradient(180deg,#f6c69b 0%,#f0a08a 42%,#d98a95 72%,#b8879c 100%);
+  --scenic-fuji: #5b4a6b;
+  --scenic-snow: #fbeadf;
+  --scenic-cloud: #fbe7d8;
+  --scenic-star-op: 0;
+*/
+
+/* ---- 1c. Add to the existing .card.nightMode, .card.night_mode {} block (explicit dark, mirrors 1a) ---- */
+/*
+  --scenic-sky: linear-gradient(180deg,#171a33 0%,#23274a 42%,#33284f 72%,#402b46 100%);
+  --scenic-fuji: #100e1c;
+  --scenic-snow: #d8d3e8;
+  --scenic-cloud: #2c2f52;
+  --scenic-star-op: .8;
+*/
+
+
+/* ==============================================================================
+   2. INTEGRATION EDITS TO EXISTING SELECTORS (the only pre-existing rules touched)
+   ============================================================================== */
+
+/* Was: .back-card .card-container { background: ...; backdrop-filter: ...;
+   border: ...; border-radius: var(--border-radius-lg); box-shadow: ...;
+   margin-top/bottom: ...; }
+   Add exactly one declaration to that existing rule: */
+.back-card .card-container {
+  overflow: hidden; /* clips .scenic-band's square corners to the card's
+                        existing border-radius; nothing else in this rule
+                        currently relies on overflow being visible —
+                        verify the lightbox (appended to document.body,
+                        should be unaffected) and any focus outline. */
+}
+
+
+/* ==============================================================================
+   3. NEW SECTION — SCENIC BAND (Yūkei, 夕景)
+   Purely decorative, aria-hidden, back card only. Never contains a field
+   value. See docs/adr/005-scenic-band-yukei.md + design/YUKEI_DESIGN_SPEC.md.
+   ============================================================================== */
+
+.scenic-band {
+  width: 100%;
+  height: var(--scenic-band-h);
+  background: var(--scenic-sky);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  overflow: hidden;
+  position: relative;
+  /* Pulls the band to the container's outer edge, undoing the container's
+     own padding on the top/left/right sides only (bottom stays attached
+     to whatever comes next in normal flow). Requires .scenic-band to be
+     the FIRST child of .card-container. */
+  margin: calc(-1 * var(--container-pad-y)) calc(-1 * var(--container-pad-x)) 0;
+}
+
+.scenic-band svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Stars — twinkle very slowly, invisible in daylight via --scenic-star-op */
+.scenic-star {
+  opacity: var(--scenic-star-op);
+  animation: scenic-twinkle 4.5s ease-in-out infinite;
+}
+.scenic-star:nth-of-type(2) { animation-delay: 1.1s; }
+.scenic-star:nth-of-type(3) { animation-delay: 2.3s; }
+
+@keyframes scenic-twinkle {
+  0%, 100% { opacity: calc(var(--scenic-star-op) * .3); }
+  50%      { opacity: var(--scenic-star-op); }
+}
+
+/* Sun/moon — slow breathing glow, reuses --accent-color (no new token) */
+.scenic-glow {
+  animation: scenic-breathe 7s ease-in-out infinite;
+  transform-origin: 232px 18px; /* matches the glow circle's cx/cy in the SVG */
+}
+
+@keyframes scenic-breathe {
+  0%, 100% { opacity: .26; transform: scale(1); }
+  50%      { opacity: .42; transform: scale(1.06); }
+}
+
+/* Cloud sea — two layers drift at different, very slow speeds for depth.
+   Amplitude is intentionally tiny (18px) — this should never read as
+   "moving" at a glance, only stop the scene from feeling like a static
+   sticker if someone lingers on one card. */
+.scenic-cloud {
+  animation: scenic-drift 170s ease-in-out infinite alternate;
+}
+.scenic-cloud.is-far {
+  animation-duration: 240s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes scenic-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-18px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scenic-star, .scenic-glow, .scenic-cloud {
+    animation: none !important;
+  }
+}

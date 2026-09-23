@@ -1,0 +1,34 @@
+<!--
+  OPTIONAL — read design/YUKEI_DESIGN_SPEC.md §6 before touching the front
+  at all. HANDOFF.md documents a real past regression where a front visual
+  change caused every front to render blank in live AnkiDroid review,
+  undetected by the headless test suite. This is low value (branding
+  continuity only, zero retrieval benefit) for real risk. Recommendation:
+  skip unless specifically requested.
+
+  If implemented: insert as the FIRST child of the front's
+  <div class="card-container">, i.e. before the existing
+  <div class="sentence-display"> block in Card 1 - Front.template.anki.
+  Requires one extra token (not in yukei.css since it's front-only):
+
+    --scenic-sky-flat: #2a2547;   (add to :root, dark default)
+    --scenic-sky-flat: #e59a8f;   (add to the light-theme override block)
+    --scenic-sky-flat: #2a2547;   (add to the explicit .nightMode block)
+
+  MUST be verified in a real Anki desktop review session AND real
+  AnkiDroid — not just `./verify` — per HANDOFF.md's explicit warning
+  about this exact class of change.
+-->
+
+<div class="scenic-wash" aria-hidden="true"></div>
+
+<!--
+  Matching CSS (append near the .scenic-band rules, front-scoped):
+
+  .scenic-wash {
+    width: 100%;
+    height: clamp(14px, 4.2vw, 20px);
+    background: linear-gradient(180deg, var(--scenic-sky-flat), var(--bg-color));
+    margin: calc(-1 * var(--container-pad-y)) calc(-1 * var(--container-pad-x)) 0;
+  }
+-->

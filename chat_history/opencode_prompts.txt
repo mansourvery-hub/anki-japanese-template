@@ -2412,3 +2412,7 @@ still same eorror git to the last 100% functional state, then removethe mature c
 The previous response was interrupted. Continue from where you left off without repeating completed content.
 [User/external advisor instruction for minimal front test] Cut the front down to the rung1 shape: delete Mature Word Mode/AnkiConnect (post, escQuery, normText, retrieval block, front-word-display, word-mode toggle), listening mode (tags probe, tag-listening-view, classic-listening-view, listening resolver, setTimeout auto-click, playCircularAudio/resetAudioState on front), blank-front risk (visibility: hidden, reveal(), 1200ms timer), and edit: filters (replaced with plain Sentence/Expression). Keep sentence display, definition/extended conditions, cloze-fallback rebuild. Add marker comment `v1.8.35 minimal front`.
 ---
+
+---
+
+you stopped for no reason, continue
