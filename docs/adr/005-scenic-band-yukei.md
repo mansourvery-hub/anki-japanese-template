@@ -35,9 +35,11 @@ at, never read. Composition is cropped to Mt. Fuji's snow-capped peak
 breaking above a drifting cloud sea (a real, named motif — *unkai*, "sea of
 clouds" — not an arbitrary crop), rendered as inline SVG, sized via a
 `clamp()` token to roughly 44–58px of occupied height (≈⅓ of the first
-full-scene attempt). The painted band extends 6px farther downward with an
-equal negative bottom margin, using the hero's reserved furigana headroom
-without increasing the card's total flow height.
+full-scene attempt). Auto width with symmetric negative margins keeps the
+band centered on the wrapper. The painted band extends 12px farther downward
+with an equal negative bottom margin, using the hero's reserved furigana
+headroom without increasing the card's total flow height; its lower edge fades
+fully to the card background before entering the reading area.
 Ambient motion (star twinkle, a slow breathing glow behind the sun/moon,
 very slow cloud drift) is pure CSS `@keyframes`, disabled under
 `prefers-reduced-motion`. Color tokens follow the existing dual-theme

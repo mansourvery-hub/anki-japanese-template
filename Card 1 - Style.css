@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.40 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.41 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -1649,15 +1649,16 @@ ruby:focus-within rt {
    ============================================================================== */
 
 .scenic-band {
-  width: 100%;
-  height: calc(var(--scenic-band-h) + 6px);
+  width: auto;
+  height: calc(var(--scenic-band-h) + 12px);
   border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   overflow: hidden;
   position: relative;
-  /* Pulls the band to the container's outer edge. The extra 6px of painted
-     height enters the hero's reserved furigana headroom; the equal negative
-     bottom margin keeps the card's occupied flow height unchanged. */
-  margin: calc(-1 * var(--container-pad-y)) calc(-1 * var(--container-pad-x)) -6px;
+  /* Auto width + symmetric negative margins keeps the band centered on the
+     wrapper. The extra 12px of painted height enters the hero's reserved
+     furigana headroom; the equal negative bottom margin keeps the card's
+     occupied flow height unchanged. */
+  margin: calc(-1 * var(--container-pad-y)) calc(-1 * var(--container-pad-x)) -12px;
 }
 
 .scenic-band svg {
@@ -1748,7 +1749,10 @@ ruby:focus-within rt {
 
 .scenic-photo .fade {
   position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, var(--card-bg) 100%);
+  background: linear-gradient(to bottom,
+    transparent 40%,
+    var(--card-bg) 82%,
+    var(--card-bg) 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

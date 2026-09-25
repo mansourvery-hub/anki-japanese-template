@@ -94,9 +94,15 @@ SCENIC_PROBE = r"""(() => {
   const context = document.querySelector('.context-grid');
   const main = document.querySelector('.context-main');
   r.first = container.firstElementChild === band;
-  r.bandH = band.getBoundingClientRect().height;
+  const bandBox = band.getBoundingClientRect();
+  const containerBox = container.getBoundingClientRect();
+  r.bandH = bandBox.height;
+  r.centerOffset = Math.abs(
+    (bandBox.left + bandBox.right) / 2 - (containerBox.left + containerBox.right) / 2
+  );
+  r.wrapperFill = bandBox.left <= containerBox.left + 1 && bandBox.right >= containerBox.right - 1;
   const hero = document.querySelector('.hero-header');
-  r.overlap = band.getBoundingClientRect().bottom - hero.getBoundingClientRect().top;
+  r.overlap = bandBox.bottom - hero.getBoundingClientRect().top;
   r.noOverflow = document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1;
   r.contextRatio = main.getBoundingClientRect().width / context.getBoundingClientRect().width;
   r.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -275,10 +281,11 @@ def main() -> int:
         and "var(--scenic-sky)" in fallback_bg,
     )
     check(
-        "CSS: scenic band overhangs 6px without increasing occupied height",
+        "CSS: scenic band is centered and overhangs 12px without growing flow",
         shell is not None
-        and "height: calc(var(--scenic-band-h) + 6px)" in shell
-        and "-6px;" in shell,
+        and "width: auto" in shell
+        and "height: calc(var(--scenic-band-h) + 12px)" in shell
+        and "-12px;" in shell,
     )
 
     photo_rule = rule_body(scenic, r"\.scenic-photo img")
@@ -299,6 +306,13 @@ def main() -> int:
     )
     for layer in ("tint", "grain", "wash", "fade"):
         check(f"CSS: scenic photo includes the {layer} layer", f".scenic-photo .{layer}" in scenic)
+    fade_rule = rule_body(scenic, r"\.scenic-photo \.fade")
+    check(
+        "CSS: photo fade becomes solid before the furigana overlap",
+        fade_rule is not None
+        and "transparent 40%" in fade_rule
+        and "var(--card-bg) 82%" in fade_rule,
+    )
     check(
         "CSS: reduced motion disables all fallback animations",
         re.search(
@@ -326,10 +340,12 @@ def main() -> int:
         check("Browser: desktop photo probe returned", photo_desktop is not None)
         if photo_desktop:
             check(
-                "Browser: photo band keeps compact sizing and first-child order",
+                "Browser: photo band stays centered, compact, and first",
                 photo_desktop.get("first") is True
-                and 50 <= photo_desktop.get("bandH", 0) <= 64
-                and 5 <= photo_desktop.get("overlap", 0) <= 7,
+                and photo_desktop.get("centerOffset", 999) <= 1
+                and photo_desktop.get("wrapperFill") is True
+                and 56 <= photo_desktop.get("bandH", 0) <= 70
+                and 11 <= photo_desktop.get("overlap", 0) <= 13,
             )
             check("Browser: desktop photo mode has no horizontal overflow", photo_desktop.get("noOverflow") is True)
             check(

@@ -2436,3 +2436,9 @@ continue
 ---
 
 increase the lenght of image a tiny bit at the bottom part, ven if touches a bit the furigana of expression , it souldbe a pb since the bottom part of theimage is super faded
+
+---
+
+the image is notcenetred in relations tothe wrapper
+also extend to to ven touch the furigana hovering but fade it a bita tbottom so itdoes not hurt  reading
+extendsa bit moredown
