@@ -87,9 +87,11 @@ off-screen context to be solvable is a bad mine and should be re-mined.
   interval-gated word-only front. Normal cards NEVER render or play audio
   on the front. The sentence front is the universal fallback for every
   failure path.
-- Back hierarchy: word/furigana target with Japanese seal, 5-star frequency
-  visualizer and pitch accent, compacted primary definition (§6b), context
-  (sentence + picture as core information), native circular audio (`文`/`言葉`),
+- Back hierarchy: a compact Yūkei scenic band (the card's `Picture` when
+  present, otherwise a decorative Fuji/cloud-sea fallback), then the
+  word/furigana target with Japanese seal, 5-star frequency visualizer and
+  pitch accent, compacted primary definition (§6b), sentence context, native
+  circular audio (`文`/`言葉`),
   secondary information toggleable behind `More ▾` / `Less ▴` (translation,
   context, kanji notes, notes, full extended definition), keyboard shortcuts
   hints, source footer. Content hierarchy communicates card structure directly.
@@ -116,9 +118,8 @@ off-screen context to be solvable is a bad mine and should be re-mined.
 
 - Ultra-compact, content-driven height (no viewport fill, no dead space);
   empty space on the front is acceptable — never filled with UI.
-- Fluid `clamp()` sizing phone → 4K; sentence+picture context grid on
-  desktop (container queries + media-query fallback), single column on
-  phones.
+- Fluid `clamp()` sizing phone → 4K; a compact scenic band spans the card top
+  on desktop and phones, while sentence context remains full-width below it.
 - Zero-reflow furigana (hidden, hover/tap reveal, absolute ruby); `F`
   toggles full-card furigana on the back.
 - Native-only audio (delegate to Anki replay link, re-tap debounce,

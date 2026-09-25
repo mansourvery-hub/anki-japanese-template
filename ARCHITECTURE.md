@@ -94,13 +94,15 @@ Single quiet column with typography-driven hierarchy:
 
 ```text
 card-container
+ ├── .scenic-band (photo-derived when Picture exists; aria-hidden
+ │    Fuji/cloud-sea fallback otherwise; click/Enter opens the lightbox)
  ├── .hero-header (3-col grid: left meta | centered word | right meta;
  │    │  stacked word-over-sides on phones)
  │    ├── .hero-side-left (freq visualizer + 言葉 audio)
  │    ├── .hero-word-wrap > .word-display (target + furigana hover — hero element)
  │    └── .hero-side-right (.pitch-quiet + 文 audio)
  ├── definition-box.primary-definition (compacted §6b, 3-line §6c)
- ├── .context-grid (sentence + picture; row on wide screens, stacked on phones)
+ ├── .context-grid (full-width sentence/context surface)
  ├── .more-section (hidden) + .more-toggle "More ▾"
  │    └── translation (click/T) · context · kanji notes · notes · full
  │        extended definition (.extended-full — compactor never touches it)
@@ -129,7 +131,8 @@ centered word | right meta; stacked on narrow; freq/pitch/audio split sides), **
 §9b full-card furigana mode, §10 media/lightbox, §11 footer,
 §12 listening (inert until `.listening-mode`), §13 mobile,
 §14 deletable Fuji backdrop, §15 reduced motion (+ blur kill),
-§16 card entrance (single 0.15s settle, no stagger; killed by §15).
+§16 card entrance (single 0.15s settle, no stagger; killed by §15),
+§17 Yūkei scenic band (photo mode with illustrated fallback).
 
 ### Tooling
 
@@ -141,7 +144,7 @@ verify               → local quality gate (tests only, no side effects)
 finish.sh            → verify → stamp → sync → export → commit → push main → release (--target main) → fetch tag
 tests/               → test_compactor.py + test_templates.py
                          + test_front_modes.py + test_mature_content.py
-                         + test_layout.py
+                         + test_layout.py + test_yukei.py
 ```
 
 Fields are **not** a repo artifact: the Anki UI owns them; agents bootstrap
@@ -166,6 +169,10 @@ entity graph exists beyond what is shown.
   link; debounce; visually-hidden-not-`display:none` source).
 - **004** Single-command release (`finish.sh`; `verify` as the side-effect-free
   subset; snapshots before overwrite).
+- **005** Compact Yūkei scenic band on the back card, separate from the
+  reading surface, with an animated illustrated fallback.
+- **006** Cards with `Picture` use a CSS-treated photo in that same band and
+  retire the separate context thumbnail; the existing lightbox is reused.
 
 ## Evolution rule
 

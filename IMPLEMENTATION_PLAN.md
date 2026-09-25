@@ -154,6 +154,16 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   `test_layout.py` (shared-row desktop, stacked mobile), structural guards in
   `test_templates.py`. Status: COMPLETE.
 
+- **T16 — Yūkei photo band + Picture consolidation (ADR 005/006).** Back-only
+  compact scenic band keeps the ADR 005 illustrated fallback when `Picture` is
+  empty; populated cards render one CSS-treated photo and reuse the existing
+  lightbox. The old inline context thumbnail is removed while its CSS remains
+  as a deliberate compatibility pass. Added `tests/test_yukei.py` so the
+  back/CSS contract remains enforced during the minimal-front isolation branch.
+  Status: COMPLETE (`./verify` green; desktop/mobile headless visual review on
+  real Anki media covered both themes, click/Enter, both close paths, and
+  reduced motion).
+
 ## Roadmap (evolution loop input, not committed scope)
 
 - R1: extra compactor fixtures if Yomitan markup drifts.

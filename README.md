@@ -14,11 +14,11 @@ A modern, ultra-compact Japanese sentence-mining note type for Anki. Built for d
 
 - **🌙 Dual themes** — Tokyo Night dark (default) and Aki Paper light, following Anki's Night Mode.
 - **🔢 Minimal by design** — every visible element must justify its screen space. The front is a pure retrieval surface (just the Japanese); the back is a quiet reading interface: target → reading → meaning → context, with secondary info collapsed behind `More ▾`. Anki is the SRS — no badges, dashboards, or grading UI.
-- **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoint jumps; sentence + picture context grid on desktop, single column on phones; container queries with a media-query fallback for old WebViews. Cards size to their content (no forced viewport fill).
+- **📱 Fluid responsive layout** — `clamp()` sizing with no breakpoint jumps; a compact Yūkei scenic band spans the card top on desktop and phones, with full-width sentence context below. Cards size to their content (no forced viewport fill).
 - **🔤 Zero-reflow furigana** — hidden by default, revealed on hover (desktop) / tap (mobile); **`F`** pins full-card furigana on the back. Nothing ever shifts.
 - **🔊 Native audio** — `文` / `言葉` buttons delegate to Anki's replay link (never HTML5 audio), with re-tap debounce so audio can't overlap on AnkiDroid. The ring is a playback indicator (a decorative play-pulse), not true progress. **`R`** is Anki's own shortcut (native replay) — the template never adds it. Custom template shortcuts: `Z` (furigana), `X` (translation), `C` (expanded-info).
 - **👁️ On-demand secondary info** — `T`/`X` reveals the translation; `More ▾` exposes the full Yomitan definition, extra context, kanji and general notes. `C` toggles expanded-info. Quiet by default.
-- **🖼️ Lightbox** — tap any image for a full-screen overlay; closes on backdrop click or <kbd>Escape</kbd>.
+- **🖼️ Lightbox** — tap the scenic photo (or press <kbd>Enter</kbd>) for the full-quality original; closes on backdrop click or <kbd>Escape</kbd>.
 - **🏷️ Behavioral tags** — tags drive card behavior (e.g. `#listening` forces the listening front) and are never rendered as decoration.
 
 ---
@@ -49,11 +49,12 @@ The front contains ONLY the thing being tested — the sentence itself is the re
 
 Typography does the work — no dashboard chrome:
 
-1. **Target + reading** — the headword with hover furigana, the hero element; pitch accent as quiet muted text.
-2. **Primary meaning** — **Definition Compactor** (CSS §6b) trims the Yomitan glossary to the first dictionary, max 2 senses, no appendices; **Definition Truncator** (§6c) caps it at 3 lines with a fade + `▼`, click expands and stays open.
-3. **Context** — the sentence (with hover furigana) plus the picture when present, side by side on wide screens.
-4. **Secondary info** — collapsed behind a quiet `More ▾`: translation (`T`), additional context, kanji notes, general notes, and the **full extended definition** (the compactor never touches it).
-5. **Source footer** — quietly identifies the material. Content hierarchy communicates the card mode directly without labels.
+1. **Yūkei scenic band** — the card's `Picture` rendered as a compact CSS-treated photo, or an animated Fuji/cloud-sea fallback when empty. Photo cards open the full-quality original in the lightbox.
+2. **Target + reading** — the headword with hover furigana, the hero element; pitch accent as quiet muted text.
+3. **Primary meaning** — **Definition Compactor** (CSS §6b) trims the Yomitan glossary to the first dictionary, max 2 senses, no appendices; **Definition Truncator** (§6c) caps it at 3 lines with a fade + `▼`, click expands and stays open.
+4. **Context** — the sentence (with hover furigana) spans the full reading width.
+5. **Secondary info** — collapsed behind a quiet `More ▾`: translation (`T`), additional context, kanji notes, general notes, and the **full extended definition** (the compactor never touches it).
+6. **Source footer** — quietly identifies the material. Content hierarchy communicates the card mode directly without labels.
 
 ---
 
@@ -90,7 +91,7 @@ python3 release_apkg.py    # exports sample deck to dist/*.apkg
 ```
 ├── Card 1 - Front.template.anki   # Front HTML: modes, cloze fallback, Mature Word Mode
 ├── Card 1 - Back.template.anki    # Back HTML: header, definition, sentence, side column
-├── Card 1 - Style.css             # Themes, layout, compactor (§6b), truncator (§6c)
+├── Card 1 - Style.css             # Themes, layout, scenic band (§17), compactor, truncator
 ├── fetch_anki_fields.py           # Read-only dump of live Anki fields (see above)
 ├── sync_to_anki.py                # Push templates/CSS to Anki (pre-sync backup)
 ├── release_apkg.py                # Export sample deck to dist/*.apkg
@@ -100,7 +101,7 @@ python3 release_apkg.py    # exports sample deck to dist/*.apkg
 ├── ARCHITECTURE.md + docs/adr/    # Technical structure / lasting decisions
 ├── QUALITY.md / TEST_STRATEGY.md  # Invariants / how they are verified
 ├── IMPLEMENTATION_PLAN.md         # Task graph + status
-├── tests/                         # test_compactor.py + test_templates.py + test_front_modes.py + test_mature_content.py + test_layout.py (run by ./verify)
+├── tests/                         # Compactor, templates, front modes, mature search, layout, Yūkei (run by ./verify)
 ├── chat_history/                  # Archived agent prompts
 ├── dist/                          # Exported .apkg (gitignored, GitHub Release asset)
 ├── backups/                       # Pre-sync Anki snapshots (gitignored)
@@ -119,7 +120,7 @@ Edit the local `.template.anki` / `.css` files (never inside Anki's UI), then ru
 # --local: sync + export + commit only · --minor: bump v1.x.0 · --prompt "text": archive prompt
 ```
 
-This runs tests, syncs to Anki, exports the apkg, commits, pushes, and publishes a tagged release. `tests/` covers the compactor selectors, template invariants (furigana ban on front, audio/lightbox semantics, balanced conditionals, listening Policy B, R-is-Anki-owned, playback indicator terminology, finish.sh ordering), front-mode resolver behavior, mature content-search fallback (duplicate cards / ambiguity), and headless layout checks.
+This runs tests, syncs to Anki, exports the apkg, commits, pushes, and publishes a tagged release. `tests/` covers the compactor selectors, template invariants (furigana ban on front, audio/lightbox semantics, balanced conditionals, listening Policy B, R-is-Anki-owned, playback indicator terminology, finish.sh ordering), front-mode resolver behavior, mature content-search fallback (duplicate cards / ambiguity), Yūkei photo/fallback consolidation, and headless layout checks.
 
 ---
 

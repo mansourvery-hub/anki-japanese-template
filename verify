@@ -20,6 +20,8 @@ fi
 
 echo "==> verify: compactor regression tests"
 python3 tests/test_compactor.py
+echo "==> verify: Yūkei scenic-band contracts (ADR 005/006)"
+python3 tests/test_yukei.py
 echo "==> verify: template structural invariants (skipped on minimal-front test branch)"
 # python3 tests/test_templates.py
 echo "==> verify: front-mode resolver behavior (listening semantics) (skipped on minimal-front)"

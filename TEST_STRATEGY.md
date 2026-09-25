@@ -23,6 +23,7 @@ run `./verify`; CI re-runs `./verify` after every push.
 | Front furigana ban; raw Sentence/Expression present | `tests/test_templates.py` §1 |
 | Audio aria-labels; native-only controller; sibling replay source; debounce; restart-only | `tests/test_templates.py` §§2–3b |
 | Cloze probe shape, trio gate, `<b>` rebuild, bold guard | `tests/test_templates.py` §2c |
+| Yūkei scenic band: one `Picture` reference; photo/fallback conditionals; accessible photo trigger; no retired inline thumbnail; corrected `saturate()` + `overlay` pipeline; fallback reduced motion | `tests/test_yukei.py` — back-template/CSS structural contracts plus headless Chrome interaction/layout probes; runs during the minimal-front isolation branch |
 | Lightbox backdrop-only close, dialog semantics, alt | `tests/test_templates.py` §4 |
 | Balanced Anki conditionals | `tests/test_templates.py` §5 |
 | Minimal redesign: no tags bar / frequency badges; More collapse; state label; F/T shortcuts; listening resolver wiring | `tests/test_templates.py` §§6b–6c |
@@ -53,8 +54,9 @@ bug → diagnose → fix → add regression test → verify → commit
 ```
 
 Every escaped bug earns a permanent test: compactor regressions → new
-fixture/assertion; template/CSS regressions → new `test_templates.py`
-check; layout regressions → new `test_layout.py` probe assertion.
+fixture/assertion; template/CSS regressions → a new `test_templates.py`
+check, or a scoped back/CSS-only suite while the minimal-front branch skips
+that file; layout regressions → new `test_layout.py` probe assertion.
 
 ## Dependencies
 
@@ -63,3 +65,4 @@ check; layout regressions → new `test_layout.py` probe assertion.
 - `test_front_modes.py`: headless Chrome if present, else skip (pass).
 - `test_mature_content.py`: headless Chrome if present, else skip (pass).
 - `test_layout.py`: headless Chrome if present, else skip (pass).
+- `test_yukei.py`: stdlib only; headless Chrome optional for browser probes.

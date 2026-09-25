@@ -74,7 +74,17 @@ mechanically verified*. Code implements; tests enforce.
 
 ## Back invariants
 
-- Back hierarchy is typography-driven: word-display (largest, with Japanese seal) → metadata bar (5-star frequency visualizer & pitch accent & audio) → primary meaning → context → secondary collapsed behind More. Features discoverable via shortcut hints.
+- Back hierarchy is typography-driven: compact scenic band → word-display
+  (largest, with Japanese seal) → metadata bar (5-star frequency visualizer &
+  pitch accent & audio) → primary meaning → context → secondary collapsed
+  behind More. Features discoverable via shortcut hints.
+- `Picture` is referenced exactly once in the back template. A populated field
+  renders the card-derived scenic photo and keeps click/Enter lightbox access;
+  an empty field renders the non-focusable, `aria-hidden` illustrated fallback.
+  The retired `.context-picture` markup is absent, so sentence context is
+  full-width. The photo pipeline preserves source color with `saturate()` and
+  `mix-blend-mode: overlay`; it must never use `grayscale()` +
+  `mix-blend-mode: color`.
 - Secondary information (translation, context, kanji notes, notes,
   full extended definition) lives inside `.more-section`, toggleable via
   `More ▾` / `Less ▴`; the toggle and section self-remove when no secondary
@@ -106,8 +116,8 @@ mechanically verified*. Code implements; tests enforce.
   `:hover`/`:active`/`:focus`; `F` mode pins all rt visible with no
   reflow (same geometry).
 - Content-driven card height (no `100vh`/`100dvh` fill); `container-type:
-  inline-size` present; the context grid (sentence + picture) has a
-  media-query fallback.
+  inline-size` present; the retained context-grid compatibility rules keep
+  their media-query fallback.
 - Compactor hide rules all scoped to `.primary-definition`; the full
   extended definition (`.extended-full` inside More) stays untouched.
 - Word-mode swap rules exist and never touch `.listening-view`; the

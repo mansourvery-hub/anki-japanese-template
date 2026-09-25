@@ -2420,3 +2420,15 @@ you stopped for no reason, continue
 ---
 
 you stopped for no reason, continue
+
+---
+
+/home/mohamed/Desktop/Github/anki-japanese-template/yukei-handoff/HANDOFF_YUKEI.md
+
+The previous response was interrupted. Continue from where you left off without repeating completed content.
+
+ok
+
+don't stop untilyou finish a major taks
+
+continue

@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.38 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.39 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -91,6 +91,10 @@
   --scenic-cloud: #2c2f52;
   --scenic-star-op: .8;
   --scenic-band-h: clamp(44px, 12.5vw, 58px);
+  --scenic-blur: 16px;
+  --scenic-sat: 0.8;
+  --scenic-tint: 0.25;
+  --scenic-wash: 0.25;
 }
 
 /* --- AKI PAPER LIGHT THEME (Warm Washi) --- */
@@ -281,7 +285,7 @@
 
 
 /* ==============================================================================
-   4. CONTEXT GRID (core info: sentence + picture)
+   4. CONTEXT GRID (sentence; legacy picture rules retained per ADR 006)
    ============================================================================== */
 .context-grid {
   display: flex;
@@ -935,7 +939,8 @@
    :focus-visible restores a compact accent ring for keyboard navigation) */
 .circular-audio-btn:focus-visible,
 .translation-box:focus-visible,
-.picture-container:focus-visible {
+.picture-container:focus-visible,
+.scenic-photo-trigger:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
@@ -1638,14 +1643,14 @@ ruby:focus-within rt {
 
 /* ==============================================================================
    17. SCENIC BAND (Yūkei, 夕景)
-   Purely decorative, aria-hidden, back card only. Never contains a field
-   value. See docs/adr/005-scenic-band-yukei.md + design/YUKEI_DESIGN_SPEC.md.
+   Back card top scenic band — illustration fallback or photo mode (ADR 005/006).
+   See docs/adr/005-scenic-band-yukei.md and
+   docs/adr/006-photo-derived-scenic-band.md.
    ============================================================================== */
 
 .scenic-band {
   width: 100%;
   height: var(--scenic-band-h);
-  background: var(--scenic-sky);
   border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   overflow: hidden;
   position: relative;
@@ -1660,6 +1665,11 @@ ruby:focus-within rt {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* --- illustrated fallback (no Picture) --- */
+.scenic-band:not(:has(.scenic-photo)) {
+  background: var(--scenic-sky);
 }
 
 /* Stars — twinkle very slowly, invisible in daylight via --scenic-star-op */
@@ -1686,10 +1696,7 @@ ruby:focus-within rt {
   50%      { opacity: .42; transform: scale(1.06); }
 }
 
-/* Cloud sea — two layers drift at different, very slow speeds for depth.
-   Amplitude is intentionally tiny (18px) — this should never read as
-   "moving" at a glance, only stop the scene from feeling like a static
-   sticker if someone lingers on one card. */
+/* Cloud sea — two layers drift at different, very slow speeds for depth. */
 .scenic-cloud {
   animation: scenic-drift 170s ease-in-out infinite alternate;
 }
@@ -1701,6 +1708,48 @@ ruby:focus-within rt {
 @keyframes scenic-drift {
   from { transform: translateX(0); }
   to   { transform: translateX(-18px); }
+}
+
+/* --- photo mode (ADR 006) --- */
+.scenic-photo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer; /* this element is now the lightbox trigger */
+}
+
+.scenic-photo img {
+  position: absolute;
+  top: -12%; left: -12%;
+  width: 124%; height: 124%;
+  object-fit: cover;
+  filter: saturate(var(--scenic-sat)) contrast(1.05) brightness(1.03) blur(var(--scenic-blur));
+}
+
+.scenic-photo .tint {
+  position: absolute; inset: 0;
+  background: var(--accent-color);
+  mix-blend-mode: overlay;
+  opacity: var(--scenic-tint);
+}
+
+.scenic-photo .grain {
+  position: absolute; inset: 0;
+  opacity: .05;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.scenic-photo .wash {
+  position: absolute; inset: 0;
+  background: var(--card-bg);
+  opacity: var(--scenic-wash);
+}
+
+.scenic-photo .fade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, var(--card-bg) 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

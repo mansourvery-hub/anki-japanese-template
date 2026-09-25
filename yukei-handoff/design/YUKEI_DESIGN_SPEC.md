@@ -168,3 +168,45 @@ just `./verify`'s headless suite.
 
 If the product direction changes enough that one of these is worth
 revisiting, treat it as a new decision (new ADR), not a silent CSS edit.
+
+## 9. Amendment — photo mode (ADR 006)
+
+Everything above still holds for cards with no `Picture` (the fallback).
+For cards that have one, the band's content changes; read
+`docs/adr/006-photo-derived-scenic-band.md` for the full decision. Summary
+of what's different from everything written above:
+
+- The band's background is now derived from that specific card's own
+  `Picture` field — a frame from the exact timestamp the sentence was
+  mined — instead of always showing the same Fuji illustration.
+- **The technique is deliberately not canvas-based.** `{{Picture}}` is
+  rendered as a plain `<img>`, styled with CSS `filter`
+  (`saturate`/`contrast`/`brightness`/`blur`) and `mix-blend-mode`
+  (`overlay`, tinting toward `--accent-color`). No pixel data is ever read
+  by JS, so there is no cross-origin/"tainted canvas" question to even
+  ask.
+- **First attempt at this was actually broken, not just too strong**:
+  `grayscale(1)` + `mix-blend-mode: color` at 92% opacity is a full hue
+  replacement — it throws away the source image's real color entirely,
+  which is why every test frame came out looking identical. The fix keeps
+  color (`saturate()` instead of `grayscale()`) and uses the much gentler
+  `overlay` blend for the tint. This is a correctness fix, not a taste
+  preference — do not reintroduce `grayscale()` + `mix-blend-mode: color`
+  for this component.
+- Final tuned constants (`--scenic-blur: 16px`, `--scenic-sat: 0.8`,
+  `--scenic-tint: 0.25`, `--scenic-wash: 0.25`) came from testing against
+  real mined frames, not arbitrary defaults — see `snippets/yukei.css` §1d.
+  They were tuned in Sunset (light) theme only; spot-check a handful of
+  real frames in Night mode too before treating them as final for both.
+- **The old inline picture thumbnail is gone.** `.context-picture` /
+  `.picture-container` are removed from `.context-grid` entirely — the
+  photo now lives only in the scenic band. Click-to-expand is preserved by
+  making the scenic band's photo layer itself the `openLightbox` trigger
+  (see `snippets/back-template-scenic-band.html`). This works without any
+  change to `openLightbox` because that function clones `img.src`/`alt`
+  into a fresh, unstyled `<img>` — the lightbox always shows the original
+  full-quality frame, never the blurred on-card version.
+- The resulting dead CSS (`.context-grid:has(.context-picture)` and
+  `.picture-container` rules) is left in place on purpose — see ADR 006's
+  "Consequences" for the `test_templates.py` dependency that makes this
+  the safer choice for this change specifically.
