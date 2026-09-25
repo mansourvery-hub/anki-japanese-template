@@ -2432,3 +2432,7 @@ ok
 don't stop untilyou finish a major taks
 
 continue
+
+---
+
+increase the lenght of image a tiny bit at the bottom part, ven if touches a bit the furigana of expression , it souldbe a pb since the bottom part of theimage is super faded

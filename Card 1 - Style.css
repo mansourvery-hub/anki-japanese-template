@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.39 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.40 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -1650,15 +1650,14 @@ ruby:focus-within rt {
 
 .scenic-band {
   width: 100%;
-  height: var(--scenic-band-h);
+  height: calc(var(--scenic-band-h) + 6px);
   border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   overflow: hidden;
   position: relative;
-  /* Pulls the band to the container's outer edge, undoing the container's
-     own padding on the top/left/right sides only (bottom stays attached
-     to whatever comes next in normal flow). Requires .scenic-band to be
-     the FIRST child of .card-container. */
-  margin: calc(-1 * var(--container-pad-y)) calc(-1 * var(--container-pad-x)) 0;
+  /* Pulls the band to the container's outer edge. The extra 6px of painted
+     height enters the hero's reserved furigana headroom; the equal negative
+     bottom margin keeps the card's occupied flow height unchanged. */
+  margin: calc(-1 * var(--container-pad-y)) calc(-1 * var(--container-pad-x)) -6px;
 }
 
 .scenic-band svg {

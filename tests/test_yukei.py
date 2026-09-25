@@ -95,6 +95,8 @@ SCENIC_PROBE = r"""(() => {
   const main = document.querySelector('.context-main');
   r.first = container.firstElementChild === band;
   r.bandH = band.getBoundingClientRect().height;
+  const hero = document.querySelector('.hero-header');
+  r.overlap = band.getBoundingClientRect().bottom - hero.getBoundingClientRect().top;
   r.noOverflow = document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1;
   r.contextRatio = main.getBoundingClientRect().width / context.getBoundingClientRect().width;
   r.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -272,6 +274,12 @@ def main() -> int:
         and fallback_bg is not None
         and "var(--scenic-sky)" in fallback_bg,
     )
+    check(
+        "CSS: scenic band overhangs 6px without increasing occupied height",
+        shell is not None
+        and "height: calc(var(--scenic-band-h) + 6px)" in shell
+        and "-6px;" in shell,
+    )
 
     photo_rule = rule_body(scenic, r"\.scenic-photo img")
     check(
@@ -320,7 +328,8 @@ def main() -> int:
             check(
                 "Browser: photo band keeps compact sizing and first-child order",
                 photo_desktop.get("first") is True
-                and 44 <= photo_desktop.get("bandH", 0) <= 58,
+                and 50 <= photo_desktop.get("bandH", 0) <= 64
+                and 5 <= photo_desktop.get("overlap", 0) <= 7,
             )
             check("Browser: desktop photo mode has no horizontal overflow", photo_desktop.get("noOverflow") is True)
             check(
