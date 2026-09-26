@@ -169,7 +169,8 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   behavior living only in git history. Restored the fixed full front
   (`79743b7`: no jsapi, fallback-only content search, Policy B) and re-enabled
   `test_templates` / `test_front_modes` / `test_mature_content` in `verify`
-  (291/291 green, zero fallout). Real-device proof on AnkiDroid still open.
+  (291/291 green, zero fallout). Field-verified by maintainer on desktop +
+  AnkiDroid (2026-09-26).
 
 ## Roadmap (evolution loop input, not committed scope)
 

@@ -2486,3 +2486,7 @@ idk do best
 ---
 
 next ?
+
+---
+
+everything looks good on mobile and desktop
