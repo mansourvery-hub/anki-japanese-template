@@ -224,6 +224,12 @@
         {{/Extended definition}}
       {{/Definition}}
 
+      <!-- Source: hidden by default like all secondary info —
+           revealed via 詳細 ▾ / C with the rest of More. -->
+      {{#Source}}
+        <div class="source-footer">{{edit:Source}}</div>
+      {{/Source}}
+
       <!-- Tags display inside More section -->
       {{#Tags}}
         <div class="tags-block secondary-block">{{Tags}}</div>
@@ -244,12 +250,6 @@
       <span class="shortcut-item"><kbd>X</kbd> 訳</span>
       <span class="shortcut-item"><kbd>C</kbd> 展開</span>
     </div>
-
-    <!-- Source footer (secondary; stays outside More as a one-line
-         quiet caption — it identifies the material, not a UI panel) -->
-    {{#Source}}
-      <div class="source-footer">{{edit:Source}}</div>
-    {{/Source}}
 
   </div> <!-- End card-container -->
 </div>
@@ -488,13 +488,15 @@
         var section = document.querySelector('.more-section');
         var btn = document.querySelector('.more-toggle');
         if (section && btn) {
-          section.querySelectorAll('.secondary-block, .extended-full').forEach(function(el) {
+          /* .source-footer counts as secondary content: it lives inside
+             More (hidden by default, revealed via 詳細 ▾ / C). */
+          section.querySelectorAll('.secondary-block, .extended-full, .source-footer').forEach(function(el) {
             /* Lazy host: content lives in the sibling template until first
                open — never strip it here. */
             if (el.hasAttribute('data-lazy')) return;
             if (!el.textContent || !el.textContent.trim()) el.remove();
           });
-          if (!section.querySelector('.secondary-block, .extended-full, template.extended-full-tpl')) {
+          if (!section.querySelector('.secondary-block, .extended-full, .source-footer, template.extended-full-tpl')) {
             btn.remove();
             section.remove();
           }

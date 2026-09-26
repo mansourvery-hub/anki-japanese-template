@@ -2442,3 +2442,7 @@ increase the lenght of image a tiny bit at the bottom part, ven if touches a bit
 the image is notcenetred in relations tothe wrapper
 also extend to to ven touch the furigana hovering but fade it a bita tbottom so itdoes not hurt  reading
 extendsa bit moredown
+
+---
+
+the source field should be hidden by default and only show when cliking or pressing the button like oher hidden fields

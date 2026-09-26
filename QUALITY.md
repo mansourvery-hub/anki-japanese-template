@@ -85,7 +85,7 @@ mechanically verified*. Code implements; tests enforce.
   full-width. The photo pipeline preserves source color with `saturate()` and
   `mix-blend-mode: overlay`; it must never use `grayscale()` +
   `mix-blend-mode: color`.
-- Secondary information (translation, context, kanji notes, notes,
+- Secondary information (translation, context, kanji notes, notes, source,
   full extended definition) lives inside `.more-section`, toggleable via
   `More ▾` / `Less ▴`; the toggle and section self-remove when no secondary
   content exists.

@@ -93,8 +93,8 @@ off-screen context to be solvable is a bad mine and should be re-mined.
   pitch accent, compacted primary definition (§6b), sentence context, native
   circular audio (`文`/`言葉`),
   secondary information toggleable behind `More ▾` / `Less ▴` (translation,
-  context, kanji notes, notes, full extended definition), keyboard shortcuts
-  hints, source footer. Content hierarchy communicates card structure directly.
+  context, kanji notes, notes, source, full extended definition), keyboard shortcuts
+  hints. Content hierarchy communicates card structure directly.
 - Mature Word Mode (desktop only): interval resolved at render time via a
   fallback-only AnkiConnect content search (Expression → Sentence →
   cloze-body discriminators) — reviewer and Browse previewer share the

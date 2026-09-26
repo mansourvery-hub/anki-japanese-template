@@ -53,8 +53,7 @@ Typography does the work — no dashboard chrome:
 2. **Target + reading** — the headword with hover furigana, the hero element; pitch accent as quiet muted text.
 3. **Primary meaning** — **Definition Compactor** (CSS §6b) trims the Yomitan glossary to the first dictionary, max 2 senses, no appendices; **Definition Truncator** (§6c) caps it at 3 lines with a fade + `▼`, click expands and stays open.
 4. **Context** — the sentence (with hover furigana) spans the full reading width.
-5. **Secondary info** — collapsed behind a quiet `More ▾`: translation (`T`), additional context, kanji notes, general notes, and the **full extended definition** (the compactor never touches it).
-6. **Source footer** — quietly identifies the material. Content hierarchy communicates the card mode directly without labels.
+5. **Secondary info** — collapsed behind a quiet `More ▾`: translation (`T`), additional context, kanji notes, general notes, source, and the **full extended definition** (the compactor never touches it). Source stays hidden until `More ▾` / `C` reveals it. Content hierarchy communicates the card mode directly without labels.
 
 ---
 

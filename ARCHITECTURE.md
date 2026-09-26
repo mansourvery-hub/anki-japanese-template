@@ -104,9 +104,9 @@ card-container
  ├── definition-box.primary-definition (compacted §6b, 3-line §6c)
  ├── .context-grid (full-width sentence/context surface)
  ├── .more-section (hidden) + .more-toggle "More ▾"
- │    └── translation (click/T) · context · kanji notes · notes · full
- │        extended definition (.extended-full — compactor never touches it)
- └── .source-footer
+ │    └── translation (click/T) · context · kanji notes · notes · source
+ │        (.source-footer) · full extended definition (.extended-full —
+ │        compactor never touches it)
 ```
 
 JS controllers (all idempotent under WebView DOM re-use): More toggle (one-way reveal;
