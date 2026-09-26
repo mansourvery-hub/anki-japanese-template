@@ -346,6 +346,10 @@ def main():
             ratio = (max(fg, bg) + 0.05) / (min(fg, bg) + 0.05)
             ok = ratio >= 4.5
         check(f"light freq-{name} badge text >= 4.5:1 on tinted bg", ok, token or "missing")
+    check(
+        "audio hit-area reaches 44px without visual growth",
+        re.search(r"\.circular-audio-btn::after\s*\{[^}]*inset:\s*-6px", css_early) is not None,
+    )
     if not CHROME:
         print("[SKIP] no headless Chrome found — layout checks skipped")
         return 0 if FAIL == 0 else 1

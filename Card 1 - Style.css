@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.44 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.45 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -933,6 +933,15 @@
 .small-audio-btn {
   width: 36px;
   height: 36px;
+}
+
+/* Hit-area expansion: visual size stays dense (36/32px) for PRODUCT density,
+   but the tappable region reaches 48px desktop / 44px mobile via an absolute
+   pseudo-element (no layout shift, no neighbor overlap — one button per row). */
+.circular-audio-btn::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
 }
 
 /* Keyboard focus indicator (outline: none above only affects mouse clicks;
