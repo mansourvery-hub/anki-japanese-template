@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.45 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.46 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -1511,6 +1511,13 @@ ruby:focus-within rt {
     display: none;
   }
 
+  /* A50 fast-path: cloud drift is the only paint-heavy scenic animation
+     (full-width SVG paths); stars/glow are cheap opacity pulses and stay.
+     The -18px drift is imperceptible during a 5-10s review on 412px. */
+  .scenic-cloud {
+    animation: none !important;
+  }
+
   .shortcut-item {
     font-size: 0.65rem;
   }
@@ -1672,6 +1679,7 @@ ruby:focus-within rt {
   border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   overflow: hidden;
   position: relative;
+  contain: paint;
   /* Auto width + symmetric negative margins keeps the band centered on the
      wrapper. The extra 12px of painted height enters the hero's reserved
      furigana headroom; the equal negative bottom margin keeps the card's

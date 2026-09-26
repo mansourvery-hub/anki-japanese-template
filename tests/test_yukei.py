@@ -333,6 +333,18 @@ def main() -> int:
         "CSS: retired context/picture rules remain for this compatibility pass",
         ".context-grid:has(.context-picture)" in css and ".picture-container" in css,
     )
+    check(
+        "CSS: scenic band isolates paint invalidation",
+        re.search(r"\.scenic-band\s*\{[^}]*contain:\s*paint", scenic) is not None,
+    )
+    check(
+        "CSS: mobile kills cloud drift but keeps stars/glow",
+        re.search(
+            r"@media \(max-width: 600px\)[\s\S]*?\.scenic-cloud\s*\{[^}]*animation:\s*none",
+            css,
+        )
+        is not None,
+    )
 
     # Dynamic browser contracts run against the real stylesheet and the real
     # openLightbox function extracted from the back template. They are skipped
