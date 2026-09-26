@@ -306,11 +306,50 @@ def render(html, width, height):
         return None
 
 
+def _hex_lum(hexcode: str) -> float:
+    hexcode = hexcode.lstrip("#")
+    rgb = tuple(int(hexcode[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
+
+    def lin(c: float) -> float:
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    return 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2])
+
+
+def _tinted_lum(fg_hex: str, alpha: float = 0.10) -> float:
+    fr, fg_, fb = (int(fg_hex.lstrip("#")[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
+    r = fr * alpha + 1.0 * (1 - alpha)
+    g = fg_ * alpha + 1.0 * (1 - alpha)
+    b = fb * alpha + 1.0 * (1 - alpha)
+
+    def lin(c: float) -> float:
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+
+
 def main():
+    css_early = open(CSS, encoding="utf-8").read()
+    light = re.search(
+        r"\.card:not\(\.nightMode\):not\(\.night_mode\)\s*\{([^}]*)\}",
+        css_early,
+        re.S,
+    )
+    light_body = light.group(1) if light else ""
+    for name in ("very-common", "common", "medium", "uncommon", "rare"):
+        m = re.search(rf"--freq-{name}\s*:\s*(#[0-9a-fA-F]{{6}})", light_body)
+        token = m.group(1) if m else None
+        ok = False
+        if token:
+            fg = _hex_lum(token)
+            bg = _tinted_lum(token)
+            ratio = (max(fg, bg) + 0.05) / (min(fg, bg) + 0.05)
+            ok = ratio >= 4.5
+        check(f"light freq-{name} badge text >= 4.5:1 on tinted bg", ok, token or "missing")
     if not CHROME:
         print("[SKIP] no headless Chrome found — layout checks skipped")
-        return 0
-    css = open(CSS, encoding="utf-8").read()
+        return 0 if FAIL == 0 else 1
+    css = css_early
     # Headless virtual-time freezes the card entrance animations
     # (fadeInUp `both` fill) mid-flight, shifting measured Y positions by
     # up to 10px. Kill animations/transitions in the harness only so probes

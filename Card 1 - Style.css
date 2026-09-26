@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.43 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.44 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -112,11 +112,11 @@
   --accent-soft: rgba(184, 74, 57, 0.16);
   --accent-glow: 0 0 20px rgba(184, 74, 57, 0.20);
 
-  --freq-very-common: #059669;
-  --freq-common: #16a34a;
-  --freq-medium: #ca8a04;
-  --freq-uncommon: #ea580c;
-  --freq-rare: #dc2626;
+  --freq-very-common: #047857;
+  --freq-common: #166534;
+  --freq-medium: #854d0e;
+  --freq-uncommon: #9a3412;
+  --freq-rare: #b91c1c;
 
   --warm-accent: rgba(184, 74, 57, 0.04);
   --warm-accent-border: rgba(184, 74, 57, 0.08);
