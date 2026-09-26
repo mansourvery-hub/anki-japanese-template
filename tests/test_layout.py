@@ -350,6 +350,14 @@ def main():
         "audio hit-area reaches 44px without visual growth",
         re.search(r"\.circular-audio-btn::after\s*\{[^}]*inset:\s*-6px", css_early) is not None,
     )
+    check(
+        "hero stacking has a container-query twin for narrow panes",
+        re.search(
+            r"@container anki-card \(max-width: 599px\)[\s\S]*?\.hero-header\s*\{[^}]*grid-template-areas:",
+            css_early,
+        )
+        is not None,
+    )
     if not CHROME:
         print("[SKIP] no headless Chrome found — layout checks skipped")
         return 0 if FAIL == 0 else 1
@@ -450,6 +458,20 @@ def main():
         check("mobile back: keyboard hints hidden (no physical keyboard)",
               mob.get("hintsDisplay", "") == "none",
               f"display={mob.get('hintsDisplay')}")
+
+    # ---- Narrow pane in wide viewport (container <600, viewport 1440) ----
+    # Headless --dump-dom does not evaluate @container queries at all
+    # (verified with a standalone textbook fixture: container color never
+    # applies, while the identical @media twin works). Real renderers that
+    # support container queries get the twin rule below (static gate); old
+    # WebViews fall back to the viewport-media stacking proven by the
+    # mobile 412px probes above. No browser assert possible here.
+    narrow_html = BACK_CARD.replace(
+        '<div class="card-wrapper back-card">',
+        '<div class="card-wrapper back-card" style="max-width:500px">',
+    )
+    narrow = render(narrow_html.replace("__CSS__", css), 1440, 900)
+    check("narrow pane: probe returned", narrow is not None)
 
     # ---- Front sentence card ----
     fr = render(FRONT_SENTENCE.replace("__CSS__", css), 1440, 900)

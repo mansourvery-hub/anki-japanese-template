@@ -4,7 +4,7 @@
  * (Tokyo Night Dark / Aki Paper Light)
  *
  * Source & documentation: https://github.com/mansourvery-hub/anki-japanese-template
- * Version: v1.8.46 — auto-bumped by finish.sh; matches the GitHub release tag
+ * Version: v1.8.47 — auto-bumped by finish.sh; matches the GitHub release tag
  *
  * Front = pure retrieval surface (sentence / word / audio only).
  * Back = strong hierarchy: target → reading → meaning → context →
@@ -346,6 +346,20 @@
   .small-audio-btn {
     width: 36px;
     height: 36px;
+  }
+}
+
+@container anki-card (max-width: 599px) {
+  /* Narrow reviewer pane on a wide viewport: same stacking as phones.
+     The viewport-media twin in §13 stays as the fallback for WebViews
+     without container-query support. */
+  .hero-header {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "word word"
+      "left right";
+    row-gap: 1px;
+    column-gap: 8px;
   }
 }
 
