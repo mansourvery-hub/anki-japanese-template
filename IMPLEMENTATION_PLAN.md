@@ -164,6 +164,13 @@ T2/T3 are parallelizable; T4 needs T2; T5 needs T3.
   real Anki media covered both themes, click/Enter, both close paths, and
   reduced motion).
 
+- **T17 — Front restoration (v1.8.52).** Main carried the 15-line minimal-front
+  isolation stub from v1.8.35 while the spec corpus described mature/listening
+  behavior living only in git history. Restored the fixed full front
+  (`79743b7`: no jsapi, fallback-only content search, Policy B) and re-enabled
+  `test_templates` / `test_front_modes` / `test_mature_content` in `verify`
+  (291/291 green, zero fallout). Real-device proof on AnkiDroid still open.
+
 ## Roadmap (evolution loop input, not committed scope)
 
 - R1: extra compactor fixtures if Yomitan markup drifts.
