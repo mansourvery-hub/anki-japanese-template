@@ -2466,3 +2466,7 @@ next
 ---
 
 next
+
+---
+
+before switching skill finish with this one, also do not stop on minor contracts anymore

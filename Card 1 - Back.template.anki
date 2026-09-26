@@ -183,7 +183,7 @@
              tabindex="0"
              aria-expanded="false"
               onclick="if(event.target.closest('.translation-text')) return; this.classList.toggle('revealed'); this.setAttribute('aria-expanded', this.classList.contains('revealed'))"
-              onkeydown="if(event.key==='Enter'){event.preventDefault();this.click()}">
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
           <div class="translation-hint">訳 ▾</div>
           <div class="translation-text">{{edit:Translation}}</div>
         </div>
@@ -348,7 +348,8 @@
       const closeOverlay = () => {
         if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
         document.removeEventListener('keydown', handleKey);
-        if (img.focus) img.focus();
+        if (target && target.focus) target.focus();
+        else if (img.focus) img.focus();
       };
 
       const handleKey = (e) => {
@@ -426,7 +427,7 @@
     };
 
     window.handleDefinitionKey = function(evt, element) {
-      if (evt.key === 'Enter') {
+      if (evt.key === 'Enter' || evt.key === ' ') {
         evt.preventDefault();
         window.expandDefinition(element);
       }

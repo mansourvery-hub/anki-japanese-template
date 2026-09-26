@@ -358,6 +358,15 @@ def main():
         )
         is not None,
     )
+    back_early = open(os.path.join(ROOT, "Card 1 - Back.template.anki"), encoding="utf-8").read()
+    check(
+        "definition key handler supports Space as well as Enter",
+        re.search(r"handleDefinitionKey = function\(evt, element\) \{\s*if \(evt\.key === 'Enter' \|\| evt\.key === ' '\)", back_early) is not None,
+    )
+    check(
+        "translation box key handler supports Space as well as Enter",
+        "translation-box" in back_early and 'event.key===\' \'' in back_early,
+    )
     if not CHROME:
         print("[SKIP] no headless Chrome found — layout checks skipped")
         return 0 if FAIL == 0 else 1

@@ -121,6 +121,7 @@ SCENIC_PROBE = r"""(() => {
     r.cloneUnblurred = !!clone && !getComputedStyle(clone).filter.includes('blur');
     document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
     r.escapeClose = !document.querySelector('.lightbox-overlay');
+    r.focusReturn = document.activeElement === photo;
     photo.focus();
     r.focusVisible = photo.matches(':focus-visible') && getComputedStyle(photo).outlineStyle !== 'none';
     photo.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
@@ -392,6 +393,10 @@ def main() -> int:
                 "Browser: Escape and backdrop close the lightbox",
                 photo_desktop.get("escapeClose") is True
                 and photo_desktop.get("backdropClose") is True,
+            )
+            check(
+                "Browser: closing the lightbox returns focus to the trigger",
+                photo_desktop.get("focusReturn") is True,
             )
 
         photo_mobile = render_probe(scenic_fixture(css, open_lightbox, "photo"), 412, 892)
