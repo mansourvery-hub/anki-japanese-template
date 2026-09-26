@@ -2446,3 +2446,7 @@ extendsa bit moredown
 ---
 
 the source field should be hidden by default and only show when cliking or pressing the button like oher hidden fields
+
+---
+
+fix before, one contract at a time before continuing

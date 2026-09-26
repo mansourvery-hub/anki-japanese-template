@@ -61,7 +61,7 @@ def scenic_fixture(css: str, open_lightbox: str, mode: str) -> str:
         band = """<div class="scenic-band">
   <div class="scenic-photo scenic-photo-trigger" onclick="openLightbox(this)"
        role="button" tabindex="0" aria-label="画像を拡大"
-       onkeydown="if(event.key==='Enter'){event.preventDefault(); this.click()}">
+       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click()}">
     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23204080'/%3E%3Ccircle cx='400' cy='260' r='150' fill='%23e07050'/%3E%3C/svg%3E" alt="frame">
     <div class="tint"></div><div class="grain"></div><div class="wash"></div><div class="fade"></div>
   </div>
@@ -128,6 +128,10 @@ SCENIC_PROBE = r"""(() => {
     r.enterOpen = !!overlay;
     if (overlay) overlay.dispatchEvent(new MouseEvent('click', {bubbles: true}));
     r.backdropClose = !document.querySelector('.lightbox-overlay');
+    photo.dispatchEvent(new KeyboardEvent('keydown', {key: ' ', bubbles: true}));
+    overlay = document.querySelector('.lightbox-overlay');
+    r.spaceOpen = !!overlay;
+    if (overlay) overlay.dispatchEvent(new MouseEvent('click', {bubbles: true}));
   } else {
     r.fallbackAria = band.getAttribute('aria-hidden');
     r.fallbackFocusable = band.hasAttribute('tabindex') || band.hasAttribute('onclick');
@@ -223,7 +227,8 @@ def main() -> int:
         'role="button"' in photo
         and 'tabindex="0"' in photo
         and 'aria-label="画像を拡大"' in photo
-        and "event.key==='Enter'" in photo,
+        and "event.key==='Enter'" in photo
+        and 'event.key===\' \'' in photo,
     )
     check(
         "Back: fallback is decorative and not focusable/clickable",
@@ -364,11 +369,12 @@ def main() -> int:
                 and photo_desktop.get("tintBlend") == "overlay",
             )
             check(
-                "Browser: click/Enter open the original in the lightbox",
+                "Browser: click/Enter/Space open the original in the lightbox",
                 photo_desktop.get("clickOpen") is True
                 and photo_desktop.get("sameSource") is True
                 and photo_desktop.get("cloneUnblurred") is True
-                and photo_desktop.get("enterOpen") is True,
+                and photo_desktop.get("enterOpen") is True
+                and photo_desktop.get("spaceOpen") is True,
             )
             check(
                 "Browser: Escape and backdrop close the lightbox",

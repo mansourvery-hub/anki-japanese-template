@@ -26,10 +26,10 @@
 
     {{#Picture}}
     <div class="scenic-band">
-      <div class="scenic-photo scenic-photo-trigger"
+       <div class="scenic-photo scenic-photo-trigger"
            onclick="openLightbox(this)" role="button" tabindex="0"
            aria-label="画像を拡大"
-           onkeydown="if(event.key==='Enter'){event.preventDefault(); this.click()}">
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click()}">
         {{Picture}}
         <div class="tint"></div>
         <div class="grain"></div>
