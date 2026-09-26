@@ -7,3 +7,4 @@ conversations/
 reports/
 *.bak*
 *backup*
+repomix-output.*
