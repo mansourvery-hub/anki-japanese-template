@@ -252,6 +252,39 @@ def main() -> int:
         and "clone.src = img.src" in back
         and "clone.alt = img.alt || ''" in back,
     )
+    guard = re.search(
+        r"if \(/\^(.*)/i\.test\(img\.getAttribute\('src'\)\)\) return;",
+        back,
+    )
+    if guard:
+        hostile = [
+            "https://evil.example/x.png",
+            "http://evil.example/",
+            "//evil.example/x.png",
+            "///evil.example/x.png",
+            "file:///etc/passwd",
+            "javascript:alert(1)",
+            "JaVaScRiPt:alert(1)",
+            "data:text/html,<script>alert(1)</script>",
+        ]
+        allowed = [
+            "paste-abc123.jpg",
+            "collection.media/yuki.png",
+            "../media/x.png",
+            "data:image/png;base64,iVBORw0KGgo=",
+            "data:image/svg+xml,%3Csvg/%3E",
+        ]
+        pattern = re.compile("^" + guard.group(1).replace("\\/", "/"), re.I)
+        check(
+            "Back: lightbox URL guard refuses remote/file/script sources",
+            all(pattern.search(src) for src in hostile),
+        )
+        check(
+            "Back: lightbox URL guard allows local media + image data URIs",
+            all(not pattern.search(src) for src in allowed),
+        )
+    else:
+        check("Back: lightbox URL guard is present and extractable", False)
 
     # CSS tokens and the exact corrected photo pipeline.
     for token, value in (

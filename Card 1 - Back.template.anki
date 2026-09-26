@@ -327,8 +327,10 @@
       const img = target.querySelector('img') || (target.tagName === 'IMG' ? target : null);
       if (!img || !img.getAttribute('src')) return;
       /* Only local Anki media: refuse remote/file URLs that would leak
-         (IP/DNS) or fail outside the media dir. Relative paths pass. */
-      if (/^(https?:|file:|javascript:|data:text\/html)/i.test(img.getAttribute('src'))) return;
+         (IP/DNS) or fail outside the media dir. Relative paths pass.
+         Protocol-relative //host/... is remote too (resolves against the
+         reviewer base), so it is refused as well. */
+      if (/^((?:https?|file|javascript):|data:text\/html|\/\/)/i.test(img.getAttribute('src'))) return;
       if (document.querySelector('.lightbox-overlay')) return;
 
       const overlay = document.createElement('div');
